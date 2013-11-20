@@ -1,6 +1,6 @@
 Require Import Arith List.
 Require Import Arith.Even Arith.Div2.
-Require Import CpdtTactics.
+Require Import Coq.omega.Omega.
 
 (* http://coq.inria.fr/library/Coq.Arith.Div2.html *)
 
@@ -26,8 +26,8 @@ Program Definition to_binary : nat -> (list bool) :=
                  cons true (to_binary (proj1_sig (odd_S2n n R)) _)
              end
       end).
-Obligation 1. apply lt_div2. crush. Qed.
-Obligation 2. apply lt_div2. crush. Qed.
+Obligation 1. apply lt_div2. omega. Qed.
+Obligation 2. apply lt_div2. omega. Qed.
 
 Example tb_1 : to_binary 1 = true :: nil.
   compute. reflexivity. Qed.

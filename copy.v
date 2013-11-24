@@ -1,5 +1,5 @@
-Require Import braun Omega CpdtTactics.
-Require Import Arith.Even Arith.Div2 Arith List.
+Require Import braun Omega.
+Require Import Arith.Even Arith.Div2.
 Set Implicit Arguments.
 
 Program Definition helper_ss_st A (x:A) (m:nat) 
@@ -21,8 +21,9 @@ Program Definition helper_st_tt A (x:A) (m:nat)
 Solve Obligations using (intros; omega).
 
 Lemma div2_monotone : forall n, (div2 n <= div2 (S n)).
-  apply (ind_0_1_SS (fun n => div2 n <= div2 (S n)));
-  crush.
+  apply (ind_0_1_SS (fun n => div2 n <= div2 (S n))); 
+  [ | | intros n IndHyp; simpl in IndHyp]; 
+  simpl; omega.
 Qed.
 
 Lemma lt_div2' : forall n, div2 n < S n.

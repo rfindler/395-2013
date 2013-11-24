@@ -1,4 +1,4 @@
-Require Import braun CpdtTactics.
+Require Import braun Omega.
 Require Import Arith.Even Arith.Div2 Arith List.
 Set Implicit Arguments.
 

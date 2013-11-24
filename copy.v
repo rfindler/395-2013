@@ -9,10 +9,7 @@ Program Definition helper_ss_st A (x:A) (m:nat)
     | (s,t) => (Node x (m+1) (m+1) _ s s, Node x (m+1) m _ s t)
   end.
 
-Obligation 1. omega. Qed.
-Obligation 2. omega. Qed.
-Obligation 3. omega. Qed.
-Obligation 4. omega. Qed.
+Solve Obligations using (intros; omega).
 
 Program Definition helper_st_tt A (x:A) (m:nat) 
         (pr : braun_tree A (m+1) * braun_tree A m)
@@ -21,12 +18,10 @@ Program Definition helper_st_tt A (x:A) (m:nat)
     | (s,t) => (Node x (m+1) m _ s t, Node x m m _ t t)
   end.
 
-Obligation 1. omega. Qed.
-Obligation 2. omega. Qed.
-Obligation 3. omega. Qed.
+Solve Obligations using (intros; omega).
 
 Lemma div2_monotone : forall n, (div2 n <= div2 (S n)).
-  apply (ind_0_1_SS (fun n => div2 n <= div2 (S n))); 
+  apply (ind_0_1_SS (fun n => div2 n <= div2 (S n)));
   crush.
 Qed.
 
@@ -35,7 +30,7 @@ Lemma lt_div2' : forall n, div2 n < S n.
 
  apply (le_lt_trans (div2 n) (div2 (S n)) (S n));
    [ apply div2_monotone |  apply lt_div2 ] ;
-   crush.
+   omega.
 Qed.
 
 Hint Resolve lt_div2'.

@@ -25,6 +25,21 @@ Obligation 1. omega. Qed.
 Obligation 2. omega. Qed.
 Obligation 3. omega. Qed.
 
+Lemma div2_monotone : forall n, (div2 n <= div2 (S n)).
+  apply (ind_0_1_SS (fun n => div2 n <= div2 (S n))); 
+  crush.
+Qed.
+
+Lemma lt_div2' : forall n, div2 n < S n.
+ intros n.
+
+ apply (le_lt_trans (div2 n) (div2 (S n)) (S n));
+   [ apply div2_monotone |  apply lt_div2 ] ;
+   crush.
+Qed.
+
+Hint Resolve lt_div2'.
+
 Program Definition copy2 A (x:A) : forall n, braun_tree A (n+1) * braun_tree A n :=
   Fix lt_wf _
       (fun n copy2 => 
@@ -39,48 +54,28 @@ Program Definition copy2 A (x:A) : forall n, braun_tree A (n+1) * braun_tree A n
              end
          end).
 
-Lemma div2_monotone : forall n, (div2 n <= div2 (S n)).
-  apply (ind_0_1_SS (fun n => div2 n <= div2 (S n))); 
-  crush.
-Qed.
-
-Lemma lt_div2' : forall n, div2 n < S n.
- intros n.
-
- apply (le_lt_trans (div2 n) (div2 (S n)) (S n));
-   [ apply div2_monotone |  apply lt_div2 ] ;
-   crush.
-Qed.
-
-Obligation 2. apply lt_div2'. Qed.
-Obligation 5. apply lt_div2'. Qed.
-
-Obligation 3.
-  clear Heq_anonymous.
+Lemma odd_cleanup : 
+  forall n k, 
+    odd n -> div2 n + (div2 n + 0) + (k + 1) = n + k.
+  intros n k H.
   apply odd_double in H.
   unfold double in H.
   omega.
 Qed.
 
-Obligation 4.
-  clear Heq_anonymous.
-  apply odd_double in H.
-  unfold double in H.
-  omega.
-Qed.
-
-Obligation 6.
-  clear Heq_anonymous.
+Lemma even_cleanup : 
+  forall n k,
+    even n -> div2 n + (div2 n + 0) + k = n + k.
+  intros n k H.
   apply even_double in H.
   unfold double in H.
   omega.
 Qed.
 
-Obligation 7.
-  clear Heq_anonymous.
-  apply even_double in H.
-  unfold double in H.
-  omega.
-Qed.
+Obligation 3. rewrite (odd_cleanup 2). omega. assumption. Qed.
+Obligation 4. rewrite (odd_cleanup 1). omega. assumption. Qed.
+
+Obligation 6. rewrite (even_cleanup 2). omega. assumption. Qed.
+Obligation 7. rewrite (even_cleanup 1). omega. assumption. Qed.
 
 Definition copy A (x:A) n := snd (copy2 x n).

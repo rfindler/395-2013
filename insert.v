@@ -1,4 +1,4 @@
-Require Import braun CpdtTactics.
+Require Import braun Omega Coq.Logic.JMeq.
 Set Implicit Arguments.
 
 Program Fixpoint insert A n (x:A)
@@ -10,6 +10,4 @@ Program Fixpoint insert A n (x:A)
       Node x (t_size+1) s_size _ (insert y t) s
   end.
 
-Obligation 2. omega. Qed.
-Obligation 3. omega. Qed.
-
+Solve Obligations using (intros;omega).

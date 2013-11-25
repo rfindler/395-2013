@@ -1,4 +1,5 @@
-Require Import braun Omega CpdtTactics.
+Require Import braun Omega.
+Require Import Program.Equality.
 Set Implicit Arguments.
 
 Module same_structure.
@@ -36,7 +37,8 @@ Theorem same_size_same_structure :
            (fun n => forall (b1 b2 : braun_tree A n), 
                        same_structure b1 b2)).
   intros x Ind b1 b2.
-  dep_destruct b1; dep_destruct b2; intuition.
+  dependent destruction b1; dependent destruction b2; intuition.
+
   constructor.
 
   assert (s_size = t_size \/ s_size = t_size + 1) as TwoCases. omega.

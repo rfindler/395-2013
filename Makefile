@@ -1,6 +1,6 @@
 CPDTSRC = cpdt-src
 COQC = coqc -I $(CPDTSRC)
-GEN_DEPS = braun.vo cpdt-src/CpdtTactics.vo
+GEN_DEPS = braun.vo
 
 all: same_structure.vo insert.vo copy.vo
 
@@ -16,6 +16,5 @@ copy.vo: copy.v $(GEN_DEPS)
 braun.vo: braun.v
 	$(COQC) braun.v
 
-cpdt-src/CpdtTactics.vo: cpdt-src/CpdtTactics.v
-	$(COQC) cpdt-src/CpdtTactics.v
-
+clean:
+	rm -f *.vo *.glob

@@ -36,21 +36,21 @@ Theorem same_size_same_structure :
            (fun n => forall (b1 b2 : braun_tree A n), 
                        same_structure b1 b2)).
   intros x Ind b1 b2.
-  dep_destruct b1; dep_destruct b2; crush.
+  dep_destruct b1; dep_destruct b2; intuition.
   constructor.
 
   assert (s_size = t_size \/ s_size = t_size + 1) as TwoCases. omega.
   assert (s_size0 = t_size0 \/ s_size0 = t_size0 + 1) as TwoCases'. omega.
-  inversion TwoCases; inversion TwoCases'; crush.
+  inversion TwoCases; inversion TwoCases'; intuition.
 
   assert (t_size = t_size0). omega. subst.
   apply JMeq.JMeq_eq in x. subst.
-  constructor; apply Ind; crush.
+  constructor; apply Ind; omega.
 
-  assert (t_size = t_size0). crush. subst.
+  assert (t_size = t_size0). omega. subst.
   apply JMeq.JMeq_eq in x.
   subst.
-  constructor; apply Ind; crush.
+  constructor; apply Ind; omega.
 Qed.
 
 End same_structure.

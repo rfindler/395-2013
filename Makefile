@@ -1,6 +1,6 @@
 CPDTSRC = cpdt-src
 COQC = coqc -I $(CPDTSRC)
-GEN_DEPS = braun.vo
+GEN_DEPS = braun.vo cpdt-src/CpdtTactics.vo
 
 all: same_structure.vo insert.vo copy.vo
 

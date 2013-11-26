@@ -1,5 +1,5 @@
-Require Import braun Omega.
-Require Import Arith.Even Arith.Div2.
+Require Import braun util.
+Require Import Arith.Even Arith.Div2 Omega.
 Set Implicit Arguments.
 
 Program Definition helper_ss_st A (x:A) (m:nat) 
@@ -9,7 +9,7 @@ Program Definition helper_ss_st A (x:A) (m:nat)
     | (s,t) => (Node x (m+1) (m+1) _ s s, Node x (m+1) m _ s t)
   end.
 
-Solve Obligations using (intros; omega).
+Solve Obligations using (intros ; omega).
 
 Program Definition helper_st_tt A (x:A) (m:nat) 
         (pr : braun_tree A (m+1) * braun_tree A m)
@@ -19,22 +19,6 @@ Program Definition helper_st_tt A (x:A) (m:nat)
   end.
 
 Solve Obligations using (intros; omega).
-
-Lemma div2_monotone : forall n, (div2 n <= div2 (S n)).
-  apply (ind_0_1_SS (fun n => div2 n <= div2 (S n))); 
-  [ | | intros n IndHyp; simpl in IndHyp]; 
-  simpl; omega.
-Qed.
-
-Lemma lt_div2' : forall n, div2 n < S n.
- intros n.
-
- apply (le_lt_trans (div2 n) (div2 (S n)) (S n));
-   [ apply div2_monotone |  apply lt_div2 ] ;
-   omega.
-Qed.
-
-Hint Resolve lt_div2'.
 
 Program Definition copy2 A (x:A) : forall n, braun_tree A (n+1) * braun_tree A n :=
   Fix lt_wf _

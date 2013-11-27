@@ -21,11 +21,14 @@ Program Fixpoint insert (A:Set) n (x:A)
 
 Solve Obligations using (intros;omega).
 
-Eval simpl in
-    time (insert 1
-                 (Node 2 1 1 _
-                       (Node 0 0 0 _ Empty Empty)
-                       (Node 1 0 0 _ Empty Empty))).
+Program Example insert_example : 
+  time (insert 1
+               (Node 2 1 1 _
+             	     (Node 0 0 0 _ Empty Empty)
+                     (Node 1 0 0 _ Empty Empty)))
+       = 3.
+compute. reflexivity.
+Qed.
 
 Fixpoint bt_right_size (A:Set) n
          (b : braun_tree A n) : nat :=

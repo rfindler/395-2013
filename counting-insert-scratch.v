@@ -11,12 +11,12 @@ Program Fixpoint insert (A:Set) n (x:A)
     | Empty =>
       ++1 ;
         ret (Node x 0 0 _ Empty Empty)
-    | Node y s_size t_size p s t => 
+    | Node y s_size t_size p s t =>
       st <- (insert y t);
         ++ 1;
         ret (Node x
                   (t_size+1) s_size
-                  _ 
+                  _
                   st s)
   end.
 
@@ -25,8 +25,8 @@ Program Fixpoint insert (A:Set) n (x:A)
 
 Solve Obligations using (intros;omega).
 
-Eval simpl in 
-    time (insert 1 
+Eval simpl in
+    time (insert 1
                  (Node 2 1 1 _
                        (Node 0 0 0 _ Empty Empty)
                        (Node 1 0 0 _ Empty Empty))).
@@ -39,10 +39,10 @@ Fixpoint bt_right_size (A:Set) n
       bt_right_size t + 1
   end.
 
-Theorem insert_time : 
+Theorem insert_time :
   forall (A:Set) n (x:A)
          (b : braun_tree A n),
-    time (insert x b) = 
+    time (insert x b) =
     bt_right_size b + 1.
 
   intros.
@@ -63,29 +63,40 @@ Theorem insert_time :
 Qed.
 
 Require Import Arith.Even Arith.Div2.
+(* What we want is a function `f` that satisfies these properties:
+    f(0) = 0
+    f(n + n + 1) = f(n) + 1
+    f((n+1)+(n+1)) = f(n) + 1
 
-Program Definition fl_log :
-  nat -> nat := 
-  Fix 
-    lt_wf _
-    (fun n fl_log => 
-       match n with 
-         | 0 => 0
-         | S _ => 
-           match even_odd_dec n with
-             | right H =>
-               (fl_log (proj1_sig 
-                          (odd_S2n n H))
-                       _)+1
-             | left H => 
-               (fl_log (proj1_sig 
-                          (even_2n n H))
-                       _)+1
-           end
-       end).
+   That function is f(n) = floor(log_2(S n)) since:
+   f(0) = floor(log_2(S 0))
+        = floor(log_2(1)) 
+        = floor(0)
+        = 0
 
-Obligation 1. apply lt_div2. induction wildcard'; crush. Qed.
-Obligation 2. apply lt_div2. induction wildcard'; crush. Qed.
+   f(2n+1) = floor(log_2(S (2n + 1)))
+           = floor(log_2(2 * (n+1)))
+           = floor(log_2(2) + log_2(n+1))
+           = floor(S (log_2(n+1)))
+           = floor(log_2(n+1)) + 1
+           = S (floor(log_2(S n)))
+           = S (f(n)) (specification)
+
+   f(2n+2) = floor(log_2(S (2n + 2)))
+           = floor(log_2(2n + 3))
+           = floor(log_2(2n + 2)) (since an odd number cannot be a power of 2)
+           = floor(log_2(n+1)) + 1 (by the previous case)
+           = S (floor(log_2(S n)))
+           = S (f(n))
+
+   Rearranging a bit we get the following definition:
+ *)
+Require Import Coq.Program.Wf.
+Program Fixpoint fl_log_S n {wf lt n} : nat :=
+  match n with
+    | 0 => 0
+    | S n' => S (fl_log_S (div2 n'))
+  end.
 
 Require Lists.List.
 Require Import Program.Syntax.
@@ -101,54 +112,58 @@ Section map.
     end.
 End map.
 
-Example rs_ex : 
+Example rs_ex :
   map
-    fl_log
-    [0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16]
-  = [0;1;2;2;3;3;3;3;4;4;4;4;4;4;4;4;5]%list.
+    fl_log_S
+    [0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15]
+  = [0;1;1;2;2;2;2;3;3;3;3;3;3;3;3;4]%list.
  compute. reflexivity.
 Qed.
 
-Lemma fl_log_odd :
-  forall a:nat, fl_log (a+a+1) = 
-                (fl_log a) + 1.
+Lemma fl_log_S_odd :
+  forall a:nat, fl_log_S (a+a+1) =
+                (fl_log_S a) + 1.
   intros a.
-  apply (well_founded_ind 
-           lt_wf 
-           (fun a => fl_log (a+a+1) = (fl_log a) + 1)).
+  simpl.
+
+  apply (well_founded_ind
+           lt_wf
+           (fun a => fl_log_S (a+a+1) = (fl_log_S a) + 1)).
   intros.
   rewrite plus_comm. simpl.
-  unfold fl_log at 1.
-  unfold Fix.
-  simpl.
+
+
   Admitted.
 
-(* this is almost certainly false *)
-Lemma fl_log_even : 
-  forall a:nat, fl_log ((a+1)+(a+1)) =
-                (fl_log a) + 1.
+Example ex_1 : fl_log_S 3 + 1 = fl_log_S (3 + 1 + 3 + 1). compute. trivial. Qed.
+Lemma fl_log_S_even :
+  forall a:nat, fl_log_S ((a+1)+(a+1)) =
+                (fl_log_S a) + 1.
   intros a.
-  apply (well_founded_ind 
-           lt_wf 
-           (fun a => 
-              fl_log ((a+1)+(a+1)) =
-              (fl_log a) + 1)).
+  apply (well_founded_ind
+           lt_wf
+           (fun a =>
+              fl_log_S ((a+1)+(a+1)) =
+              (fl_log_S a) + 1)).
   Admitted.
 
-Theorem fl_log_same : 
-  forall (A:Set) n (b:braun_tree A n), 
-    bt_right_size b = fl_log n.
-  induction b; crush.
+Theorem fl_log_S_same :
+  forall (A:Set) n (b:braun_tree A n),
+    bt_right_size b = fl_log_S n.
+  induction b; intuition.
+  simpl.
+  intuition.
+  crush.
   assert (s_size = t_size \/ s_size = t_size + 1) as TwoCases. omega.
 
   inversion TwoCases; subst.
-  rewrite fl_log_odd.
+  rewrite fl_log_S_odd.
   reflexivity.
-  
 
-  assert (t_size + 1 + t_size + 1 = (t_size+1) + (t_size+1)) as HH. 
+
+  assert (t_size + 1 + t_size + 1 = (t_size+1) + (t_size+1)) as HH.
     omega. rewrite HH. clear HH.
 
-  rewrite fl_log_even.
+  rewrite fl_log_S_even.
   reflexivity.
 Qed.

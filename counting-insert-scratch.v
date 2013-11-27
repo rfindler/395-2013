@@ -120,6 +120,40 @@ Example rs_ex :
  compute. reflexivity.
 Qed.
 
+Lemma div2_S : forall n, div2 (S (n + n)) = n.
+
+Admitted.
+
+Hint Rewrite div2_S.
+Set Implicit Arguments.
+Lemma invert_fl_log_S : forall n, fl_log_S (S n) = S (fl_log_S (div2 n)).
+  intros.
+  Check Fix_eq.
+  Print Fix_eq.
+  apply (Fix_eq _ lt (lt_wf) (fun _ => nat)).
+  crush.
+  destruct x.
+  reflexivity.
+  crush.
+Qed.
+
+Lemma double_div2 : forall n, div2 (n + n) = n.
+  SearchAbout double.
+  SearchAbout div2.
+  
+  apply (well_founded_ind lt_wf).
+  intros.
+  induction x.
+  intuition.
+  assert (S x + S x = S (S (x + x))); [omega | rewrite H0; clear H0].
+  unfold div2.
+  fold div2.
+  assert (div2 (x + x) = x).
+  apply H. omega.
+  intuition.
+Qed.
+Hint Rewrite double_div2.
+
 Lemma fl_log_S_odd :
   forall a:nat, fl_log_S (a+a+1) =
                 (fl_log_S a) + 1.
@@ -132,10 +166,28 @@ Lemma fl_log_S_odd :
   intros.
   rewrite plus_comm. simpl.
 
+  assert (fl_log_S (S (x + x)) = S (fl_log_S (div2 (x + x)))).
+  apply invert_fl_log_S.
+  rewrite H0.
+  assert (forall x, div2 (x + x) = x). apply double_div2.
+  rewrite H1.
+  omega.
+Qed.
 
-  Admitted.
+Lemma odd_div2 : (forall n, div2 (S (n + n)) = n).
+  apply (well_founded_ind lt_wf).
+  intros.
+  destruct x.
+  intuition.
+  assert (S (S x + S x) = S (S (S x + x))); [omega | rewrite H0; clear H0].
+  
+  unfold div2 at 1.
+  fold div2.
+  assert (S x + x = S (x + x)) as H0; [omega | rewrite H0; clear H0].
+  assert (div2 (S (x + x)) = x) as H0; [apply H; omega | rewrite H0; clear H0].
+  reflexivity.
+Qed.
 
-Example ex_1 : fl_log_S 3 + 1 = fl_log_S (3 + 1 + 3 + 1). compute. trivial. Qed.
 Lemma fl_log_S_even :
   forall a:nat, fl_log_S ((a+1)+(a+1)) =
                 (fl_log_S a) + 1.
@@ -145,7 +197,18 @@ Lemma fl_log_S_even :
            (fun a =>
               fl_log_S ((a+1)+(a+1)) =
               (fl_log_S a) + 1)).
-  Admitted.
+  intros.
+  assert (x + 1 + (x + 1) = S (S (x + x))) as H0; [omega | rewrite H0; clear H0].
+  assert (fl_log_S (S (S (x + x))) = S (fl_log_S (div2 (S (x + x))))).
+  apply invert_fl_log_S.
+  rewrite H0; clear H0.
+
+  assert (fl_log_S (div2 (S (x + x))) = fl_log_S x); [ | omega].
+  destruct x.
+  compute; trivial.
+  assert (div2 (S (S x + S x)) = S x) as H0; [apply odd_div2; omega | rewrite H0; clear H0 ].
+  reflexivity.
+Qed.
 
 Theorem fl_log_S_same :
   forall (A:Set) n (b:braun_tree A n),

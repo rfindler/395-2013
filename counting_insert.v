@@ -1,6 +1,5 @@
 Set Implicit Arguments.
 
-Require Import CpdtTactics.
 Require Import braun util monad.
 Require Import Arith Omega Coq.Logic.JMeq.
 
@@ -117,112 +116,72 @@ Example rs_ex :
  compute. reflexivity.
 Qed.
 
-Lemma div2_S : forall n, div2 (S (n + n)) = n.
-
-Admitted.
-
-Hint Rewrite div2_S.
 Set Implicit Arguments.
-Lemma invert_fl_log_S : forall n, fl_log_S (S n) = S (fl_log_S (div2 n)).
-  intros.
-  Check Fix_eq.
-  Print Fix_eq.
-  apply (Fix_eq _ lt (lt_wf) (fun _ => nat)).
-  crush.
-  destruct x.
-  reflexivity.
-  crush.
-Qed.
 
+(* 
+   First a couple of useful lemmas about div2 that aren't in the stdlib
+   for some reason. 
+*)
 Lemma double_div2 : forall n, div2 (n + n) = n.
-  SearchAbout double.
-  SearchAbout div2.
-  
-  apply (well_founded_ind lt_wf).
-  intros.
-  induction x.
-  intuition.
-  assert (S x + S x = S (S (x + x))); [omega | rewrite H0; clear H0].
-  unfold div2.
-  fold div2.
-  assert (div2 (x + x) = x).
-  apply H. omega.
-  intuition.
-Qed.
-Hint Rewrite double_div2.
-
-Lemma fl_log_S_odd :
-  forall a:nat, fl_log_S (a+a+1) =
-                (fl_log_S a) + 1.
-  intros a.
-  simpl.
-
-  apply (well_founded_ind
-           lt_wf
-           (fun a => fl_log_S (a+a+1) = (fl_log_S a) + 1)).
-  intros.
-  rewrite plus_comm. simpl.
-
-  assert (fl_log_S (S (x + x)) = S (fl_log_S (div2 (x + x)))).
-  apply invert_fl_log_S.
-  rewrite H0.
-  assert (forall x, div2 (x + x) = x). apply double_div2.
-  rewrite H1.
-  omega.
+  induction n.
+  compute; reflexivity.
+  assert (S n + S n = S (S (n + n))) as H0; [omega | rewrite H0; clear H0].
+  unfold div2; fold div2.
+  rewrite IHn.
+  reflexivity.
 Qed.
 
 Lemma odd_div2 : (forall n, div2 (S (n + n)) = n).
-  apply (well_founded_ind lt_wf).
-  intros.
-  destruct x.
-  intuition.
-  assert (S (S x + S x) = S (S (S x + x))); [omega | rewrite H0; clear H0].
-  
+  induction n.
+  compute; reflexivity.
+  assert (S (S n + S n) = S (S (S n + n))) as H0; [omega | rewrite H0; clear H0].
   unfold div2 at 1.
   fold div2.
-  assert (S x + x = S (x + x)) as H0; [omega | rewrite H0; clear H0].
-  assert (div2 (S (x + x)) = x) as H0; [apply H; omega | rewrite H0; clear H0].
+  assert (S n + n = S (n + n)) as H0; [omega | rewrite H0; clear H0].
+  rewrite IHn.
   reflexivity.
+Qed.
+
+Lemma invert_fl_log_S_S : forall n, fl_log_S (S n) = S (fl_log_S (div2 n)).
+  intros.
+  apply (Fix_eq _ lt (lt_wf) (fun _ => nat)).
+  intuition.
+  destruct x; [ reflexivity | repeat f_equal].
+Qed.
+
+Lemma fl_log_S_odd :
+  forall n : nat, fl_log_S (n + n + 1) = (fl_log_S n) + 1.
+  intro n.
+  rewrite plus_comm; simpl.
+  rewrite invert_fl_log_S_S.
+  rewrite double_div2.
+  rewrite plus_comm; simpl; reflexivity.
 Qed.
 
 Lemma fl_log_S_even :
-  forall a:nat, fl_log_S ((a+1)+(a+1)) =
-                (fl_log_S a) + 1.
-  intros a.
-  apply (well_founded_ind
-           lt_wf
-           (fun a =>
-              fl_log_S ((a+1)+(a+1)) =
-              (fl_log_S a) + 1)).
-  intros.
-  assert (x + 1 + (x + 1) = S (S (x + x))) as H0; [omega | rewrite H0; clear H0].
-  assert (fl_log_S (S (S (x + x))) = S (fl_log_S (div2 (S (x + x))))).
-  apply invert_fl_log_S.
-  rewrite H0; clear H0.
-
-  assert (fl_log_S (div2 (S (x + x))) = fl_log_S x); [ | omega].
-  destruct x.
-  compute; trivial.
-  assert (div2 (S (S x + S x)) = S x) as H0; [apply odd_div2; omega | rewrite H0; clear H0 ].
-  reflexivity.
+  forall n : nat, fl_log_S ((n + 1) + (n + 1)) = (fl_log_S n) + 1.
+  intro n.
+  assert (n + 1 + (n + 1) = S (S (n + n))) as H0; [omega | rewrite H0; clear H0].
+  rewrite invert_fl_log_S_S.
+  rewrite odd_div2.
+  rewrite plus_comm; simpl; reflexivity.
 Qed.
 
 Theorem fl_log_S_same :
-  forall (A:Set) n (b:braun_tree A n),
-    bt_right_size b = fl_log_S n.
-  induction b; intuition.
-  simpl.
-  intuition.
-  crush.
-  assert (s_size = t_size \/ s_size = t_size + 1) as TwoCases. omega.
+  forall (A : Set) n (b:braun_tree A n), bt_right_size b = fl_log_S n.
+  
+  induction b; intuition; simpl.
+  rewrite IHb2; clear IHb1 IHb2 b1 b2.
+  assert (s_size = t_size \/ s_size = t_size + 1) as TwoCases;
+    [ omega | ].
 
-  inversion TwoCases; subst.
+  inversion TwoCases; subst; clear.
+  
   rewrite fl_log_S_odd.
   reflexivity.
 
-
-  assert (t_size + 1 + t_size + 1 = (t_size+1) + (t_size+1)) as HH.
-    omega. rewrite HH. clear HH.
+  assert (t_size + 1 + t_size + 1 = (t_size+1) + (t_size+1)) as H0;
+    [ omega | rewrite H0; clear H0].
 
   rewrite fl_log_S_even.
   reflexivity.

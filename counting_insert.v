@@ -20,9 +20,6 @@ Program Fixpoint insert (A:Set) n (x:A)
                   st s)
   end.
 
-
-
-
 Solve Obligations using (intros;omega).
 
 Eval simpl in

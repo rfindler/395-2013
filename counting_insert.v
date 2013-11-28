@@ -1,7 +1,10 @@
 Set Implicit Arguments.
 
 Require Import braun util monad.
-Require Import Arith Omega Coq.Logic.JMeq.
+Require Import Coq.Logic.JMeq Coq.Program.Wf.
+Require Import Arith Arith.Even Arith.Div2.
+Require Import Omega.
+Require Import Program.Syntax.
 
 Program Fixpoint insert (A:Set) n (x:A)
         (b : braun_tree A n)
@@ -38,7 +41,7 @@ Fixpoint bt_right_size (A:Set) n
       bt_right_size t + 1
   end.
 
-Theorem insert_time :
+Lemma insert_time_bt_right_size :
   forall (A:Set) n (x:A)
          (b : braun_tree A n),
     time (insert x b) =
@@ -46,59 +49,29 @@ Theorem insert_time :
 
   intros.
   generalize dependent x.
-  induction b.
+  induction b; intros; simpl.
   reflexivity.
-  intros.
-  simpl.
   unfold bind.
-  remember (insert x b2) as x1.
-  destruct x1. simpl.
-  assert (n = snd (insert x b2)).
-  inversion Heqx1.
-  reflexivity.
-  rewrite H.
+  remember (insert x b2) as t eqn:TEQ.
+  destruct t. simpl.
+  assert (n = snd (insert x b2)) as H; 
+    [inversion TEQ ; reflexivity | rewrite H ; clear H].
   rewrite IHb2.
   reflexivity.
 Qed.
 
-Require Import Arith.Even Arith.Div2.
 (* What we want is a function `f` that satisfies these properties:
-    f(0) = 0
+    f(0) = 1
     f(n + n + 1) = f(n) + 1
     f((n+1)+(n+1)) = f(n) + 1
 
-   That function is f(n) = floor(log_2(S n)) since:
-   f(0) = floor(log_2(S 0))
-        = floor(log_2(1)) 
-        = floor(0)
-        = 0
-
-   f(2n+1) = floor(log_2(S (2n + 1)))
-           = floor(log_2(2 * (n+1)))
-           = floor(log_2(2) + log_2(n+1))
-           = floor(S (log_2(n+1)))
-           = floor(log_2(n+1)) + 1
-           = S (floor(log_2(S n)))
-           = S (f(n)) (specification)
-
-   f(2n+2) = floor(log_2(S (2n + 2)))
-           = floor(log_2(2n + 3))
-           = floor(log_2(2n + 2)) (since an odd number cannot be a power of 2)
-           = floor(log_2(n+1)) + 1 (by the previous case)
-           = S (floor(log_2(S n)))
-           = S (f(n))
-
-   Rearranging a bit we get the following definition:
+   That function is f(n) = floor(log_2(n+1))+1. Proofs follow.
  *)
-Require Import Coq.Program.Wf.
 Program Fixpoint fl_log_S n {wf lt n} : nat :=
   match n with
-    | 0 => 0
+    | 0 => 1
     | S n' => S (fl_log_S (div2 n'))
   end.
-
-Require Lists.List.
-Require Import Program.Syntax.
 
 Section map.
   Variables A B : Type.
@@ -115,11 +88,9 @@ Example rs_ex :
   map
     fl_log_S
     [0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15]
-  = [0;1;1;2;2;2;2;3;3;3;3;3;3;3;3;4]%list.
+  = [1;2;2;3;3;3;3;4;4;4;4; 4; 4; 4; 4; 5]%list.
  compute. reflexivity.
 Qed.
-
-Set Implicit Arguments.
 
 (* 
    First a couple of useful lemmas about div2 that aren't in the stdlib
@@ -170,8 +141,8 @@ Lemma fl_log_S_even :
   rewrite plus_comm; simpl; reflexivity.
 Qed.
 
-Theorem fl_log_S_same :
-  forall (A : Set) n (b:braun_tree A n), bt_right_size b = fl_log_S n.
+Lemma fl_log_S_same :
+  forall (A : Set) n (b:braun_tree A n), bt_right_size b + 1 = fl_log_S n.
   
   induction b; intuition; simpl.
   rewrite IHb2; clear IHb1 IHb2 b1 b2.
@@ -187,5 +158,14 @@ Theorem fl_log_S_same :
     [ omega | rewrite H0; clear H0].
 
   rewrite fl_log_S_even.
+  reflexivity.
+Qed.
+
+Theorem insert_running_time :
+  forall (A : Set) (x:A) n (b:braun_tree A n), 
+    time (insert x b) = fl_log_S n.
+  intros.
+  rewrite insert_time_bt_right_size.
+  rewrite fl_log_S_same.
   reflexivity.
 Qed.

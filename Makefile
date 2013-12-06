@@ -2,7 +2,7 @@ CPDTSRC = cpdt-src
 COQC = coqc
 GEN_DEPS = braun.vo util.vo
 
-all: same_structure.vo insert.vo copy.vo counting_insert.vo
+all: same_structure.vo insert.vo copy.vo counting_insert.vo counting_copy.vo
 
 same_structure.vo: same_structure.v $(GEN_DEPS)
 	$(COQC) same_structure.v
@@ -15,6 +15,9 @@ counting_insert.vo : counting_insert.v monad.vo $(GEN_DEPS)
 
 copy.vo: copy.v $(GEN_DEPS)
 	$(COQC) copy.v
+
+counting_copy.vo : counting_copy.v monad.vo $(GEN_DEPS)
+	$(COQC) counting_copy.v
 
 braun.vo: braun.v
 	$(COQC) braun.v

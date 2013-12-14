@@ -40,15 +40,6 @@ Lemma odd_cleanup_2 :
   omega.
 Qed.
 
-Lemma even_cleanup :
-  forall n k,
-    even n -> div2 n + k + div2 n + 1 = S (n + k).
-  intros n k H.
-  apply even_double in H.
-  unfold double in H.
-  omega.
-Qed.
-
 Lemma even_cleanup_1 : 
   forall n,
     even n -> div2 n + 1 + div2 n + 1 = S (n + 1).

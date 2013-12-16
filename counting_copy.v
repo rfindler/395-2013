@@ -139,6 +139,10 @@ Obligation 2. rewrite (even_cleanup 1). omega. assumption. Defined.
 
 Lemma copy2_even : forall n (H: even n), 
             copy2 (S n) = copy2_Sn_even_body H.
+  intros.
+(*
+  rewrite (Fix_eq _ lt lt_wf (fun n => C ((braun_tree A ((S n)+1)) * (braun_tree A (S n))))).
+*)
 Admitted.
 
 Lemma copy2_running_time :

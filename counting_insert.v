@@ -118,7 +118,7 @@ Qed.
 
 Lemma invert_fl_log_S_S : forall n, fl_log_S (S n) = S (fl_log_S (div2 n)).
   intros.
-  apply (Fix_eq _ lt (lt_wf) (fun _ => nat)).
+  apply (Fix_eq _ lt lt_wf (fun _ => nat)).
   intuition.
   destruct x; [ reflexivity | repeat f_equal].
 Qed.

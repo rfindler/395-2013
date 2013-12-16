@@ -4,7 +4,12 @@ Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Coq.Logic.JMeq Coq.Program.Wf.
 Require Import Program.Syntax.
 
-Program Definition helper_ss_st (A:Set) (x:A) (m:nat) 
+Section copy2.
+
+  Variable A:Set.
+  Variable x:A.
+
+Program Definition helper_ss_st (m:nat) 
         (pr : (braun_tree A (m+1) * (braun_tree A m)))
 : C ((braun_tree A (2*m+3)) * (braun_tree A (2*m+2))) :=
   match pr with
@@ -16,7 +21,7 @@ Program Definition helper_ss_st (A:Set) (x:A) (m:nat)
 
 Solve Obligations using (intros ; omega).
 
-Program Definition helper_st_tt (A:Set) (x:A) (m:nat) 
+Program Definition helper_st_tt (m:nat) 
         (pr : (braun_tree A (m+1) * (braun_tree A m)))
 : C ((braun_tree A (2*m+2)) * (braun_tree A (2*m+1))) :=
   match pr with
@@ -28,21 +33,20 @@ Program Definition helper_st_tt (A:Set) (x:A) (m:nat)
 
 Solve Obligations using (intros; omega).
 
-Program Definition copy2 (A:Set) (x:A) : forall n, C ((braun_tree A (n+1)) * (braun_tree A n)) :=
-  Fix lt_wf _
-      (fun n copy2 => 
-         match n with 
-           | 0 => (++1 ; ret (Node x 0 0 _ Empty Empty, Empty))
-           | S n' => 
-             match even_odd_dec n' with
+Program Fixpoint copy2 (n:nat) {wf lt n}
+  : C ((braun_tree A (n+1)) * (braun_tree A n)) :=
+  match n with 
+    | 0 => (++1 ; ret (Node x 0 0 _ Empty Empty, Empty))
+    | S n' => 
+      match even_odd_dec n' with
                | right H =>
-                 p <- (copy2 (proj1_sig (odd_S2n n' H)) _) ;
-                 helper_ss_st x p
+                 p <- (copy2 (proj1_sig (odd_S2n n' H))) ;
+                 helper_ss_st p
                | left H =>
-                 p <- (copy2 (proj1_sig (even_2n n' H)) _) ;
-                 helper_st_tt x p
+                 p <- (copy2 (proj1_sig (even_2n n' H))) ;
+                 helper_st_tt p
              end
-         end).
+         end.
 
 Lemma odd_cleanup : 
   forall n k, 
@@ -68,11 +72,9 @@ Obligation 4. rewrite (odd_cleanup 1). omega. assumption. Defined.
 Obligation 6. rewrite (even_cleanup 2). omega. assumption. Defined.
 Obligation 7. rewrite (even_cleanup 1). omega. assumption. Defined.
 
-Definition copy (A:Set) (x:A) n :=
-  c <- (copy2 x n) ;
+Definition copy n :=
+  c <- (copy2 n) ;
   ret (snd c).
-
-
 
 (* fl_log *)
 Program Fixpoint fl_log n {wf lt n} : nat :=
@@ -82,10 +84,10 @@ Program Fixpoint fl_log n {wf lt n} : nat :=
   end.
 
 Section map.
-  Variables A B : Type.
-  Variable f : A -> B.
+  Variables P Q : Type.
+  Variable f : P -> Q.
 
-  Fixpoint map (s : list A) : list B :=
+  Fixpoint map (s : list P) : list Q :=
     match s with
       | nil => nil
       | cons h t => cons (f h) (map t)
@@ -102,88 +104,97 @@ Qed.
 (* end fl_log *)
 
 
-
 Definition rt (n : nat) := S (2 * fl_log n).
 
 Program Example copy_example :
-  time (copy 0 2)
+  time (copy 2)
   = rt 2.
 compute; reflexivity.
 Qed.
 
 Program Example copy_example2 :
-  time (copy 0 24)
+  time (copy 24)
   = rt 24.
 compute; reflexivity.
 Qed.
 
 Program Example copy_example3 :
-  time (copy 0 53)
+  time (copy 53)
   = rt 53.
 compute; reflexivity.
 Qed.
 
 Program Example copy_example4 :
-  time (copy 0 109)
+  time (copy 109)
   = rt 109.
 compute; reflexivity.
 Qed.
 
+Program Definition copy2_Sn_even_body (n:nat) (H: even n)
+: C ((braun_tree A ((S n)+1)) * (braun_tree A (S n))) :=
+  (p <- (copy2 (proj1_sig (even_2n n H))) ;
+   helper_st_tt p).
+Obligation 1. rewrite (even_cleanup 2). omega. assumption. Defined.
+Obligation 2. rewrite (even_cleanup 1). omega. assumption. Defined.
 
-
-Section copy2.
-  Variable A:Set.
-  Variable x:A.
-
-
-  Program Definition copy2_Sn_body (n:nat) : C ((braun_tree A ((S n)+1)) * (braun_tree A (S n))) :=
-    match even_odd_dec n with
-      | right H =>
-        p <- (copy2 x (proj1_sig (odd_S2n n H))) ;
-          helper_ss_st x p
-      | left H =>
-        p <- (copy2 x (proj1_sig (even_2n n H))) ;
-          helper_st_tt x p
-    end.
-
-  Obligation 1. rewrite (odd_cleanup 2). omega. assumption. Defined.
-  Obligation 2. rewrite (odd_cleanup 1). omega. assumption. Defined.
-  
-  Obligation 3. rewrite (even_cleanup 2). omega. assumption. Defined.
-  Obligation 4. rewrite (even_cleanup 1). omega. assumption. Defined.
-
-  
-  Program Lemma copy2_Sn_reduce :
-    forall (n:nat),
-      copy2 x (S n) = copy2_Sn_body n.
-  intros.
-  unfold copy2.
-  unfold Fix.
-  unfold Fix_F.
-  unfold copy2_Sn_body.
-(*
-  apply (Fix_eq _ lt (lt_wf) (fun n => C ((braun_tree A (n+1)) * (braun_tree A n)))).
-*)
-  Admitted.
-
+Lemma copy2_even : forall n (H: even n), 
+            copy2 (S n) = copy2_Sn_even_body H.
+Admitted.
 
 Lemma copy2_running_time :
   forall (n:nat),
-    time (copy2 x n) = rt n.
-  intros.
+    time (copy2 n) = rt n.
   apply (well_founded_ind 
            lt_wf 
-           (fun n => (time (copy2 x n) = rt n))).
-  intros.
-  destruct x0.
+           (fun n => (time (copy2 n) = rt n))).
+  intros n IND.
+  destruct n.
   compute. reflexivity.
-  unfold copy2.
+  remember (even_odd_dec n) as EO; inversion EO; clear EO HeqEO.
+  rewrite (copy2_even H).
+  unfold copy2_Sn_even_body.
+  remember (copy2 (proj1_sig (even_2n n H))) as R.
+  destruct R.
+  simpl.
+  assert (n0 = time (copy2 (div2 n))) as N0RES; [
+    simpl in HeqR;
+    inversion HeqR;
+    intuition |
+    rewrite N0RES].
+  rewrite IND.
+
+(* this looks promising. At this point,
+   the goal state has:
+
+      rt (div2 n) + snd (helper_st_tt p) = rt (S n)
+
+    which seems like we need a running time result about helper_st_tt
+    (like it is 2) and a lemma about rt.
+
+   and there are two other subgoals; one is a lemma I recognize 
+   and the other is the odd case.
+
+   So I take all this to mean that copy2_even is the current hard part.
+
+*)
+
   Admitted.
 
 Theorem copy_running_time :
   forall (n:nat),
-    time (copy x n) = rt n.
-  Admitted.
-
+    time (copy n) = rt n.
+  intros n.
+  unfold copy.
+  remember (copy2 n) as W.
+  destruct W.
+  simpl.
+  assert (time (copy2 n) = n0).
+  destruct (copy2 n).
+  inversion HeqW.
+  simpl.
+  reflexivity.
+  rewrite copy2_running_time in H.
+  intuition.
+Qed.
 
 End copy2.

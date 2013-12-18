@@ -1,8 +1,9 @@
-Set Implicit Arguments.
 Require Import braun util monad.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Coq.Logic.JMeq Coq.Program.Wf.
 Require Import Program.Syntax.
+
+Set Implicit Arguments.
 
 Section copy2.
 
@@ -11,7 +12,7 @@ Section copy2.
 
 Program Definition helper_ss_st (m:nat) 
         (pr : (braun_tree A (m+1) * (braun_tree A m)))
-: C ((braun_tree A (2*m+3)) * (braun_tree A (2*m+2))) :=
+: C ((braun_tree A (m+m+3)) * (braun_tree A (m+m+2))) :=
   match pr with
     | (s,t) =>
       ( ++2 ;
@@ -23,7 +24,7 @@ Solve Obligations using (intros ; omega).
 
 Program Definition helper_st_tt (m:nat) 
         (pr : (braun_tree A (m+1) * (braun_tree A m)))
-: C ((braun_tree A (2*m+2)) * (braun_tree A (2*m+1))) :=
+: C ((braun_tree A (m+m+2)) * (braun_tree A (m+m+1))) :=
   match pr with
     | (s,t) =>
       ( ++2 ;
@@ -36,7 +37,7 @@ Solve Obligations using (intros; omega).
 Program Fixpoint copy2 (n:nat) {wf lt n}
   : C ((braun_tree A (n+1)) * (braun_tree A n)) :=
   match n with 
-    | 0 => (++1 ; ret (Node x 0 0 _ Empty Empty, Empty))
+    | 0 => (++1 ; ret (Node x 0 0 _ Empty Empty,Empty))
     | S n' => 
       match even_odd_dec n' with
                | right H =>
@@ -49,8 +50,8 @@ Program Fixpoint copy2 (n:nat) {wf lt n}
          end.
 
 Lemma odd_cleanup : 
-  forall n k, 
-    odd n -> div2 n + (div2 n + 0) + (k + 1) = n + k.
+  forall k n, 
+    odd n -> div2 n + (div2 n) + (1+k) = n + k.
   intros n k H.
   apply odd_double in H.
   unfold double in H.
@@ -58,8 +59,8 @@ Lemma odd_cleanup :
 Defined.
 
 Lemma even_cleanup : 
-  forall n k,
-    even n -> div2 n + (div2 n + 0) + k = n + k.
+  forall k n,
+    even n -> div2 n + (div2 n) + k = n + k.
   intros n k H.
   apply even_double in H.
   unfold double in H.
@@ -74,7 +75,9 @@ Obligation 7. rewrite (even_cleanup 1). omega. assumption. Defined.
 
 Definition copy n :=
   c <- (copy2 n) ;
-  ret (snd c).
+  match c with
+      | (t1,t2) => ret t2
+  end.
 
 (* fl_log *)
 Program Fixpoint fl_log n {wf lt n} : nat :=
@@ -95,14 +98,12 @@ Section map.
 End map.
 
 Example rs_ex :
-  map
-    fl_log
+  map fl_log
     [0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15]
   = [0;1;1;2;2;2;2;3;3;3;3; 3; 3; 3; 3; 4]%list.
 compute. reflexivity.
 Qed.
 (* end fl_log *)
-
 
 Definition rt (n : nat) := S (2 * fl_log n).
 
@@ -134,6 +135,7 @@ Program Definition copy2_Sn_even_body (n:nat) (H: even n)
 : C ((braun_tree A ((S n)+1)) * (braun_tree A (S n))) :=
   (p <- (copy2 (proj1_sig (even_2n n H))) ;
    helper_st_tt p).
+
 Obligation 1. rewrite (even_cleanup 2). omega. assumption. Defined.
 Obligation 2. rewrite (even_cleanup 1). omega. assumption. Defined.
 
@@ -145,6 +147,57 @@ Lemma copy2_even : forall n (H: even n),
 *)
 Admitted.
 
+Program Definition copy2_Sn_odd_body (n:nat) (H: odd n)
+: C ((braun_tree A ((S n)+1)) * (braun_tree A (S n))) :=
+  (p <- (copy2 (proj1_sig (odd_S2n n H))) ;
+   helper_ss_st p).
+
+Obligation 1. rewrite (odd_cleanup 2). omega. assumption. Defined.
+Obligation 2. rewrite (odd_cleanup 1). omega. assumption. Defined.
+
+Lemma copy2_odd : forall n (H: odd n), 
+            copy2 (S n) = copy2_Sn_odd_body H.
+  intros.
+(*
+  rewrite (Fix_eq _ lt lt_wf (fun n => C ((braun_tree A ((S n)+1)) * (braun_tree A (S n))))).
+*)
+Admitted.
+
+Lemma helper_st_tt_time : 
+  forall m (pr : (braun_tree A (m+1) * (braun_tree A m))),
+    snd (helper_st_tt pr) = 2.
+  unfold helper_st_tt.
+  unfold time.
+  intros.
+  simpl.
+  destruct pr.
+  reflexivity.
+Qed.
+
+Lemma helper_ss_st_time : 
+  forall m (pr : (braun_tree A (m+1) * (braun_tree A m))),
+    snd (helper_ss_st pr) = 2.
+  unfold helper_ss_st.
+  unfold time.
+  intros.
+  simpl.
+  destruct pr.
+  reflexivity.
+Qed.
+
+Lemma fl_log_div2': forall n, fl_log (S n) = S (fl_log (div2 n)).
+  intros.
+  apply (Fix_eq _ lt lt_wf (fun _ => nat)).
+  intuition.
+  destruct x0; [ reflexivity | repeat f_equal].
+Qed.
+
+Lemma fl_log_div2 : forall n, fl_log (div2 n) + 1 = fl_log (S n).
+  intros n.
+  rewrite fl_log_div2'.
+  intuition.
+Qed.
+
 Lemma copy2_running_time :
   forall (n:nat),
     time (copy2 n) = rt n.
@@ -154,35 +207,54 @@ Lemma copy2_running_time :
   intros n IND.
   destruct n.
   compute. reflexivity.
+
   remember (even_odd_dec n) as EO; inversion EO; clear EO HeqEO.
   rewrite (copy2_even H).
-  unfold copy2_Sn_even_body.
-  remember (copy2 (proj1_sig (even_2n n H))) as R.
+  unfold copy2_Sn_even_body. simpl.
+  remember (copy2 (div2 n)) as R.
   destruct R.
-  simpl.
+
   assert (n0 = time (copy2 (div2 n))) as N0RES; [
     simpl in HeqR;
     inversion HeqR;
     intuition |
-    rewrite N0RES].
-  rewrite IND.
+    rewrite N0RES; clear N0RES].
+  rewrite IND; [| apply lt_div2'].
+  simpl.
 
-(* this looks promising. At this point,
-   the goal state has:
+  rewrite (helper_st_tt_time p).
 
-      rt (div2 n) + snd (helper_st_tt p) = rt (S n)
+  replace (fl_log (div2 n) + (fl_log (div2 n) + 0) + 2) 
+          with ((fl_log (div2 n) + 1) + (fl_log (div2 n) + 1)) ; [| omega].
+  rewrite fl_log_div2.
+  unfold rt.
+  unfold mult.
+  rewrite plus_0_r.
+  reflexivity.
 
-    which seems like we need a running time result about helper_st_tt
-    (like it is 2) and a lemma about rt.
+  rewrite (copy2_odd H).
+  unfold copy2_Sn_odd_body. simpl.
+  remember (copy2 (div2 n)) as R.
+  destruct R.
 
-   and there are two other subgoals; one is a lemma I recognize 
-   and the other is the odd case.
+  assert (n0 = time (copy2 (div2 n))) as N0RES; [
+    simpl in HeqR;
+    inversion HeqR;
+    intuition |
+    rewrite N0RES; clear N0RES].
+  rewrite IND; [| apply lt_div2'].
+  simpl.
 
-   So I take all this to mean that copy2_even is the current hard part.
+  rewrite (helper_ss_st_time p).
 
-*)
-
-  Admitted.
+  replace (fl_log (div2 n) + (fl_log (div2 n) + 0) + 2) 
+          with ((fl_log (div2 n) + 1) + (fl_log (div2 n) + 1)) ; [| omega].
+  rewrite fl_log_div2.
+  unfold rt.
+  unfold mult.
+  rewrite plus_0_r.
+  reflexivity.
+Qed.
 
 Theorem copy_running_time :
   forall (n:nat),
@@ -190,13 +262,18 @@ Theorem copy_running_time :
   intros n.
   unfold copy.
   remember (copy2 n) as W.
-  destruct W.
+  destruct W as [tn1 tn].
+  unfold ret.
+  unfold bind.
+  destruct tn1.
   simpl.
-  assert (time (copy2 n) = n0).
+
+  assert (time (copy2 n) = tn).
   destruct (copy2 n).
   inversion HeqW.
   simpl.
   reflexivity.
+
   rewrite copy2_running_time in H.
   intuition.
 Qed.

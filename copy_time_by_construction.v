@@ -33,23 +33,6 @@ Section copy2.
 
   Solve Obligations using (intros; omega).
 
-  Definition copy_rt n := (S (2 * fl_log n)).
-
-  Program Fixpoint copy2 (n:nat) {wf lt n}
-  : C ((braun_tree A (n+1)) * (braun_tree A n)) 
-      (copy_rt n) :=
-    match n with 
-      | 0 => (++1 ; ret (Node x 0 0 _ Empty Empty,Empty))
-      | S n' => 
-        match even_odd_dec n' with
-          | right H =>
-            p <- (copy2 (proj1_sig (odd_S2n n' H))) ;
-              helper_ss_st p
-          | left H =>
-            p <- (copy2 (proj1_sig (even_2n n' H))) ;
-              helper_st_tt p
-        end
-    end.
 
   Lemma odd_cleanup : 
     forall k n, 
@@ -68,6 +51,24 @@ Section copy2.
     unfold double in H.
     omega.
   Defined.
+
+  Definition copy_rt n := S (2 * fl_log n).
+
+  Program Fixpoint copy2 (n:nat) {wf lt n}
+  : C ((braun_tree A (n+1)) * (braun_tree A n)) 
+      (copy_rt n) :=
+    match n with 
+      | 0 => (++1 ; ret (Node x 0 0 _ Empty Empty,Empty))
+      | S n' => 
+        match even_odd_dec n' with
+          | right H =>
+            p <- (copy2 (proj1_sig (odd_S2n n' H))) ;
+              helper_ss_st p
+          | left H =>
+            p <- (copy2 (proj1_sig (even_2n n' H))) ;
+              helper_st_tt p
+        end
+    end.
 
   Obligation 3. rewrite (odd_cleanup 2). omega. assumption. Defined.
   Obligation 4. rewrite (odd_cleanup 1). omega. assumption. Defined.

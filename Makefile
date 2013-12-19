@@ -25,7 +25,7 @@ braun.vo: braun.v
 util.vo: util.v
 	$(COQC) util.v
 
-monad.vo: monad.v
+monad.vo: monad.v util.vo
 	$(COQC) monad.v
 
 
@@ -35,10 +35,10 @@ insert_time_by_construction.vo: insert_time_by_construction.v monad2.vo fl_log.v
 copy_time_by_construction.vo: copy_time_by_construction.v monad2.vo fl_log.vo
 	$(COQC) copy_time_by_construction.v
 
-monad2.vo: monad.v
+monad2.vo: monad.v util.vo
 	$(COQC) monad2.v
 
-fl_log.vo: fl_log.v
+fl_log.vo: fl_log.v util.vo
 	$(COQC) fl_log.v
 
 clean:

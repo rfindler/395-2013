@@ -6,7 +6,7 @@ Require Import Arith Arith.Even Arith.Div2.
 Require Import Omega.
 
 Program Fixpoint insert (A:Set) n (x:A) (b : braun_tree A n)
-: C (braun_tree A (n+1)) (S (fl_log n)) :=
+: C (braun_tree A (n+1)) (fl_log n + 1) :=
   match b with
     | Empty =>
       ++1 ;
@@ -22,7 +22,7 @@ Program Fixpoint insert (A:Set) n (x:A) (b : braun_tree A n)
 
 Solve Obligations using (intros;omega).
 
-Obligation 4.
+Obligation 2.
   assert (s_size = t_size \/ s_size = t_size + 1) as TwoCases;
     [ omega | ].
 

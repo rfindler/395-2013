@@ -17,3 +17,16 @@ Qed.
 
 Hint Resolve lt_div2'.
 Hint Resolve lt_div2.
+
+Lemma plus_one : forall n, n+1 = S n. 
+  intros. rewrite plus_comm. unfold plus. reflexivity.
+Qed.
+
+Hint Rewrite plus_one.
+
+Lemma times_two : forall n, 2*n = n+n. 
+  intros. unfold mult. rewrite plus_0_r. reflexivity.
+Qed.
+
+Hint Rewrite plus_one.
+Hint Rewrite times_two.

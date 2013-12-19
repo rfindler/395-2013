@@ -35,7 +35,7 @@ insert_time_by_construction.vo: insert_time_by_construction.v monad2.vo fl_log.v
 copy_time_by_construction.vo: copy_time_by_construction.v monad2.vo fl_log.vo
 	$(COQC) copy_time_by_construction.v
 
-monad2.vo: monad.v util.vo
+monad2.vo: monad2.v util.vo
 	$(COQC) monad2.v
 
 fl_log.vo: fl_log.v util.vo

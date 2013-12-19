@@ -29,14 +29,17 @@ monad.vo: monad.v
 	$(COQC) monad.v
 
 
-insert_time_by_construction.vo: insert_time_by_construction.v monad2.vo
+insert_time_by_construction.vo: insert_time_by_construction.v monad2.vo fl_log.vo
 	$(COQC) insert_time_by_construction.v
 
-copy_time_by_construction.vo: copy_time_by_construction.v monad2.vo
+copy_time_by_construction.vo: copy_time_by_construction.v monad2.vo fl_log.vo
 	$(COQC) copy_time_by_construction.v
 
 monad2.vo: monad.v
 	$(COQC) monad2.v
+
+fl_log.vo: fl_log.v
+	$(COQC) fl_log.v
 
 clean:
 	rm -f *.vo *.glob

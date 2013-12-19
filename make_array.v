@@ -3,20 +3,21 @@ Require Import Div2 List.
 Set Implicit Arguments.
 
 Section ilist.
-  Variable A : Type.
-  Variable P : nat -> Type.
+  Variable A : Set.
+  Variable P : nat -> Set.
 
-  Inductive ilist : nat -> Type :=
+  Inductive ilist : nat -> Set :=
   | Nil  : ilist 0
   | Cons : forall n, A -> ilist n -> ilist (S n).
 End ilist.
 
 Section ifoldr.
-  Variables A B : Set.
-  Variable f : A -> B -> B.
-  Variable i : B.
+  Variables A : Set.
+  Variable B : nat -> Set.
+  Variable f : forall n, A -> B n -> B (S n).
+  Variable i : B 0.
 
-  Fixpoint ifoldr n (ls : ilist A n) : B :=
+  Fixpoint ifoldr n (ls : ilist A n) : B n :=
     match ls with
       | Nil => i
       | Cons _ x ls' => f x (ifoldr ls')
@@ -24,26 +25,14 @@ Section ifoldr.
 End ifoldr.
 
 Section make_array_naive.
-  Variable A : Type.
+  Variable A : Set.
 
-  (* This uses foldr, but I was having difficulty abstracting because of types *)
-
-  (*  Definition make_array_n_fold n (l : ilist A n) : braun_tree A n :=
-       ifoldr insert Empty l.
-   *)
-  (* So I cheated a little bit and wrote things out of line *)
-  Program Fixpoint make_array_n_rec n (s : list A) (bt : braun_tree A n)
-  : braun_tree A (n + length s) :=
-    match s with
-      | nil => bt
-      | cons h t => insert h (make_array_n_rec t bt)
-    end.
-
-  Obligation 2. omega. Qed.
-
-  Program Definition make_array_n (s : list A) : braun_tree A (length s) :=
-    make_array_n_rec s Empty.
-
+  Program Definition make_array_naive n (s : ilist A n) : braun_tree A n :=
+    ifoldr (fun n => braun_tree A n)
+           (fun n x t => insert x t)
+           Empty
+           s.
+  Obligation 1. omega. Qed.
 
 End make_array_naive.
 

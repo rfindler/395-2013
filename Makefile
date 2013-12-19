@@ -4,6 +4,8 @@ GEN_DEPS = braun.vo util.vo
 
 all: same_structure.vo insert.vo copy.vo counting_insert.vo counting_copy.vo
 
+construction: insert_time_by_construction.vo copy_time_by_construction.vo monad2.vo
+
 same_structure.vo: same_structure.v $(GEN_DEPS)
 	$(COQC) same_structure.v
 

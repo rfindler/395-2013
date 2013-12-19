@@ -34,6 +34,11 @@ Section make_array_naive.
       | S n' => rt_naive n' + (fl_log n' + 1)
     end.
 
+  Example rt_naive_ex :
+    map rt_naive (1 :: 2 :: 3 :: 4 ::  5 ::  6 ::  7 ::  8 ::  9 :: 10 :: nil)
+               = (1 :: 3 :: 5 :: 8 :: 11 :: 14 :: 17 :: 21 :: 25 :: 29 :: nil).
+  compute; reflexivity. Qed.
+  
   Program Definition make_array_naive n (s : ilist A n)
   : C (braun_tree A n) (rt_naive n) :=
     ifoldr (fun n => C (braun_tree A n) (rt_naive n))

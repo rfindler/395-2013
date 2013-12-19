@@ -1,5 +1,6 @@
 Require Import braun insert.
 Require Import Div2 List.
+Require Import Arith Arith.Even Arith.Div2.
 Set Implicit Arguments.
 
 Section ilist.
@@ -37,19 +38,37 @@ Section make_array_naive.
 End make_array_naive.
 
 Section make_array_naive'.
-  Variable A : Type.
+  Variable A : Set.
 
-  Fixpoint div2_ceil (n : nat) : nat :=
-    match n with
-      | 0 => 0
-      | S 0 => S 0
-      | S (S n') => S (div2_ceil n')
-    end.
+  Definition sep (n : nat) : nat * nat :=
+    let d := div2 n in
+    if even_odd_dec n
+    then (d, d)
+    else (S d, d).
 
-  Fixpoint unravel (s : list A) : list A * list A :=
-    match s with
-      | nil => (nil, nil)
-      | cons h t => let (o,e) := unravel t in (cons h e, o)
+  Definition unravel_type n : Set :=
+    let '(l, r) := sep n in
+    prod (ilist A l) (ilist A r).
+
+  Eval compute in unravel_type 17.
+  Check ifoldr.
+
+  (* Broken here, Program can't do non-inductive types?
+     Using refine gives you exactly the error you'd expect.
+   *)
+  Program Definition unravel n (l : ilist A n) : unravel_type n :=
+    (ifoldr (fun n => unravel_type n)
+            (fun _ h o_e =>
+               let '(o, e) := o_e in
+               (Cons _ h e, o))
+            (Nil, Nil)
+            l).
+  
+    match l with
+      | Nil => (_, _)
+      | Cons _ h t =>
+        let '(o,e) := unravel t in
+        (Cons _ h e, o)
     end.
 
 (* This probably needs a refine

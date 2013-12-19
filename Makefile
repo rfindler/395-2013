@@ -4,7 +4,7 @@ GEN_DEPS = braun.vo util.vo
 
 all: same_structure.vo insert.vo copy.vo counting_insert.vo counting_copy.vo
 
-construction: insert_time_by_construction.vo copy_time_by_construction.vo monad2.vo
+construction: insert_time_by_construction.vo copy_time_by_construction.vo counting_make_array.vo monad2.vo
 
 same_structure.vo: same_structure.v $(GEN_DEPS)
 	$(COQC) same_structure.v
@@ -31,11 +31,14 @@ monad.vo: monad.v util.vo
 	$(COQC) monad.v
 
 
-insert_time_by_construction.vo: insert_time_by_construction.v monad2.vo fl_log.vo
+insert_time_by_construction.vo: insert_time_by_construction.v monad2.vo fl_log.vo braun.vo
 	$(COQC) insert_time_by_construction.v
 
-copy_time_by_construction.vo: copy_time_by_construction.v monad2.vo fl_log.vo
+copy_time_by_construction.vo: copy_time_by_construction.v monad2.vo fl_log.vo braun.vo
 	$(COQC) copy_time_by_construction.v
+
+counting_make_array.vo: counting_make_array.v monad2.vo fl_log.vo braun.vo
+	$(COQC) counting_make_array.v
 
 monad2.vo: monad2.v util.vo
 	$(COQC) monad2.v

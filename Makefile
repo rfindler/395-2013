@@ -30,11 +30,13 @@ util.vo: util.v
 monad.vo: monad.v util.vo
 	$(COQC) monad.v
 
+size_time_by_construction.vo: size_time_by_construction.v monad2.vo $(GEN_DEPS)
+	$(COQC) size_time_by_construction.v
 
-insert_time_by_construction.vo: insert_time_by_construction.v monad2.vo fl_log.vo braun.vo
+insert_time_by_construction.vo: insert_time_by_construction.v monad2.vo fl_log.vo $(GEN_DEPS)
 	$(COQC) insert_time_by_construction.v
 
-copy_time_by_construction.vo: copy_time_by_construction.v monad2.vo fl_log.vo braun.vo
+copy_time_by_construction.vo: copy_time_by_construction.v monad2.vo fl_log.vo $(GEN_DEPS)
 	$(COQC) copy_time_by_construction.v
 
 counting_make_array.vo: counting_make_array.v monad2.vo fl_log.vo braun.vo

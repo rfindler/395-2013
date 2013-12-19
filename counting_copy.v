@@ -3,6 +3,8 @@ Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Coq.Logic.JMeq Coq.Program.Wf.
 Require Import Program.Syntax.
 
+Require Import Coq.Program.Tactics.
+
 Set Implicit Arguments.
 
 Section copy2.
@@ -139,11 +141,34 @@ Program Definition copy2_Sn_even_body (n:nat) (H: even n)
 Obligation 1. rewrite (even_cleanup 2). omega. assumption. Defined.
 Obligation 2. rewrite (even_cleanup 1). omega. assumption. Defined.
 
+Require Import Program.Equality.
+
+Set Printing Implicit.
+
 Lemma copy2_even : forall n (H: even n), 
             copy2 (S n) = copy2_Sn_even_body H.
+(* -- attempt to open up copy2 to get to the right case *)
   intros.
-(*
-  rewrite (Fix_eq _ lt lt_wf (fun n => C ((braun_tree A ((S n)+1)) * (braun_tree A (S n))))).
+  unfold copy2.
+  unfold Fix_sub.
+  unfold Fix_F_sub.
+  simpl.
+  destruct_one_ex.
+  inversion (even_odd_dec n).   (* these two both fail *)
+  remember (even_odd_dec n) as EOD.  
+  destruct 
+*)
+
+(* -- attempt to expose a constructor on the rhs 
+  unfold copy2_Sn_even_body.
+  simpl.
+  remember (copy2 (div2 n)) as RC.
+  destruct RC.
+  unfold bind.
+  unfold eq_rect.
+  remember (copy2_Sn_even_body_obligation_1 H p) as THING1.
+  remember (copy2_Sn_even_body_obligation_2 H p) as THING2.
+ apply (Fix_eq _ lt lt_wf (fun n => C ((braun_tree A ((S n)+1)) * (braun_tree A (S n))))).
 *)
 Admitted.
 

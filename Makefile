@@ -32,6 +32,9 @@ monad.vo: monad.v
 insert_time_by_construction.vo: insert_time_by_construction.v monad2.vo
 	$(COQC) insert_time_by_construction.v
 
+copy_time_by_construction.vo: copy_time_by_construction.v monad2.vo
+	$(COQC) copy_time_by_construction.v
+
 monad2.vo: monad.v
 	$(COQC) monad2.v
 

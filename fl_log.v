@@ -39,6 +39,12 @@ Section fl_log.
     destruct x; [ reflexivity | repeat f_equal].
   Qed.
 
+  Lemma fl_log_zero :  fl_log 0 = 0.
+    apply (Fix_eq _ lt lt_wf (fun _ => nat)).
+    intuition.
+    destruct x; [ reflexivity | repeat f_equal].
+  Qed.
+
   Lemma fl_log_div2 : forall n, fl_log (div2 n) + 1 = fl_log (S n).
     intros n.
     rewrite fl_log_div2'.

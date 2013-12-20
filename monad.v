@@ -1,67 +1,41 @@
-(*
-Following the ideas from
-  Coq-Formalized Proofs of Quicksort's Average-case Complexity
-  By Eelis van der Weegen and James McKinna, TYPES 2008
-  paper:
-  http://github.com/Eelis/qs-avg/raw/f0535088e7f1b7d7fc0d5ac06867a09a1c282f94/papers/TYPES08/published.pdf
-
-  code: https://github.com/Eelis/qs-avg
-*)
-
-
 Set Implicit Arguments.
 
-Require Import Arith Omega Coq.Logic.JMeq.
+Require Import braun util.
+Require Import Coq.Logic.JMeq Coq.Program.Wf.
+Require Import Arith Arith.Even Arith.Div2.
+Require Import Omega.
+Require Import Program.Syntax.
 
-Definition C (s: Set): Set := (s * nat)%type. 
+Inductive time_of : nat -> Type := 
+  Time : forall n, time_of n.
 
-Definition bind A B (xn: C A) (y: A -> C B): C B :=
+Definition C (s: Set) (n:nat) : Set := (s * time_of n)%type. 
+
+Definition bind A B n n' (xn: C A n) (y: A -> C B n'): C B (n+n') :=
   match xn with
-    | (x,n) =>
-      match y x with
-        | (r,n') => (r,n+n')
+    | (x,tn) =>
+      match tn in time_of n with
+        | Time n =>
+          match y x with
+            | (r,tn') =>
+              match tn' in time_of n' with
+                | Time n' =>
+                  (r,Time (n+n'))
+              end
+          end
       end
   end.
-Definition ret (A: Set) (x: A): C A := (x,0).
 
-Definition inc (A : Set) (k : nat) (x : C A) : C A :=
+Definition ret (A: Set) (x: A): C A 0 := (x,Time 0).
+
+Definition inc (A : Set) n (k : nat) (x : C A n) : C A (n+k) :=
   match x with
-    | (v,n) => (v, n+k)
+    | (v,tn) =>
+      match tn in time_of n with
+        | Time n =>
+          (v, Time (n+k))
+      end
   end.
-
-Definition time := snd.
-
-Module MonadLaws.
-
-  (* (return x >>= f) = (f x) *)
-  Theorem mon_lunit: 
-    forall (a b: Set) (x: a)
-           (f: a -> C b), 
-      bind (ret x) f = f x.
-
-    intros; unfold bind; unfold ret.
-    destruct (f x).
-    simpl.
-    reflexivity.
-  Qed.
-
-  (* (f >>= return) = f *)
-  Theorem mon_runit: forall (a: Set) (f: C a), bind f (@ret a) = f.
-    intros; unfold bind; unfold ret.
-    destruct f.
-    rewrite plus_0_r; reflexivity.
-  Qed.
-
-  (* ((n >>= f) >>= g) = n >>= (\x -> f x >>= g) *)
-  Theorem mon_assoc: forall a b c (n: C a) (f: a -> C b) (g: b -> C c),
-      bind (bind n f) g =
-      bind n (fun x => bind (f x) g).
-    intros; unfold bind.
-    destruct n; destruct (f a0); destruct (g b0).
-    rewrite plus_assoc; reflexivity.
-  Qed.
-
-End MonadLaws.
 
 Notation "x >>= y" := (bind x y) (at level 55).
 Notation "x >> y" := (bind x (fun _ => y)) (at level 30, right associativity).

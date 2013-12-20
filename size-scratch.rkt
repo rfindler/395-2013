@@ -52,6 +52,7 @@
      (+ (diff-rt t k) 1)]))
 (define (non-zero? n) (not (= n 0)))
 
+
 (define (fl_log n)
   (cond
     [(zero? n) 0]
@@ -105,22 +106,33 @@
 (module+ slideshow
   (require slideshow)
   
-  (define (tree->pict t)
+  (define (tree->pict t path)
     (match t
       [#f (define b (blank))
           (refocus (cc-superimpose b (filled-ellipse 5 5))
                    b)]
       [(node l r _) 
-       (define lp (tree->pict l))
-       (define rp (tree->pict r))
+       (define which-way (and (pair? path) (car path)))
+       (define lp (tree->pict l (and (equal? which-way 'l) (cdr path))))
+       (define rp (tree->pict r (and (equal? which-way 'r) (cdr path))))
        (define main (vc-append (blank 0 10) (ht-append 10 lp rp)))
-       (pin-line 
-        (pin-line 
-         main
-         main ct-find
-         rp ct-find)
-        main ct-find
-        lp ct-find)]))
+       (define left-arrow (pin-line 
+                           (ghost main)
+                           main ct-find
+                           lp ct-find))
+       (define right-arrow (pin-line 
+                            (ghost main)
+                            main ct-find
+                            rp ct-find))
+       (ct-superimpose (linewidth 2 
+                                  (if (equal? which-way 'l)
+                                      (colorize left-arrow "red")
+                                      left-arrow))
+                       (linewidth 2
+                                  (if (equal? which-way 'r) 
+                                      (colorize right-arrow "red")
+                                      right-arrow))
+                       main)]))
   
   (define (combine picts)
     (define width 800)
@@ -148,4 +160,37 @@
   (slide
    (combine
     (for/list ([i (in-range 24)])
-      (tree->pict (copy i))))))
+      (tree->pict (copy i) #f))))
+  
+  
+  
+  (define/contract (diff-path b m)
+    ;; contract makes sure argument invariant holds
+    (->i ([b (or/c node? #f)]
+          [m (b) (λ (m) (<= m (size b) (+ m 1)))])
+         any)
+    (match* (b m)
+      [(#f 0) '()]
+      [((node #f #f _) 0) '()]
+      [((node s t _) (? (and/c odd? non-zero?))) 
+       (define k (/ (- m 1) 2))
+       (cons 'l (diff-path s k))]
+      [((node s t _) (? (and/c even? non-zero?)))
+       (define k (/ (- m 2) 2))
+       (cons 'r (diff-path t k))]))
+
+  (slide 
+   #:title "diff's path, n=m case"
+   (combine
+    (for*/list ([n (in-range 24)])
+      (define b (copy n))
+      (define d (diff-path b n))
+      (tree->pict b d))))
+  
+  (slide 
+   #:title "diff's path, n+1=m case"
+   (combine
+    (for*/list ([n (in-range 0 24)])
+      (define b (copy n))
+      (define d (diff-path b (max 0 (- n 1))))
+      (tree->pict b d)))))

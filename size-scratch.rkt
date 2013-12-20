@@ -101,3 +101,51 @@
   (define f (* (fl_log n) (+ (fl_log n) 1))) ;; wrong!
   (unless (= d f)
     (eprintf "size rt wrong: n = ~a d = ~a f = ~a\n" n d f)))
+
+(module+ slideshow
+  (require slideshow)
+  
+  (define (tree->pict t)
+    (match t
+      [#f (define b (blank))
+          (refocus (cc-superimpose b (filled-ellipse 5 5))
+                   b)]
+      [(node l r _) 
+       (define lp (tree->pict l))
+       (define rp (tree->pict r))
+       (define main (vc-append (blank 0 10) (ht-append 10 lp rp)))
+       (pin-line 
+        (pin-line 
+         main
+         main ct-find
+         rp ct-find)
+        main ct-find
+        lp ct-find)]))
+  
+  (define (combine picts)
+    (define width 800)
+    (define gap 4)
+    (define this-line '())
+    (define (finish)
+      (apply ht-append gap (reverse this-line)))
+    (let loop ()
+      (cond
+        [(null? picts) 
+         (finish)]
+        [else
+         (define pict (car picts))
+         (cond
+           [(< (pict-width pict) width)
+            (set! this-line (cons pict this-line))
+            (set! width (- width (pict-width pict) gap))
+            (set! picts (cdr picts))
+            (loop)]
+           [else
+            (vl-append 10
+                       (finish)
+                       (combine picts))])])))
+  
+  (slide
+   (combine
+    (for/list ([i (in-range 24)])
+      (tree->pict (copy i))))))

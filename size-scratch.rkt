@@ -159,7 +159,7 @@
   
   (slide
    (combine
-    (for/list ([i (in-range 24)])
+    (for/list ([i (in-range 32)])
       (tree->pict (copy i) #f))))
   
   
@@ -182,7 +182,7 @@
   (slide 
    #:title "diff's path, n=m case"
    (combine
-    (for*/list ([n (in-range 24)])
+    (for*/list ([n (in-range 32)])
       (define b (copy n))
       (define d (diff-path b n))
       (tree->pict b d))))
@@ -190,7 +190,7 @@
   (slide 
    #:title "diff's path, n+1=m case"
    (combine
-    (for*/list ([n (in-range 0 24)])
+    (for*/list ([n (in-range 0 32)])
       (define b (copy n))
       (define d (diff-path b (max 0 (- n 1))))
       (tree->pict b d)))))

@@ -134,22 +134,20 @@ Section fl_log.
 
   Lemma sum_of_logs_even :
     forall m,
-      cl_log (m + 1) + sum_of_logs m = sum_of_logs (m + 1 + m + 1).
-    intros m.
+      cl_log (m + 1 + m + 1) + sum_of_logs m = sum_of_logs (m + 1 + m + 1).
+    intros.
     replace (m+1+m+1) with (S (S (m+m)));[|omega].
     replace (m+1) with (S m); [|omega].
     symmetry.
-
-    (* apply (Fix_eq _ lt lt_wf (fun _ => nat)).*)
+    (* apply (Fix_eq _ lt lt_wf (fun _ => nat)).  *)
     Admitted.
 
-    Lemma sum_of_logs_odd :
-      forall n,
-        fl_log n + sum_of_logs n = sum_of_logs (n + n + 1).
-      intros.
-      replace (n+n+1) with (S (n+n)); [|omega].
-      
-    (* apply (Fix_eq _ lt lt_wf (fun _ => nat)).*)
-    Admitted.
+  Lemma sum_of_logs_odd :
+    forall n,
+      fl_log (n+n+1) + sum_of_logs n = sum_of_logs (n + n + 1).
+    intros.
+    replace (n+n+1) with (S (n+n)); [|omega].
+  (* apply (Fix_eq _ lt lt_wf (fun _ => nat)). *)
+  Admitted.
 
 End fl_log.

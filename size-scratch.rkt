@@ -42,7 +42,7 @@
         [m (b) (λ (m) (<= m (size b) (+ m 1)))])
        any)
   (match* (b m)
-    [(#f 0) 1]
+    [(#f 0) 0]
     [((node #f #f _) 0) 1]
     [((node s t _) (? (and/c odd? non-zero?))) 
      (define k (/ (- m 1) 2))
@@ -58,16 +58,27 @@
     [(zero? n) 0]
     [else (+ (fl_log (quotient (- n 1) 2)) 1)]))
 
+(define (cl_log n)
+  (cond
+    [(zero? n) 0]
+    [else (+ (cl_log (quotient n 2)) 1)]))
+
 (unless (equal? (map fl_log '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
                 '(0 1 1 2 2 2 2 3 3 3 3 3 3 3 3 4))
   (error 'fl_log "wrong"))
 
+(unless (equal? (map cl_log '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
+                            '(0 1 2 2 3 3 3 3 4 4 4  4  4  4  4  4))
+  (error 'cl_log "wrong"))
+
 ;; check running time of diff
-(for ([n (in-range 1000)])
+(for ([n (in-range 10)])
   (for ([m (in-list (list (- n 1) n))])
     (when (positive? m)
       (define d (diff-rt (copy n) m))
-      (define f (+ (fl_log m) 1))
+      (define f (if (= n m)
+                    (fl_log n)
+                    (cl_log n)))
       (unless (= d f)
         (eprintf "diff rt wrong: n = ~a m = ~a d = ~a f = ~a\n" n m d f)))))
 
@@ -96,10 +107,15 @@
      (define rt-t (loglog-size-rt t))
      (+ 1 rt-t (diff-rt s (size t)))]))
 
-;; hmm..... how to describe this in terms of 'n'?!
-(for ([n (in-range 10)])
+(define (sum-of-logs n)
+  (cond
+    [(zero? n) 0]
+    [(odd? n) (+ (fl_log n) (sum-of-logs (quotient (- n 1) 2)))]
+    [(even? n) (+ (cl_log n) (sum-of-logs (quotient (- n 1) 2)))]))
+
+(for ([n (in-range 200)])
   (define d (loglog-size-rt (copy n)))
-  (define f (* (fl_log n) (+ (fl_log n) 1))) ;; wrong!
+  (define f (+ 1 (sum-of-logs n)))
   (unless (= d f)
     (eprintf "size rt wrong: n = ~a d = ~a f = ~a\n" n d f)))
 
@@ -116,14 +132,16 @@
        (define lp (tree->pict l (and (equal? which-way 'l) (cdr path))))
        (define rp (tree->pict r (and (equal? which-way 'r) (cdr path))))
        (define main (vc-append (blank 0 10) (ht-append 10 lp rp)))
-       (define left-arrow (pin-line 
-                           (ghost main)
-                           main ct-find
-                           lp ct-find))
-       (define right-arrow (pin-line 
+       (define left-arrow (launder
+                           (pin-line 
                             (ghost main)
                             main ct-find
-                            rp ct-find))
+                            lp ct-find)))
+       (define right-arrow (launder
+                            (pin-line 
+                             (ghost main)
+                             main ct-find
+                             rp ct-find)))
        (ct-superimpose (linewidth 2 
                                   (if (equal? which-way 'l)
                                       (colorize left-arrow "red")
@@ -171,7 +189,7 @@
          any)
     (match* (b m)
       [(#f 0) '()]
-      [((node #f #f _) 0) '()]
+      [((node #f #f _) 0) '(l)]
       [((node s t _) (? (and/c odd? non-zero?))) 
        (define k (/ (- m 1) 2))
        (cons 'l (diff-path s k))]
@@ -194,3 +212,4 @@
       (define b (copy n))
       (define d (diff-path b (max 0 (- n 1))))
       (tree->pict b d)))))
+

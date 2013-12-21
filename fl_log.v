@@ -51,6 +51,13 @@ Section fl_log.
     destruct x; [ reflexivity | repeat f_equal].
   Qed.
 
+  Lemma cl_log_div2' : forall n, cl_log (S n) = S (cl_log (div2 (S n))).
+    intros.
+    apply (Fix_eq _ lt lt_wf (fun _ => nat)).
+    intuition.
+    destruct x; [ reflexivity | repeat f_equal].
+  Qed.
+
   Lemma fl_log_zero :  fl_log 0 = 0.
     apply (Fix_eq _ lt lt_wf (fun _ => nat)).
     intuition.
@@ -61,26 +68,6 @@ Section fl_log.
     intros n.
     rewrite fl_log_div2'.
     intuition.
-  Qed.
-
-  Lemma double_div2 : forall n, div2 (n + n) = n.
-    induction n.
-    compute; reflexivity.
-    replace (S n + S n) with (S (S (n + n))); [|omega].
-    unfold div2; fold div2.
-    rewrite IHn.
-    reflexivity.
-  Qed.
-
-  Lemma odd_div2 : (forall n, div2 (S (n + n)) = n).
-    induction n.
-    compute; reflexivity.
-    replace (S (S n + S n)) with (S (S (S n + n))) ; [|omega].
-    unfold div2 at 1.
-    fold div2.
-    replace (S n + n) with (S (n + n)) ; [|omega].
-    rewrite IHn.
-    reflexivity.
   Qed.
 
   Lemma fl_log_odd :

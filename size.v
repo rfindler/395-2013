@@ -270,69 +270,71 @@ apply odd_not_even in H.
 intuition.
 Defined.
 
+Obligation 3.
+
+clear Heq_anonymous b Heq_b wildcard' s1 t1 A.
+
+assert (s1_size = t1_size \/ s1_size = t1_size + 1) as SIZES1; [omega|]; clear l l0.
+assert (S m' = s1_size + t1_size + 1 \/ S (m'+1) = s1_size + t1_size + 1) as SIZES2; [omega|]; clear H0 H1.
+destruct SIZES1; destruct SIZES2; subst s1_size.
+
+assert (m'=t1_size+t1_size); [omega|].
+replace (div2 m') with t1_size; [omega|subst m'; rewrite double_div2; reflexivity].
+
+rewrite plus_comm in H1.
+simpl in H1.
+rewrite plus_comm in H1.
+simpl in H1.
+inversion H1.
+rewrite H2 in H.
+apply even_not_odd in H.
+intuition.
+
+rewrite H1 in H.
+replace (t1_size+1+t1_size+1) with ((t1_size+1)+(t1_size+1)) in H; [|omega].
+apply even_not_odd in H.
+intuition.
+
+assert (m'=t1_size +t1_size); [omega|].
+subst m'.
+rewrite double_div2.
+omega.
+
+Defined.
+
+Obligation 5.
+
+clear Heq_anonymous b Heq_b wildcard' s1 t1 A.
+
+assert (s1_size = t1_size \/ s1_size = t1_size + 1) as SIZES1; [omega|]; clear l l0.
+assert (S m' = s1_size + t1_size + 1 \/ S (m'+1) = s1_size + t1_size + 1) as SIZES2; [omega|]; clear H0 H1.
+destruct SIZES1; destruct SIZES2; subst s1_size.
+
+rewrite H1 in H.
+apply odd_not_even in H.
+intuition.
+
+assert (m'-1 = (t1_size-1)+(t1_size-1)); [omega|].
+rewrite H0.
+rewrite double_div2.
+omega.
+
+assert (m'-1 = t1_size+t1_size); [omega|].
+rewrite H0.
+rewrite double_div2.
+omega.
+
+assert (S m' = t1_size+t1_size+1); [omega|].
+rewrite H0 in H.
+apply odd_not_even in H.
+intuition.
+Defined.
+
 (*
-
-Lemma x : forall n m, odd n -> n = m+m -> False.
-  Admitted.
-
-Obligation 2.
-  assert (s1_size = t1_size \/ s1_size = t1_size + 1) as TwoCases;
-    [ omega | ].
-  assert (S m' = s1_size + t1_size + 1 \/ S m' + 1 = s1_size + t1_size + 1) as TwoMoreCases;
-    [ omega | ].
-  inversion H.
-
-  inversion TwoCases; clear TwoCases;
-  inversion TwoMoreCases ; clear TwoMoreCases; 
-  subst.
-
-  assert (m' = t1_size+t1_size); [omega|].
-  assert False as FALSE. apply (x t1_size H3); omega. inversion FALSE.
-
-  assert (m'=t1_size+t1_size-1) as MDEF; [omega|].
-  assert (odd (t1_size+t1_size-1)) ; [rewrite <- MDEF; assumption|].
-  subst.
-  replace ; [|omega].
-  clear.
-
-
-  admit.
-
-  replace m' with (t1_size+t1_size-1); [|omega]; clear.
-  admit.
-
-  replace m' with (t1_size+t1_size+1); [|omega]; clear.
-  admit.
-
-  replace m' with (t1_size+t1_size); [|omega].
-  admit.
-
-Obligation 1.
-
-  assert (s1_size = t1_size \/ s1_size = t1_size + 1) as TwoCases;
-    [ omega | ].
-  assert (S m' = s1_size + t1_size + 1 \/ S m' + 1 = s1_size + t1_size + 1) as TwoMoreCases;
-    [ omega | ].
-
-  inversion TwoCases; clear TwoCases; inversion TwoMoreCases ; clear TwoMoreCases; subst.
-  
-  replace m' with (t1_size+t1_size); [|omega]; clear.
-  admit.
-
-  replace m' with (t1_size+t1_size-1); [|omega]; clear.
-  admit.
-
-  replace m' with (t1_size+t1_size+1); [|omega]; clear.
-  admit.
-
-  replace m' with (t1_size+t1_size); [|omega]; clear.
-  admit.
-*)
-
-Program Fixpoint size A (n:nat) (b : braun_tree A n) : nat := 
+Fixpoint size A (n:nat) (b : braun_tree A n) : nat := 
   match b with 
     | Empty => 0
     | Node _ _ _ P s t =>
       1 + 2 * (size t) + diff s P
   end.
-
+*)

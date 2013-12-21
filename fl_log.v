@@ -109,7 +109,7 @@ Section fl_log.
     intro n.
     replace (n + 1 + (n + 1)) with (S (S (n + n))) ; [|omega].
     rewrite fl_log_div2'.
-    rewrite odd_div2.
+    rewrite div2_with_odd_argument.
     rewrite plus_comm; simpl; reflexivity.
   Qed.
 
@@ -118,7 +118,7 @@ Section fl_log.
     intros.
     rewrite plus_comm; simpl.
     rewrite cl_log_div2'.
-    rewrite odd_div2.
+    rewrite div2_with_odd_argument.
     rewrite plus_comm; simpl; reflexivity.
   Qed.
 

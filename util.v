@@ -46,7 +46,7 @@ Hint Rewrite times_two.
     reflexivity.
   Qed.
 
-  Lemma odd_div2 : (forall n, div2 (S (n + n)) = n).
+  Lemma div2_with_odd_argument : (forall n, div2 (S (n + n)) = n).
     induction n.
     compute; reflexivity.
     replace (S (S n + S n)) with (S (S (S n + n))) ; [|omega].

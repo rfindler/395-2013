@@ -13,6 +13,12 @@ Section fl_log.
       | S n' => S (fl_log (div2 n'))
     end.
 
+  Program Fixpoint cl_log n {wf lt n} : nat :=
+    match n with
+      | 0 => 0
+      | S n' => S (cl_log (div2 n))
+    end.
+
   Section map.
     Variables P Q : Type.
     Variable f : P -> Q.
@@ -24,13 +30,19 @@ Section fl_log.
       end.
   End map.
 
-  Example rs_ex :
+  Example fl_log_ex :
     map fl_log
         [0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15]
       = [0;1;1;2;2;2;2;3;3;3;3; 3; 3; 3; 3; 4]%list.
-  compute. reflexivity.
+  compute; reflexivity.
   Qed.
-  (* end fl_log *)
+
+  Example cl_log_ex :
+    map cl_log
+        [0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15]
+      = [0;1;2;2;3;3;3;3;4;4;4; 4; 4; 4; 4; 4]%list.
+  compute; reflexivity.
+  Qed.
 
   Lemma fl_log_div2' : forall n, fl_log (S n) = S (fl_log (div2 n)).
     intros.

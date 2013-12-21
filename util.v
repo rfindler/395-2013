@@ -15,6 +15,12 @@ Lemma lt_div2' : forall n, div2 n < S n.
    omega.
 Qed.
 
+Lemma lt_div2'' : forall n, div2 (S n) < S n.
+  apply (ind_0_1_SS (fun n => div2 (S n) < S n)); 
+    intros; simpl; try simpl in H; omega.
+Qed.
+
+Hint Resolve lt_div2''.
 Hint Resolve lt_div2'.
 Hint Resolve lt_div2.
 

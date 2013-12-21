@@ -102,7 +102,7 @@
 ;; compute the running time of the loglog-size function
 (define (loglog-size-rt b)
   (match b
-    [#f 1]
+    [#f 0]
     [(node s t _) 
      (define rt-t (loglog-size-rt t))
      (+ 1 rt-t (diff-rt s (size t)))]))
@@ -115,7 +115,7 @@
 
 (for ([n (in-range 200)])
   (define d (loglog-size-rt (copy n)))
-  (define f (+ 1 (sum-of-logs n)))
+  (define f (sum-of-logs n))
   (unless (= d f)
     (eprintf "size rt wrong: n = ~a d = ~a f = ~a\n" n d f)))
 

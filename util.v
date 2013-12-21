@@ -100,3 +100,7 @@ Lemma div2_with_odd_input: forall n, div2 (S (n+n)) = n.
   rewrite IHn.
   reflexivity.
 Qed.
+
+Lemma minus_0r : forall n, n-0=n.
+  induction n; simpl; reflexivity.
+Qed.

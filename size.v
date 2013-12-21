@@ -183,6 +183,92 @@ reflexivity.
 
 Defined.
 
+Obligation 6.
+
+remember (eq_nat_dec (div2 (m' - 1)) t1_size) as COND1.
+remember (match
+         s1_size + t1_size + 1 as n return ({S m' = n} + {S m' <> n})
+       with
+       | 0 => right (not_eq_sym (O_S m'))
+       | S m =>
+           sumbool_rec
+             (fun _ : {m' = m} + {m' <> m} => {S m' = S m} + {S m' <> S m})
+             (fun a : m' = m => left (f_equal S a))
+             (fun b0 : m' <> m => right (not_eq_S m' m b0)) 
+             (eq_nat_dec m' m)
+       end) as COND2.
+destruct COND1; destruct COND2; clear HeqCOND1; clear HeqCOND2.
+
+assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; destruct SIZES1; subst s1_size.
+
+rewrite fl_log_odd; reflexivity.
+
+replace (t1_size+1+t1_size+1) with ((t1_size+1)+(t1_size+1));[|omega].
+rewrite fl_log_even; reflexivity.
+
+assert (s1_size+t1_size+1 = S m' \/ s1_size+t1_size+1 = S (m'+1)) as SIZES2; [omega|]; destruct SIZES2. 
+
+intuition.
+
+assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; destruct SIZES1.
+
+subst t1_size.
+subst s1_size.
+
+assert (even (m'-1)).
+inversion H.
+inversion H4.
+simpl.
+rewrite minus_0r.
+assumption.
+
+replace (div2 (m'-1) + div2(m'-1) + 1) with m' in H2.
+intuition.
+apply even_double in H3.
+unfold double in H3.
+omega.
+
+subst s1_size.
+rewrite plus_comm in H2.
+simpl in H2.
+inversion H2.
+assert (m' = t1_size + t1_size); [omega|].
+clear Heq_anonymous.
+rewrite H3 in H.
+replace (S (t1_size+t1_size)) with (t1_size+t1_size+1) in H; [|omega].
+assert False.
+apply (odd_not_even t1_size); assumption.
+intuition.
+
+assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; destruct SIZES1.
+
+subst t1_size.
+clear Heq_anonymous.
+rewrite e in H.
+apply odd_not_even in H.
+intuition.
+
+subst s1_size.
+
+assert (m'-1 = t1_size + t1_size); [omega|].
+assert (div2(m'-1) = t1_size).
+rewrite H2.
+apply double_div2.
+intuition.
+
+assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; destruct SIZES1; subst s1_size.
+
+rewrite cl_log_odd; reflexivity.
+
+clear Heq_b Heq_anonymous l l0.
+
+assert (t1_size+t1_size+1 = S m' \/ t1_size+t1_size+1 = S (m'+1)) as SIZES2; [omega|]; destruct SIZES2;
+intuition.
+
+rewrite <- H2 in H.
+apply odd_not_even in H.
+intuition.
+Defined.
 
 (*
 

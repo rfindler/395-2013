@@ -88,4 +88,23 @@ Section fl_log.
     rewrite plus_comm; simpl; reflexivity.
   Qed.
 
+  Lemma cl_log_odd :
+    forall n, cl_log(n+n+1) = cl_log n + 1.
+    intros.
+    rewrite plus_comm; simpl.
+    rewrite cl_log_div2'.
+    rewrite odd_div2.
+    rewrite plus_comm; simpl; reflexivity.
+  Qed.
+
+  Lemma cl_log_even : 
+    forall n,  cl_log (n+1) + 1 = cl_log (n + 1 + n + 1).
+    intros.
+    replace (n + 1 + n + 1) with (S (S (n+n))); [|omega].
+    rewrite cl_log_div2'.
+    replace (S (S (n+n))) with ((n+1)+(n+1)); [|omega].
+    rewrite double_div2.
+    rewrite plus_comm; simpl; reflexivity.
+  Qed.
+
 End fl_log.

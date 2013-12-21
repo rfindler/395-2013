@@ -330,11 +330,27 @@ apply odd_not_even in H.
 intuition.
 Defined.
 
-(*
-Fixpoint size A (n:nat) (b : braun_tree A n) : nat := 
+
+Program Fixpoint size A (n:nat) (b : braun_tree A n) : C nat (sum_of_logs n) := 
   match b with 
-    | Empty => 0
+    | Empty => ret 0
     | Node _ _ _ P s t =>
-      1 + 2 * (size t) + diff s P
+      (zo <- diff s P ;
+       (s <- (size t) ; 
+        ret (1 + 2 * s + zo)))
   end.
-*)
+
+Obligation 1.
+rename wildcard'0 into n.
+rename wildcard'1 into m.
+remember (eq_nat_dec m n) as COND.
+destruct COND; clear HeqCOND Heq_b s t b; subst; rewrite plus_0_r.
+
+apply sum_of_logs_odd.
+
+assert (m+1=n) as MN.
+assert (m=n \/ m+1=n) as TWOCASES; [omega|]; destruct TWOCASES; omega.
+subst n.
+apply sum_of_logs_even.
+
+Defined.

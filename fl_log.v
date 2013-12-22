@@ -141,33 +141,42 @@ Section fl_log.
     symmetry.
     WfExtensionality.unfold_sub sum_of_logs (sum_of_logs (S (S (m + m)))).
     destruct (even_odd_dec (S (m + m))).
+
     inversion e.
     rewrite <- H in H0.
-    assert (even n). rewrite H. eapply double_even.
-    rewrite double_div2. unfold double. reflexivity.
+    assert (even n); [rewrite H; eapply double_even;
+                      rewrite double_div2; unfold double; reflexivity|].
     apply not_even_and_odd in H1. contradiction. assumption.
+
     fold_sub sum_of_logs.
     clear o.
-    replace ( match m + m with
+    replace (match m + m with
                | 0 => 0
                | S n' => S (div2 n')
                end)
             with m.
     reflexivity.
     induction m. simpl. reflexivity.
-    replace (S m + S m) with (S (S (m + m))).
+    replace (S m + S m) with (S (S (m + m))); [|omega].
     rewrite div2_with_odd_input. reflexivity.
-    omega.
-Qed.
-
-(* and this one should go the same way... *)
+  Qed.
 
   Lemma sum_of_logs_odd :
     forall n,
       fl_log (n+n+1) + sum_of_logs n = sum_of_logs (n + n + 1).
     intros.
     replace (n+n+1) with (S (n+n)); [|omega].
-  (* apply (Fix_eq _ lt lt_wf (fun _ => nat)). *)
-  Admitted.
+    WfExtensionality.unfold_sub sum_of_logs (sum_of_logs (S (n + n))).
+    destruct (even_odd_dec (n + n)).
+    
+    fold_sub sum_of_logs.
+    rewrite double_div2.
+    reflexivity.
 
+    assert (even (n + n)); [apply double_is_even|].
+    apply not_even_and_odd in H.
+    contradiction.
+    assumption.
+  Qed.
+  
 End fl_log.

@@ -15,6 +15,9 @@ copy.vo: copy.v $(GEN_DEPS)
 size.vo: copy.v $(GEN_DEPS)
 	$(COQC) size.v
 
+make_array.vo: copy.v insert.vo $(GEN_DEPS)
+	$(COQC) make_array.v
+
 log_sq.vo: log_sq.v util.vo fl_log.vo
 	$(COQC) log_sq.v
 

@@ -1,6 +1,6 @@
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Coq.Logic.JMeq Coq.Program.Wf.
-Require Import Program.Syntax.
+Require Import Program.Syntax List.
 Require Import util.
 
 Set Implicit Arguments.
@@ -31,28 +31,17 @@ Section fl_log.
         end
     end.
   
-  Section map.
-    Variables P Q : Type.
-    Variable f : P -> Q.
-    
-    Fixpoint map (s : list P) : list Q :=
-      match s with
-        | nil => nil
-        | cons h t => cons (f h) (map t)
-      end.
-  End map.
-
   Example fl_log_ex :
     map fl_log
         [0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15]
-      = [0;1;1;2;2;2;2;3;3;3;3; 3; 3; 3; 3; 4]%list.
+      = [0;1;1;2;2;2;2;3;3;3;3; 3; 3; 3; 3; 4].
   compute; reflexivity.
   Qed.
 
   Example cl_log_ex :
     map cl_log
         [0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15]
-      = [0;1;2;2;3;3;3;3;4;4;4; 4; 4; 4; 4; 4]%list.
+      = [0;1;2;2;3;3;3;3;4;4;4; 4; 4; 4; 4; 4].
   compute; reflexivity.
   Qed.
 

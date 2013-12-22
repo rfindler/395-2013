@@ -156,7 +156,7 @@ Section fl_log.
     reflexivity.
     induction m. simpl. reflexivity.
     replace (S m + S m) with (S (S (m + m))).
-    SearchAbout div2. rewrite div2_with_odd_input. reflexivity.
+    rewrite div2_with_odd_input. reflexivity.
     omega.
 Qed.
 

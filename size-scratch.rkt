@@ -33,6 +33,7 @@
   t)
 
 ;; check no invariants break for 'copy'
+(printf "testing braun tree invariants for copy\n")
 (for ([i (in-range 1000)]) (copy i))
 
 ;; computes the running time of diff
@@ -64,6 +65,7 @@
     [(zero? n) 0]
     [else (+ (cl_log (div2 n)) 1)]))
 
+(printf "testing fl_log and cl_log\n")
 (unless (equal? (map fl_log '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
                 (map values '(0 1 1 2 2 2 2 3 3 3 3  3  3  3  3  4)))
   (error 'fl_log "wrong"))
@@ -72,7 +74,7 @@
                 (map values '(0 1 2 2 3 3 3 3 4 4 4  4  4  4  4  4)))
   (error 'cl_log "wrong"))
 
-;; check running time of diff
+(printf "testing running time of diff\n")
 (for ([n (in-range 10)])
   (for ([m (in-list (list (- n 1) n))])
     (when (positive? m)
@@ -92,7 +94,7 @@
      (+ 1 (* 2 m) (diff s m))]))
 (define (diff b m) (- (size b) m))
 
-;; check that two size algorithms match up
+(printf "testing size vs loglog-size\n")
 (for ([i (in-range 1000)])
   (define b (copy i))
   (unless (= (size b) (loglog-size b))
@@ -114,18 +116,31 @@
     [(odd? n) (+ (fl_log n) (sum-of-logs (div2 (- n 1))))]
     [(even? n) (+ (cl_log n) (sum-of-logs (div2 (- n 1))))]))
 
+(printf "testing sum-of-logs\n")
 (for ([n (in-range 200)])
   (define d (loglog-size-rt (copy n)))
   (define f (sum-of-logs n))
   (unless (= d f)
     (eprintf "size rt wrong: n = ~a d = ~a f = ~a\n" n d f)))
 
+(printf "testing lower bound of sum-of-logs\n")
 (for ([n (in-range 0 10000000 10000)])
   (define lb (div2 (* (cl_log n) (fl_log n))))
   (define sl (sum-of-logs n))
   (unless (<= lb sl)
     (eprintf "lower bound wrong: n = ~a lb = ~a sl = ~a\n"
              n lb sl)))
+
+(printf "testing upper bound of sum-of-logs\n")
+(let loop ([n 1]
+           [i 400])
+  (unless (zero? i)
+    (define ub (* (cl_log n) (cl_log n)))
+    (define sl (sum-of-logs n))
+    (unless (<= sl ub)
+      (eprintf "upper bound wrong: n = ~a ub = ~a sl = ~a δ = ~a\n"
+               n ub sl (- ub sl)))
+    (loop (+ n n (random 100)) (- i 1))))
 
 (module+ slideshow
   (require slideshow)
@@ -189,7 +204,6 @@
       (tree->pict (copy i) #f))))
   
   
-  
   (define/contract (diff-path b m)
     ;; contract makes sure argument invariant holds
     (->i ([b (or/c node? #f)]
@@ -220,4 +234,3 @@
       (define b (copy n))
       (define d (diff-path b (max 0 (- n 1))))
       (tree->pict b d)))))
-

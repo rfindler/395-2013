@@ -224,7 +224,7 @@ Section sq_log.
     omega.
   Qed.
       
-  Lemma upper_bound_sum_of_logs :
+  Theorem upper_bound_sum_of_logs :
     forall n, sum_of_logs n <= cl_log n * cl_log n.
     apply (well_founded_ind 
              lt_wf 

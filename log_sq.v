@@ -72,7 +72,7 @@ Section sq_log.
     apply lt_div2''.
   Qed.
 
-  Lemma lt_plus_left :
+  Lemma le_plus_left :
     forall n n' m, n <= n' -> n+m <= n'+m.
     induction m.
     intros.
@@ -87,12 +87,12 @@ Section sq_log.
     assumption.
   Qed.
 
-  Lemma lt_plus_right:
+  Lemma le_plus_right:
     forall n n' m, n <= n' -> m+n <= m+n'.
     intros.
     rewrite plus_comm.
     replace (m+n') with (n'+m);[|omega].
-    apply lt_plus_left; assumption.
+    apply le_plus_left; assumption.
   Qed.
 
   Lemma plus_one_sq : forall n, (n+1)*(n+1) = n*n+2*n+1.
@@ -113,7 +113,7 @@ Section sq_log.
     assumption.
   Qed.
 
-  Lemma lt_mult_left : forall m n o, m <= n -> m*o <= n*o.
+  Lemma le_mult_left : forall m n o, m <= n -> m*o <= n*o.
     intros.
     induction o.
     omega.
@@ -125,12 +125,23 @@ Section sq_log.
     omega.
   Qed.
 
-  Lemma lt_mult_right : forall m n o, m <= n -> o*m <= o*n.
+  Lemma le_mult_right : forall m n o, m <= n -> o*m <= o*n.
     intros.
     rewrite mult_comm.
     replace (o*n) with (n*o);[|apply mult_comm].
-    apply lt_mult_left.
+    apply le_mult_left.
     assumption.
+  Qed.
+
+  Lemma cl_log_sq_S : forall n, (cl_log n * cl_log n) <= (cl_log (S n) * cl_log (S n)).
+    intros.
+    apply (le_trans (cl_log n * cl_log n)
+                    (cl_log (S n) * cl_log n)
+                    (cl_log (S n) * cl_log (S n))).
+    apply le_mult_left.
+    apply cl_log_monotone.
+    apply le_mult_right.
+    apply cl_log_monotone.
   Qed.
 
 
@@ -156,7 +167,7 @@ Section sq_log.
               (cl_log (S (div2 x)) * cl_log (S (div2 x)) + cl_log (S (div2 x))));
       [|replace (S (div2 x)) with (div2 x + 1); [|omega] ; omega].
 
-    apply lt_plus_right.
+    apply le_plus_right.
 
     apply (le_trans (sum_of_logs (div2 x))
                     (cl_log (div2 x) * cl_log (div2 x))
@@ -170,15 +181,8 @@ Section sq_log.
 
     apply (le_add_right (cl_log (S (div2 x)))).
 
-    apply (le_trans (cl_log (div2 x) * cl_log (div2 x))
-                    (cl_log (S (div2 x)) * cl_log (div2 x))
-                    (cl_log (S (div2 x)) * cl_log (S (div2 x)))).
+    apply cl_log_sq_S.
 
-    apply lt_mult_left.
-    apply cl_log_monotone.
-    apply lt_mult_right.
-    apply cl_log_monotone.
-    
     rewrite odd_div2; [reflexivity|assumption].
 
     replace (div2 (S x) + div2 (S x)) with (double (div2 (S x))); [|unfold double;reflexivity].
@@ -192,8 +196,34 @@ Section sq_log.
       (odd (S x)) -> 
       sum_of_logs (S x) <=
       cl_log (div2 (S x)) * cl_log (div2 (S x)) + 2 * cl_log (div2 (S x)) + 1.
-    Admitted.
+    intros x IND ODD.
+    inversion ODD as [junk EVEN junk']; clear junk junk'.
+    assert (S x = div2 x + div2 x + 1).
+    replace (div2 x + div2 x) with (double (div2 x));[|unfold double; reflexivity].
+    rewrite <- even_double; [|assumption].
+    omega.
+    replace (sum_of_logs (S x)) with (sum_of_logs(div2 x+div2 x+1));[|rewrite H;reflexivity].
 
+    rewrite <- sum_of_logs_odd.
+
+    rewrite fl_log_odd.
+
+    replace (cl_log (div2 (S x)) * cl_log (div2 (S x)) + 2 * cl_log (div2 (S x)) + 1)
+    with ((cl_log(div2 (S x)) + 1) +
+          cl_log (div2 (S x)) * cl_log (div2 (S x)) + cl_log (div2 (S x)));[|omega].
+
+    apply (le_add_right (cl_log (div2 (S x)))).
+
+    replace (div2 (S x)) with (div2 x); [|apply even_div2;assumption].
+
+    assert (fl_log (div2 x) <= cl_log (div2 x)) as LEFTPIECE; [apply fl_log_leq_cl_log|].
+
+    assert (sum_of_logs (div2 x) <= cl_log (div2 x) * cl_log (div2 x)) as RIGHTPIECE;
+      [apply IND;apply lt_div2'|].
+
+    omega.
+  Qed.
+      
   Lemma upper_bound_sum_of_logs :
     forall n, sum_of_logs n <= cl_log n * cl_log n.
     apply (well_founded_ind 

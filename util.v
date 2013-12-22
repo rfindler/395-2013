@@ -24,38 +24,25 @@ Hint Resolve lt_div2''.
 Hint Resolve lt_div2'.
 Hint Resolve lt_div2.
 
-Lemma plus_one : forall n, n+1 = S n. 
-  intros. rewrite plus_comm. unfold plus. reflexivity.
+Lemma double_div2 : forall n, div2 (n + n) = n.
+  induction n.
+  compute; reflexivity.
+  replace (S n + S n) with (S (S (n + n))); [|omega].
+  unfold div2; fold div2.
+  rewrite IHn.
+  reflexivity.
 Qed.
 
-Hint Rewrite plus_one.
-
-Lemma times_two : forall n, 2*n = n+n. 
-  intros. unfold mult. rewrite plus_0_r. reflexivity.
+Lemma div2_with_odd_argument : (forall n, div2 (S (n + n)) = n).
+  induction n.
+  compute; reflexivity.
+  replace (S (S n + S n)) with (S (S (S n + n))) ; [|omega].
+  unfold div2 at 1.
+  fold div2.
+  replace (S n + n) with (S (n + n)) ; [|omega].
+  rewrite IHn.
+  reflexivity.
 Qed.
-
-Hint Rewrite plus_one.
-Hint Rewrite times_two.
-
-  Lemma double_div2 : forall n, div2 (n + n) = n.
-    induction n.
-    compute; reflexivity.
-    replace (S n + S n) with (S (S (n + n))); [|omega].
-    unfold div2; fold div2.
-    rewrite IHn.
-    reflexivity.
-  Qed.
-
-  Lemma div2_with_odd_argument : (forall n, div2 (S (n + n)) = n).
-    induction n.
-    compute; reflexivity.
-    replace (S (S n + S n)) with (S (S (S n + n))) ; [|omega].
-    unfold div2 at 1.
-    fold div2.
-    replace (S n + n) with (S (n + n)) ; [|omega].
-    rewrite IHn.
-    reflexivity.
-  Qed.
 
 Lemma double_is_even: forall n, even (n+n).
   induction n.

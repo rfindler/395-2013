@@ -4,7 +4,7 @@ GEN_DEPS = braun.vo util.vo monad.vo fl_log.vo
 # fl_log.vo here is more than strictly neccessary,
 # because make_array is probably not going to depend on it
 
-all: insert.vo copy.vo size.vo
+all: insert.vo copy.vo size.vo log_sq.vo
 
 insert.vo : insert.v $(GEN_DEPS)
 	$(COQC) insert.v
@@ -14,6 +14,9 @@ copy.vo: copy.v $(GEN_DEPS)
 
 size.vo: copy.v $(GEN_DEPS)
 	$(COQC) size.v
+
+log_sq.vo: log_sq.v util.vo fl_log.vo
+	$(COQC) log_sq.v
 
 braun.vo: braun.v
 	$(COQC) braun.v

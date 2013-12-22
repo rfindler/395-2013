@@ -52,16 +52,17 @@
      (+ (diff-rt t k) 1)]))
 (define (non-zero? n) (not (= n 0)))
 
+(define (div2 n) (quotient n 2))
 
 (define (fl_log n)
   (cond
     [(zero? n) 0]
-    [else (+ (fl_log (quotient (- n 1) 2)) 1)]))
+    [else (+ (fl_log (div2 (- n 1))) 1)]))
 
 (define (cl_log n)
   (cond
     [(zero? n) 0]
-    [else (+ (cl_log (quotient n 2)) 1)]))
+    [else (+ (cl_log (div2 n)) 1)]))
 
 (unless (equal? (map fl_log '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
                 (map values '(0 1 1 2 2 2 2 3 3 3 3  3  3  3  3  4)))
@@ -110,14 +111,21 @@
 (define (sum-of-logs n)
   (cond
     [(zero? n) 0]
-    [(odd? n) (+ (fl_log n) (sum-of-logs (quotient (- n 1) 2)))]
-    [(even? n) (+ (cl_log n) (sum-of-logs (quotient (- n 1) 2)))]))
+    [(odd? n) (+ (fl_log n) (sum-of-logs (div2 (- n 1))))]
+    [(even? n) (+ (cl_log n) (sum-of-logs (div2 (- n 1))))]))
 
 (for ([n (in-range 200)])
   (define d (loglog-size-rt (copy n)))
   (define f (sum-of-logs n))
   (unless (= d f)
     (eprintf "size rt wrong: n = ~a d = ~a f = ~a\n" n d f)))
+
+(for ([n (in-range 0 10000000 10000)])
+  (define lb (div2 (* (cl_log n) (fl_log n))))
+  (define sl (sum-of-logs n))
+  (unless (<= lb sl)
+    (eprintf "lower bound wrong: n = ~a lb = ~a sl = ~a\n"
+             n lb sl)))
 
 (module+ slideshow
   (require slideshow)

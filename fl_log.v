@@ -139,8 +139,28 @@ Section fl_log.
     replace (m+1+m+1) with (S (S (m+m)));[|omega].
     replace (m+1) with (S m); [|omega].
     symmetry.
-    (* apply (Fix_eq _ lt lt_wf (fun _ => nat)).  *)
-    Admitted.
+    WfExtensionality.unfold_sub sum_of_logs (sum_of_logs (S (S (m + m)))).
+    destruct (even_odd_dec (S (m + m))).
+    inversion e.
+    rewrite <- H in H0.
+    assert (even n). rewrite H. eapply double_even.
+    rewrite double_div2. unfold double. reflexivity.
+    apply not_even_and_odd in H1. contradiction. assumption.
+    fold_sub sum_of_logs.
+    clear o.
+    replace ( match m + m with
+               | 0 => 0
+               | S n' => S (div2 n')
+               end)
+            with m.
+    reflexivity.
+    induction m. simpl. reflexivity.
+    replace (S m + S m) with (S (S (m + m))).
+    SearchAbout div2. rewrite div2_with_odd_input. reflexivity.
+    omega.
+Qed.
+
+(* and this one should go the same way... *)
 
   Lemma sum_of_logs_odd :
     forall n,

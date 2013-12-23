@@ -9,8 +9,8 @@ Section sq_log.
   Lemma fl_log_monotone :
     forall n, fl_log n <= fl_log (S n).
     apply (well_founded_ind
-         lt_wf
-         (fun n => fl_log n <= fl_log (S n))).
+             lt_wf
+             (fun n => fl_log n <= fl_log (S n))).
     intros.
     destruct x.
     compute. omega.

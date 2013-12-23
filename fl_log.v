@@ -225,5 +225,18 @@ Section fl_log.
     reflexivity.
   Qed.
 
+  Lemma fl_log_cl_log_relationship :
+    forall n,
+      S (fl_log n) = cl_log (S n).
+    apply (well_founded_ind
+             lt_wf
+             (fun n => S (fl_log n) = cl_log (S n))).
+    intros.
+    destruct x.
+    compute; reflexivity.
+    rewrite fl_log_div2'.
+    rewrite cl_log_div2'.
+    rewrite (H (div2 x)); auto.
+  Qed.
 
 End fl_log.

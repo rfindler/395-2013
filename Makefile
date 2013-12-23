@@ -12,10 +12,10 @@ insert.vo : insert.v $(GEN_DEPS)
 copy.vo: copy.v $(GEN_DEPS)
 	$(COQC) copy.v
 
-size.vo: copy.v $(GEN_DEPS)
+size.vo: size.v $(GEN_DEPS)
 	$(COQC) size.v
 
-make_array.vo: copy.v insert.vo $(GEN_DEPS)
+make_array.vo: make_array.v insert.vo $(GEN_DEPS)
 	$(COQC) make_array.v
 
 log_sq.vo: log_sq.v util.vo log.vo

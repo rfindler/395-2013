@@ -91,3 +91,11 @@ Qed.
 Lemma minus_0r : forall n, n-0=n.
   induction n; simpl; reflexivity.
 Qed.
+
+Ltac dispatch_if name2 name3 :=
+  match goal with
+    | [ |- context[if ?X then _ else _] ] => 
+      (remember X as junque1 eqn: junque2; 
+       destruct junque1 as [name2|name3];
+       clear junque2)
+  end.

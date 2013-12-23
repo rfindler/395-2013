@@ -41,113 +41,42 @@ Program Definition diff :
   end.
 
 Obligation 1.
-inversion H; clear.
-destruct (eq_nat_dec 0 0); intuition.
+inversion H; intuition.
 Defined.
 
 Obligation 2.
-remember (match s1_size + t1_size + 1 as n return ({0 = n} + {0 <> n}) with
-            | 0 => left eq_refl
-            | S m => right (O_S m) end) as COND.
-destruct COND; intuition.
-inversion H0; intuition.
-rewrite plus_comm in H2.
-inversion H2.
-
-assert (s1_size = 0);[omega|].
-assert (t1_size = 0);[omega|].
-subst.
-simpl.
-compute.
-reflexivity.
+dispatch_if n o; intuition.
+assert (s1_size = 0);[omega|];assert (t1_size = 0);[omega|].
+subst;compute;reflexivity.
 Defined.
 
-Ltac find_if_inside name2 name3 :=
-  match goal with
-    | [ |- context[if ?X then _ else _] ] => 
-      (remember X as junque1 eqn: junque2; 
-       destruct junque1 as [name2|name3];
-       clear junque2)
-  end.
-
 Obligation 4.
-remember (match
-             s1_size + t1_size + 1 as n return ({S m' = n} + {S m' <> n})
-           with
-             | 0 => right (not_eq_sym (O_S m'))
-             | S m =>
-               sumbool_rec
-                 (fun _ : {m' = m} + {m' <> m} => {S m' = S m} + {S m' <> S m})
-                 (fun a : m' = m => left (f_equal S a))
-                 (fun b0 : m' <> m => right (not_eq_S m' m b0)) 
-                 (eq_nat_dec m' m)
-           end) as COND1.
-remember (eq_nat_dec (div2 m') s1_size) as COND2.
-destruct COND1; destruct COND2; clear HeqCOND1; clear HeqCOND2.
+dispatch_if n1 o1; dispatch_if o n.
 
-(* case1 *)
-replace (s1_size + t1_size + 1) with (t1_size+s1_size+1); [|omega].
+(* case 1 *)
+replace (s1_size+t1_size+ 1) with (t1_size+s1_size+1); [|omega].
 apply braun_invariant_implies_fl_log_property.
 inversion H; apply even_double in H3; unfold double in H3.
 omega.
 
 (* case 2 *)
-inversion H.
-
-assert (m' = s1_size+t1_size \/ m' = s1_size+t1_size+1) as TWOCASES1; [omega|].
-assert (t1_size = s1_size \/ s1_size = t1_size +1) as TWOCASES2; [omega|].
-inversion TWOCASES1; inversion TWOCASES2; subst.
-
-rewrite double_div2 in n.
+inversion H as [n' EVEN].
+apply even_double in EVEN.
+unfold double in EVEN.
 intuition.
-
-replace (t1_size + 1 + t1_size) with (t1_size+t1_size+1) in H3; [|omega].
-apply odd_not_even in H3.
-intuition.
-
-apply odd_not_even in H3.
-intuition.
-
-replace (t1_size + 1 + t1_size + 1) with ((t1_size+1)+(t1_size+1)) in n;[|omega].
-rewrite double_div2 in n.
-intuition.
-
 
 (* case 3 *)
-inversion H.
-clear Heq_b Heq_anonymous s1 t1 b.
-
-assert (m' = s1_size+t1_size \/ m'+1 = s1_size+t1_size) as TWOCASES1; [omega|].
-assert (t1_size = s1_size \/ s1_size = t1_size+1) as TWOCASES2; [omega|].
-inversion TWOCASES1; inversion TWOCASES2; clear TWOCASES1 TWOCASES2. 
-
-subst s1_size n0.
-subst t1_size.
-rewrite <- H4 in n. intuition.
-
-subst s1_size n0.
-rewrite H5 in H4.
-rewrite H4 in H3.
-replace (t1_size + 1 + t1_size) with (t1_size+t1_size+1) in H3; [|omega].
-apply odd_not_even in H3.
-intuition.
-
-subst s1_size n0.
-subst t1_size.
-assert (even (m'+1)).
-rewrite H4.
-apply double_is_even.
-rewrite plus_comm in H2.
-simpl in H2.
-inversion H2.
-apply (not_even_and_odd m') in H6; [|assumption].
-intuition.
-
-
-assert (m' = s1_size + s1_size).
-rewrite <- e.
-apply even_double; assumption.
-intuition.  (* woah. no clue why that worked (or why the case is even true!). *)
+assert (m'=s1_size+t1_size);[omega|]; subst m'.
+assert (t1_size = s1_size \/ s1_size = t1_size +1) as TWOCASES; [omega|];
+inversion TWOCASES;subst.
+  
+(* case 3a *)
+rewrite double_div2 in o1; intuition.
+  
+(* case 3b *)
+clear Heq_anonymous.
+replace (S (t1_size + 1 + t1_size)) with ((S t1_size) + (S t1_size)) in H; [|omega].
+apply even_not_odd in H; intuition.
 
 (* case 4 *) 
 apply braun_invariant_implies_cl_log_property.
@@ -155,81 +84,38 @@ omega.
 Defined.
 
 Obligation 6.
+dispatch_if n1 o1; dispatch_if n o.
 
-remember (eq_nat_dec (div2 (m' - 1)) t1_size) as COND1.
-remember (match
-         s1_size + t1_size + 1 as n return ({S m' = n} + {S m' <> n})
-       with
-       | 0 => right (not_eq_sym (O_S m'))
-       | S m =>
-           sumbool_rec
-             (fun _ : {m' = m} + {m' <> m} => {S m' = S m} + {S m' <> S m})
-             (fun a : m' = m => left (f_equal S a))
-             (fun b0 : m' <> m => right (not_eq_S m' m b0)) 
-             (eq_nat_dec m' m)
-       end) as COND2.
-destruct COND1; destruct COND2; clear HeqCOND1; clear HeqCOND2.
-
+(* case 1 *)
 apply braun_invariant_implies_fl_log_property.
 omega.
 
 (* case 2 *)
-
-assert (s1_size+t1_size+1 = S m' \/ s1_size+t1_size+1 = S (m'+1)) as SIZES2; [omega|]; destruct SIZES2. 
-
-intuition.
-
-assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; destruct SIZES1.
-
-subst t1_size.
-subst s1_size.
-
-assert (even (m'-1)).
-inversion H.
-inversion H4.
-simpl.
-rewrite minus_0r.
-assumption.
-
-replace (div2 (m'-1) + div2(m'-1) + 1) with m' in H2.
-intuition.
-apply even_double in H3.
-unfold double in H3.
-omega.
-
-subst s1_size.
-rewrite plus_comm in H2.
-simpl in H2.
-inversion H2.
-assert (m' = t1_size + t1_size); [omega|].
-clear Heq_anonymous.
-rewrite H3 in H.
-replace (S (t1_size+t1_size)) with (t1_size+t1_size+1) in H; [|omega].
-assert False.
-apply (odd_not_even t1_size); assumption.
+destruct m';[inversion H;inversion H3|]. (* m' is not 0 *)
+assert (even m');[inversion H; inversion H3; assumption|].
+apply even_double in H2; unfold double in H2.
+simpl in n1; rewrite minus_0r in n1.
 intuition.
 
 (* case 3 *)
-
 assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; destruct SIZES1.
 
+(* case 3a *)
 subst t1_size.
 clear Heq_anonymous.
-rewrite e in H.
+rewrite n in H.
 apply odd_not_even in H.
 intuition.
 
+(* case 3b *)
 subst s1_size.
-
 assert (m'-1 = t1_size + t1_size); [omega|].
-assert (div2(m'-1) = t1_size).
-rewrite H2.
-apply double_div2.
+assert (div2(m'-1) = t1_size); [rewrite H2;apply double_div2|].
 intuition.
 
 (* case 4 *)
-
-assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; destruct SIZES1; subst s1_size.
+assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; 
+destruct SIZES1; subst s1_size.
 
 (* case 4a *)
 apply braun_invariant_implies_cl_log_property.
@@ -237,10 +123,8 @@ omega.
 
 (* case 4b *)
 clear Heq_b Heq_anonymous l l0.
-
 assert (t1_size+t1_size+1 = S m' \/ t1_size+t1_size+1 = S (m'+1)) as SIZES2;
   [omega|]; destruct SIZES2; intuition.
-
 rewrite <- H2 in H.
 apply odd_not_even in H.
 intuition.

@@ -7,12 +7,15 @@ Set Implicit Arguments.
 
 Section fl_log.
 
+  (* fl_log(n) = floor(log_2(n+1)) *)
   Program Fixpoint fl_log n {wf lt n} : nat :=
     match n with
       | 0 => 0
       | S n' => S (fl_log (div2 n'))
     end.
 
+  (* cl_log(n) = ceiling(log_2(n+1)) 
+     which is the same as Racket's 'integer-length' *)
   Program Fixpoint cl_log n {wf lt n} : nat :=
     match n with
       | 0 => 0

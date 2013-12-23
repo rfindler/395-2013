@@ -334,7 +334,7 @@ Defined.
 Program Fixpoint size A (n:nat) (b : braun_tree A n) : C nat (sum_of_logs n) := 
   match b with 
     | Empty => ret 0
-    | Node _ _ _ P s t =>
+    | Node _ s_size t_size P s t =>
       (++1;
        zo <- diff s P ;
        (size_t <- size t ; 
@@ -342,18 +342,15 @@ Program Fixpoint size A (n:nat) (b : braun_tree A n) : C nat (sum_of_logs n) :=
   end.
 
 Obligation 1.
-rename wildcard'0 into n.
-rename wildcard'1 into m.
-remember (eq_nat_dec m n) as COND.
+remember (eq_nat_dec t_size s_size) as COND.
 destruct COND; clear HeqCOND Heq_b s t b; subst; rewrite plus_0_r.
 
 rewrite <- sum_of_logs_odd.
 rewrite fl_log_odd.
 omega.
 
-assert (m+1=n) as MN.
-assert (m=n \/ m+1=n) as TWOCASES; [omega|]; destruct TWOCASES; omega.
-subst n.
+assert (t_size+1=s_size) as MN; [omega|].
+subst s_size.
 rewrite <- sum_of_logs_even.
 rewrite <- cl_log_even.
 omega.

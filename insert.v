@@ -23,15 +23,6 @@ Program Fixpoint insert (A:Set) n (x:A) (b : braun_tree A n)
 Solve Obligations using (intros;omega).
 
 Obligation 2.
-  assert (s_size = t_size \/ s_size = t_size + 1) as TwoCases;
-    [ omega | ].
-
-  inversion TwoCases; subst; clear.
-  
-  rewrite fl_log_odd.
-  reflexivity.
-
-  replace (t_size + 1 + t_size + 1) with ((t_size+1) + (t_size+1)); [| omega].
-  rewrite fl_log_even.
-  reflexivity.
+apply braun_invariant_implies_fl_log_property.
+omega.
 Qed.

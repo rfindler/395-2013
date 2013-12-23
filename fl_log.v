@@ -167,5 +167,60 @@ Section fl_log.
     contradiction.
     assumption.
   Qed.
-  
+
+  Lemma braun_invariant_implies_fl_log_property : 
+    forall s_size t_size,
+      t_size <= s_size <= t_size + 1 ->
+      fl_log t_size + 1 = fl_log (s_size + t_size + 1).
+
+    intros.
+    assert (s_size = t_size \/ s_size = t_size + 1) as TwoCases;
+      [ omega | ].
+    
+    inversion TwoCases; subst; clear.
+    
+    rewrite fl_log_odd.
+    reflexivity.
+    
+    replace (t_size + 1 + t_size + 1) with ((t_size+1) + (t_size+1)); [| omega].
+    rewrite fl_log_even.
+    reflexivity.
+  Qed.
+
+  Lemma braun_invariant_implies_cl_log_property:
+    forall s1_size t1_size,
+      t1_size <= s1_size <= t1_size + 1 ->
+      cl_log s1_size + 1 = cl_log (s1_size + t1_size + 1).
+
+    intros.
+    assert (s1_size = t1_size \/ s1_size = t1_size+1) as TWOCASES; [omega|].
+    inversion TWOCASES; clear TWOCASES; subst s1_size.
+
+    replace (cl_log (t1_size + t1_size+1)) with (cl_log (S (t1_size + t1_size))).
+
+    replace (cl_log (S (t1_size + t1_size))) 
+    with (S (cl_log (div2 (S (t1_size + t1_size))))) ; [|rewrite cl_log_div2';reflexivity].
+
+    replace (div2 (S (t1_size+t1_size))) with t1_size; 
+      [| rewrite (div2_with_odd_input t1_size); reflexivity].
+
+    omega.
+
+    replace (t1_size + t1_size+1) with (S (t1_size+t1_size)).
+    reflexivity.
+
+    omega.
+
+    replace (t1_size + 1 + t1_size + 1) with (S (S (t1_size+t1_size))); [|omega].
+    rewrite cl_log_div2'.
+
+    replace (S (S (t1_size+t1_size))) with ((S t1_size)+(S t1_size)); [|omega].
+    rewrite double_div2.
+    rewrite plus_comm.
+    simpl.
+    rewrite plus_comm.
+    reflexivity.
+  Qed.
+
+
 End fl_log.

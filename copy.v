@@ -33,25 +33,6 @@ Section copy2.
 
   Solve Obligations using (intros; omega).
 
-
-  Lemma odd_cleanup : 
-    forall k n, 
-      odd n -> div2 n + (div2 n) + (1+k) = n + k.
-    intros n k H.
-    apply odd_double in H.
-    unfold double in H.
-    omega.
-  Defined.
-
-  Lemma even_cleanup : 
-    forall k n,
-      even n -> div2 n + (div2 n) + k = n + k.
-    intros n k H.
-    apply even_double in H.
-    unfold double in H.
-    omega.
-  Defined.
-
   Definition copy_rt n := S (2 * fl_log n).
 
   Program Fixpoint copy2 (n:nat) {wf lt n}
@@ -79,21 +60,13 @@ Section copy2.
   Obligation 5.
     replace (fl_log (div2 n') + (fl_log (div2 n') + 0) + 2) 
       with ((fl_log (div2 n') + 1) + (fl_log (div2 n') + 1)) ; [| omega].
-    rewrite fl_log_div2.
-    unfold copy_rt.
-    unfold mult.
-    rewrite plus_0_r.
-    reflexivity.
+    rewrite fl_log_div2; unfold copy_rt; omega.
   Qed.
 
   Obligation 9.
     replace (fl_log (div2 n') + (fl_log (div2 n') + 0) + 2) 
     with ((fl_log (div2 n') + 1) + (fl_log (div2 n') + 1)) ; [| omega].
-    rewrite fl_log_div2.
-    unfold copy_rt.
-    unfold mult.
-    rewrite plus_0_r.
-    reflexivity.
+    rewrite fl_log_div2; unfold copy_rt; omega.
   Qed.
 
   Program Definition copy n : C (braun_tree A n) (copy_rt n) :=

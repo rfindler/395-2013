@@ -99,3 +99,22 @@ Ltac dispatch_if name2 name3 :=
        destruct junque1 as [name2|name3];
        clear junque2)
   end.
+
+  Lemma odd_cleanup : 
+    forall k n, 
+      odd n -> div2 n + (div2 n) + (1+k) = n + k.
+    intros n k H.
+    apply odd_double in H.
+    unfold double in H.
+    omega.
+  Defined.
+
+  Lemma even_cleanup : 
+    forall k n,
+      even n -> div2 n + (div2 n) + k = n + k.
+    intros n k H.
+    apply even_double in H.
+    unfold double in H.
+    omega.
+  Defined.
+

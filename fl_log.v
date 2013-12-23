@@ -25,9 +25,9 @@ Section fl_log.
       | S n' =>
         match even_odd_dec n' with
           | right H =>
-            cl_log n + sum_of_logs (proj1_sig (odd_S2n n' H))
+            cl_log n + sum_of_logs (div2 n')
           | left H =>
-            fl_log n + sum_of_logs (proj1_sig (even_2n n' H))
+            fl_log n + sum_of_logs (div2 n')
         end
     end.
   

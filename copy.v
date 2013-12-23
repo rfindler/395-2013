@@ -62,11 +62,11 @@ Section copy2.
       | S n' => 
         match even_odd_dec n' with
           | right H =>
-            p <- (copy2 (proj1_sig (odd_S2n n' H))) ;
-              helper_ss_st p
+            (p <- (copy2 (div2 n'));
+             helper_ss_st p)
           | left H =>
-            p <- (copy2 (proj1_sig (even_2n n' H))) ;
-              helper_st_tt p
+            (p <- (copy2 (div2 n'));
+             helper_st_tt p)
         end
     end.
 

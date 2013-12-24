@@ -6,7 +6,7 @@ Require Import Arith Arith.Even Arith.Div2.
 Require Import Omega.
 
 Program Fixpoint insert (A:Set) n (x:A) (b : braun_tree A n)
-: C (braun_tree A (n+1)) (fl_log n + 1) :=
+: C (braun_tree A (n+1)) (cl_log (n+1)) :=
   match b with
     | Empty =>
       (++1 ;
@@ -22,7 +22,11 @@ Program Fixpoint insert (A:Set) n (x:A) (b : braun_tree A n)
 
 Solve Obligations using (intros;omega).
 
-Obligation 2.
-apply braun_invariant_implies_fl_log_property.
+Obligation 4.
+replace (t_size+1) with (S t_size);[|omega].
+replace (s_size+t_size+1+1) with (S (s_size+t_size+1));[|omega].
+rewrite <- fl_log_cl_log_relationship.
+rewrite <- fl_log_cl_log_relationship.
+rewrite <- braun_invariant_implies_fl_log_property; [|omega].
 omega.
 Qed.

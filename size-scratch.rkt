@@ -55,15 +55,21 @@
 
 (define (div2 n) (quotient n 2))
 
+#;
 (define (fl_log n)
   (cond
     [(zero? n) 0]
     [else (+ (fl_log (div2 (- n 1))) 1)]))
 
+#;
 (define (cl_log n)
   (cond
     [(zero? n) 0]
     [else (+ (cl_log (div2 n)) 1)]))
+
+(define (cl_log n) (integer-length n))
+(define (fl_log n) (sub1 (integer-length (add1 n))))
+
 
 (printf "testing fl_log and cl_log\n")
 (unless (equal? (map fl_log '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
@@ -123,19 +129,23 @@
   (unless (= d f)
     (eprintf "size rt wrong: n = ~a d = ~a f = ~a\n" n d f)))
 
+(define (sum-of-logs-lb n) (div2 (* (cl_log n) (fl_log n))))
+
 (printf "testing lower bound of sum-of-logs\n")
 (for ([n (in-range 0 10000000 10000)])
-  (define lb (div2 (* (cl_log n) (fl_log n))))
+  (define lb (sum-of-logs-lb n))
   (define sl (sum-of-logs n))
   (unless (<= lb sl)
     (eprintf "lower bound wrong: n = ~a lb = ~a sl = ~a\n"
              n lb sl)))
 
+(define (sum-of-logs-ub n) (* 2 (fl_log n) (fl_log n)))
+
 (printf "testing upper bound of sum-of-logs\n")
 (let loop ([n 1]
            [i 400])
   (unless (zero? i)
-    (define ub (* (cl_log n) (cl_log n)))
+    (define ub (sum-of-logs-ub n))
     (define sl (sum-of-logs n))
     (unless (<= sl ub)
       (eprintf "upper bound wrong: n = ~a ub = ~a sl = ~a δ = ~a\n"
@@ -143,7 +153,7 @@
     (loop (+ n n (random 100)) (- i 1))))
 
 (module+ slideshow
-  (require slideshow)
+  (require slideshow plot)
   
   (define (tree->pict t path)
     (match t
@@ -233,4 +243,21 @@
     (for*/list ([n (in-range 0 32)])
       (define b (copy n))
       (define d (diff-path b (max 0 (- n 1))))
-      (tree->pict b d)))))
+      (tree->pict b d))))
+  
+  (define (plot-sum-of-logs upper-bound)
+    (plot-pict
+     #:x-label "n"
+     #:y-label "sum_of_logs(n)"
+     (lines 
+      (for/list ([i (in-range upper-bound)])
+        (vector i (sum-of-logs i))))))
+  
+  (slide 
+   (scale-to-fit
+    (vc-append
+     (hc-append
+      (plot-sum-of-logs (expt 2 8)) (plot-sum-of-logs (expt 2 9)))
+     (hc-append
+      (plot-sum-of-logs (expt 2 10)) (plot-sum-of-logs (expt 2 11))))
+    client-w client-h)))

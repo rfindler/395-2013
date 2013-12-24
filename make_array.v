@@ -31,7 +31,7 @@ Section make_array_naive.
   Fixpoint rt_naive n : nat :=
     match n with
       | 0 => 0
-      | S n' => rt_naive n' + (fl_log n' + 1)
+      | S n' => rt_naive n' + (cl_log n)
     end.
 
   Example rt_naive_ex :
@@ -46,5 +46,8 @@ Section make_array_naive.
            (ret Empty)
            s.
   Obligation 1. omega. Qed.
+  Obligation 2. 
+  replace (n0 + 1) with (S n0);[reflexivity|omega]. 
+  Qed.
 
 End make_array_naive.

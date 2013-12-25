@@ -41,21 +41,18 @@ Section copy2.
     match n with 
       | 0 => (++1 ; ret (Node x 0 0 _ Empty Empty,Empty))
       | S n' => 
-        match even_odd_dec n' with
-          | right H =>
-            (p <- (copy2 (div2 n'));
-             helper_ss_st p)
-          | left H =>
-            (p <- (copy2 (div2 n'));
-             helper_st_tt p)
-        end
+        if even_odd_dec n' 
+        then (p <- (copy2 (div2 n'));
+              helper_st_tt p)
+        else (p <- (copy2 (div2 n'));
+              helper_ss_st p)
     end.
 
-  Obligation 3. rewrite (odd_cleanup 2). omega. assumption. Defined.
-  Obligation 4. rewrite (odd_cleanup 1). omega. assumption. Defined.
+  Obligation 3. rewrite (even_cleanup 2); [omega|assumption]. Defined.
+  Obligation 4. rewrite (even_cleanup 1); [omega|assumption]. Defined.
 
-  Obligation 7. rewrite (even_cleanup 2). omega. assumption. Defined.
-  Obligation 8. rewrite (even_cleanup 1). omega. assumption. Defined.
+  Obligation 7. rewrite (odd_cleanup 2); [omega|assumption]. Defined.
+  Obligation 8. rewrite (odd_cleanup 1); [omega|assumption]. Defined.
 
   Obligation 5.
     replace (fl_log (div2 n') + (fl_log (div2 n') + 0) + 2) 

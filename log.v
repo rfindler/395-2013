@@ -26,12 +26,9 @@ Section fl_log.
     match n with
       | 0 => 0
       | S n' =>
-        match even_odd_dec n' with
-          | right H =>
-            cl_log n + sum_of_logs (div2 n')
-          | left H =>
-            fl_log n + sum_of_logs (div2 n')
-        end
+        if even_odd_dec n'
+        then fl_log n + sum_of_logs (div2 n')
+        else cl_log n + sum_of_logs (div2 n')
     end.
   
   Example fl_log_ex :

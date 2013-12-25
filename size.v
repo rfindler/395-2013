@@ -21,22 +21,19 @@ Program Definition diff :
                                                       then (fl_log n)
                                                       else (cl_log n)) :=
   match b as b in braun_tree _ n with
-    | Empty => fun m => fun P => ret 0
+    | Empty => fun m P => ret 0
     | Node _ s1_size t1_size _ s1 t1 => 
-      fun m =>
+      fun m P =>
         match m with
-          | 0 => fun P => ++1; ret 1
+          | 0 => ++1; ret 1
           | S m' => 
-            match even_odd_dec m with
-              | right H => 
-                fun P => (zo <- diff s1_size s1 (div2 m') _;
-                          ++1;
-                          ret zo)
-              | left H =>
-                fun P => (zo <- diff t1_size t1 (div2 (m' - 1)) _;
-                          ++1;
-                          ret zo)
-            end
+            if even_odd_dec m
+            then (zo <- diff t1_size t1 (div2 (m' - 1)) _;
+                  ++1;
+                  ret zo)
+            else (zo <- diff s1_size s1 (div2 m') _;
+                  ++1;
+                  ret zo)
         end
   end.
 
@@ -50,7 +47,7 @@ assert (s1_size = 0);[omega|];assert (t1_size = 0);[omega|].
 subst;compute;reflexivity.
 Defined.
 
-Obligation 4.
+Obligation 6.
 dispatch_if n1 o1; dispatch_if o n.
 
 (* case 1 *)
@@ -74,7 +71,6 @@ inversion TWOCASES;subst.
 rewrite double_div2 in o1; intuition.
   
 (* case 3b *)
-clear Heq_anonymous.
 replace (S (t1_size + 1 + t1_size)) with ((S t1_size) + (S t1_size)) in H; [|omega].
 apply even_not_odd in H; intuition.
 
@@ -83,7 +79,7 @@ apply braun_invariant_implies_cl_log_property.
 omega.
 Defined.
 
-Obligation 6.
+Obligation 4.
 dispatch_if n1 o1; dispatch_if n o.
 
 (* case 1 *)
@@ -102,7 +98,6 @@ assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; destruct 
 
 (* case 3a *)
 subst t1_size.
-clear Heq_anonymous.
 rewrite n in H.
 apply odd_not_even in H.
 intuition.
@@ -122,7 +117,6 @@ apply braun_invariant_implies_cl_log_property.
 omega.
 
 (* case 4b *)
-clear Heq_b Heq_anonymous l l0.
 assert (t1_size+t1_size+1 = S m' \/ t1_size+t1_size+1 = S (m'+1)) as SIZES2;
   [omega|]; destruct SIZES2; intuition.
 rewrite <- H2 in H.
@@ -130,9 +124,8 @@ apply odd_not_even in H.
 intuition.
 Defined.
 
-Obligation 3.
-
-clear Heq_anonymous b Heq_b wildcard' s1 t1 A.
+Obligation 5.
+clear b Heq_b wildcard' s1 t1 A.
 
 assert (s1_size = t1_size \/ s1_size = t1_size + 1) as SIZES1; [omega|]; clear l l0.
 assert (S m' = s1_size + t1_size + 1 \/ S (m'+1) = s1_size + t1_size + 1) as SIZES2; [omega|]; clear H0 H1.
@@ -162,9 +155,8 @@ omega.
 
 Defined.
 
-Obligation 5.
-
-clear Heq_anonymous b Heq_b wildcard' s1 t1 A.
+Obligation 3.
+clear b Heq_b wildcard' s1 t1 A.
 
 assert (s1_size = t1_size \/ s1_size = t1_size + 1) as SIZES1; [omega|]; clear l l0.
 assert (S m' = s1_size + t1_size + 1 \/ S (m'+1) = s1_size + t1_size + 1) as SIZES2; [omega|]; clear H0 H1.
@@ -190,7 +182,6 @@ apply odd_not_even in H.
 intuition.
 Defined.
 
-
 Program Fixpoint size A (n:nat) (b : braun_tree A n) : C nat (sum_of_logs n) := 
   match b with 
     | Empty => ret 0
@@ -202,8 +193,9 @@ Program Fixpoint size A (n:nat) (b : braun_tree A n) : C nat (sum_of_logs n) :=
   end.
 
 Obligation 1.
-remember (eq_nat_dec t_size s_size) as COND.
-destruct COND; clear HeqCOND Heq_b s t b; subst; rewrite plus_0_r.
+clear Heq_b s t b.
+
+dispatch_if n o; subst; rewrite plus_0_r.
 
 rewrite <- sum_of_logs_odd.
 rewrite fl_log_odd.

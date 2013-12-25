@@ -6,7 +6,7 @@ GEN_DEPS = braun.vo util.vo log.vo
 
 all: extract.vo
 
-extract.vo: extract.v insert.vo
+extract.vo: extract.v insert.vo copy.vo
 	$(COQC) extract.v
 
 insert.vo : insert.v $(GEN_DEPS)

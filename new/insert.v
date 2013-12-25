@@ -30,7 +30,7 @@ Proof.
   exists (bt_node x t' s).
   destruct IR as [n IR].
   eauto.
-Qed.
+Defined.
 
 Theorem InsertR_Braun :
   forall (x:A) (n n':nat) (bt bt':(bin_tree A)),

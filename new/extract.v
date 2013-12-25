@@ -1,6 +1,3 @@
-Require Import insert.
+Require Import insert copy.
 
-Set Extraction AccessOpaque.
-Recursive Extraction insert.insert.
-
-
+Recursive Extraction insert.insert copy.copy.

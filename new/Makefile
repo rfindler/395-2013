@@ -4,7 +4,15 @@ GEN_DEPS = braun.vo util.vo log.vo
 # log.vo here is more than strictly neccessary,
 # because make_array is probably not going to depend on it
 
-all: extract.vo
+all: braun
+
+braun: braun.ml braun.cmi
+	ocamlc $@.ml -o $@
+
+braun.cmi: braun.mli
+	ocamlc -c $^
+
+braun.mli braun.ml: extract.vo
 
 extract.vo: extract.v insert.vo copy.vo
 	$(COQC) extract.v

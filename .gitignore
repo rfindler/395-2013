@@ -1,3 +1,7 @@
 *~
 *.vo
 *.glob
+*.cmi
+*.cmo
+*.mli
+

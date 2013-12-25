@@ -1,4 +1,5 @@
-Require Import braun monad log insert.
+Require Import braun monad log insert le_util.
+Require Import Program.Equality Omega.
 Require Import Div2 List.
 Set Implicit Arguments.
 
@@ -48,6 +49,26 @@ Section make_array_naive.
   Obligation 1. omega. Qed.
   Obligation 2. 
   replace (n0 + 1) with (S n0);[reflexivity|omega]. 
+  Qed.
+
+  Lemma rt_naive_is_nlogn : forall n, rt_naive n <= n * cl_log n.
+    apply (well_founded_ind 
+             lt_wf 
+             (fun n => rt_naive n <= n * cl_log n)).
+    intros x IND.
+    destruct x.
+    compute; constructor.
+    replace (rt_naive (S x)) with (rt_naive x + cl_log (S x));[|simpl;reflexivity].
+    replace (S x * cl_log (S x)) with (cl_log (S x) + x * cl_log (S x));[|simpl;omega].
+    rewrite plus_comm.
+    apply le_plus_right.
+    apply (le_trans (rt_naive x) 
+                    (x * cl_log x)
+                    (x * cl_log (S x))).
+    apply IND.
+    constructor.
+    apply le_mult_right.
+    apply cl_log_monotone.
   Qed.
 
 End make_array_naive.

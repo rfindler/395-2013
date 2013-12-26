@@ -29,7 +29,7 @@ Section size.
     destruct IT as [t_time IT].
     exists (s_time + t_time + 1).
     eauto.
-  Qed.
+  Defined.
 
   Theorem SizeLinearR_time :
     forall bt n,
@@ -179,7 +179,7 @@ Section size.
     unfold double.
     replace (S (S (k + k))) with (2 * k + 2); try omega.
     eauto.
-  Qed.
+  Defined.
 
   (* XXX diff running time *)
 
@@ -206,7 +206,7 @@ Section size.
     destruct IT as [t_time IT].
     destruct DS as [s_sime DS].
     eauto.
-  Qed.
+  Defined.
 
   (* XXX size running time *)
 

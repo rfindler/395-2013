@@ -1,7 +1,5 @@
 Require Import insert copy size Arith.Div2 Arith.Even.
 
-Set Extraction AccessOpaque.
-
 Extract Inductive bool => "bool" [ "false" "true" ].
 Extract Inductive sumbool => "bool" [ "false" "true" ].
 Extract Inductive prod => "(*)"  [ "(,)" ].

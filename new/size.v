@@ -31,6 +31,7 @@ Section size.
     eauto.
   Defined.
 
+  (* COMMENT: Also establishes correctness *)
   Theorem SizeLinearR_time :
     forall bt n,
       Braun bt n ->
@@ -71,80 +72,73 @@ Section size.
     induction DR; auto.
   Qed.
 
-  Theorem diff_correct_zero :
+  Theorem DiffR_correct_zero :
     forall s m,
       Braun s m ->
-      forall dt,
-        DiffR s m 0 dt ->
-        exists lt, SizeLinearR s m lt.
+      exists t, DiffR s m 0 t.
   Proof.
     intros s m B.
-    induction B; intros dt D.
-
-    inversion_clear D.
-    eauto.
-
-    inversion D; clear D; subst.
-    replace k with s_size in *; try omega.
-    eapply IHB1 in H6.
-    exists (s_size + s_size + 1).
-    eapply SLR_node.
-    eauto.
-    replace (s_size + 0) with s_size; try omega.
-    replace s_size with t_size; try omega.
-    auto.
-
-    replace k with t_size in *; try omega.
+    induction B; eauto.
+    
     assert (s_size = t_size \/ s_size = t_size + 1) as CASES; try omega.
     destruct CASES as [EQ|EQ]; subst.
 
-    eapply IHB2 in H6.
-    exists (t_size + (t_size + 1) + 1).
+    replace (t_size + t_size + 1) with (2 * t_size + 1); try omega.
+    destruct IHB1 as [s_time Ds].
+    exists (s_time+1).
+    eauto.
+
+    replace (t_size + 1 + t_size + 1) with (2 * t_size + 2); try omega.
+    destruct IHB2 as [t_time Dt].
+    exists (t_time+1).
+    eauto.
+  Qed.
+
+  Theorem DiffR_correct_one :
+    forall s m,
+      Braun s (m+1) ->
+      exists t, DiffR s m 1 t.
+  Proof.
+    intros s m B.
+    remember (m+1) as n.
+    generalize m Heqn. clear m Heqn.
+    induction B; intros m Heqn.
+
     omega.
 
-    eapply IHB2 in H6.
-    exists ((t_size + 1) + t_size + 1).
-    replace (t_size + (t_size + 0) + 2) with ((t_size + 1) + t_size + 1); try omega.
-    eapply SLR_node; eauto.
-  Qed.
+    destruct s_size as [|s_size];
+      destruct t_size as [|t_size].
 
-  Theorem diff_correct_one :
-    forall s m,
-      Braun s m ->
-      forall dt,
-        DiffR s m 1 dt ->
-        exists lt, SizeLinearR s (m+1) lt.
-  Proof.
-    intros s m B.
-    induction B; intros dt D.
+    exists 1.
+    replace m with 0 in *; try omega.
+    eapply DR_single.
 
-    inversion_clear D.
+    destruct (IHB2 m); omega.
 
-    inversion D; clear D; subst.
-    symmetry in H4. apply plusone_ne_zero in H4. tauto.
+    assert (s_size = 0); try omega. subst.
+    replace m with 1 in *; try omega.
+    destruct (IHB1 0) as [s_time Ds]; try omega.
+    exists (s_time+1).
+    replace 1 with (2 * 0 + 1); try omega.
+    eapply DR_one.
+    auto.
 
-    replace k with s_size in *; try omega.
-    replace t_size with s_size in *; try omega.
-    apply IHB1 in H6.
-    destruct H6 as [lt SLRs].
-    exists (lt + s_size + 1).
-    replace (s_size + (s_size + 0) + 1 + 1) with ((s_size + 1) + s_size + 1); try omega.
-    eapply SLR_node; eauto.
+    replace m with (S s_size + S t_size) in *; try omega.
+    clear Heqn.
 
-    replace k with t_size in *; try omega.
     assert (s_size = t_size \/ s_size = t_size + 1) as CASES; try omega.
     destruct CASES as [EQ|EQ]; subst.
 
-    replace (t_size + (t_size + 0)) with (t_size + t_size) in H4; try omega.
-    apply IHB2 in H6.
-    destruct H6 as [lt SLRt].
-    exists ((t_size+1) + lt + 1).
-    replace (t_size + (t_size + 0) + 2 + 1) with
-     ((t_size + 1) + (t_size + 1) + 1); try omega.
-    eapply SLR_node; eauto.
-  Qed.
+    destruct (IHB2 t_size) as [t_time Dt]; try omega.
+    exists (t_time+1).
+    replace (S t_size + S t_size) with (2 * t_size + 2); try omega.
+    eapply DR_two. auto.
 
-  (* FIXME I really dislike how similar those two proofs are. *)
+    destruct (IHB1 (t_size+1)) as [s_time Ds]; try omega.
+    exists (s_time+1).
+    replace (S (t_size + 1) + S t_size) with (2 * (t_size + 1) + 1); try omega.
+    eapply DR_one. auto.
+  Qed.
 
   Theorem diff :
     forall bt m,
@@ -210,32 +204,35 @@ Section size.
 
   (* XXX size running time *)
 
-  (* XXX Both of these ideas of correctness may be wrong because SR
-  relies on Braun *)
-
-  (* XXX I think this is too strong because it says that you can
-  derive one judgement from the other, rather than that they simply
-  always agree *)
-
-  Theorem size_correct1 :
-    forall bt s,
-      (exists t, SizeLinearR bt s t) <->
-      (exists t, SizeR bt s t).
+  Theorem SizeR_correct :
+    forall bt n,
+      Braun bt n ->
+      exists t, SizeR bt n t.
   Proof.
-  Admitted.
+    induction bt as [|y s IS t IT]; intros n B;
+    inversion_clear B; eauto.
 
-  (* XXX I think this is too weak because it doesn't ensure the SLR or
-  SR actually run, but I suppose we can conclude that from their
-  decidability *)
+    clear IS.
+    rename H0 into Bs.
+    rename H1 into Bt.
+    apply IT in Bt.
+    destruct Bt as [t_time SRt].
 
-  Theorem size_correct2 :
-    forall bt ls s lt t,
-      SizeLinearR bt ls lt ->
-      SizeR bt s t ->
-      s = ls.
-  Proof.
-  Admitted.
+    assert (s_size = t_size \/ s_size = t_size + 1) as CASES; try omega.
+    destruct CASES as [EQ|EQ]; subst.
 
+    replace (t_size + t_size + 1) with (1 + 2 * t_size + 0); try omega.
+    apply DiffR_correct_zero in Bs.
+    destruct Bs as [s_time Ds].
+    exists (s_time + t_time + 1).
+    eapply SR_node; eauto.
+
+    replace (t_size + 1 + t_size + 1) with (1 + 2 * t_size + 1); try omega.
+    apply DiffR_correct_one in Bs.
+    destruct Bs as [s_time Ds].
+    exists (s_time + t_time + 1).
+    eapply SR_node; eauto.
+  Qed.
 End size.
 
 (*

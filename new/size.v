@@ -43,10 +43,15 @@ Section size.
 
   Inductive DiffR : (bin_tree A) -> nat -> nat -> nat -> Prop :=
     | DR_mt :
-        DiffR (bt_mt A) 0 0 0
+        (* COMMENT: This is different than the paper, which insists
+        that m = 0 *)
+        forall m,
+          DiffR (bt_mt A) m 0 0
     | DR_single :
-        forall x,
-          DiffR (bt_node x (bt_mt A) (bt_mt A)) 0 1 1
+        (* COMMENT: This is different than the paper, which insists
+        that s = t = bt_mt *)
+        forall x s t,
+          DiffR (bt_node x s t) 0 1 1
     | DR_one :
         forall x s t s_df s_time k,
           DiffR s k s_df s_time ->
@@ -139,29 +144,19 @@ Section size.
     eapply SLR_node; eauto.
   Qed.
 
-  Theorem diff1 :
+  (* FIXME I really dislike how similar those two proofs are. *)
+
+  Theorem diff :
     forall bt m,
       { df | exists t, DiffR bt m df t }.
   Proof.
     induction bt as [|y s IS t IT]; intros m.
 
-    (* XXX There's no reason to believe that m should be 0 here. So we
-    could change DR_mt to be "forall m" *)
-    
-    admit.
+    eauto.
 
     destruct m as [|m'].
-    
-    (* XXX There's no reason to believe that s and t are bt_mt. We
-    could change DR_single to be "forall s t" *)
 
-    admit.
-
-    (* XXX Both of these changes seem wrong, because they mean that
-    diff will return 0/1 when size != m or m+1 [unless we parameterize
-    by Braunness?] and we should instead say either (a) some calls to
-    diff are invalid [diff1 will be partial] or (b) its correctness
-    relies on some property such as Braun-ness and m <= n <= m+1 *)
+    eauto.
 
     destruct (even_odd_dec m') as [E | O].
 
@@ -186,18 +181,6 @@ Section size.
     eauto.
   Qed.
 
-  (* XXX Maybe something like this will solve the problems above? But
-  see size2 below *)
-
-  Theorem diff2 :
-    forall bt n,
-      Braun bt n ->
-      forall m,
-        m <= n <= m + 1 ->
-        { df | exists t, DiffR bt m df t }.
-  Proof.
-  Admitted.
-
   (* XXX diff running time *)
 
   Inductive SizeR : (bin_tree A) -> nat -> nat -> Prop :=
@@ -218,28 +201,17 @@ Section size.
     eauto.
     clear IS.
     destruct IT as [m IT].
-    destruct (diff1 s m) as [s_df DS].
+    destruct (diff s m) as [s_df DS].
     exists (1 + 2 * m + s_df).
     destruct IT as [t_time IT].
     destruct DS as [s_sime DS].
     eauto.
   Qed.
 
-  Theorem size2 :
-    forall bt n,
-      Braun bt n ->
-      { sz | exists t, SizeR bt sz t }.
-  Proof.
-    induction bt as [|y s IS t IT]; intros n B.
-    eauto.
-    clear IS.
-
-    (* XXX We want to invert B to learn that t is Braun, but we cannot
-    because we are in Set, but we can't get out of Set until /after/
-    we use IT. Thus we're stuck. *)
-  Admitted.
-
   (* XXX size running time *)
+
+  (* XXX Both of these ideas of correctness may be wrong because SR
+  relies on Braun *)
 
   (* XXX I think this is too strong because it says that you can
   derive one judgement from the other, rather than that they simply

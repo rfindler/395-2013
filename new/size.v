@@ -1,4 +1,5 @@
 Require Import braun util log.
+Require Import Coq.Program.Wf.
 Require Import Arith Arith.Even Arith.Div2.
 Set Implicit Arguments.
 
@@ -63,7 +64,21 @@ Section size.
           DiffR (bt_node x s t) (2 * k + 2) t_df (t_time+1).
   Hint Constructors DiffR.
 
-  Theorem diff_correct_ans :
+  Lemma DiffR_fun :
+    forall s m df dt,
+      DiffR s m df dt ->
+      forall df' dt',
+        DiffR s m df' dt' ->
+        df = df' /\ dt = dt'.
+  Proof.
+    intros s m df dt DR.
+    induction DR; intros df' dt' DR';
+    inversion DR'; subst; clear DR'; try omega;
+    replace k0 with k in *; try omega;
+    apply IHDR in H5; omega.
+  Qed.
+
+  Theorem DiffR_correct_ans :
     forall s m df t,
       DiffR s m df t ->
       (df = 0 \/ df = 1).
@@ -140,6 +155,43 @@ Section size.
     eapply DR_one. auto.
   Qed.
 
+  Theorem DiffR_time :
+    forall bt n,
+      Braun bt n ->
+      forall df dt,
+        DiffR bt n df dt ->
+        dt = fl_log n.
+  Proof.
+    intros bf n B.
+    induction B;
+    intros df dt DR.
+
+    inversion_clear DR.
+    apply fl_log_zero.
+
+    inversion DR; clear DR; subst.
+
+    omega.
+
+    replace k with s_size in *; try omega.
+    rewrite (IHB1 df s_time H6) in *.
+    replace (s_size + 0) with s_size; try omega.
+    symmetry.
+    apply fl_log_odd.
+
+    assert (s_size = t_size \/ s_size = t_size + 1) as CASES; try omega.
+    destruct CASES as [EQ|EQ]; subst.
+
+    omega.
+
+    replace k with t_size in *; try omega.
+    rewrite (IHB2 df t_time H6) in *; try omega.
+    replace (t_size + 0) with t_size; try omega.
+    symmetry.
+    replace (t_size + t_size + 2) with (t_size + 1 + (t_size + 1)); try omega.
+    apply fl_log_even.
+  Qed.
+
   Theorem diff :
     forall bt m,
       { df | exists t, DiffR bt m df t }.
@@ -179,8 +231,6 @@ Section size.
     eauto.
   Defined.
 
-  (* XXX diff running time *)
-
   Inductive SizeR : (bin_tree A) -> nat -> nat -> Prop :=
     | SR_mt :
         SizeR (bt_mt A) 0 0
@@ -190,23 +240,6 @@ Section size.
           DiffR s m s_df s_time ->
           SizeR (bt_node x s t) (1 + 2 * m + s_df) (s_time + t_time + 1).
   Hint Constructors SizeR.
-
-  Theorem size :
-    forall bt,
-      { sz | exists t, SizeR bt sz t }.
-  Proof.
-    induction bt as [|y s IS t IT].
-    eauto.
-    clear IS.
-    destruct IT as [m IT].
-    destruct (diff s m) as [s_df DS].
-    exists (1 + 2 * m + s_df).
-    destruct IT as [t_time IT].
-    destruct DS as [s_sime DS].
-    eauto.
-  Defined.
-
-  (* XXX size running time *)
 
   Theorem SizeR_correct :
     forall bt n,
@@ -237,6 +270,77 @@ Section size.
     exists (s_time + t_time + 1).
     eapply SR_node; eauto.
   Qed.
+
+  (* XXX size running time *)
+
+  Theorem SizeR_invert :
+    forall bt n,
+      Braun bt n ->
+      forall m t,
+        SizeR bt m t ->
+        m = n.
+  Proof.
+    intros bt n B m t SR.
+    induction SR.
+
+    inversion_clear B. auto.
+
+    inversion B; subst; clear B.
+
+  Admitted.
+
+  Theorem SizeR_time :
+    forall bt n,
+      Braun bt n ->
+      forall st,
+        SizeR bt n st ->
+        st = sum_of_logs n.
+  Proof.
+    intros bt n B.
+    induction B; intros st SR.
+
+    inversion SR; subst; clear SR.
+    auto.
+
+    inversion SR; subst; clear SR.
+    rename H into BP.
+    rename H5 into SR.
+    rename H6 into DR.
+    rename H4 into EQ.
+    replace m with t_size in *; [| symmetry; eapply SizeR_invert; eauto ].
+    apply IHB2 in SR. subst.
+    destruct (DiffR_correct_ans DR); subst.
+    
+    replace s_size with t_size in *; try omega.
+    apply DiffR_time in DR; auto.
+    subst.
+
+    (* XXX Is this true? *)
+    admit.
+       
+    assert (s_size = t_size \/ s_size = t_size + 1) as CASES; try omega.
+    destruct CASES as [E|E]; subst.
+    omega.
+    apply DiffR_time in DR; auto.
+    subst.
+
+    (* XXX Possibly we need something like DiffR_time for m+1 *)
+  Admitted.
+
+  Theorem size :
+    forall bt,
+      { sz | exists t, SizeR bt sz t }.
+  Proof.
+    induction bt as [|y s IS t IT].
+    eauto.
+    clear IS.
+    destruct IT as [m IT].
+    destruct (diff s m) as [s_df DS].
+    exists (1 + 2 * m + s_df).
+    destruct IT as [t_time IT].
+    destruct DS as [s_sime DS].
+    eauto.
+  Defined.
 End size.
 
 (*

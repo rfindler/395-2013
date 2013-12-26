@@ -14,7 +14,7 @@ braun.cmi: braun.mli
 
 braun.mli braun.ml: extract.vo
 
-extract.vo: extract.v insert.vo copy.vo
+extract.vo: extract.v insert.vo copy.vo size.vo
 	$(COQC) extract.v
 
 insert.vo : insert.v $(GEN_DEPS)
@@ -31,6 +31,9 @@ make_array.vo: make_array.v insert.vo le_util.vo $(GEN_DEPS)
 
 same_structure.vo: same_structure.v braun.vo
 	$(COQC) same_structure.v
+
+size.vo: size.v braun.vo
+	$(COQC) size.v
 
 log_sq.vo: log_sq.v util.vo log.vo le_util.vo
 	$(COQC) log_sq.v

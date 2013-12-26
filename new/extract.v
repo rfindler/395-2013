@@ -1,4 +1,6 @@
-Require Import insert copy Arith.Div2 Arith.Even.
+Require Import insert copy size Arith.Div2 Arith.Even.
+
+Set Extraction AccessOpaque.
 
 Extract Inductive bool => "bool" [ "false" "true" ].
 Extract Inductive sumbool => "bool" [ "false" "true" ].
@@ -9,4 +11,4 @@ Extract Inductive nat =>
 Extract Constant div2 => "fun a -> a / 2".
 Extract Constant even_odd_dec => "fun a -> (a mod 2) != 0".
 
-Extraction "braun.ml" insert.insert copy.copy.
+Extraction "braun.ml" insert.insert copy.copy size.size_linear size.size.

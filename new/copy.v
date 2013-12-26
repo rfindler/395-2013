@@ -27,7 +27,6 @@ Section copy.
         CopyR n bt1 time.
   Hint Constructors CopyR.
 
-(*
   Lemma copy2 : 
     forall (n:nat),
       {pr | exists time, Copy2R n pr time}.
@@ -45,11 +44,22 @@ Section copy.
 
     exists (bt_node x s t, bt_node x t t).
     destruct IND2.
+    exists (x0+2).
+    replace (S n) with (2*(div2 n)+1).
     eauto.
+    rewrite (even_double n) at 2;[|assumption].
+    unfold double.
+    omega.
 
     exists (bt_node x s s, bt_node x s t).
     destruct IND2.
+    exists (x0+2).
+    replace (S n) with (2*(div2 n)+2).
     eauto.
+    rewrite (odd_double n) at 2;[|assumption].
+    unfold double.
+    omega.
+
   Defined.
 
   Theorem copy : 
@@ -61,7 +71,7 @@ Section copy.
     destruct E.
     eauto.
   Defined.
-*)
+
 End copy.
 
   Lemma Copy2_produces_Braun :

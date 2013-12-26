@@ -118,3 +118,9 @@ Ltac dispatch_if name2 name3 :=
     omega.
   Defined.
 
+  Lemma plusone_ne_zero:
+    forall n,
+      n + 1 <> 0.
+  Proof.
+    intros. omega.
+  Qed.

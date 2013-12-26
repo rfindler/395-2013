@@ -40,11 +40,116 @@ Section size.
     inversion_clear B; eauto.
   Qed.
 
-  Definition size := 0.
+  Inductive DiffR : (bin_tree A) -> nat -> nat -> nat -> Prop :=
+    | DR_mt :
+        DiffR (bt_mt A) 0 0 0
+    | DR_single :
+        forall x,
+          DiffR (bt_node x (bt_mt A) (bt_mt A)) 0 1 1
+    | DR_one :
+        forall x s t s_df s_time k,
+          DiffR s k s_df s_time ->
+          DiffR (bt_node x s t) (2 * k + 1) s_df (s_time+1)
+    | DR_two :
+        forall x s t t_df t_time k,
+          DiffR t k t_df t_time ->
+          DiffR (bt_node x s t) (2 * k + 2) t_df (t_time+1).
+  Hint Constructors DiffR.
+
+  Theorem diff1 :
+    forall bt m,
+      { df | exists t, DiffR bt m df t }.
+  Proof.
+    induction bt as [|y s IS t IT]; intros m.
+
+    (* XXX There's no reason to believe that m should be 0 here. *)
+    admit.
+
+    destruct m as [|m'].
+    
+    (* XXX There's no reason to believe that s and t are bt_mt *)
+    admit.
+
+    destruct (even_odd_dec m') as [E | O].
+
+    apply even_2n in E. 
+    destruct E as [k E]; subst.
+    destruct (IS k) as [s_df ISk].
+    exists s_df.
+    destruct ISk as [s_time ISk].
+    exists (s_time+1).
+    unfold double.
+    replace (S (k + k)) with (2 * k + 1); try omega.
+    eauto.
+
+    apply odd_S2n in O.
+    destruct O as [k O]; subst.
+    destruct (IT k) as [t_df ITk].
+    exists t_df.
+    destruct ITk as [t_time ITk].
+    exists (t_time+1).
+    unfold double.
+    replace (S (S (k + k))) with (2 * k + 2); try omega.
+    eauto.
+  Qed.
+
+  (* XXX Maybe something like this will solve the problems above? But
+  see size2 below *)
+
+  Theorem diff2 :
+    forall bt n,
+      Braun bt n ->
+      forall m,
+        m <= n <= m + 1 ->
+        { df | exists t, DiffR bt m df t }.
+  Proof.
+  Admitted.
+
+  (* XXX diff running time *)
+
+  Inductive SizeR : (bin_tree A) -> nat -> nat -> Prop :=
+    | SR_mt :
+        SizeR (bt_mt A) 0 0
+    | SR_node :
+        forall x s t m t_time s_df s_time,
+          SizeR t m t_time ->
+          DiffR s m s_df s_time ->
+          SizeR (bt_node x s t) (1 + 2 * m + s_df) (s_time + t_time + 1).
+  Hint Constructors SizeR.
+
+  Theorem size :
+    forall bt,
+      { sz | exists t, SizeR bt sz t }.
+  Proof.
+    induction bt as [|y s IS t IT].
+    eauto.
+    clear IS.
+    destruct IT as [m IT].
+    destruct (diff1 s m) as [s_df DS].
+    exists (1 + 2 * m + s_df).
+    destruct IT as [t_time IT].
+    destruct DS as [s_sime DS].
+    eauto.
+  Qed.
+
+  Theorem size2 :
+    forall bt n,
+      Braun bt n ->
+      { sz | exists t, SizeR bt sz t }.
+  Proof.
+    induction bt as [|y s IS t IT]; intros n B.
+    eauto.
+    clear IS.
+
+    (* XXX We want to invert B to learn that t is Braun, but we cannot
+    because we are in Set, but we can't get out of Set until /after/
+    we use IT. Thus we're stuck. *)
+  Admitted.
+
+  (* XXX size running time *)
 End size.
 
 (*
-
 Program Definition diff : 
   forall A n (b : braun_tree A n) (m : nat) (P : m <= n <= m+1), 
     C nat (if (eq_nat_dec m n) then (fl_log n) else (cl_log n)) :=
@@ -240,5 +345,4 @@ rewrite <- cl_log_even.
 omega.
 
 Defined.
-
 *)

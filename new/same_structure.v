@@ -1,7 +1,7 @@
 (* prove that there can be only one
    shape braun tree for a given size *)
 
-Require Import braun Omega.
+Require Import braun util Omega.
 Require Import Program.Equality.
 Set Implicit Arguments.
 
@@ -31,13 +31,6 @@ Module same_structure.
     induction SS; intros n1 n2 B1 B2;
     inversion_clear B1;
     inversion_clear B2; eauto.
-  Qed.
-
-  Lemma plusone_ne_zero:
-    forall n,
-      n + 1 <> 0.
-  Proof.
-    intros. omega.
   Qed.
 
   Theorem same_size_same_structure :

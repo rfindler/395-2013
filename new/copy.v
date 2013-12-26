@@ -106,12 +106,40 @@ Qed.
 
 Lemma Copy_produces_Braun : 
   forall A x n bt time, 
-    (CopyR A x n bt time)
-    -> Braun bt n.
+    (CopyR A x n bt time) ->
+    Braun bt n.
 Proof.
   intros A x n bt time CSR.
   inversion CSR.
   apply Copy2_produces_Braun in H.
   inversion H.
+  assumption.
+Qed.
+
+Lemma Copy2R_running_time : 
+  forall A x n bt1 bt2 time, 
+    Copy2R A x n (bt1,bt2) time ->
+    time = ((2 * fl_log n) + 1).
+Proof.
+  intros A x n bt1 bt2 time Copy2.
+  dependent induction Copy2.
+  compute; reflexivity.
+
+  replace (2*m+1) with (m+m+1); [|omega].
+  rewrite fl_log_odd.
+  omega.
+  
+  replace (2*m+2) with ((m+1)+(m+1));[|omega].
+  rewrite fl_log_even.
+  omega.
+Qed.
+
+Lemma CopyR_running_time : 
+  forall A x n bt1 time, 
+    CopyR A x n bt1 time ->
+    time = ((2 * fl_log n) + 1).
+  intros.
+  inversion H.
+  apply Copy2R_running_time in H0.
   assumption.
 Qed.

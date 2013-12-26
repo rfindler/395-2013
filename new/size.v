@@ -146,10 +146,14 @@ Section size.
   Proof.
     induction bt as [|y s IS t IT]; intros m.
 
+    (* COMMENT: This relies on the modification of DR_mt, because m
+    may not be 0 *)
     eauto.
 
     destruct m as [|m'].
 
+    (* COMMENT: This relies on the modification of DR_single, because
+    s and t may not be bt_mt *)
     eauto.
 
     destruct (even_odd_dec m') as [E | O].

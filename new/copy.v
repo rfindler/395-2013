@@ -24,7 +24,7 @@ Section copy.
     CR : 
       forall n bt1 bt2 time,
         Copy2R n (bt1,bt2) time ->
-        CopyR n bt1 time.
+        CopyR n bt2 time.
   Hint Constructors CopyR.
 
   Lemma copy2 : 
@@ -67,40 +67,51 @@ Section copy.
   Proof.
     intros n.
     destruct (copy2 n) as [[s t] E].
-    exists s.
+    exists t.
     destruct E.
     eauto.
   Defined.
 
 End copy.
 
-  Lemma Copy2_produces_Braun :
-    forall A x n bt1 bt2 time, 
-      (Copy2R A x n (bt1,bt2) time)
-      -> Braun bt1 (n+1) /\ Braun bt2 n.
-    intros A x n s t time.
-    intros CSR.
-    dependent induction CSR; try (inversion IHCSR; clear IHCSR).
+Lemma Copy2_produces_Braun :
+  forall A x n bt1 bt2 time, 
+    (Copy2R A x n (bt1,bt2) time)
+    -> Braun bt1 (n+1) /\ Braun bt2 n.
+Proof.
+  intros A x n s t time CSR.
+  dependent induction CSR; try (inversion IHCSR; clear IHCSR).
 
-    constructor.
-    replace (0+1) with (0+0+1);[|omega].
-    constructor; [omega|constructor|constructor].
-    constructor.
+  constructor.
+  replace (0+1) with (0+0+1);[|omega].
+  constructor; [omega|constructor|constructor].
+  constructor.
 
-    constructor.
+  constructor.
 
-    replace (2*m+1+1) with ((m+1)+m+1);[|omega].
-    constructor;[omega|assumption|assumption].
+  replace (2*m+1+1) with ((m+1)+m+1);[|omega].
+  constructor;[omega|assumption|assumption].
 
-    replace (2*m+1) with (m+m+1);[|omega].
-    constructor;[omega|assumption|assumption].
+  replace (2*m+1) with (m+m+1);[|omega].
+  constructor;[omega|assumption|assumption].
 
-    constructor.
+  constructor.
 
-    replace (2*m+2+1) with ((m+1)+(m+1)+1);[|omega].
-    constructor;[omega|assumption|assumption].
+  replace (2*m+2+1) with ((m+1)+(m+1)+1);[|omega].
+  constructor;[omega|assumption|assumption].
 
-    replace (2*m+2) with ((m+1)+m+1);[|omega].
-    constructor;[omega|assumption|assumption].
+  replace (2*m+2) with ((m+1)+m+1);[|omega].
+  constructor;[omega|assumption|assumption].
 Qed.
 
+Lemma Copy_produces_Braun : 
+  forall A x n bt time, 
+    (CopyR A x n bt time)
+    -> Braun bt n.
+Proof.
+  intros A x n bt time CSR.
+  inversion CSR.
+  apply Copy2_produces_Braun in H.
+  inversion H.
+  assumption.
+Qed.

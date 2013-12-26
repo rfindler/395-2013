@@ -4,7 +4,7 @@ GEN_DEPS = braun.vo util.vo log.vo
 # log.vo here is more than strictly neccessary,
 # because make_array is probably not going to depend on it
 
-all: braun
+all: braun same_structure.vo
 
 braun: braun.ml braun.cmi
 	ocamlc $@.ml -o $@

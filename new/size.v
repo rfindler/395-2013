@@ -39,6 +39,7 @@ Section size.
     induction bt as [|y s IS t IT]; intros n B;
     inversion_clear B; eauto.
   Qed.
+  Hint Resolve SizeLinearR_time.
 
   Inductive DiffR : (bin_tree A) -> nat -> nat -> nat -> Prop :=
     | DR_mt :
@@ -56,19 +57,111 @@ Section size.
           DiffR (bt_node x s t) (2 * k + 2) t_df (t_time+1).
   Hint Constructors DiffR.
 
+  Theorem diff_correct_ans :
+    forall s m df t,
+      DiffR s m df t ->
+      (df = 0 \/ df = 1).
+  Proof.
+    intros s m df t DR.
+    induction DR; auto.
+  Qed.
+
+  Theorem diff_correct_zero :
+    forall s m,
+      Braun s m ->
+      forall dt,
+        DiffR s m 0 dt ->
+        exists lt, SizeLinearR s m lt.
+  Proof.
+    intros s m B.
+    induction B; intros dt D.
+
+    inversion_clear D.
+    eauto.
+
+    inversion D; clear D; subst.
+    replace k with s_size in *; try omega.
+    eapply IHB1 in H6.
+    exists (s_size + s_size + 1).
+    eapply SLR_node.
+    eauto.
+    replace (s_size + 0) with s_size; try omega.
+    replace s_size with t_size; try omega.
+    auto.
+
+    replace k with t_size in *; try omega.
+    assert (s_size = t_size \/ s_size = t_size + 1) as CASES; try omega.
+    destruct CASES as [EQ|EQ]; subst.
+
+    eapply IHB2 in H6.
+    exists (t_size + (t_size + 1) + 1).
+    omega.
+
+    eapply IHB2 in H6.
+    exists ((t_size + 1) + t_size + 1).
+    replace (t_size + (t_size + 0) + 2) with ((t_size + 1) + t_size + 1); try omega.
+    eapply SLR_node; eauto.
+  Qed.
+
+  Theorem diff_correct_one :
+    forall s m,
+      Braun s m ->
+      forall dt,
+        DiffR s m 1 dt ->
+        exists lt, SizeLinearR s (m+1) lt.
+  Proof.
+    intros s m B.
+    induction B; intros dt D.
+
+    inversion_clear D.
+
+    inversion D; clear D; subst.
+    symmetry in H4. apply plusone_ne_zero in H4. tauto.
+
+    replace k with s_size in *; try omega.
+    replace t_size with s_size in *; try omega.
+    apply IHB1 in H6.
+    destruct H6 as [lt SLRs].
+    exists (lt + s_size + 1).
+    replace (s_size + (s_size + 0) + 1 + 1) with ((s_size + 1) + s_size + 1); try omega.
+    eapply SLR_node; eauto.
+
+    replace k with t_size in *; try omega.
+    assert (s_size = t_size \/ s_size = t_size + 1) as CASES; try omega.
+    destruct CASES as [EQ|EQ]; subst.
+
+    replace (t_size + (t_size + 0)) with (t_size + t_size) in H4; try omega.
+    apply IHB2 in H6.
+    destruct H6 as [lt SLRt].
+    exists ((t_size+1) + lt + 1).
+    replace (t_size + (t_size + 0) + 2 + 1) with
+     ((t_size + 1) + (t_size + 1) + 1); try omega.
+    eapply SLR_node; eauto.
+  Qed.
+
   Theorem diff1 :
     forall bt m,
       { df | exists t, DiffR bt m df t }.
   Proof.
     induction bt as [|y s IS t IT]; intros m.
 
-    (* XXX There's no reason to believe that m should be 0 here. *)
+    (* XXX There's no reason to believe that m should be 0 here. So we
+    could change DR_mt to be "forall m" *)
+    
     admit.
 
     destruct m as [|m'].
     
-    (* XXX There's no reason to believe that s and t are bt_mt *)
+    (* XXX There's no reason to believe that s and t are bt_mt. We
+    could change DR_single to be "forall s t" *)
+
     admit.
+
+    (* XXX Both of these changes seem wrong, because they mean that
+    diff will return 0/1 when size != m or m+1 [unless we parameterize
+    by Braunness?] and we should instead say either (a) some calls to
+    diff are invalid [diff1 will be partial] or (b) its correctness
+    relies on some property such as Braun-ness and m <= n <= m+1 *)
 
     destruct (even_odd_dec m') as [E | O].
 
@@ -147,6 +240,30 @@ Section size.
   Admitted.
 
   (* XXX size running time *)
+
+  (* XXX I think this is too strong because it says that you can
+  derive one judgement from the other, rather than that they simply
+  always agree *)
+
+  Theorem size_correct1 :
+    forall bt s,
+      (exists t, SizeLinearR bt s t) <->
+      (exists t, SizeR bt s t).
+  Proof.
+  Admitted.
+
+  (* XXX I think this is too weak because it doesn't ensure the SLR or
+  SR actually run, but I suppose we can conclude that from their
+  decidability *)
+
+  Theorem size_correct2 :
+    forall bt ls s lt t,
+      SizeLinearR bt ls lt ->
+      SizeR bt s t ->
+      s = ls.
+  Proof.
+  Admitted.
+
 End size.
 
 (*

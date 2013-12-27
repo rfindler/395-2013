@@ -28,4 +28,23 @@ Section naive1.
     apply (naive1R_suc _ _ bt); eauto.
   Defined.
   
+  Theorem MkArrNaive1R_Braun :
+    forall xs bt n,
+      MkArrNaive1R xs bt n ->
+      Braun bt (length xs).
+
+    intro xs.
+    induction xs as [| x xs]; intros bt n MkArrR.
+
+    simpl.
+    inversion_clear MkArrR.
+    constructor.
+
+    simpl.
+    inversion_clear MkArrR.
+    apply (InsertR_Braun A x (length xs) insert_time bt0).
+    apply (IHxs bt0 time H0).
+    assumption.
+  Qed.
+
 End naive1.

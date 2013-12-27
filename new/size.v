@@ -32,8 +32,7 @@ Section size.
     eauto.
   Defined.
 
-  (* COMMENT: Also establishes correctness *)
-  Theorem SizeLinearR_time :
+  Theorem SizeLinearR_correct_and_time :
     forall bt n,
       Braun bt n ->
       SizeLinearR bt n n.
@@ -41,19 +40,14 @@ Section size.
     induction bt as [|y s IS t IT]; intros n B;
     inversion_clear B; eauto.
   Qed.
-  Hint Resolve SizeLinearR_time.
+  Hint Resolve SizeLinearR_correct_and_time.
 
   Inductive DiffR : (bin_tree A) -> nat -> nat -> nat -> Prop :=
     | DR_mt :
-        (* COMMENT: This is different than the paper, which insists
-        that m = 0 *)
-        forall m,
-          DiffR (bt_mt A) m 0 0
+          DiffR (bt_mt A) 0 0 0
     | DR_single :
-        (* COMMENT: This is different than the paper, which insists
-        that s = t = bt_mt *)
-        forall x s t,
-          DiffR (bt_node x s t) 0 1 1
+        forall x,
+          DiffR (bt_node x (bt_mt A) (bt_mt A)) 0 1 1
     | DR_one :
         forall x s t s_df s_time k,
           DiffR s k s_df s_time ->
@@ -108,6 +102,7 @@ Section size.
     exists (t_time+1).
     eauto.
   Qed.
+  Hint Resolve DiffR_correct_zero.
 
   Theorem DiffR_correct_one :
     forall s m,
@@ -126,6 +121,8 @@ Section size.
 
     exists 1.
     replace m with 0 in *; try omega.
+    inversion B1; try omega.
+    inversion B2; try omega.
     eapply DR_single.
 
     destruct (IHB2 m); omega.
@@ -154,6 +151,7 @@ Section size.
     replace (S (t_size + 1) + S t_size) with (2 * (t_size + 1) + 1); try omega.
     eapply DR_one. auto.
   Qed.
+  Hint Resolve DiffR_correct_one.
 
   Theorem DiffR_time :
     forall bt n,
@@ -192,43 +190,90 @@ Section size.
     apply fl_log_even.
   Qed.
 
-  Theorem diff :
+  Theorem diff_dec :
     forall bt m,
-      { df | exists t, DiffR bt m df t }.
+      { df | exists t, DiffR bt m df t } + 
+      { forall df t, ~ DiffR bt m df t }.
   Proof.
     induction bt as [|y s IS t IT]; intros m.
 
-    (* COMMENT: This relies on the modification of DR_mt, because m
-    may not be 0 *)
-    eauto.
+    destruct m as [|m'].
+    left. eauto.
+    right. intros df t DR. inversion DR.
 
     destruct m as [|m'].
 
-    (* COMMENT: This relies on the modification of DR_single, because
-    s and t may not be bt_mt *)
-    eauto.
+    destruct s as [|sx ss st];
+      destruct t as [|tx ts tt]; eauto; right;
+      intros df dt DR;
+      inversion DR; clear DR; subst; try omega.
 
     destruct (even_odd_dec m') as [E | O].
 
     apply even_2n in E. 
     destruct E as [k E]; subst.
-    destruct (IS k) as [s_df ISk].
-    exists s_df.
+    destruct (IS k) as [ [s_df ISk] | ISk_Fail ].
+    left. exists s_df.
     destruct ISk as [s_time ISk].
     exists (s_time+1).
     unfold double.
     replace (S (k + k)) with (2 * k + 1); try omega.
     eauto.
 
+    right. intros df dt DR.
+    inversion DR; clear DR; subst.
+    unfold double in *.
+    replace k0 with k in *; try omega.
+    eapply ISk_Fail. apply H5.
+
+    unfold double in *.
+    omega.
+
     apply odd_S2n in O.
     destruct O as [k O]; subst.
-    destruct (IT k) as [t_df ITk].
-    exists t_df.
+    destruct (IT k) as [[t_df ITk] | ITk_Fail ].
+    left. exists t_df.
     destruct ITk as [t_time ITk].
     exists (t_time+1).
     unfold double.
     replace (S (S (k + k))) with (2 * k + 2); try omega.
     eauto.
+
+    right. intros df dt DR.
+    inversion DR; clear DR; subst;
+    unfold double in *.
+
+    omega.
+
+    replace k0 with k in *; try omega.
+    eapply ITk_Fail. apply H5.
+  Defined.
+
+  Theorem diff_Braun :
+    forall bt m,
+      (Braun bt m) \/ (Braun bt (m+1)) ->
+      exists df t,
+        DiffR bt m df t.
+  Proof.
+    intros bt m [B | B].
+    eauto.
+    exists 1.
+    eauto.
+  Qed.
+
+  Theorem diff :
+    forall bt m,
+      (Braun bt m) \/ (Braun bt (m+1)) ->
+      { df | exists t, DiffR bt m df t }.
+  Proof.
+    intros bt m Bor.
+    destruct (diff_dec bt m) as [OK | FAIL].
+    eauto.
+    apply diff_Braun in Bor.
+    assert False; try tauto.
+    destruct Bor as [df [t DR]].
+    apply FAIL in DR.
+    auto.
   Defined.
 
   Inductive SizeR : (bin_tree A) -> nat -> nat -> Prop :=
@@ -327,19 +372,62 @@ Section size.
     (* XXX Possibly we need something like DiffR_time for m+1 *)
   Admitted.
 
-  Theorem size :
+  Lemma SizeR_fun :
+    forall s sz st,
+      SizeR s sz st ->
+      forall sz' st',
+        SizeR s sz' st' ->
+        sz = sz' /\ st = st'.
+  Proof.
+    intros s sz st SR.
+
+    induction SR; intros sz' st' SR';
+    inversion SR'; clear SR'; subst;
+    try (split; omega).
+
+    destruct (IHSR m0 t_time0 H5); subst m0 t_time0.
+    destruct (DiffR_fun H H6); subst.
+    omega.
+  Qed.
+
+  Theorem size_dec :
     forall bt,
-      { sz | exists t, SizeR bt sz t }.
+      { sz | exists t, SizeR bt sz t } + 
+      { forall sz t, ~ SizeR bt sz t }.
   Proof.
     induction bt as [|y s IS t IT].
     eauto.
     clear IS.
-    destruct IT as [m IT].
-    destruct (diff s m) as [s_df DS].
-    exists (1 + 2 * m + s_df).
+    destruct IT as [[m IT] | FAIL ].
+    destruct (diff_dec s m) as [[s_df DS] | DFAIL ].
+    left. exists (1 + 2 * m + s_df).
     destruct IT as [t_time IT].
-    destruct DS as [s_sime DS].
+    destruct DS as [s_time DS].
     eauto.
+
+    right. intros sz st SR.
+    inversion SR; clear SR; subst.
+    destruct IT as [t_time' SRt].
+    replace m0 with m in *.
+    eapply DFAIL. apply H5.
+    destruct (SizeR_fun SRt H4); auto.
+
+    right. intros sz st SR.
+    inversion SR; clear SR; subst.
+    eapply FAIL; apply H4.
+  Defined.
+
+  Theorem size :
+    forall bt m,
+      Braun bt m ->
+      { sz | exists t, SizeR bt sz t }.
+  Proof.
+    intros bt m B.
+    destruct (size_dec bt) as [ OK | FAIL ]; eauto.
+    assert False; try tauto.
+    apply SizeR_correct in B.
+    destruct B as [ st SR ].
+    eapply FAIL. apply SR.
   Defined.
 End size.
 

@@ -1,6 +1,11 @@
 Set Implicit Arguments.
 Require Import Arith.Even Arith.Div2 Omega.
 
+(* I think this is stdlib somewhere *)
+Lemma plus_r_inj : forall m n1 n2, n1 = n2 -> m + n1 = m + n2.
+  intros; omega.
+Qed.
+
 Lemma div2_monotone : forall n, (div2 n <= div2 (S n)).
   apply (ind_0_1_SS (fun n => div2 n <= div2 (S n))); 
   [ | | intros n IndHyp; simpl in IndHyp]; 

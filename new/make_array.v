@@ -1,4 +1,4 @@
-Require Import braun log insert.
+Require Import braun log insert util.
 
 Section naive1.
   Variable A : Set.
@@ -47,4 +47,48 @@ Section naive1.
     assumption.
   Qed.
 
+  Fixpoint rt_naive n : nat :=
+    match n with
+      | 0 => 0
+      | S n' => rt_naive n' + (fl_log n' + 1)
+    end.
+
+  Require Import List.
+  Example rt_naive_ex :
+    map rt_naive (1 :: 2 :: 3 :: 4 ::  5 ::  6 ::  7 ::  8 ::  9 :: 10 :: nil)
+               = (1 :: 3 :: 5 :: 8 :: 11 :: 14 :: 17 :: 21 :: 25 :: 29 :: nil).
+  compute; reflexivity. Qed.
+
+  (* Helper *)
+  Theorem MkArrNaive1R_time_help :
+    forall xs bt n,
+      MkArrNaive1R xs bt n ->
+      n = rt_naive (length xs) /\ Braun bt (length xs).
+  Proof.
+    intros xs bt n IndR.
+    induction IndR.
+    split; simpl; constructor.
+
+    assert (Braun bt' (length (x :: xs))).
+
+    apply (InsertR_Braun _ x (length xs) insert_time bt bt').
+    destruct IHIndR; assumption.
+    assumption.
+        
+    split; [| assumption].
+
+    destruct IHIndR as [IHTime IHBraun].
+    simpl; subst.
+    apply plus_r_inj.
+    apply (InsertR_time A x _ _ bt bt'); auto.
+  Qed.
+  
+  Theorem MkArrNaive1R_time :
+    forall xs bt n,
+      MkArrNaive1R xs bt n ->
+      n = rt_naive (length xs).
+  Proof.
+    apply MkArrNaive1R_time_help.
+  Qed.
+    
 End naive1.

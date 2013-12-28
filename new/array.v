@@ -14,7 +14,7 @@ Section naive1.
         MkArrNaive1R (x :: xs) bt' (time + insert_time).
   Hint Constructors MkArrNaive1R.
 
-  Theorem make_array_naive1 :
+  Theorem make_array_linear :
     forall xs,
       { bt | exists n, MkArrNaive1R xs bt n }.
   Proof.

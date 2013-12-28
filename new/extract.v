@@ -13,4 +13,4 @@ Extract Constant mult => "fun x y -> x * y".
 Extract Constant div2 => "fun a -> a / 2".
 Extract Constant even_odd_dec => "fun a -> (a mod 2) != 0".
 
-Extraction "braun.ml" insert.insert copy.copy size.size_linear size.size array.make_array_linear.
+Extraction "braun.ml" insert.insert copy.copy size.size_linear size.size array.index array.make_array_linear.

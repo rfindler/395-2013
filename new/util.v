@@ -129,3 +129,6 @@ Ltac dispatch_if name2 name3 :=
   Proof.
     intros. omega.
   Qed.
+
+  Ltac invclr X :=
+    inversion X; clear X; subst.

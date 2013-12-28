@@ -110,7 +110,7 @@ Section array.
   Inductive MakeArrayLinearR : list A -> bin_tree A -> nat -> Prop :=
   | MALR_zero : 
       MakeArrayLinearR nil (bt_mt A) 0
-  | MALR_suc  :
+  | MALR_succ :
       forall x xs bt bt' time insert_time,
         InsertR A x bt bt' insert_time ->
         MakeArrayLinearR        xs bt                  time ->
@@ -130,7 +130,7 @@ Section array.
     destruct IR as [indTime indR].
     destruct insIR' as [insTime insIR].
     exists (indTime + insTime).
-    apply (MALR_suc _ _ bt); eauto.
+    apply (MALR_succ _ _ bt); eauto.
   Defined.
   
   Theorem MakeArrayLinearR_Braun :
@@ -151,6 +151,125 @@ Section array.
     apply (IHxs bt0 time H0).
     assumption.
   Qed.
+
+  Inductive ListIndexR : list A -> nat -> A -> Prop :=
+    | LIR_zero :
+        forall x xs,
+          ListIndexR (x :: xs) 0 x
+    | LIR_succ :
+        forall x xs n y,
+          ListIndexR xs n y ->
+          ListIndexR (x :: xs) (S n) y.
+  Hint Constructors ListIndexR.
+
+  Theorem ListIndexR_correct :
+    forall i xs x,
+      nth_error xs i = value x <->
+      ListIndexR xs i x.
+  Proof.
+    induction i as [|n]; intros xs y;
+    destruct xs as [|x xs]; simpl;
+    split; intros H;
+    inversion H; clear H; subst;
+    eauto.
+
+    apply IHn in H1. eauto.
+    apply IHn in H4. auto.
+  Qed.
+
+  Lemma InsertR_correct_zero :
+    forall x bt bt' t,
+      InsertR A x bt bt' t ->
+      IndexR bt' 0 x.
+  Proof.
+    intros x bt bt' t IR.
+    inversion IR; clear IR; subst;
+    eauto.
+  Qed.
+  Hint Resolve InsertR_correct_zero.
+
+  Lemma IndexR_zero_inv :
+    forall x s t x',
+      IndexR (bt_node x s t) 0 x' ->
+      x = x'.
+  Proof.
+    intros x s t x' IR.
+    inversion IR; clear IR; subst;
+    try omega.
+    auto.
+  Qed.
+  Hint Resolve IndexR_zero_inv.
+
+  Theorem MakeArrayLinearR_correct1 :
+    forall xs bt n,
+      MakeArrayLinearR xs bt n ->
+      forall i x,
+        IndexR bt i x ->
+        ListIndexR xs i x.
+  Proof.
+  Admitted.
+
+  Lemma InsertR_node :
+    forall x bt bt' t,
+      InsertR A x bt bt' t ->
+      exists y s t,
+        bt' = bt_node y s t.
+  Proof.
+    intros x bt bt' t IR.
+    invclr IR; eauto.
+  Qed.
+
+  Theorem MakeArrayLinearR_correct2 :
+    forall xs i x,        
+      ListIndexR xs i x ->
+      forall bt n,
+        MakeArrayLinearR xs bt n ->
+        IndexR bt i x.
+  Proof.
+    intros xs i x LIR.
+    induction LIR;
+      intros bt time MALR;
+      invclr MALR.
+
+    eapply InsertR_correct_zero.
+    apply H1.
+
+    destruct (even_odd_dec n) as [ E | O ].
+
+    apply even_2n in E.
+    destruct E as [k EQ]; subst.
+    unfold double in *.
+    replace (S (k + k)) with (2 * k + 1) in *; try omega.
+    destruct (InsertR_node _ _ _ _ H1) as [z [s [t EQ]]]; subst.
+    eapply IR_left.
+    apply MakeArrayLinearR_Braun in H4.
+
+    (* XXX Perhaps we can have a different induction principle, like <
+    and prove that the output of InsertR (provided the input is
+    Braun), so that k will be less than (length xs)? *)
+    admit.
+
+    apply odd_S2n in O.
+    destruct O as [k EQ]; subst.
+    unfold double in *.
+    replace (S (S (k + k))) with (2 * k + 2) in *; try omega.
+    destruct (InsertR_node _ _ _ _ H1) as [z [s [t EQ]]]; subst.
+    eapply IR_right.
+    apply MakeArrayLinearR_Braun in H4.
+
+    (* XXX ditto *)
+    admit.
+  Qed.
+
+  Theorem MakeArrayLinearR_correct3 :
+    forall xs bt n,
+      MakeArrayLinearR xs bt n ->
+      forall i x,
+        ListIndexR xs i x
+        <->
+        IndexR bt i x.
+  Proof.
+  Admitted.
 
   Fixpoint rt_naive n : nat :=
     match n with

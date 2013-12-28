@@ -1,5 +1,5 @@
 Require Import braun util log.
-Require Import Coq.Program.Wf.
+Require Import Coq.Program.Tactics Coq.Program.Wf.
 Require Import Arith Arith.Even Arith.Div2.
 Set Implicit Arguments.
 
@@ -153,41 +153,65 @@ Section size.
   Qed.
   Hint Resolve DiffR_correct_one.
 
-  Theorem DiffR_time :
-    forall bt n,
-      Braun bt n ->
-      forall df dt,
-        DiffR bt n df dt ->
-        dt = fl_log n.
+  Theorem DiffR_time_zero :
+    forall bt n dt,
+      DiffR bt n 0 dt ->
+      dt = fl_log n.
   Proof.
-    intros bf n B.
-    induction B;
-    intros df dt DR.
+    intros bt n dt DR.
+    remember 0 in DR.
+    rename n0 into df.
+    rename Heqn0 into EQ.
+    induction DR.
 
-    inversion_clear DR.
-    apply fl_log_zero.
+    auto.
+    congruence.
 
-    inversion DR; clear DR; subst.
-
-    omega.
-
-    replace k with s_size in *; try omega.
-    rewrite (IHB1 df s_time H6) in *.
-    replace (s_size + 0) with s_size; try omega.
+    apply IHDR in EQ. subst.
     symmetry.
+    replace (2 * k) with (k + k); try omega.
     apply fl_log_odd.
 
-    assert (s_size = t_size \/ s_size = t_size + 1) as CASES; try omega.
-    destruct CASES as [EQ|EQ]; subst.
-
-    omega.
-
-    replace k with t_size in *; try omega.
-    rewrite (IHB2 df t_time H6) in *; try omega.
-    replace (t_size + 0) with t_size; try omega.
+    apply IHDR in EQ. subst.
     symmetry.
-    replace (t_size + t_size + 2) with (t_size + 1 + (t_size + 1)); try omega.
+    replace (2 * k + 2) with (k + 1 + (k + 1)); try omega.
     apply fl_log_even.
+  Qed.
+
+  Theorem DiffR_time_one :
+    forall bt n dt,
+      DiffR bt n 1 dt ->
+      dt = cl_log (n+1).
+  Proof.
+    intros bt n dt DR.
+    remember 1 in DR.
+    rename n0 into df.
+    rename Heqn0 into EQ.
+    induction DR.
+
+    congruence.
+    simpl. auto.
+    
+    apply IHDR in EQ; clear IHDR. subst.
+    replace (2 * k + 1 + 1) with (k + 1 + k + 1); try omega.
+    apply cl_log_even.    
+
+    apply IHDR in EQ; clear IHDR. subst.
+    symmetry.
+    replace (2 * k + 2 + 1) with ((k + 1) + (k + 1) + 1); try omega.
+    apply cl_log_odd.    
+  Qed.
+
+  Theorem DiffR_time :
+    forall bt n df dt,
+      DiffR bt n df dt ->
+      (dt = fl_log n) \/ (dt = cl_log (n + 1)).
+  Proof.
+    intros bt n df dt DR.
+    destruct (DiffR_correct_ans DR); subst.
+
+    left. apply (DiffR_time_zero DR).
+    right. apply (DiffR_time_one DR).
   Qed.
 
   Theorem diff_dec :
@@ -316,61 +340,35 @@ Section size.
     eapply SR_node; eauto.
   Qed.
 
-  (* XXX size running time *)
-
-  Theorem SizeR_invert :
-    forall bt n,
-      Braun bt n ->
-      forall m t,
-        SizeR bt m t ->
-        m = n.
+  Theorem SizeR_time :
+    forall bt n st,
+      SizeR bt n st ->
+      st = sum_of_logs n.
   Proof.
-    intros bt n B m t SR.
+    intros bt n st SR.
     induction SR.
 
-    inversion_clear B. auto.
-
-    inversion B; subst; clear B.
-
-  Admitted.
-
-  Theorem SizeR_time :
-    forall bt n,
-      Braun bt n ->
-      forall st,
-        SizeR bt n st ->
-        st = sum_of_logs n.
-  Proof.
-    intros bt n B.
-    induction B; intros st SR.
-
-    inversion SR; subst; clear SR.
     auto.
 
-    inversion SR; subst; clear SR.
-    rename H into BP.
-    rename H5 into SR.
-    rename H6 into DR.
-    rename H4 into EQ.
-    replace m with t_size in *; [| symmetry; eapply SizeR_invert; eauto ].
-    apply IHB2 in SR. subst.
+    subst.
+    rename H into DR.
     destruct (DiffR_correct_ans DR); subst.
-    
-    replace s_size with t_size in *; try omega.
-    apply DiffR_time in DR; auto.
-    subst.
 
-    (* XXX Is this true? *)
-    admit.
-       
-    assert (s_size = t_size \/ s_size = t_size + 1) as CASES; try omega.
-    destruct CASES as [E|E]; subst.
-    omega.
-    apply DiffR_time in DR; auto.
-    subst.
+    apply DiffR_time_zero in DR. subst.    
+    replace (1 + 2 * m + 0) with (m + m + 1); try omega.
+    rewrite <- sum_of_logs_odd.
+    cut (fl_log m + 1 = fl_log (m + m + 1)).
+    intros EQ. omega.
+    symmetry.
+    apply fl_log_odd.
 
-    (* XXX Possibly we need something like DiffR_time for m+1 *)
-  Admitted.
+    apply DiffR_time_one in DR. subst.
+    replace (1 + 2 * m + 1) with (m + 1 + m + 1); try omega.
+    rewrite <- sum_of_logs_even.
+    cut (cl_log (m+1) + 1 = cl_log (m + 1 + m + 1)).
+    intros EQ. omega.
+    apply cl_log_even.
+  Qed.
 
   Lemma SizeR_fun :
     forall s sz st,
@@ -430,201 +428,3 @@ Section size.
     eapply FAIL. apply SR.
   Defined.
 End size.
-
-(*
-Program Definition diff : 
-  forall A n (b : braun_tree A n) (m : nat) (P : m <= n <= m+1), 
-    C nat (if (eq_nat_dec m n) then (fl_log n) else (cl_log n)) :=
-  fun A => fix diff n (b : braun_tree A n) : forall (m : nat) (P : m <= n <= m+1),
-                                               C nat (if (eq_nat_dec m n)
-                                                      then (fl_log n)
-                                                      else (cl_log n)) :=
-  match b as b in braun_tree _ n with
-    | Empty => fun m P => ret 0
-    | Node _ s1_size t1_size _ s1 t1 => 
-      fun m P =>
-        match m with
-          | 0 => ++1; ret 1
-          | S m' => 
-            if even_odd_dec m
-            then (zo <- diff t1_size t1 (div2 (m' - 1)) _;
-                  ++1;
-                  ret zo)
-            else (zo <- diff s1_size s1 (div2 m') _;
-                  ++1;
-                  ret zo)
-        end
-  end.
-
-Obligation 1.
-inversion H; intuition.
-Defined.
-
-Obligation 2.
-dispatch_if n o; intuition.
-assert (s1_size = 0);[omega|];assert (t1_size = 0);[omega|].
-subst;compute;reflexivity.
-Defined.
-
-Obligation 6.
-dispatch_if n1 o1; dispatch_if o n.
-
-(* case 1 *)
-replace (s1_size+t1_size+ 1) with (t1_size+s1_size+1); [|omega].
-apply braun_invariant_implies_fl_log_property.
-inversion H; apply even_double in H3; unfold double in H3.
-omega.
-
-(* case 2 *)
-inversion H as [n' EVEN].
-apply even_double in EVEN.
-unfold double in EVEN.
-intuition.
-
-(* case 3 *)
-assert (m'=s1_size+t1_size);[omega|]; subst m'.
-assert (t1_size = s1_size \/ s1_size = t1_size +1) as TWOCASES; [omega|];
-inversion TWOCASES;subst.
-  
-(* case 3a *)
-rewrite double_div2 in o1; intuition.
-  
-(* case 3b *)
-replace (S (t1_size + 1 + t1_size)) with ((S t1_size) + (S t1_size)) in H; [|omega].
-apply even_not_odd in H; intuition.
-
-(* case 4 *) 
-apply braun_invariant_implies_cl_log_property.
-omega.
-Defined.
-
-Obligation 4.
-dispatch_if n1 o1; dispatch_if n o.
-
-(* case 1 *)
-apply braun_invariant_implies_fl_log_property.
-omega.
-
-(* case 2 *)
-destruct m';[inversion H;inversion H3|]. (* m' is not 0 *)
-assert (even m');[inversion H; inversion H3; assumption|].
-apply even_double in H2; unfold double in H2.
-simpl in n1; rewrite minus_0r in n1.
-intuition.
-
-(* case 3 *)
-assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; destruct SIZES1.
-
-(* case 3a *)
-subst t1_size.
-rewrite n in H.
-apply odd_not_even in H.
-intuition.
-
-(* case 3b *)
-subst s1_size.
-assert (m'-1 = t1_size + t1_size); [omega|].
-assert (div2(m'-1) = t1_size); [rewrite H2;apply double_div2|].
-intuition.
-
-(* case 4 *)
-assert (t1_size = s1_size \/ s1_size = t1_size+1) as SIZES1; [omega|]; 
-destruct SIZES1; subst s1_size.
-
-(* case 4a *)
-apply braun_invariant_implies_cl_log_property.
-omega.
-
-(* case 4b *)
-assert (t1_size+t1_size+1 = S m' \/ t1_size+t1_size+1 = S (m'+1)) as SIZES2;
-  [omega|]; destruct SIZES2; intuition.
-rewrite <- H2 in H.
-apply odd_not_even in H.
-intuition.
-Defined.
-
-Obligation 5.
-clear b Heq_b wildcard' s1 t1 A.
-
-assert (s1_size = t1_size \/ s1_size = t1_size + 1) as SIZES1; [omega|]; clear l l0.
-assert (S m' = s1_size + t1_size + 1 \/ S (m'+1) = s1_size + t1_size + 1) as SIZES2; [omega|]; clear H0 H1.
-destruct SIZES1; destruct SIZES2; subst s1_size.
-
-assert (m'=t1_size+t1_size); [omega|].
-replace (div2 m') with t1_size; [omega|subst m'; rewrite double_div2; reflexivity].
-
-rewrite plus_comm in H1.
-simpl in H1.
-rewrite plus_comm in H1.
-simpl in H1.
-inversion H1.
-rewrite H2 in H.
-apply even_not_odd in H.
-intuition.
-
-rewrite H1 in H.
-replace (t1_size+1+t1_size+1) with ((t1_size+1)+(t1_size+1)) in H; [|omega].
-apply even_not_odd in H.
-intuition.
-
-assert (m'=t1_size +t1_size); [omega|].
-subst m'.
-rewrite double_div2.
-omega.
-
-Defined.
-
-Obligation 3.
-clear b Heq_b wildcard' s1 t1 A.
-
-assert (s1_size = t1_size \/ s1_size = t1_size + 1) as SIZES1; [omega|]; clear l l0.
-assert (S m' = s1_size + t1_size + 1 \/ S (m'+1) = s1_size + t1_size + 1) as SIZES2; [omega|]; clear H0 H1.
-destruct SIZES1; destruct SIZES2; subst s1_size.
-
-rewrite H1 in H.
-apply odd_not_even in H.
-intuition.
-
-assert (m'-1 = (t1_size-1)+(t1_size-1)); [omega|].
-rewrite H0.
-rewrite double_div2.
-omega.
-
-assert (m'-1 = t1_size+t1_size); [omega|].
-rewrite H0.
-rewrite double_div2.
-omega.
-
-assert (S m' = t1_size+t1_size+1); [omega|].
-rewrite H0 in H.
-apply odd_not_even in H.
-intuition.
-Defined.
-
-Program Fixpoint size A (n:nat) (b : braun_tree A n) : C nat (sum_of_logs n) := 
-  match b with 
-    | Empty => ret 0
-    | Node _ s_size t_size P s t =>
-      (++1;
-       zo <- diff s P ;
-       (size_t <- size t ; 
-        ret (1 + 2 * size_t + zo)))
-  end.
-
-Obligation 1.
-clear Heq_b s t b.
-
-dispatch_if n o; subst; rewrite plus_0_r.
-
-rewrite <- sum_of_logs_odd.
-rewrite fl_log_odd.
-omega.
-
-assert (t_size+1=s_size) as MN; [omega|].
-subst s_size.
-rewrite <- sum_of_logs_even.
-rewrite <- cl_log_even.
-omega.
-
-Defined.
-*)

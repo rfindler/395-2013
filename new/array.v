@@ -106,24 +106,20 @@ Section array.
     destruct (index_Braun bt n B i LT) as [y IR].
     apply (FAIL y). auto.
   Defined.
-End array.
 
-Section naive1.
-  Variable A : Set.
-
-  Inductive MkArrNaive1R : list A -> bin_tree A -> nat -> Prop :=
-  | naive1R_zero : 
-      MkArrNaive1R nil (bt_mt A) 0
-  | naive1R_suc  :
+  Inductive MakeArrayLinearR : list A -> bin_tree A -> nat -> Prop :=
+  | MALR_zero : 
+      MakeArrayLinearR nil (bt_mt A) 0
+  | MALR_suc  :
       forall x xs bt bt' time insert_time,
         InsertR A x bt bt' insert_time ->
-        MkArrNaive1R        xs bt                  time ->
-        MkArrNaive1R (x :: xs) bt' (time + insert_time).
-  Hint Constructors MkArrNaive1R.
+        MakeArrayLinearR        xs bt                  time ->
+        MakeArrayLinearR (x :: xs) bt' (time + insert_time).
+  Hint Constructors MakeArrayLinearR.
 
   Theorem make_array_linear :
     forall xs,
-      { bt | exists n, MkArrNaive1R xs bt n }.
+      { bt | exists n, MakeArrayLinearR xs bt n }.
   Proof.
     induction xs as [| x xs]; [eauto |].
     destruct IHxs as [bt IR].
@@ -134,12 +130,12 @@ Section naive1.
     destruct IR as [indTime indR].
     destruct insIR' as [insTime insIR].
     exists (indTime + insTime).
-    apply (naive1R_suc _ _ bt); eauto.
+    apply (MALR_suc _ _ bt); eauto.
   Defined.
   
-  Theorem MkArrNaive1R_Braun :
+  Theorem MakeArrayLinearR_Braun :
     forall xs bt n,
-      MkArrNaive1R xs bt n ->
+      MakeArrayLinearR xs bt n ->
       Braun bt (length xs).
   Proof.
     intro xs.
@@ -170,9 +166,9 @@ Section naive1.
   Qed.
 
   (* Helper *)
-  Theorem MkArrNaive1R_time_help :
+  Theorem MakeArrayLinearR_time_help :
     forall xs bt n,
-      MkArrNaive1R xs bt n ->
+      MakeArrayLinearR xs bt n ->
       n = rt_naive (length xs) /\ Braun bt (length xs).
   Proof.
     intros xs bt n IndR.
@@ -193,11 +189,11 @@ Section naive1.
     apply (InsertR_time A x _ _ bt bt'); auto.
   Qed.
   
-  Theorem MkArrNaive1R_time :
+  Theorem MakeArrayLinearR_time :
     forall xs bt n,
-      MkArrNaive1R xs bt n ->
+      MakeArrayLinearR xs bt n ->
       n = rt_naive (length xs).
   Proof.
-    apply MkArrNaive1R_time_help.
+    apply MakeArrayLinearR_time_help.
   Qed.  
-End naive1.
+End array.

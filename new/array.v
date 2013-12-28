@@ -219,10 +219,69 @@ Section array.
     invclr IR; eauto.
   Qed.
 
+(*
+    apply (well_founded_induction_type
+             lt_wf
+             (fun n =>
+                forall bt,
+                  MakeArrayLinearR xs bt n ->
+                  IndexR bt i x)).
+*)
+  Theorem MakeArrayLinearR_correct2' :
+    forall i xs x,        
+      ListIndexR xs i x ->
+      forall n bt,
+        MakeArrayLinearR xs bt n ->
+        IndexR bt i x.
+  Proof.
+    apply (well_founded_induction_type
+             lt_wf
+             (fun i =>
+                forall xs x,        
+                  ListIndexR xs i x ->
+                  forall n bt,
+                    MakeArrayLinearR xs bt n ->
+                    IndexR bt i x)).
+    intros i IH xs x LIR n bt MALR.
+    destruct i as [|i].
+
+    invclr LIR.
+    invclr MALR.
+    eapply InsertR_correct_zero.
+    apply H1.
+
+    invclr LIR.
+    rename x0 into x'.
+    rename xs0 into xs'.
+    rename H1 into LIR.
+    invclr MALR.
+    rename bt0 into bt'.
+    rename time into m_time.
+    rename H1 into IR.
+    rename H4 into MALR.
+    destruct (even_odd_dec i) as [ E | O ].
+    
+    apply even_2n in E.
+    destruct E as [k EQ]; subst.
+    unfold double in *.
+    replace (S (k + k)) with (2 * k + 1) in *; try omega.
+    destruct (InsertR_node _ _ _ _ IR) as [z [s [t EQ]]]; subst.
+    eapply IR_left.
+
+    eapply IH. omega.
+
+    (* XXX This is an interesting context. LIR doesn't really prove
+    this, but we could imagine that the even/odd idea from the rest of
+    the section might prove something like if xs' created bt' then s
+    would hold the even elements (k + k) but that t would hold the odd
+    ones [for the other side of this]. *)
+
+  Admitted.
+
   Theorem MakeArrayLinearR_correct2 :
     forall xs i x,        
       ListIndexR xs i x ->
-      forall bt n,
+      forall n bt,
         MakeArrayLinearR xs bt n ->
         IndexR bt i x.
   Proof.

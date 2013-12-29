@@ -32,9 +32,9 @@
   (define-values (s t) (copy2 n))
   t)
 
-;; check no invariants break for 'copy'
-(printf "testing braun tree invariants for copy\n")
-(for ([i (in-range 1000)]) (copy i))
+(module+ test
+  (printf "testing braun tree invariants for copy\n")
+  (for ([i (in-range 1000)]) (copy i)))
 
 ;; computes the running time of diff
 (define/contract (diff-rt b m)
@@ -71,25 +71,26 @@
 (define (fl_log n) (sub1 (integer-length (add1 n))))
 
 
-(printf "testing fl_log and cl_log\n")
-(unless (equal? (map fl_log '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
-                (map values '(0 1 1 2 2 2 2 3 3 3 3  3  3  3  3  4)))
-  (error 'fl_log "wrong"))
+(module+ test
+  (printf "testing fl_log and cl_log\n")
+  (unless (equal? (map fl_log '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
+                  (map values '(0 1 1 2 2 2 2 3 3 3 3  3  3  3  3  4)))
+    (error 'fl_log "wrong"))
+  
+  (unless (equal? (map cl_log '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
+                  (map values '(0 1 2 2 3 3 3 3 4 4 4  4  4  4  4  4)))
+    (error 'cl_log "wrong"))
 
-(unless (equal? (map cl_log '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
-                (map values '(0 1 2 2 3 3 3 3 4 4 4  4  4  4  4  4)))
-  (error 'cl_log "wrong"))
-
-(printf "testing running time of diff\n")
-(for ([n (in-range 10)])
-  (for ([m (in-list (list (- n 1) n))])
-    (when (positive? m)
-      (define d (diff-rt (copy n) m))
-      (define f (if (= n m)
-                    (fl_log n)
-                    (cl_log n)))
-      (unless (= d f)
-        (eprintf "diff rt wrong: n = ~a m = ~a d = ~a f = ~a\n" n m d f)))))
+  (printf "testing running time of diff\n")
+  (for ([n (in-range 10)])
+    (for ([m (in-list (list (- n 1) n))])
+      (when (positive? m)
+        (define d (diff-rt (copy n) m))
+        (define f (if (= n m)
+                      (fl_log n)
+                      (cl_log n)))
+        (unless (= d f)
+          (eprintf "diff rt wrong: n = ~a m = ~a d = ~a f = ~a\n" n m d f))))))
 
 ;; compute the size according to Okasaki's algorithm
 (define (loglog-size b)
@@ -100,13 +101,13 @@
      (+ 1 (* 2 m) (diff s m))]))
 (define (diff b m) (- (size b) m))
 
-(printf "testing size vs loglog-size\n")
-(for ([i (in-range 1000)])
-  (define b (copy i))
-  (unless (= (size b) (loglog-size b))
-    (error 'size-mismatch "i ~a (size b) ~s (loglog-size b) ~s"
-           i (size b) (loglog-size b))))
-
+(module+ test
+  (printf "testing size vs loglog-size\n")
+  (for ([i (in-range 1000)])
+    (define b (copy i))
+    (unless (= (size b) (loglog-size b))
+      (error 'size-mismatch "i ~a (size b) ~s (loglog-size b) ~s"
+             i (size b) (loglog-size b)))))
 
 ;; compute the running time of the loglog-size function
 (define (loglog-size-rt b)
@@ -122,35 +123,38 @@
     [(odd? n) (+ (fl_log n) (sum-of-logs (div2 (- n 1))))]
     [(even? n) (+ (cl_log n) (sum-of-logs (div2 (- n 1))))]))
 
-(printf "testing sum-of-logs\n")
-(for ([n (in-range 200)])
-  (define d (loglog-size-rt (copy n)))
-  (define f (sum-of-logs n))
-  (unless (= d f)
-    (eprintf "size rt wrong: n = ~a d = ~a f = ~a\n" n d f)))
+(module+ test
+  (printf "testing sum-of-logs\n")
+  (for ([n (in-range 200)])
+    (define d (loglog-size-rt (copy n)))
+    (define f (sum-of-logs n))
+    (unless (= d f)
+      (eprintf "size rt wrong: n = ~a d = ~a f = ~a\n" n d f))))
 
 (define (sum-of-logs-lb n) (div2 (* (cl_log n) (fl_log n))))
 
-(printf "testing lower bound of sum-of-logs\n")
-(for ([n (in-range 0 10000000 10000)])
-  (define lb (sum-of-logs-lb n))
-  (define sl (sum-of-logs n))
-  (unless (<= lb sl)
-    (eprintf "lower bound wrong: n = ~a lb = ~a sl = ~a\n"
-             n lb sl)))
+(module+ test
+  (printf "testing lower bound of sum-of-logs\n")
+  (for ([n (in-range 0 10000000 10000)])
+    (define lb (sum-of-logs-lb n))
+    (define sl (sum-of-logs n))
+    (unless (<= lb sl)
+      (eprintf "lower bound wrong: n = ~a lb = ~a sl = ~a\n"
+               n lb sl))))
 
 (define (sum-of-logs-ub n) (* 2 (fl_log n) (fl_log n)))
 
-(printf "testing upper bound of sum-of-logs\n")
-(let loop ([n 1]
-           [i 400])
-  (unless (zero? i)
-    (define ub (sum-of-logs-ub n))
-    (define sl (sum-of-logs n))
-    (unless (<= sl ub)
-      (eprintf "upper bound wrong: n = ~a ub = ~a sl = ~a δ = ~a\n"
-               n ub sl (- ub sl)))
-    (loop (+ n n (random 100)) (- i 1))))
+(module+ test
+  (printf "testing upper bound of sum-of-logs\n")
+  (let loop ([n 1]
+             [i 400])
+    (unless (zero? i)
+      (define ub (sum-of-logs-ub n))
+      (define sl (sum-of-logs n))
+      (unless (<= sl ub)
+        (eprintf "upper bound wrong: n = ~a ub = ~a sl = ~a δ = ~a\n"
+                 n ub sl (- ub sl)))
+      (loop (+ n n (random 100)) (- i 1)))))
 
 (define (insert x bt)
   (match bt
@@ -171,16 +175,17 @@
        [(odd? i) (index s (/ (- i 1) 2))]
        [(even? i) (index t (/ (- i 2) 2))])]))
 
-(printf "testing naive-make-array+index\n")
-(for ([size (in-range 1000)])
-  (define bt (naive-make-array (build-list size values)))
-  (for ([i (in-range size)])
-    (define i2 (index bt i))
-    (unless (= i i2)
-      (error 'naive-make-array+index "bt size ~a index ~a, got ~a"
-             size
-             i
-             i2))))
+(module+ test
+  (printf "testing naive-make-array+index\n")
+  (for ([size (in-range 1000)])
+    (define bt (naive-make-array (build-list size values)))
+    (for ([i (in-range size)])
+      (define i2 (index bt i))
+      (unless (= i i2)
+        (error 'naive-make-array+index "bt size ~a index ~a, got ~a"
+               size
+               i
+               i2)))))
 
 (module+ slideshow
   (require slideshow plot)

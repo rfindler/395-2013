@@ -1,20 +1,20 @@
 #lang racket
 ;; this file is used to figure out what the running time actually is for diff
 
-;; a braun tree is either #f or (node braun-tree bran-tree nat)
-(struct node (l r s) #:transparent)
+;; a braun tree is either #f or (node any braun-tree bran-tree nat)
+(struct node (v l r s) #:transparent)
 
 (define (size n)
   (cond
     [(node? n) (node-s n)]
     [else 0]))
 
-(define (mknode l r)
+(define (mknode l r #:val [v #f])
   (unless (<= (size r) (size l) (+ (size r) 1))
     (error 'mknode "invariant check failed:\n  (size l) = ~s   l = ~s\n  (size r) = ~s   r = ~s" 
            (size l) l
            (size r) r))
-  (node l r (+ (size l) (size r) 1)))
+  (node v l r (+ (size l) (size r) 1)))
 
 (define (copy2 n)
   (cond
@@ -44,11 +44,11 @@
        any)
   (match* (b m)
     [(#f 0) 0]
-    [((node #f #f _) 0) 1]
-    [((node s t _) (? (and/c odd? non-zero?))) 
+    [((node _ #f #f _) 0) 1]
+    [((node _ s t _) (? (and/c odd? non-zero?))) 
      (define k (/ (- m 1) 2))
      (+ (diff-rt s k) 1)]
-    [((node s t _) (? (and/c even? non-zero?)))
+    [((node _ s t _) (? (and/c even? non-zero?)))
      (define k (/ (- m 2) 2))
      (+ (diff-rt t k) 1)]))
 (define (non-zero? n) (not (= n 0)))
@@ -95,7 +95,7 @@
 (define (loglog-size b)
   (match b
     [#f 0]
-    [(node s t _) 
+    [(node _ s t _) 
      (define m (loglog-size t))
      (+ 1 (* 2 m) (diff s m))]))
 (define (diff b m) (- (size b) m))
@@ -112,7 +112,7 @@
 (define (loglog-size-rt b)
   (match b
     [#f 0]
-    [(node s t _) 
+    [(node _ s t _) 
      (define rt-t (loglog-size-rt t))
      (+ 1 rt-t (diff-rt s (size t)))]))
 
@@ -152,6 +152,36 @@
                n ub sl (- ub sl)))
     (loop (+ n n (random 100)) (- i 1))))
 
+(define (insert x bt)
+  (match bt
+    [#f (mknode #:val x #f #f)]
+    [(node y s t _) (mknode #:val x (insert y t) s)]))
+
+(define (naive-make-array xs) 
+  (cond
+    [(null? xs) #f]
+    [else 
+     (insert (car xs) (naive-make-array (cdr xs)))]))
+
+(define (index bt i)
+  (match bt
+    [(node x s t _)
+     (cond
+       [(zero? i) x]
+       [(odd? i) (index s (/ (- i 1) 2))]
+       [(even? i) (index t (/ (- i 2) 2))])]))
+
+(printf "testing naive-make-array+index\n")
+(for ([size (in-range 1000)])
+  (define bt (naive-make-array (build-list size values)))
+  (for ([i (in-range size)])
+    (define i2 (index bt i))
+    (unless (= i i2)
+      (error 'naive-make-array+index "bt size ~a index ~a, got ~a"
+             size
+             i
+             i2))))
+
 (module+ slideshow
   (require slideshow plot)
   
@@ -160,11 +190,14 @@
       [#f (define b (blank))
           (refocus (cc-superimpose b (filled-ellipse 5 5))
                    b)]
-      [(node l r _) 
+      [(node val l r _) 
        (define which-way (and (pair? path) (car path)))
        (define lp (tree->pict l (and (equal? which-way 'l) (cdr path))))
        (define rp (tree->pict r (and (equal? which-way 'r) (cdr path))))
-       (define main (vc-append (blank 0 10) (ht-append 10 lp rp)))
+       (define main (vc-append (if val 
+                                   (colorize (inset (text (format "~s" val)) 0 -4 0 4) "DarkGreen")
+                                   (blank 0 10))
+                               (ht-append 10 lp rp)))
        (define left-arrow (launder
                            (pin-line 
                             (ghost main)
@@ -178,12 +211,20 @@
        (ct-superimpose (linewidth 2 
                                   (if (equal? which-way 'l)
                                       (colorize left-arrow "red")
-                                      left-arrow))
+                                      (colorize left-arrow (if val "gray" "black"))))
                        (linewidth 2
                                   (if (equal? which-way 'r) 
                                       (colorize right-arrow "red")
-                                      right-arrow))
+                                      (colorize right-arrow (if val "gray" "black"))))
                        main)]))
+  
+  (slide 
+   (apply 
+    para
+    #:width 800
+    (for/list ([i (in-range 32)])
+      (tree->pict (naive-make-array (build-list i values))
+                  #f))))
   
   (define (combine picts)
     (define width 800)
@@ -221,11 +262,11 @@
          any)
     (match* (b m)
       [(#f 0) '()]
-      [((node #f #f _) 0) '(l)]
-      [((node s t _) (? (and/c odd? non-zero?))) 
+      [((node _ #f #f _) 0) '(l)]
+      [((node _ s t _) (? (and/c odd? non-zero?))) 
        (define k (/ (- m 1) 2))
        (cons 'l (diff-path s k))]
-      [((node s t _) (? (and/c even? non-zero?)))
+      [((node _ s t _) (? (and/c even? non-zero?)))
        (define k (/ (- m 2) 2))
        (cons 'r (diff-path t k))]))
 

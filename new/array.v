@@ -125,8 +125,12 @@ Section array.
     forall x ss ts,
       x :: interleave ss ts = interleave (x :: ts) ss.
   Proof.
-    (* XXX Why is this so hard to prove? *)
-  Admitted.
+    intros.
+    unfold interleave.
+    WfExtensionality.unfold_sub interleave_func (interleave_func (existT (fun _ : list A => list A) (x :: ts) ss)).
+    fold interleave_func.
+    destruct ts; simpl; reflexivity.
+  Qed.
 
   Inductive SequenceR : bin_tree A -> list A -> Prop :=
     | SR_mt :

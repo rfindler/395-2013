@@ -187,6 +187,35 @@
                i
                i2)))))
 
+(define (keep-evens l)
+  (match l
+    ['() '()]
+    [(cons x xs)
+     (match xs
+       ['() (cons x '())]
+       [(cons y ys) (cons x (keep-evens ys))])]))
+
+(define (keep-odds l)
+  (match l
+    ['() '()]
+    [(cons x xs)
+     (keep-evens xs)]))
+
+(define (make-array-even-odd-property x ls)
+  (define s1 (naive-make-array (keep-evens ls)))
+  (define t1 (naive-make-array (keep-odds ls)))
+  (match (naive-make-array (cons x ls))
+    [(node x s2 t2 _) 
+     (and (equal? s1 s2)
+          (equal? t1 t2))]
+    [else #f]))
+
+(module+ test
+  (printf "testing make-array-even-odd-property\n")
+  (for ([x (in-range 512)])
+    (unless (make-array-even-odd-property 0 (build-list x add1))
+      (error 'make-array-even-odd-property "failed for size ~a" x))))
+
 (module+ slideshow
   (require slideshow plot)
   

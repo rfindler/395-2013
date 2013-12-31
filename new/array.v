@@ -1,5 +1,6 @@
 Require Import braun log insert util.
 Require Import Arith Arith.Even Arith.Div2 List.
+Require Import Program.
 Require Import Omega.
 
 Section array.
@@ -107,6 +108,56 @@ Section array.
     apply (FAIL y). auto.
   Defined.
 
+  Program Fixpoint interleave (evens : list A) (odds : list A)
+          {measure (length (evens ++ odds))} :=
+    match evens with
+      | nil => odds
+      | (x :: xs) => x :: (interleave odds xs)
+    end.
+  Next Obligation.
+    simpl.
+    rewrite app_length.
+    rewrite app_length.
+    omega.
+  Qed.
+
+  Lemma interleave_case2 :
+    forall x ss ts,
+      x :: interleave ss ts = interleave (x :: ts) ss.
+  Proof.
+    (* XXX Why is this so hard to prove? *)
+  Admitted.
+
+  Inductive SequenceR : bin_tree A -> list A -> Prop :=
+    | SR_mt :
+        SequenceR (bt_mt A) nil
+    | SR_node :
+        forall x s t ss ts,
+          SequenceR s ss ->
+          SequenceR t ts ->
+          SequenceR (bt_node x s t) (x::interleave ss ts).
+  Hint Constructors SequenceR.
+
+  Lemma InsertR_SequenceR:
+    forall t ts y t' n,
+      SequenceR t ts ->
+      InsertR A y t t' n ->
+      SequenceR t' (y :: ts).
+  Proof.
+    induction t as [|x s IHs t IHt]; intros ts y t' n SR IR.
+
+    invclr SR. invclr IR.
+    cut (nil = interleave nil nil). intros EQ; rewrite EQ.
+    eapply SR_node; eauto.
+    auto.
+
+    invclr SR. rename H3 into SRs. rename H4 into SRt.
+    invclr IR. rename H5 into IR. rename ts0 into ts.
+    rename t'0 into t'.
+    rewrite interleave_case2.
+    eapply SR_node; eauto.
+  Qed.
+
   Inductive MakeArrayLinearR : list A -> bin_tree A -> nat -> Prop :=
   | MALR_zero : 
       MakeArrayLinearR nil (bt_mt A) 0
@@ -116,6 +167,16 @@ Section array.
         MakeArrayLinearR        xs bt                  time ->
         MakeArrayLinearR (x :: xs) bt' (time + insert_time).
   Hint Constructors MakeArrayLinearR.
+
+  Theorem MakeArrayLinearR_SequenceR :
+    forall xs bt n,
+      MakeArrayLinearR xs bt n ->
+      SequenceR bt xs.
+  Proof.
+    intros xs bt n MALR.
+    induction MALR; eauto.
+    eapply InsertR_SequenceR; eauto.
+  Qed.
 
   Theorem make_array_linear :
     forall xs,
@@ -177,158 +238,67 @@ Section array.
     apply IHn in H4. auto.
   Qed.
 
-  Lemma InsertR_correct_zero :
-    forall x bt bt' t,
-      InsertR A x bt bt' t ->
-      IndexR bt' 0 x.
+  Lemma IndexR_interleave_evens :
+    forall ss i y x ts,
+      ListIndexR ss i y ->
+      ListIndexR (x :: interleave ss ts) (2 * i + 1) y.
   Proof.
-    intros x bt bt' t IR.
-    inversion IR; clear IR; subst;
-    eauto.
-  Qed.
-  Hint Resolve InsertR_correct_zero.
+    induction ss as [|sy ss]; intros i y x ts LIR.
+    invclr LIR.
 
-  Lemma IndexR_zero_inv :
-    forall x s t x',
-      IndexR (bt_node x s t) 0 x' ->
-      x = x'.
+    invclr LIR. simpl.
+    eapply LIR_succ. eapply LIR_zero.
+    
+    rename H3 into LIR.
+    eapply IHss in LIR.
+    replace (2 * S n + 1) with (S (S (2 * n + 1))); try omega.
+    eapply LIR_succ.
+
+    (* XXX I think this is not true without some constraint on ts,
+    because if ts were [] or something, then the indxes would be all
+    off. This could be a case where Braun-ness really was necessary to
+    ensure that they are too far off from each other in length. *)
+
+  Admitted.
+
+  Lemma IndexR_interleave_odds :
+    forall ss i y x ts,
+      ListIndexR ts i y ->
+      ListIndexR (x :: interleave ss ts) (2 * i + 2) y.
   Proof.
-    intros x s t x' IR.
-    inversion IR; clear IR; subst;
-    try omega.
-    auto.
-  Qed.
-  Hint Resolve IndexR_zero_inv.
+  Admitted.
 
-  Theorem MakeArrayLinearR_correct1 :
+  Theorem SequenceR_IndexR :
+    forall b i x,
+      IndexR b i x ->
+      forall xs,
+        SequenceR b xs ->
+        ListIndexR xs i x.
+  Proof.
+    intros b i x IR.
+    induction IR; intros xs SR; invclr SR; eauto;
+    rename H3 into SRs; rename H4 into SRt.
+
+    apply IHIR in SRs.
+    apply IndexR_interleave_evens; auto.
+
+    apply IHIR in SRt.
+    apply IndexR_interleave_odds; auto.
+  Qed.
+
+  Theorem MakeArrayLinearR_correct :
     forall xs bt n,
       MakeArrayLinearR xs bt n ->
       forall i x,
         IndexR bt i x ->
         ListIndexR xs i x.
   Proof.
-  Admitted.
-
-  Lemma InsertR_node :
-    forall x bt bt' t,
-      InsertR A x bt bt' t ->
-      exists y s t,
-        bt' = bt_node y s t.
-  Proof.
-    intros x bt bt' t IR.
-    invclr IR; eauto.
+    intros xs bt n MALR i x IR.
+    eapply SequenceR_IndexR.
+    apply IR.
+    eapply MakeArrayLinearR_SequenceR.
+    apply MALR.
   Qed.
-
-(*
-    apply (well_founded_induction_type
-             lt_wf
-             (fun n =>
-                forall bt,
-                  MakeArrayLinearR xs bt n ->
-                  IndexR bt i x)).
-*)
-  Theorem MakeArrayLinearR_correct2' :
-    forall i xs x,        
-      ListIndexR xs i x ->
-      forall n bt,
-        MakeArrayLinearR xs bt n ->
-        IndexR bt i x.
-  Proof.
-    apply (well_founded_induction_type
-             lt_wf
-             (fun i =>
-                forall xs x,        
-                  ListIndexR xs i x ->
-                  forall n bt,
-                    MakeArrayLinearR xs bt n ->
-                    IndexR bt i x)).
-    intros i IH xs x LIR n bt MALR.
-    destruct i as [|i].
-
-    invclr LIR.
-    invclr MALR.
-    eapply InsertR_correct_zero.
-    apply H1.
-
-    invclr LIR.
-    rename x0 into x'.
-    rename xs0 into xs'.
-    rename H1 into LIR.
-    invclr MALR.
-    rename bt0 into bt'.
-    rename time into m_time.
-    rename H1 into IR.
-    rename H4 into MALR.
-    destruct (even_odd_dec i) as [ E | O ].
-    
-    apply even_2n in E.
-    destruct E as [k EQ]; subst.
-    unfold double in *.
-    replace (S (k + k)) with (2 * k + 1) in *; try omega.
-    destruct (InsertR_node _ _ _ _ IR) as [z [s [t EQ]]]; subst.
-    eapply IR_left.
-
-    eapply IH. omega.
-
-    (* XXX This is an interesting context. LIR doesn't really prove
-    this, but we could imagine that the even/odd idea from the rest of
-    the section might prove something like if xs' created bt' then s
-    would hold the even elements (k + k) but that t would hold the odd
-    ones [for the other side of this]. *)
-
-  Admitted.
-
-  Theorem MakeArrayLinearR_correct2 :
-    forall xs i x,        
-      ListIndexR xs i x ->
-      forall n bt,
-        MakeArrayLinearR xs bt n ->
-        IndexR bt i x.
-  Proof.
-    intros xs i x LIR.
-    induction LIR;
-      intros bt time MALR;
-      invclr MALR.
-
-    eapply InsertR_correct_zero.
-    apply H1.
-
-    destruct (even_odd_dec n) as [ E | O ].
-
-    apply even_2n in E.
-    destruct E as [k EQ]; subst.
-    unfold double in *.
-    replace (S (k + k)) with (2 * k + 1) in *; try omega.
-    destruct (InsertR_node _ _ _ _ H1) as [z [s [t EQ]]]; subst.
-    eapply IR_left.
-    apply MakeArrayLinearR_Braun in H4.
-
-    (* XXX Perhaps we can have a different induction principle, like <
-    and prove that the output of InsertR (provided the input is
-    Braun), so that k will be less than (length xs)? *)
-    admit.
-
-    apply odd_S2n in O.
-    destruct O as [k EQ]; subst.
-    unfold double in *.
-    replace (S (S (k + k))) with (2 * k + 2) in *; try omega.
-    destruct (InsertR_node _ _ _ _ H1) as [z [s [t EQ]]]; subst.
-    eapply IR_right.
-    apply MakeArrayLinearR_Braun in H4.
-
-    (* XXX ditto *)
-    admit.
-  Qed.
-
-  Theorem MakeArrayLinearR_correct3 :
-    forall xs bt n,
-      MakeArrayLinearR xs bt n ->
-      forall i x,
-        ListIndexR xs i x
-        <->
-        IndexR bt i x.
-  Proof.
-  Admitted.
 
   Fixpoint rt_naive n : nat :=
     match n with

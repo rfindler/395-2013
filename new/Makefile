@@ -26,7 +26,10 @@ copy.vo: copy.v $(GEN_DEPS)
 size.vo: size.v $(GEN_DEPS)
 	$(COQC) size.v
 
-array.vo: array.v insert.vo $(GEN_DEPS)
+fold.vo: fold.v $(GEN_DEPS)
+	$(COQC) fold.v
+
+array.vo: array.v insert.vo fold.vo $(GEN_DEPS)
 	$(COQC) array.v
 
 same_structure.vo: same_structure.v braun.vo

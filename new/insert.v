@@ -15,6 +15,18 @@ Section insert.
         InsertR x (bt_node y s t) (bt_node x t' s) (S n).
   Hint Constructors InsertR.
 
+  Theorem InsertR_fun :
+    forall (a : A) (b b' : bin_tree A) (rt : nat),
+      InsertR a b b' rt ->
+      forall (_b' : bin_tree A) (_rt : nat),
+        InsertR a b _b' _rt -> b' = _b' /\ rt = _rt.
+  Proof.
+    intros a b b' rt IR.
+
+    induction IR; intros _b' _rt IR'; invclr IR'; eauto.
+    destruct (IHIR _ _ H5). subst. eauto.
+  Qed.
+
   Theorem insert :
     forall (x:A) (bt:(bin_tree A)),
       { bt' | exists n, InsertR x bt bt' n }.
@@ -28,6 +40,16 @@ Section insert.
     destruct (IHbt1 y) as [t' IR].
     exists (bt_node x t' s).
     destruct IR as [n IR].
+    eauto.
+  Defined.
+
+  Lemma InsertR_dec :
+    forall (a : A) (b : bin_tree A),
+      {b' : bin_tree A | exists rt : nat, InsertR a b b' rt} +
+      {(forall (b' : bin_tree A) (rt : nat), ~ InsertR a b b' rt)}.
+  Proof.
+    intros a b.
+    destruct (insert a b).
     eauto.
   Defined.
 

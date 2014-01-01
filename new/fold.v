@@ -1,5 +1,7 @@
 Require Import util List Omega.
 
+(* XXX I tried to use this for Make_Array_Linear, but it failed. *)
+
 Section fold.
   Variable A : Set.
   Variable B : Set.

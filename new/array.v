@@ -428,35 +428,20 @@ Section array.
     auto.
   Qed.
 
-  (* Helper *)
-  Theorem MakeArrayLinearR_time_help :
-    forall xs bt n,
-      MakeArrayLinearR xs bt n ->
-      n = rt_naive (length xs) /\ Braun bt (length xs).
-  Proof.
-    intros xs bt n IndR.
-    induction IndR.
-    split; simpl; constructor.
-
-    assert (Braun bt' (length (x :: xs))).
-
-    apply (InsertR_Braun _ x (length xs) insert_time bt bt').
-    destruct IHIndR; assumption.
-    assumption.
-        
-    split; [| assumption].
-
-    destruct IHIndR as [IHTime IHBraun].
-    simpl; subst.
-    cut (insert_time = (fl_log (length xs) + 1)); try omega.
-    apply (InsertR_time A x _ _ bt bt'); auto.
-  Qed.
-  
   Theorem MakeArrayLinearR_time :
     forall xs bt n,
       MakeArrayLinearR xs bt n ->
       n = rt_naive (length xs).
   Proof.
-    apply MakeArrayLinearR_time_help.
+    intros xs bt n MALR.
+    induction MALR.
+    auto.
+    rename H into IR.
+    subst.
+    simpl.
+    apply MakeArrayLinearR_Braun in MALR.
+    eapply (InsertR_time _ _ _ _ _ _ MALR) in IR.
+    subst.
+    auto.
   Qed.  
 End array.

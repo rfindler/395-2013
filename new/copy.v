@@ -1,7 +1,7 @@
-Require Import util log braun.
+Require Import util log braun index sequence list_util.
 Require Import Program.Equality.
 Require Import Omega.
-Require Import Arith Arith.Even Arith.Div2.
+Require Import Arith Arith.Even Arith.Div2 List.
 
 Inductive Copy2R : A -> nat -> bin_tree * bin_tree -> nat -> Prop :=
   C2R_zero :
@@ -111,6 +111,61 @@ Proof.
   assumption.
 Qed.
 
+Lemma Copy2R_correct_elems :
+  forall x n bt1 bt2 ct,
+    Copy2R x n (bt1, bt2) ct ->
+    (forall i y,
+       IndexR bt1 i y ->
+       y = x)
+    /\ (forall i y,
+          IndexR bt2 i y ->
+          y = x).
+Proof.
+  Ltac indexr_mt :=
+    match goal with [ H : IndexR bt_mt ?i ?n |- ?G ] => inversion H end.
+
+  intros x n bt1 bt2 ct CR.
+  remember (bt1, bt2) as bp.
+  generalize bt1 bt2 Heqbp. clear bt1 bt2 Heqbp.
+  induction CR; intros bt1 bt2 Heqbp; inversion_clear Heqbp;
+  split; intros y n IR;
+  invclr IR; eauto; try indexr_mt;
+  destruct (IHCR s t); eauto.
+Qed.
+Hint Resolve Copy2R_correct_elems.
+
+Lemma CopyR_correct_elems :
+  forall x n bt ct,
+    CopyR x n bt ct ->
+    forall i y,
+      IndexR bt i y ->
+      y = x.
+Proof.
+  intros x n bt ct CR i y IR.
+  invclr CR.
+  destruct (Copy2R_correct_elems x n bt1 bt ct H).
+  eauto.
+Qed.
+Hint Rewrite CopyR_correct_elems.
+
+Theorem CopyR_correct :
+  forall x n bt ct,
+    CopyR x n bt ct ->
+    forall xs,
+      SequenceR bt xs ->
+      n = (length xs) /\
+      (forall y,
+         In y xs -> y = x).
+Proof.
+  intros x n bt ct CR xs SR. split.
+  eapply BraunR_SequenceR; eauto.
+  eapply Copy_produces_Braun; eauto.
+  intros y IN.
+  edestruct SequenceR_In; eauto.
+  eapply CopyR_correct_elems; eauto.
+Qed.
+Hint Resolve CopyR_correct.
+
 Lemma Copy2R_running_time :
   forall x n bt1 bt2 time,
     Copy2R x n (bt1,bt2) time ->
@@ -130,7 +185,7 @@ Proof.
 Qed.
 Hint Resolve Copy2R_running_time.
 
-Lemma CopyR_running_time :
+Theorem CopyR_running_time :
   forall x n bt1 time,
     CopyR x n bt1 time ->
     time = ((2 * fl_log n) + 1).

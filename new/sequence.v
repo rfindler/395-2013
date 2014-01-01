@@ -1,4 +1,4 @@
-Require Import braun util index list_util.
+Require Import braun util index list_util List.
 Require Import Omega.
 
 Inductive SequenceR : bin_tree -> list A -> Prop :=
@@ -33,23 +33,6 @@ Proof.
   omega.
 Qed.
 Hint Rewrite BraunR_SequenceR.
-
-(*
-Theorem SequenceR_Braun :
-  forall b xs,
-    SequenceR b xs ->
-    Braun b (length xs).
-Proof.
-  intros b xs SR.
-  induction SR; simpl.
-
-  eauto.
-  rewrite <- interleave_length_split.
-  replace (S (length ss + length ts)) with (length ss + length ts + 1); try omega.
-  eapply B_node; eauto.
-
-  (* XXX Maybe we should put this as a constraint in SR_node? *)
-*)
 
 Theorem SequenceR_IndexR :
   forall b i x,
@@ -88,3 +71,21 @@ Proof.
   apply SRs.
 Qed.
 Hint Resolve SequenceR_IndexR.
+
+Lemma SequenceR_In :
+  forall bt xs,
+    SequenceR bt xs ->
+    forall y,
+      In y xs ->
+      exists i,
+        IndexR bt i y.
+Proof.
+  intros bt xs SR.
+  induction SR; simpl; intros y; try tauto.
+  intros [EQ|IN].
+  subst. eauto.
+  apply interleave_In in IN.
+  destruct IN as [IN|IN]; [ rename IHSR1 into IH | rename IHSR2 into IH ];
+  apply IH in IN; destruct IN as [i IR]; eauto.
+Qed.
+Hint Resolve SequenceR_In.

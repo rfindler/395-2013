@@ -16,6 +16,22 @@ Next Obligation.
   omega.
 Qed.
 
+Lemma interleave_nil1 :
+  forall s,
+    interleave s nil = s.
+Proof.
+  induction s as [|x s]; auto.
+Qed.
+Hint Rewrite interleave_nil1.
+
+Lemma interleave_nil2 :
+  forall t,
+    interleave nil t = t.
+Proof.
+  auto.
+Qed.
+Hint Rewrite interleave_nil2.
+
 Lemma interleave_case2 :
   forall x ss ts,
     x :: interleave ss ts = interleave (x :: ts) ss.
@@ -154,3 +170,43 @@ Proof.
   auto.
 Qed.
 Hint Rewrite interleave_length_split.
+
+Lemma interleave_In_swap:
+  forall x s t,
+    In x (interleave s t) ->
+    In x (interleave t s).
+Proof.
+  intros x s. generalize x. clear x.
+  induction s as [|sy s]; intros x t IN.
+
+  rewrite interleave_nil2 in IN.
+  rewrite interleave_nil1. auto.
+
+  destruct t as [|ty t].
+  rewrite interleave_nil1 in IN.
+  rewrite interleave_nil2. auto.
+  
+  rewrite <- interleave_case2 in *.
+  rewrite <- interleave_case2 in *.
+  simpl in *.
+  destruct IN as [EQ|[EQ|IN]]; eauto.
+Qed.
+Hint Resolve interleave_In_swap.
+
+Lemma interleave_In:
+  forall x s t,
+    In x (interleave s t) ->
+    In x s \/ In x t.
+Proof.
+  intros x s. generalize x. clear x.
+  induction s as [|sy s]; intros x t IN.
+  right. apply IN.
+  rewrite <- interleave_case2 in IN.
+  simpl in *.
+  destruct IN as [EQ|IN]; eauto.
+  apply interleave_In_swap in IN.
+  apply IHs in IN.
+  destruct IN; eauto.
+Qed.
+Hint Resolve interleave_In.
+

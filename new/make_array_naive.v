@@ -1,4 +1,4 @@
-Require Import braun log insert util index list sequence.
+Require Import braun log insert util index list_util sequence.
 Require Import Arith Arith.Even Arith.Div2 List.
 Require Import Program.
 Require Import Omega.

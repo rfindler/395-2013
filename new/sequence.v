@@ -1,4 +1,4 @@
-Require Import braun util index list.
+Require Import braun util index list_util.
 Require Import Omega.
 
 Inductive SequenceR : bin_tree -> list A -> Prop :=

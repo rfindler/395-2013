@@ -1,4 +1,4 @@
-Require Import braun log insert util index list_util sequence.
+Require Import braun log insert util index list_util sequence le_util.
 Require Import Arith Arith.Even Arith.Div2 List.
 Require Import Program.
 Require Import Omega.
@@ -74,7 +74,7 @@ Hint Resolve MakeArrayNaiveR_correct.
 Fixpoint man_time n : nat :=
   match n with
     | 0 => 0
-    | S n' => man_time n' + (fl_log n' + 1)
+    | S n' => man_time n' + (cl_log n)
   end.
 
 Example man_time_ex :
@@ -86,17 +86,23 @@ Qed.
 
 Lemma man_time_nlogn :
   forall n,
-    man_time n <= n * fl_log n.
+    man_time n <= n * cl_log n.
 Proof.
   induction n as [|n].
 
-  simpl. omega.
-  remember (man_time (S n)) as m.
-  simpl in Heqm.
-  subst.
+  simpl; omega.
 
-  (* XXX ? *)
-  admit.
+  replace (S n * cl_log (S n)) with (n * cl_log (S n) + cl_log (S n));
+    [|unfold mult; fold mult; omega].
+  unfold man_time; fold man_time.
+  apply le_plus_left.
+  apply (le_trans (man_time n)
+                  (n * cl_log n)
+                  (n * cl_log (S n))).
+  assumption.
+  
+  apply le_mult_right.
+  apply cl_log_monotone.
 Qed.
 Hint Resolve man_time_nlogn.
 
@@ -112,14 +118,18 @@ Proof.
   apply MakeArrayNaiveR_Braun in MALR.
   eapply (InsertR_time _ _ _ _ _ MALR) in IR.
   subst.
+  replace (fl_log (length xs) + 1) with (cl_log (length (x :: xs))).
   auto.
+  simpl.
+  rewrite <- fl_log_cl_log_relationship.
+  omega.
 Qed.
 Hint Rewrite MakeArrayNaiveR_time.
 
 Theorem MakeArrayNaiveR_bound :
   forall xs bt t,
     MakeArrayNaiveR xs bt t ->
-    t <= (length xs) * fl_log (length xs).
+    t <= (length xs) * cl_log (length xs).
 Proof.
   intros xs bt t MALR.
   rewrite (MakeArrayNaiveR_time xs bt t); eauto.

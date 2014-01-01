@@ -1,4 +1,5 @@
-Require Import insert copy size index make_array_naive Arith.Div2 Arith.Even.
+Require Import Arith.Div2 Arith.Even.
+Require Import insert copy size index make_array_naive make_array_td.
 
 Extract Inductive bool => "bool" [ "false" "true" ].
 Extract Inductive sumbool => "bool" [ "false" "true" ].
@@ -14,4 +15,5 @@ Extract Constant div2 => "fun a -> a / 2".
 Extract Constant even_odd_dec => "fun a -> (a mod 2) != 0".
 
 Extraction "braun.ml" insert.insert copy.copy size.size_linear
-           size.size index.index make_array_naive.make_array_naive.
+           size.size index.index make_array_naive.make_array_naive
+           make_array_td.make_array_td.

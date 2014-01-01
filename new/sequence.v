@@ -49,7 +49,6 @@ Proof.
   eapply B_node; eauto.
 
   (* XXX Maybe we should put this as a constraint in SR_node? *)
-Admitted.
 *)
 
 Theorem SequenceR_IndexR :

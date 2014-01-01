@@ -10,7 +10,7 @@ Inductive SequenceR : bin_tree -> list A -> Prop :=
     forall x s t ss ts,
       SequenceR s ss ->
       SequenceR t ts ->
-      SequenceR (bt_node x s t) (x::interleave A ss ts).
+      SequenceR (bt_node x s t) (x::interleave ss ts).
 Hint Constructors SequenceR.
 
 Lemma BraunR_SequenceR :
@@ -59,13 +59,11 @@ Theorem SequenceR_IndexR :
     forall xs,
       Braun b (length xs) ->
       SequenceR b xs ->
-      ListIndexR A xs i x.
+      ListIndexR xs i x.
 Proof.
   intros b i x IR.
   induction IR; intros xs BP SR; invclr SR; eauto;
   rename H3 into SRs; rename H4 into SRt.
-
-  eapply LIR_zero.
 
   invclr BP.
   rename H3 into BP.

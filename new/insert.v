@@ -114,7 +114,7 @@ Proof.
   induction t as [|x s IHs t IHt]; intros ts y t' n SR IR.
 
   invclr SR. invclr IR.
-  cut (nil = interleave A nil nil). intros EQ; rewrite EQ.
+  cut (nil = interleave nil nil). intros EQ; rewrite EQ.
   eapply SR_node; eauto.
   auto.
 

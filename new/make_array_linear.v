@@ -63,7 +63,7 @@ Theorem MakeArrayLinearR_correct :
     MakeArrayLinearR xs bt n ->
     forall i x,
       IndexR bt i x ->
-      ListIndexR A xs i x.
+      ListIndexR xs i x.
 Proof.
   intros xs bt n MALR i x IR.
   eapply SequenceR_IndexR.

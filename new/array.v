@@ -244,33 +244,66 @@ Section array.
 
   Lemma IndexR_interleave_evens :
     forall ss i y x ts,
+      length ts <= length ss <= (length ts) + 1 ->
       ListIndexR ss i y ->
       ListIndexR (x :: interleave ss ts) (2 * i + 1) y.
   Proof.
-    induction ss as [|sy ss]; intros i y x ts LIR.
+    induction ss as [|sy ss]; intros i y x ts BP LIR.
     invclr LIR.
 
     invclr LIR. simpl.
     eapply LIR_succ. eapply LIR_zero.
     
     rename H3 into LIR.
-    eapply IHss in LIR.
+    destruct ts as [|ty ts].
+
+    simpl in BP. replace ss with (@nil A) in *.
+    invclr LIR.
+    destruct ss; simpl in *; try omega.
+    auto.
+
+    eapply (IHss _ _ ty ts) in LIR.
     replace (2 * S n + 1) with (S (S (2 * n + 1))); try omega.
     eapply LIR_succ.
-
-    (* XXX I think this is not true without some constraint on ts,
-    because if ts were [] or something, then the indxes would be all
-    off. This could be a case where Braun-ness really was necessary to
-    ensure that they are too far off from each other in length. *)
-
-  Admitted.
+    rewrite <- interleave_case2.
+    rewrite <- interleave_case2.
+    eapply LIR_succ.
+    apply LIR.
+    simpl in BP. omega.
+  Qed.
 
   Lemma IndexR_interleave_odds :
-    forall ss i y x ts,
+    forall ts i y x ss,
+      length ts <= length ss <= (length ts) + 1 ->
       ListIndexR ts i y ->
       ListIndexR (x :: interleave ss ts) (2 * i + 2) y.
   Proof.
-  Admitted.
+    induction ts as [|ty ts]; intros i y x ss BP LIR.
+    invclr LIR.
+
+    destruct i as [|i].
+    invclr LIR.
+
+    replace (2 * 0 + 2) with (S (S 0)); try omega.
+    eapply LIR_succ.
+    destruct ss as [|sy ss].
+    simpl in BP. omega.
+    rewrite <- interleave_case2.
+    eapply LIR_succ.
+    eapply LIR_zero.
+
+    invclr LIR. rename H3 into LIR.
+    replace (2 * (S i) + 2) with (S (S (2 * i + 2))); try omega.
+    eapply LIR_succ.
+    destruct ss as [|sy ss].
+    simpl in BP. omega.
+    rewrite <- interleave_case2.
+    eapply LIR_succ.
+    rewrite <- interleave_case2.
+    eapply IHts; eauto.
+    simpl in BP.
+    omega.
+  Qed.
 
   Theorem SequenceR_IndexR :
     forall b i x,
@@ -285,9 +318,13 @@ Section array.
 
     apply IHIR in SRs.
     apply IndexR_interleave_evens; auto.
+    (* XXX get the braun prop here *)
+    admit.
 
     apply IHIR in SRt.
     apply IndexR_interleave_odds; auto.
+    (* XXX get the braun prop here *)
+    admit.
   Qed.
 
   Theorem MakeArrayLinearR_correct :

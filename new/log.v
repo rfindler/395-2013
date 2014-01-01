@@ -236,4 +236,18 @@ Section fl_log.
     rewrite (H (div2 x)); auto.
   Qed.
 
+  Fixpoint nlogn n : nat :=
+    match n with
+      | 0 => 0
+      | S n' => nlogn n' + (fl_log n' + 1)
+    end.
+
+  Example nlogn_ex :
+    map nlogn (1 :: 2 :: 3 :: 4 ::  5 ::  6 ::  7 ::  8 ::  9 :: 10 :: nil)
+    = (1 :: 3 :: 5 :: 8 :: 11 :: 14 :: 17 :: 21 :: 25 :: 29 :: nil).
+  Proof.
+    auto.
+  Qed.
+
+
 End fl_log.

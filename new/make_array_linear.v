@@ -74,23 +74,10 @@ Proof.
   apply MALR.
 Qed.
 
-Fixpoint rt_naive n : nat :=
-  match n with
-    | 0 => 0
-    | S n' => rt_naive n' + (fl_log n' + 1)
-  end.
-
-Example rt_naive_ex :
-  map rt_naive (1 :: 2 :: 3 :: 4 ::  5 ::  6 ::  7 ::  8 ::  9 :: 10 :: nil)
-  = (1 :: 3 :: 5 :: 8 :: 11 :: 14 :: 17 :: 21 :: 25 :: 29 :: nil).
-Proof.
-  auto.
-Qed.
-
 Theorem MakeArrayLinearR_time :
   forall xs bt t,
     MakeArrayLinearR xs bt t ->
-    t = rt_naive (length xs).
+    t = nlogn (length xs).
 Proof.
   intros xs bt t MALR.
   induction MALR.

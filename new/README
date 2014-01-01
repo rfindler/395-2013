@@ -1,0 +1,12 @@
+This is based on the paper 
+
+Three Algorithms on Braun Trees
+Chris Okasaki
+JFP 1997
+
+Work remaining:
+
+- Two variants of copy
+- Top-down make_array
+- Bottom-up make_array
+- Sequence finding (inverse of make_array) algorithm

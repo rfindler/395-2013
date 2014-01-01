@@ -196,10 +196,18 @@ Proof.
 Qed.
 Hint Resolve MakeArrayTDR_correct.
 
+Fixpoint mat_time n :=
+  match n with
+    | O => 
+      0
+    | S n =>
+      mat_time n + 1 + n + fl_log n
+  end.
+
 Theorem MakeArrayTDR_time :
   forall xs bt t,
     MakeArrayTDR xs bt t ->
-    t = nlogn (length xs).
+    t = mat_time (length xs).
 Proof.
   intros xs bt t MALR.
   induction MALR; eauto.
@@ -215,7 +223,7 @@ Proof.
   remember (length evens) as y.
   clear Heqx Heqy odds evens.
 
-  (* XXX It seems like we need to break about nlogn and fl_log *)
+  (* XXX mat_time is wrong *)
 
   admit.
 Qed.

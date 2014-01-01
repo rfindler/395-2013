@@ -71,10 +71,39 @@ Proof.
 Qed.
 Hint Resolve MakeArrayNaiveR_correct.
 
+Fixpoint man_time n : nat :=
+  match n with
+    | 0 => 0
+    | S n' => man_time n' + (fl_log n' + 1)
+  end.
+
+Example man_time_ex :
+  map man_time (1 :: 2 :: 3 :: 4 ::  5 ::  6 ::  7 ::  8 ::  9 :: 10 :: nil)
+  = (1 :: 3 :: 5 :: 8 :: 11 :: 14 :: 17 :: 21 :: 25 :: 29 :: nil).
+Proof.
+  auto.
+Qed.
+
+Lemma man_time_nlogn :
+  forall n,
+    man_time n <= n * fl_log n.
+Proof.
+  induction n as [|n].
+
+  simpl. omega.
+  remember (man_time (S n)) as m.
+  simpl in Heqm.
+  subst.
+
+  (* XXX ? *)
+  admit.
+Qed.
+Hint Resolve man_time_nlogn.
+
 Theorem MakeArrayNaiveR_time :
   forall xs bt t,
     MakeArrayNaiveR xs bt t ->
-    t = nlogn (length xs).
+    t = man_time (length xs).
 Proof.
   intros xs bt t MALR.
   induction MALR; eauto.
@@ -84,4 +113,14 @@ Proof.
   eapply (InsertR_time _ _ _ _ _ MALR) in IR.
   subst.
   auto.
+Qed.
+Hint Rewrite MakeArrayNaiveR_time.
+
+Theorem MakeArrayNaiveR_bound :
+  forall xs bt t,
+    MakeArrayNaiveR xs bt t ->
+    t <= (length xs) * fl_log (length xs).
+Proof.
+  intros xs bt t MALR.
+  rewrite (MakeArrayNaiveR_time xs bt t); eauto.
 Qed.

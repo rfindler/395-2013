@@ -35,6 +35,24 @@ Proof.
   omega.
 Qed.
 
+(*
+Theorem SequenceR_Braun :
+  forall b xs,
+    SequenceR b xs ->
+    Braun b (length xs).
+Proof.
+  intros b xs SR.
+  induction SR; simpl.
+
+  eauto.
+  rewrite <- interleave_length_split.
+  replace (S (length ss + length ts)) with (length ss + length ts + 1); try omega.
+  eapply B_node; eauto.
+
+  (* XXX Maybe we should put this as a constraint in SR_node? *)
+Admitted.
+*)
+
 Theorem SequenceR_IndexR :
   forall b i x,
     IndexR b i x ->

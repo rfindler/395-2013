@@ -17,15 +17,35 @@ Lemma UnravelR_interleave :
     UnravelR xs evens odds ut ->
     xs = interleave evens odds.
 Proof.
-Admitted.
+  intros xs evens odds ut UR.
+  induction UR.
+
+  auto.
+  rewrite <- interleave_case2.
+  subst. auto.
+Qed.
 Hint Rewrite UnravelR_interleave.
+
+Lemma UnravelR_length_both :
+  forall xs evens odds ut,
+    UnravelR xs evens odds ut ->
+    length evens < S (length xs)
+ /\ length odds < S (length xs).
+Proof.
+  intros xs evens odds ut UR.
+  induction UR; simpl; omega.
+Qed.
+Hint Resolve UnravelR_length_both.
 
 Lemma UnravelR_length_evens :
   forall xs evens odds ut,
     UnravelR xs evens odds ut ->
     length evens < S (length xs).
 Proof.
-Admitted.
+  intros xs evens odds ut UR.
+  eapply UnravelR_length_both in UR.
+  tauto.
+Qed.
 Hint Resolve UnravelR_length_evens.
 
 Lemma UnravelR_length_odds :
@@ -33,7 +53,10 @@ Lemma UnravelR_length_odds :
     UnravelR xs evens odds ut ->
     length odds < S (length xs).
 Proof.
-Admitted.
+  intros xs evens odds ut UR.
+  eapply UnravelR_length_both in UR.
+  tauto.
+Qed.
 Hint Resolve UnravelR_length_odds.
 
 Lemma UnravelR_length :
@@ -41,14 +64,26 @@ Lemma UnravelR_length :
     UnravelR xs evens odds ut ->
     length odds <= length evens <= length odds + 1.
 Proof.
-Admitted.
+  intros xs evens odds ut UR.
+  induction UR; simpl; omega.
+Qed.
 Hint Resolve UnravelR_length.
 
 Theorem unravel :
   forall xs,
     { eo | exists t, UnravelR xs (fst eo) (snd eo) t }.
 Proof.
-Admitted.
+  induction xs as [|x xs].
+
+  exists (@nil A, @nil A).
+  eauto.
+
+  destruct IHxs as [[odds evens] UR].
+  exists (x :: evens, odds).
+  simpl in *.
+  destruct UR as [xst UR].
+  eauto.
+Qed.
 
 Inductive MakeArrayTDR : list A -> bin_tree -> nat -> Prop :=
 | MATDR_zero :

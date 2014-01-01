@@ -7,6 +7,6 @@ JFP 1997
 Work remaining:
 
 - Two variants of copy
-- Top-down make_array
+- Top-down make_array timing
 - Bottom-up make_array
 - Sequence finding (inverse of make_array) algorithm

@@ -85,6 +85,16 @@ Proof.
   eauto.
 Qed.
 
+Theorem UnravelR_time :
+  forall xs evens odds ut,
+    UnravelR xs evens odds ut ->
+    ut = length xs.
+Proof.
+  intros xs evens odds ut UR.
+  induction UR; simpl; try omega.
+Qed.
+Hint Rewrite UnravelR_time.
+
 Inductive MakeArrayTDR : list A -> bin_tree -> nat -> Prop :=
 | MATDR_zero :
     MakeArrayTDR nil bt_mt 0
@@ -132,15 +142,27 @@ Proof.
    eauto.
 Defined.
 
+(* COMMENT: I can't decide if I like it separated like this. On one
+hand it is nice, but maybe it is confusing? I think the optimal would
+be to figure out how to generate the IH that make_array_td_base needs
+directly. *)
+
 Theorem make_array_td :
   forall xs,
     { bt | exists t, MakeArrayTDR xs bt t }.
 Proof.
-
-  (* XXX Find the right induction principle and call
-  make_array_td_base *)
-  admit.
-
+  intros xs.
+  remember (length xs).
+  generalize n xs Heqn. clear n xs Heqn.
+  apply (well_founded_induction_type
+           lt_wf
+           (fun n => forall ys, 
+                       n = length ys -> 
+                       { bt | exists t, MakeArrayTDR ys bt t })).
+  intros n IH xs Heqn. subst n.
+  apply make_array_td_base.
+  intros ys LT.
+  eapply IH. apply LT. auto.
 Defined.
 
 Theorem MakeArrayTDR_Braun :
@@ -185,8 +207,12 @@ Proof.
   subst.
   replace (length (x :: xs)) with (S (length xs)); eauto.
   simpl.
+  rewrite (UnravelR_time _ _ _ _ UR).
+  rewrite (UnravelR_interleave _ _ _ _ UR).
+  clear MALR1 MALR2 s t x UR xs unravel_time.
+  rewrite <- interleave_length_split.
 
-  (* XXX I'm not sure what's going on here. *)
+  (* XXX It seems like we need to break about nlogn and fl_log *)
 
   admit.
 Qed.

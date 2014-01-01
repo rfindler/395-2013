@@ -1,4 +1,4 @@
-Require Import braun log insert util.
+Require Import braun log util.
 Require Import Arith Arith.Even Arith.Div2 List.
 Require Import Program.
 Require Import Omega.

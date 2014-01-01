@@ -1,4 +1,4 @@
-Require Import util log braun.
+Require Import util log braun sequence list.
 Require Import Omega.
 Require Import Arith Arith.Even Arith.Div2.
 
@@ -111,4 +111,27 @@ Section insert.
     apply IHIR in H1.
     omega.
   Qed.
+
+  Lemma InsertR_SequenceR:
+    forall t ts y t' n,
+      SequenceR A t ts ->
+      InsertR y t t' n ->
+      SequenceR A t' (y :: ts).
+  Proof.
+    induction t as [|x s IHs t IHt]; intros ts y t' n SR IR.
+
+    invclr SR. invclr IR.
+    cut (nil = interleave A nil nil). intros EQ; rewrite EQ.
+    eapply SR_node; eauto.
+    apply SR_mt.
+    apply SR_mt.
+    auto.
+
+    invclr SR. rename H3 into SRs. rename H4 into SRt.
+    invclr IR. rename H5 into IR. rename ts0 into ts.
+    rename t'0 into t'.
+    rewrite interleave_case2.
+    eapply SR_node; eauto.
+  Qed.
+
 End insert.

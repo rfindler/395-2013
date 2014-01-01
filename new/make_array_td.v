@@ -211,6 +211,9 @@ Proof.
   rewrite (UnravelR_interleave _ _ _ _ UR).
   clear MALR1 MALR2 s t x UR xs unravel_time.
   rewrite <- interleave_length_split.
+  remember (length odds) as x.
+  remember (length evens) as y.
+  clear Heqx Heqy odds evens.
 
   (* XXX It seems like we need to break about nlogn and fl_log *)
 

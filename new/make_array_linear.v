@@ -22,6 +22,7 @@ Proof.
   induction MALR; eauto.
   eapply InsertR_SequenceR; eauto.
 Qed.
+Hint Resolve MakeArrayLinearR_SequenceR.
 
 Theorem make_array_linear :
   forall xs,
@@ -57,6 +58,7 @@ Proof.
   apply (IHxs bt0 time H0).
   assumption.
 Qed.
+Hint Resolve MakeArrayLinearR_Braun.
 
 Theorem MakeArrayLinearR_correct :
   forall xs bt n,
@@ -65,14 +67,9 @@ Theorem MakeArrayLinearR_correct :
       IndexR bt i x ->
       ListIndexR xs i x.
 Proof.
-  intros xs bt n MALR i x IR.
-  eapply SequenceR_IndexR.
-  apply IR.
-  eapply MakeArrayLinearR_Braun.
-  apply MALR.
-  eapply MakeArrayLinearR_SequenceR.
-  apply MALR.
+  intros. eauto.
 Qed.
+Hint Resolve MakeArrayLinearR_correct.
 
 Theorem MakeArrayLinearR_time :
   forall xs bt t,
@@ -80,13 +77,11 @@ Theorem MakeArrayLinearR_time :
     t = nlogn (length xs).
 Proof.
   intros xs bt t MALR.
-  induction MALR.
-  auto.
+  induction MALR; eauto.
   rename H into IR.
   subst.
   apply MakeArrayLinearR_Braun in MALR.
   eapply (InsertR_time _ _ _ _ _ MALR) in IR.
   subst.
-  simpl.
   auto.
 Qed.

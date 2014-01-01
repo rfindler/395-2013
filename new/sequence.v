@@ -34,6 +34,7 @@ Proof.
   simpl.
   omega.
 Qed.
+Hint Rewrite BraunR_SequenceR.
 
 (*
 Theorem SequenceR_Braun :
@@ -74,7 +75,6 @@ Proof.
   replace s_size with (length ss) in *; try omega.
   replace t_size with (length ts) in *; try omega.
   apply IHIR in SRs; eauto.
-  apply ListIndexR_interleave_evens; eauto.
   symmetry. eapply BraunR_SequenceR. apply Bs.
   apply SRs.
 
@@ -87,7 +87,7 @@ Proof.
   replace s_size with (length ss) in *; try omega.
   replace t_size with (length ts) in *; try omega.
   apply IHIR in SRt; eauto.
-  apply ListIndexR_interleave_odds; eauto.
   symmetry. eapply BraunR_SequenceR. apply Bs.
   apply SRs.
 Qed.
+Hint Resolve SequenceR_IndexR.

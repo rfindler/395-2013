@@ -29,6 +29,7 @@ Proof.
   inversion_clear B1;
   inversion_clear B2; eauto.
 Qed.
+Hint Rewrite same_structure_same_size.
 
 Theorem same_size_same_structure :
   forall n bt1 bt2,
@@ -55,3 +56,4 @@ Proof.
   eapply IH; eauto; omega.
   eapply IH; eauto; omega.
 Qed.
+Hint Resolve same_size_same_structure.

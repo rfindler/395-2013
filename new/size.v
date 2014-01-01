@@ -68,6 +68,7 @@ Proof.
   replace k0 with k in *; try omega;
   apply IHDR in H5; omega.
 Qed.
+Hint Rewrite DiffR_fun.
 
 Theorem DiffR_correct_ans :
   forall s m df t,
@@ -77,6 +78,7 @@ Proof.
   intros s m df t DR.
   induction DR; auto.
 Qed.
+Hint Resolve DiffR_correct_ans.
 
 Theorem DiffR_correct_zero :
   forall s m,
@@ -174,6 +176,7 @@ Proof.
   replace (2 * k + 2) with (k + 1 + (k + 1)); try omega.
   apply fl_log_even.
 Qed.
+Hint Rewrite DiffR_time_zero.
 
 Theorem DiffR_time_one :
   forall bt n dt,
@@ -198,6 +201,7 @@ Proof.
   replace (2 * k + 2 + 1) with ((k + 1) + (k + 1) + 1); try omega.
   apply cl_log_odd.
 Qed.
+Hint Rewrite DiffR_time_one.
 
 Theorem DiffR_time :
   forall bt n df dt,
@@ -210,6 +214,7 @@ Proof.
   left. apply (DiffR_time_zero DR).
   right. apply (DiffR_time_one DR).
 Qed.
+Hint Resolve DiffR_time.
 
 Theorem diff_dec :
   forall bt m,
@@ -336,6 +341,7 @@ Proof.
   exists (s_time + t_time + 1).
   eapply SR_node; eauto.
 Qed.
+Hint Resolve SizeR_correct.
 
 Theorem SizeR_time :
   forall bt n st,
@@ -366,6 +372,7 @@ Proof.
   intros EQ. omega.
   apply cl_log_even.
 Qed.
+Hint Rewrite SizeR_time.
 
 Lemma SizeR_fun :
   forall s sz st,
@@ -384,6 +391,7 @@ Proof.
   destruct (DiffR_fun H H6); subst.
   omega.
 Qed.
+Hint Rewrite SizeR_fun.
 
 Theorem size_dec :
   forall bt,
@@ -419,8 +427,4 @@ Theorem size :
 Proof.
   intros bt m B.
   destruct (size_dec bt) as [ OK | FAIL ]; eauto.
-  assert False; try tauto.
-  apply SizeR_correct in B.
-  destruct B as [ st SR ].
-  eapply FAIL. apply SR.
 Defined.

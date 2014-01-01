@@ -57,7 +57,6 @@ Proof.
   rewrite (odd_double n) at 2;[|assumption].
   unfold double.
   omega.
-
 Defined.
 
 Theorem copy :
@@ -129,13 +128,14 @@ Proof.
   rewrite fl_log_even.
   omega.
 Qed.
+Hint Resolve Copy2R_running_time.
 
 Lemma CopyR_running_time :
   forall x n bt1 time,
     CopyR x n bt1 time ->
     time = ((2 * fl_log n) + 1).
+Proof.
   intros.
   inversion H.
-  apply Copy2R_running_time in H0.
-  assumption.
+  eauto.
 Qed.

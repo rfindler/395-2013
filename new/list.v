@@ -22,10 +22,13 @@ Lemma interleave_case2 :
 Proof.
   intros.
   unfold interleave.
-  WfExtensionality.unfold_sub interleave_func (interleave_func (existT (fun _ : list A => list A) (x :: ts) ss)).
+  WfExtensionality.unfold_sub 
+    interleave_func
+    (interleave_func (existT (fun _ : list A => list A) (x :: ts) ss)).
   fold interleave_func.
   destruct ts; simpl; reflexivity.
 Qed.
+Hint Rewrite interleave_case2.
 
 Inductive ListIndexR : list A -> nat -> A -> Prop :=
 | LIR_zero :
@@ -81,6 +84,7 @@ Proof.
   apply LIR.
   simpl in BP. omega.
 Qed.
+Hint Resolve ListIndexR_interleave_evens.
 
 Lemma ListIndexR_interleave_odds :
   forall ts i y x ss,
@@ -114,6 +118,7 @@ Proof.
   simpl in BP.
   omega.
 Qed.
+Hint Resolve ListIndexR_interleave_odds.
 
 Lemma interleave_length_swap :
   forall ss ts,
@@ -133,6 +138,7 @@ Proof.
   simpl. rewrite IHss.
   auto.
 Qed.
+Hint Rewrite interleave_length_swap.
 
 Lemma interleave_length_split :
   forall ss ts,
@@ -147,3 +153,4 @@ Proof.
   rewrite interleave_length_swap.
   auto.
 Qed.
+Hint Rewrite interleave_length_split.

@@ -429,19 +429,19 @@ Section array.
   Qed.
 
   Theorem MakeArrayLinearR_time :
-    forall xs bt n,
-      MakeArrayLinearR xs bt n ->
-      n = rt_naive (length xs).
+    forall xs bt t,
+      MakeArrayLinearR xs bt t ->
+      t = rt_naive (length xs).
   Proof.
-    intros xs bt n MALR.
+    intros xs bt t MALR.
     induction MALR.
     auto.
     rename H into IR.
     subst.
-    simpl.
     apply MakeArrayLinearR_Braun in MALR.
     eapply (InsertR_time _ _ _ _ _ _ MALR) in IR.
     subst.
+    simpl.
     auto.
   Qed.  
 End array.

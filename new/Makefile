@@ -1,4 +1,5 @@
 all: braun
+	grep -i admit *v
 
 braun: braun.ml braun.cmi
 	ocamlc $@.ml -o $@
@@ -16,4 +17,5 @@ Makefile.coq: *.v
 
 clean:
 	make -f Makefile.coq clean
+	rm -f *.vo *.glob
 	rm -f braun.cmi braun.mli braun.ml braun.cmi braun

@@ -1,112 +1,10 @@
-Require Import braun log insert util.
+Require Import braun log insert util index.
 Require Import Arith Arith.Even Arith.Div2 List.
 Require Import Program.
 Require Import Omega.
 
 Section array.
   Variable A : Set.
-
-  Inductive IndexR : bin_tree A -> nat -> A -> Prop :=
-    | IR_zero :
-        forall x s t,
-          IndexR (bt_node x s t) 0 x
-    | IR_left :
-        forall x s t i y,
-          IndexR s i y ->
-          IndexR (bt_node x s t) (2 * i + 1) y
-    | IR_right :
-        forall x s t i y,
-          IndexR t i y ->
-          IndexR (bt_node x s t) (2 * i + 2) y.
-  Hint Constructors IndexR.
-
-  Theorem index_dec :
-    forall bt i,
-      { x | IndexR bt i x } +
-      { forall x, ~ IndexR bt i x }.
-  Proof.
-    intros bt.
-    induction bt as [|x s IRs t IRt]; intros i.
-
-    right. intros x IR.
-    inversion IR.
-
-    destruct i as [|i].
-    left. eauto.
-
-    destruct (even_odd_dec i) as [E | O].
-
-    apply even_2n in E. 
-    destruct E as [k EQ]. subst.
-    unfold double.
-    replace (S (k + k)) with (2 * k + 1); try omega.
-    destruct (IRs k) as [[y IRs_k] | FAIL].
-    left. eauto.
-    right. intros y IR.
-    inversion IR; clear IR; subst; try omega.
-    replace i with k in *; try omega.
-    apply (FAIL y); auto.
-
-    apply odd_S2n in O.
-    destruct O as [k EQ]. subst.
-    unfold double.
-    replace (S (S (k + k))) with (2 * k + 2); try omega.
-    destruct (IRt k) as [[y IRt_k] | FAIL].
-    left. eauto.
-    right. intros y IR.
-    inversion IR; clear IR; subst; try omega.
-    replace i with k in *; try omega.
-    apply (FAIL y); auto.
-  Defined.
-
-  Theorem index_Braun :
-    forall bt n,
-      Braun bt n ->
-      forall i,
-        i < n ->
-        exists x,
-          IndexR bt i x.
-  Proof.
-    induction bt as [|x s Is t It];
-    intros n B i LT.
-
-    inversion B. omega.
-
-    inversion B; clear B; subst.
-    rename H2 into BP.
-    rename H4 into Bs.
-    rename H5 into Bt.
-    destruct i as [|i].
-    eauto.
-    destruct (even_odd_dec i) as [E | O].
-
-    apply even_2n in E. destruct E as [k EQ]; subst.
-    unfold double in *.
-    destruct (Is s_size Bs k) as [y IRs]; try omega.
-    replace (S (k + k)) with (2 * k + 1); try omega.
-    eauto.
-
-    apply odd_S2n in O. destruct O as [k EQ]; subst.
-    unfold double in *.
-    destruct (It t_size Bt k) as [y IRt]; try omega.
-    replace (S (S (k + k))) with (2 * k + 2); try omega.
-    eauto.
-  Qed.
-
-  Theorem index :
-    forall bt n,
-      Braun bt n ->
-      forall i,
-        i < n ->
-        { x | IndexR bt i x }.
-  Proof.
-    intros bt n B i LT.
-    destruct (index_dec bt i) as [OK | FAIL].
-    auto.
-    assert False; try tauto.
-    destruct (index_Braun bt n B i LT) as [y IR].
-    apply (FAIL y). auto.
-  Defined.
 
   Program Fixpoint interleave (evens : list A) (odds : list A)
           {measure (length (evens ++ odds))} :=
@@ -242,7 +140,7 @@ Section array.
     apply IHn in H4. auto.
   Qed.
 
-  Lemma IndexR_interleave_evens :
+  Lemma ListIndexR_interleave_evens :
     forall ss i y x ts,
       length ts <= length ss <= (length ts) + 1 ->
       ListIndexR ss i y ->
@@ -272,7 +170,7 @@ Section array.
     simpl in BP. omega.
   Qed.
 
-  Lemma IndexR_interleave_odds :
+  Lemma ListIndexR_interleave_odds :
     forall ts i y x ss,
       length ts <= length ss <= (length ts) + 1 ->
       ListIndexR ts i y ->
@@ -362,7 +260,7 @@ Section array.
 
   Theorem SequenceR_IndexR :
     forall b i x,
-      IndexR b i x ->
+      IndexR A b i x ->
       forall xs,
         Braun b (length xs) ->
         SequenceR b xs ->
@@ -381,7 +279,7 @@ Section array.
     replace s_size with (length ss) in *; try omega.
     replace t_size with (length ts) in *; try omega.
     apply IHIR in SRs; eauto.
-    apply IndexR_interleave_evens; eauto.
+    apply ListIndexR_interleave_evens; eauto.
     symmetry. eapply BraunR_SequenceR. apply Bs.
     apply SRs.
 
@@ -394,7 +292,7 @@ Section array.
     replace s_size with (length ss) in *; try omega.
     replace t_size with (length ts) in *; try omega.
     apply IHIR in SRt; eauto.
-    apply IndexR_interleave_odds; eauto.
+    apply ListIndexR_interleave_odds; eauto.
     symmetry. eapply BraunR_SequenceR. apply Bs.
     apply SRs.
   Qed.
@@ -403,7 +301,7 @@ Section array.
     forall xs bt n,
       MakeArrayLinearR xs bt n ->
       forall i x,
-        IndexR bt i x ->
+        IndexR A bt i x ->
         ListIndexR xs i x.
   Proof.
     intros xs bt n MALR i x IR.

@@ -305,26 +305,98 @@ Section array.
     omega.
   Qed.
 
+  Lemma interleave_length_swap :
+    forall ss ts,
+      (length (interleave ss ts)) = (length (interleave ts ss)).
+  Proof.
+    induction ss as [|sy ss]; intros ts.
+    
+    induction ts as [|ty ts]; simpl; auto.
+
+    rewrite <- interleave_case2.
+    simpl.
+    destruct ts as [|ty ts].
+    auto.
+    rewrite <- interleave_case2.
+    rewrite <- interleave_case2.
+    rewrite <- interleave_case2.
+    simpl. rewrite IHss.
+    auto.
+  Qed.
+
+  Lemma interleave_length_split :
+    forall ss ts,
+      (length ss) + (length ts) = (length (interleave ss ts)).
+  Proof.
+    induction ss as [|sy ss]; intros ts.
+    
+    simpl. auto.
+
+    rewrite <- interleave_case2.
+    simpl. rewrite IHss.
+    rewrite interleave_length_swap.
+    auto.
+  Qed.
+
+  Lemma BraunR_SequenceR :
+    forall b n,
+      Braun b n ->
+      forall l,
+        SequenceR b l ->
+        n = (length l).
+  Proof.
+    intros b n B.
+    induction B; intros l SR; invclr SR.
+    auto.
+
+    rename H into BP.
+    rename H4 into SRs.
+    rename H5 into SRt.
+    apply IHB1 in SRs.
+    apply IHB2 in SRt.
+    subst.
+    rewrite interleave_length_split.
+    simpl.
+    omega.
+  Qed.
+
   Theorem SequenceR_IndexR :
     forall b i x,
       IndexR b i x ->
       forall xs,
+        Braun b (length xs) ->
         SequenceR b xs ->
         ListIndexR xs i x.
   Proof.
     intros b i x IR.
-    induction IR; intros xs SR; invclr SR; eauto;
+    induction IR; intros xs BP SR; invclr SR; eauto;
     rename H3 into SRs; rename H4 into SRt.
 
-    apply IHIR in SRs.
-    apply IndexR_interleave_evens; auto.
-    (* XXX get the braun prop here *)
-    admit.
+    invclr BP.
+    rename H3 into BP.
+    rename H4 into Bs.
+    rename H5 into Bt.
+    rename H2 into EQ.
+    rewrite <- interleave_length_split in EQ.
+    replace s_size with (length ss) in *; try omega.
+    replace t_size with (length ts) in *; try omega.
+    apply IHIR in SRs; eauto.
+    apply IndexR_interleave_evens; eauto.
+    symmetry. eapply BraunR_SequenceR. apply Bs.
+    apply SRs.
 
-    apply IHIR in SRt.
-    apply IndexR_interleave_odds; auto.
-    (* XXX get the braun prop here *)
-    admit.
+    invclr BP.
+    rename H3 into BP.
+    rename H4 into Bs.
+    rename H5 into Bt.
+    rename H2 into EQ.
+    rewrite <- interleave_length_split in EQ.
+    replace s_size with (length ss) in *; try omega.
+    replace t_size with (length ts) in *; try omega.
+    apply IHIR in SRt; eauto.
+    apply IndexR_interleave_odds; eauto.
+    symmetry. eapply BraunR_SequenceR. apply Bs.
+    apply SRs.
   Qed.
 
   Theorem MakeArrayLinearR_correct :
@@ -337,6 +409,8 @@ Section array.
     intros xs bt n MALR i x IR.
     eapply SequenceR_IndexR.
     apply IR.
+    eapply MakeArrayLinearR_Braun.
+    apply MALR.
     eapply MakeArrayLinearR_SequenceR.
     apply MALR.
   Qed.

@@ -196,18 +196,18 @@ Proof.
 Qed.
 Hint Resolve MakeArrayTDR_correct.
 
-Definition mat_time : nat -> nat.
-  refine (Fix lt_wf (fun _ => nat)
-              (fun n =>
-                 match n as n with
-                   | O => fun mat_time => 0
-                   | S n' =>
-                     fun (mat_time : forall n'', n'' < S n' -> nat) => 
-                       mat_time (div2 (S n')) _ +
-                       mat_time (div2 n') _ +
-                       (S n')
-                 end));eauto.
-  Defined.
+Program Fixpoint mat_time n {measure n} :=
+  match n with
+    | O => 0
+    | S n' =>
+      mat_time (div2 (S n')) + mat_time (div2 n') + (S n')
+  end.
+Next Obligation.
+  destruct n' as [|n'].
+  omega.
+  apply lt_n_S.
+  apply lt_div2'.
+Qed.
 
 Lemma mat_time_Sn : 
   forall n',
@@ -215,7 +215,13 @@ Lemma mat_time_Sn :
     mat_time (div2 (S n')) +
     mat_time (div2 n') +
     (S n').
-  Admitted.
+Proof.
+  intros.
+  WfExtensionality.unfold_sub 
+    mat_time
+    (mat_time (S n')).
+  auto.
+Qed.
 
 Theorem MakeArrayTDR_time :
   forall xs bt t,

@@ -1,5 +1,7 @@
 all: braun
-	grep -i admit *v
+	@echo ""
+	@echo ""
+	@ ! grep -i admit *v
 
 braun: braun.ml braun.cmi
 	ocamlc $@.ml -o $@

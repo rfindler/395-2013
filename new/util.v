@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import Arith.Even Arith.Div2 Omega.
+Require Import Arith.Even Arith.Div2 Omega NPow.
 
 (* I think this is stdlib somewhere *)
 Lemma plus_r_inj : 
@@ -169,3 +169,32 @@ Hint Resolve plusone_ne_zero.
 
 Ltac invclr X :=
   inversion X; clear X; subst.
+
+Lemma minus_ltS :
+  forall m n,
+    m > 0 ->
+    S n - m < S n.
+Proof.
+  induction m as [|m]; simpl; intros n LT; omega.
+Qed.
+Hint Resolve minus_ltS.
+
+Lemma pow_lt_O :
+  forall k,
+    NPeano.pow 2 k > 0.
+Proof.
+  induction k as [|k]; simpl; omega.
+Qed.
+Hint Resolve pow_lt_O.
+
+Lemma pow_le_S:
+  forall n k,
+    S n - (NPeano.pow 2 k) <= n.
+Proof.
+  intros n k.
+  remember (NPeano.pow 2 k) as m.
+  assert (m > 0); [subst; auto |].
+  assert (S n - m < S n); [subst; auto |].
+  omega.
+Qed.
+Hint Resolve pow_le_S.

@@ -17,18 +17,6 @@ Inductive RowsR : nat -> list A -> list (nat * list A) -> nat -> Prop :=
       RowsR (S k) (x :: xs) (((S k), firstn (S k) (x::xs)) :: more) (more_time + 1).
 Hint Constructors RowsR.
 
-Lemma skipn_length :
-  forall k (xs:list A),
-    length xs - k = length (skipn k xs).
-Proof.
-  induction k as [|k]; intros xs; simpl.
-  omega.
-  destruct xs as [|x xs]. 
-  simpl. omega.
-  simpl. rewrite IHk. auto.
-Qed.
-Hint Rewrite skipn_length.
-
 (* COMMENT: We incorporate k != 0 into this proof. *)
 
 Theorem rows :

@@ -210,3 +210,14 @@ Proof.
 Qed.
 Hint Resolve interleave_In.
 
+Lemma skipn_length :
+  forall k (xs:list A),
+    length xs - k = length (skipn k xs).
+Proof.
+  induction k as [|k]; intros xs; simpl.
+  omega.
+  destruct xs as [|x xs]. 
+  simpl. omega.
+  simpl. rewrite IHk. auto.
+Qed.
+Hint Rewrite skipn_length.

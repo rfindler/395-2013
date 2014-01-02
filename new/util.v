@@ -66,6 +66,17 @@ Proof.
 Qed.
 Hint Rewrite div2_with_odd_argument.
 
+Lemma div2_doubled_le_n :
+  forall n,
+    div2 n + div2 n <= n.
+  intros n.
+  assert (even n \/ odd n) as H;[apply even_or_odd|destruct H].
+
+  rewrite even_double;[unfold double;constructor|assumption].
+
+  rewrite odd_double;[unfold double;constructor;constructor|assumption].
+Qed.
+
 Lemma double_is_even: 
   forall n, even (n+n).
 Proof.

@@ -133,4 +133,51 @@ Section le_util.
     assumption.
   Qed.
 
+  Lemma le_pieces_le_prod :
+    forall a b c d,
+      a <= b -> c <= d -> a*c <= b*d.
+    intros.
+
+    induction d.
+    replace c with 0;[|omega].
+    rewrite mult_comm; apply le_0_n.
+
+    inversion H0.
+    apply le_mult_left.
+    assumption.
+
+    apply IHd in H2.
+
+    apply (le_trans (a * c)
+                    (b * d)
+                    (b * S d)).
+    assumption.
+
+    rewrite mult_comm.
+    replace (b * S d) with (S d * b);[|apply mult_comm].
+
+    simpl.
+    omega.
+  Qed.
+
+  Lemma div2_mult : forall n m, m*div2(n)+m*div2(n) <= m*n.
+    induction m.
+    simpl;reflexivity.
+    
+    unfold mult;fold mult.
+    
+    replace (div2 n + m * div2 n + (div2 n + m * div2 n))
+    with (div2 n + div2 n + (m * div2 n + m * div2 n));[|omega].
+    
+    apply (le_trans (div2 n + div2 n + (m * div2 n + m * div2 n))
+                    (div2 n + div2 n + m * n)
+                    (n + m * n)).
+    apply le_plus_right.
+    apply IHm.
+    
+    apply le_plus_left.
+    
+    apply div2_doubled_le_n.
+  Qed.
+  
 End le_util.

@@ -196,13 +196,26 @@ Proof.
 Qed.
 Hint Resolve MakeArrayTDR_correct.
 
-Fixpoint mat_time n :=
-  match n with
-    | O => 
-      0
-    | S n =>
-      mat_time n + 1 + n + fl_log n
-  end.
+Definition mat_time : nat -> nat.
+  refine (Fix lt_wf (fun _ => nat)
+              (fun n =>
+                 match n as n with
+                   | O => fun mat_time => 0
+                   | S n' =>
+                     fun (mat_time : forall n'', n'' < S n' -> nat) => 
+                       mat_time (div2 (S n')) _ +
+                       mat_time (div2 n') _ +
+                       (S n')
+                 end));eauto.
+  Defined.
+
+Lemma mat_time_Sn : 
+  forall n',
+    mat_time (S n') = 
+    mat_time (div2 (S n')) +
+    mat_time (div2 n') +
+    (S n').
+  Admitted.
 
 Theorem MakeArrayTDR_time :
   forall xs bt t,
@@ -212,18 +225,29 @@ Proof.
   intros xs bt t MALR.
   induction MALR; eauto.
   rename H into UR.
-  subst.
   replace (length (x :: xs)) with (S (length xs)); eauto.
-  simpl.
+  subst.
   rewrite (UnravelR_time _ _ _ _ UR).
   rewrite (UnravelR_interleave _ _ _ _ UR).
+  assert (length evens <= length odds <= length evens+1) as BTI;
+    [eapply UnravelR_length; apply UR|].
   clear MALR1 MALR2 s t x UR xs unravel_time.
   rewrite <- interleave_length_split.
   remember (length odds) as x.
   remember (length evens) as y.
   clear Heqx Heqy odds evens.
+  rewrite mat_time_Sn.
 
-  (* XXX mat_time is wrong *)
+  assert (x = y \/ x = y+1) as TWOCASES;[omega|clear BTI].
+  destruct TWOCASES; subst x.
 
-  admit.
+  rewrite div2_with_odd_argument.
+  rewrite double_div2.
+  omega.
+
+  replace (S (y + 1 + y)) with ((y+1)+(y+1));[|omega].
+  replace (y+1+y) with (S (y + y));[|omega].
+  rewrite div2_with_odd_argument.
+  rewrite double_div2.
+  omega.
 Qed.

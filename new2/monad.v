@@ -47,12 +47,12 @@ Defined.
 Definition bind2 (A:Set) (B:Set)
            (PA:A -> nat -> Prop) (PB:B -> nat -> Prop)
            (xm:@C A PA) 
-           (yf: forall (x:A),
-                  @C B 
-                     (fun y yn => 
-                        forall xn, 
-                          PA x xn ->
-                          PB y (xn+yn)))
+           (yf:forall (x:A),
+                 @C B 
+                    (fun y yn => 
+                       forall xn, 
+                         PA x xn ->
+                         PB y (xn+yn)))
 : @C B PB.
 Proof.
   destruct xm as [x Px].

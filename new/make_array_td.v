@@ -1,4 +1,5 @@
 Require Import braun log insert util index list_util sequence le_util.
+Require Import make_array_naive. (* used only for proof that two running times are the same *)
 Require Import Arith Arith.Even Arith.Div2 List.
 Require Import Program.
 Require Import Omega.
@@ -324,4 +325,41 @@ Proof.
   omega.
 
   apply mat_time_nlogn.
+Qed.
+
+Lemma mat_time_Sn_cl_log : 
+  forall n : nat,
+    mat_time (S n) = mat_time n + cl_log (S n).
+  apply (well_founded_ind
+           lt_wf
+           (fun n => mat_time (S n) = mat_time n + cl_log (S n))).
+
+  intros n IHn.
+  
+  destruct n.
+  compute;reflexivity.
+
+  rewrite mat_time_Sn.
+
+  replace (div2 (S (S n))) with (S (div2 n));[|unfold div2;reflexivity].
+
+  rewrite IHn;auto.
+
+  replace (cl_log (S (S n))) with (S (cl_log (div2 (S (S n)))));
+    [|symmetry;apply cl_log_div2'].
+  
+  rewrite mat_time_Sn.
+  
+  replace (div2 (S (S n))) with (S (div2 n));[|unfold div2;reflexivity].
+
+  omega.
+Qed.
+
+Lemma rt_naive_same_as_mat_time :
+  forall n, mat_time n = man_time n.
+Proof.
+  induction n.
+  auto.
+  
+  simpl; rewrite <- IHn; apply mat_time_Sn_cl_log; auto.
 Qed.

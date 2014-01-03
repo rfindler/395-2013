@@ -255,6 +255,7 @@ Qed.
 Lemma mat_time_nlogn : 
   forall n,
     mat_time n <= n * cl_log n.
+Proof.
   apply (well_founded_ind
            lt_wf
            (fun n => mat_time n <= n * cl_log n)).
@@ -313,6 +314,7 @@ Theorem MakeArrayTDR_time :
   forall xs bt t,
     MakeArrayTDR xs bt t ->
     t <= (length xs) * cl_log (length xs).
+Proof.
   intros.
   apply (le_trans t 
                   (mat_time (length xs))

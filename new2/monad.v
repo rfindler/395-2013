@@ -149,19 +149,16 @@ Obligations.
 Admit Obligations.
 
 Program Fixpoint insert2 {A:Set} (i:A) (b:@bin_tree A)
-: @C _ (@insert_prop A b) :=
+: C _ (insert_prop A b) :=
   match b with
     | bt_mt =>
       (inc _ _ 1
            (ret _ _ (bt_node i bt_mt bt_mt) _))
     | bt_node j s t =>
-      (@bind2 (@bin_tree A) (@bin_tree A)
-              (@insert_prop A t)
-              _
-              (insert2 j t)
-              (fun st =>
-                 (inc _ _ 1
-                      (ret _ _ (bt_node i st s) _))))
+      (bind2 _ _ _ _ (insert2 j t)
+             (fun st =>
+                (inc _ _ 1
+                     (ret _ _ (bt_node i st s) _))))
   end.
 
 Obligations.

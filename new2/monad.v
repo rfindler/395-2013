@@ -1,5 +1,3 @@
-Set Implicit Arguments.
-
 Require Import Program.
 
 Definition C (A:Set) (P:A -> nat -> Prop) : Set := {a | exists n, (P a n)}.
@@ -7,7 +5,9 @@ Hint Unfold C.
 
 Definition ret (A:Set) (PA:A -> nat -> Prop) (x:A) (PAx:PA x 0) : @C A PA.
 Proof.
-  eauto.
+  exists x.
+  exists 0.
+  apply PAx.
 Defined.
 
 Definition bind0 (A:Set) (B:Set) (PA:A -> nat -> Prop) (PB:B -> nat -> Prop)
@@ -28,20 +28,44 @@ Defined.
 
 Definition bind1 (A:Set) (B:Set) (PA:A -> nat -> Prop) (PBi:B -> nat -> Prop) 
            (PB:B -> nat -> Prop)
-           (xn:@C A PA) (yf:A -> @C B PBi)
+           (xm:@C A PA) (yf:A -> @C B PBi)
            (PBA:forall x xn y yn, (PA x xn) -> (PBi y yn) -> (PB y (xn + yn)))
 : @C B PB.
 Proof.
-  destruct xn as [x Px].
+  destruct xm as [x Px].
   edestruct yf as [y Py].
   apply x.
   exists y.
   destruct Px as [xn Px].
   destruct Py as [yn Py].
   exists (xn + yn).
-  eapply PBA;
-  eauto.
+  eapply PBA.
+  apply Px.
+  apply Py.
 Defined.
+
+Definition bind2 (A:Set) (B:Set)
+           (PA:A -> nat -> Prop) (PB:B -> nat -> Prop)
+           (xm:@C A PA) 
+           (yf: forall (x:A),
+                  @C B 
+                     (fun y yn => 
+                        forall xn, 
+                          PA x xn ->
+                          PB y (xn+yn)))
+: @C B PB.
+Proof.
+  destruct xm as [x Px].
+  edestruct (yf x) as [y Py].
+  exists y.
+  destruct Px as [xn Px].
+  destruct Py as [yn Py].
+  exists (xn + yn).
+  eapply Py.
+  apply Px.
+Defined.
+
+Print bind2.
 
 Definition inc (A:Set) PA (k:nat) (x:@C A (fun x xn => PA x (xn+k)))
 : @C A PA.
@@ -49,11 +73,12 @@ Proof.
   destruct x as [x Px].
   exists x.
   destruct Px as [n Px].
-  eauto.
+  exists (n + k).
+  apply Px.
 Defined.
 
 Extraction Implicit inc [k].
-Recursive Extraction ret bind0 bind1 inc.
+Recursive Extraction ret bind0 bind1 bind2 inc.
 
 (*
 Notation "x >>= y" := (bind x y) (at level 55).
@@ -66,24 +91,28 @@ Require Import Coq.Logic.JMeq Coq.Program.Wf.
 Require Import Arith Arith.Even Arith.Div2.
 Require Import Omega.
 Require Import Program.Syntax.
-Require Import braun util.
+Require Import braun util same_structure.
 Require Import log.
 
+Definition insert_prop (A:Set) (b:@bin_tree A) :=
+  (fun (b':@bin_tree A) (cost:nat) =>
+     forall n,
+       Braun b n ->
+       Braun b' (S n) ->
+       cost = fl_log n + 1).
+Hint Unfold insert_prop.
+
 Program Fixpoint insert0 {A:Set} (x:A) (b:@bin_tree A)
-: @C _ (fun (b':@bin_tree A) (cost:nat) =>
-          forall n,
-            Braun b n ->
-            Braun b' (S n) ->
-            cost = fl_log n + 1) :=
+: @C _ (@insert_prop A b) :=
   match b with
     | bt_mt =>
-      (inc _ 1
-           (ret _ (bt_node x bt_mt bt_mt) _))
+      (inc _ _ 1
+           (ret _ _ (bt_node x bt_mt bt_mt) _))
     | bt_node y s t =>
-      (bind0 (insert0 y t)
+      (bind0 _ _ _ _ (insert0 y t)
             (fun st =>
-               (inc _ 1
-                    (ret _ (bt_node x st s) _)))
+               (inc _ _ 1
+                    (ret _ _ (bt_node x st s) _)))
             _)
   end.
 Obligations.
@@ -95,76 +124,97 @@ Admit Obligations.
 (* XXX This next one requires a great leap to figure out what the
 connection is, but let's try it *)
 
-Check bind1.
-
-Program Fixpoint insert1 {A:Set} (x:A) (b:@bin_tree A)
-: @C _ (fun (b':@bin_tree A) (cost:nat) =>
-          forall n,
-            Braun b n ->
-            Braun b' (S n) ->
-            cost = fl_log n + 1) :=
+Program Fixpoint insert1 {A:Set} (i:A) (b:@bin_tree A)
+: @C _ (@insert_prop A b) :=
   match b with
     | bt_mt =>
-      (inc _ 1
-           (ret _ (bt_node x bt_mt bt_mt) _))
-    | bt_node y s t =>
-      (@bind1 _ _ _ (fun y yn => yn = 1) _
-              (insert1 y t)
+      (inc _ _ 1
+           (ret _ _ (bt_node i bt_mt bt_mt) _))
+    | bt_node j s t =>
+      (@bind1 (@bin_tree A) (@bin_tree A)
+              (@insert_prop A t)
+              (fun y yn => yn = 1)
+              (@insert_prop A (bt_node j s t))
+              (insert1 j t)
               (fun st =>
-                 (inc _ 1
-                      (ret _ (bt_node x st s) _)))
+                 (inc _ _ 1
+                      (ret _ _ (bt_node i st s) _)))
               _)
   end.
 
+Obligations.
+
+(* Obligation 3 is bad because y is not (bt_node x st s) *)
+
+Admit Obligations.
+
+Program Fixpoint insert2 {A:Set} (i:A) (b:@bin_tree A)
+: @C _ (@insert_prop A b) :=
+  match b with
+    | bt_mt =>
+      (inc _ _ 1
+           (ret _ _ (bt_node i bt_mt bt_mt) _))
+    | bt_node j s t =>
+      (@bind2 (@bin_tree A) (@bin_tree A)
+              (@insert_prop A t)
+              _
+              (insert2 j t)
+              (fun st =>
+                 (inc _ _ 1
+                      (ret _ _ (bt_node i st s) _))))
+  end.
+
+Obligations.
+
 Next Obligation.
-  rename H into Bb.
-  rename H0 into Bb'.
-  invclr Bb. auto.
+  unfold insert_prop.
+  intros n B B'.
+  invclr B.
+  auto.
 Qed.
+
+Lemma same_tree_same_size :
+  forall A (s:@bin_tree A) n m,
+    Braun s n ->
+    Braun s m ->
+    n = m.
+Proof.
+  intros A s n m Bn Bm.
+  apply (@same_structure_same_size _ s s); eauto.
+Qed.
+Hint Rewrite same_tree_same_size.
 
 Next Obligation.
   rename H into IH.
-  rename x0 into st.
-  rename y0 into b'.
+  unfold insert_prop.
+  intros n B B'.
 
-  rename H1 into Bb.
-  rename H2 into Bb'.
-  invclr Bb.
+  invclr B.
   rename H2 into BP.
   rename H4 into Bs.
   rename H5 into Bt.
-  invclr Bb'.
-  rename H0 into BP'.
-  rename H1 into Bt'.
-  rename H3 into Bs'.
-  rename H into EQ.
 
-  (* XXX this looks promising *)
+  invclr B'.
+  rename H3 into BP'.
+  rename H4 into Bst.
+  rename H5 into Bs_again.
+  rename H2 into SIZE_EQ.
 
+  replace t_size0 with s_size in *; [|eapply same_tree_same_size; eauto].
+  clear Bs_again.
+  replace s_size0 with (t_size+1) in *; try omega.
+  clear SIZE_EQ.
+  replace (t_size + 1) with (S t_size) in Bst; try omega.
+  apply IH in Bst; auto.
+  subst xn.
+  replace (fl_log t_size + 1) with (S (fl_log t_size)); try omega.
+  rewrite fl_log_cl_log_relationship.
+  replace (fl_log (s_size + t_size + 1) + 1) with (S (fl_log (s_size + t_size + 1)));
+    try omega.
+  rewrite fl_log_cl_log_relationship.
+  replace (S (s_size + t_size + 1)) with ((S t_size) + s_size + 1); try omega.
+  apply braun_invariant_implies_cl_log_property.
+  replace (S t_size) with (t_size + 1); try omega.
+Qed.
 
-  replace t_size0 with s_size in *. (* same_structure *)
-  replace s_size0 with (t_size +1) in *; try omega.
-  
-
-
-
-      (@inc _ _ _ 1 (@ret _ _ (bt_node x bt_mt bt_mt)))
-  end.
-
-
-    | bt_node y s t =>
-      (st <- (insert 0 y t);
-       ++1 ;
-       ret (bt_node x t s))
-  end.
-
-
-{ b' : @bin_tree A | 
-    forall cost n,
-      Braun b n ->
-      Braun b' (S n) ->
-      cost = fl_log n + 1 } :=
-  _.
-
-
-: @C (@bin_tree A) _ (fun n b' => forall n', Braun b n' -> Braun b (S n') -> n = fl_log n' + 1)  :=
+Extraction insert2.

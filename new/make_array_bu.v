@@ -3,7 +3,7 @@ Require Import Arith Arith.Even Arith.Div2 List NPeano NPow.
 Require Import Program.
 Require Import Omega.
 
-Inductive RowsR : nat -> list A -> list (nat * list A) -> nat -> Prop :=
+Inductive RowsR {A:Set} : nat -> list A -> list (nat * list A) -> nat -> Prop :=
 | RR_mt :
     forall k,
       RowsR k nil nil 0
@@ -14,10 +14,10 @@ Inductive RowsR : nat -> list A -> list (nat * list A) -> nat -> Prop :=
 Hint Constructors RowsR.
 
 Theorem rows :
-  forall k xs,
+  forall (A:Set) k (xs:list A),
     { o | exists t, RowsR k xs o t }.
 Proof.
-  intros k xs. generalize k. clear k.
+  intros A k xs. generalize k. clear k.
   remember (length xs) as n.
   generalize n xs Heqn. clear n xs Heqn.
 
@@ -55,11 +55,11 @@ Hint Resolve rows.
 (* COMMENT: Trying to bound or be exact on k fails *)
 
 Theorem RowsR_bound_xs :
-  forall k xs o t,
-    RowsR k xs o t ->
+  forall A k xs o t,
+    @RowsR A k xs o t ->
     t <= (length xs).
 Proof.
-  intros k xs ot t RR.
+  intros A k xs ot t RR.
   induction RR; simpl.
   omega.
   rewrite <- skipn_length in IHRR.

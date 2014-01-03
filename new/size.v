@@ -3,7 +3,7 @@ Require Import Coq.Program.Tactics Coq.Program.Wf.
 Require Import Arith Arith.Even Arith.Div2.
 Set Implicit Arguments.
 
-Inductive SizeLinearR : bin_tree -> nat -> nat -> Prop :=
+Inductive SizeLinearR {A:Set} : (@bin_tree A) -> nat -> nat -> Prop :=
 | SLR_mt :
     SizeLinearR bt_mt 0 0
 | SLR_node :
@@ -14,7 +14,7 @@ Inductive SizeLinearR : bin_tree -> nat -> nat -> Prop :=
 Hint Constructors SizeLinearR.
 
 Theorem size_linear :
-  forall bt,
+  forall A (bt:@bin_tree A),
     { sz | exists t, SizeLinearR bt sz t }.
 Proof.
   induction bt as [|y s IS t IT].
@@ -30,7 +30,7 @@ Proof.
 Defined.
 
 Theorem SizeLinearR_correct_and_time :
-  forall bt n,
+  forall A (bt:@bin_tree A) n,
     Braun bt n ->
     SizeLinearR bt n n.
 Proof.
@@ -39,7 +39,7 @@ Proof.
 Qed.
 Hint Resolve SizeLinearR_correct_and_time.
 
-Inductive DiffR : bin_tree -> nat -> nat -> nat -> Prop :=
+Inductive DiffR {A:Set} : @bin_tree A -> nat -> nat -> nat -> Prop :=
 | DR_mt :
     DiffR bt_mt 0 0 0
 | DR_single :
@@ -56,13 +56,13 @@ Inductive DiffR : bin_tree -> nat -> nat -> nat -> Prop :=
 Hint Constructors DiffR.
 
 Lemma DiffR_fun :
-  forall s m df dt,
+  forall A (s:@bin_tree A) m df dt,
     DiffR s m df dt ->
     forall df' dt',
       DiffR s m df' dt' ->
       df = df' /\ dt = dt'.
 Proof.
-  intros s m df dt DR.
+  intros A s m df dt DR.
   induction DR; intros df' dt' DR';
   inversion DR'; subst; clear DR'; try omega;
   replace k0 with k in *; try omega;
@@ -71,21 +71,21 @@ Qed.
 Hint Rewrite DiffR_fun.
 
 Theorem DiffR_correct_ans :
-  forall s m df t,
+  forall A (s:@bin_tree A) m df t,
     DiffR s m df t ->
     (df = 0 \/ df = 1).
 Proof.
-  intros s m df t DR.
+  intros A s m df t DR.
   induction DR; auto.
 Qed.
 Hint Resolve DiffR_correct_ans.
 
 Theorem DiffR_correct_zero :
-  forall s m,
+  forall A (s:@bin_tree A) m,
     Braun s m ->
     exists t, DiffR s m 0 t.
 Proof.
-  intros s m B.
+  intros A s m B.
   induction B; eauto.
 
   assert (s_size = t_size \/ s_size = t_size + 1) as CASES; try omega.
@@ -104,11 +104,11 @@ Qed.
 Hint Resolve DiffR_correct_zero.
 
 Theorem DiffR_correct_one :
-  forall s m,
+  forall A (s:@bin_tree A) m,
     Braun s (m+1) ->
     exists t, DiffR s m 1 t.
 Proof.
-  intros s m B.
+  intros A s m B.
   remember (m+1) as n.
   generalize m Heqn. clear m Heqn.
   induction B; intros m Heqn.
@@ -153,11 +153,11 @@ Qed.
 Hint Resolve DiffR_correct_one.
 
 Theorem DiffR_time_zero :
-  forall bt n dt,
+  forall A (bt:@bin_tree A) n dt,
     DiffR bt n 0 dt ->
     dt = fl_log n.
 Proof.
-  intros bt n dt DR.
+  intros A bt n dt DR.
   remember 0 in DR.
   rename n0 into df.
   rename Heqn0 into EQ.
@@ -179,11 +179,11 @@ Qed.
 Hint Rewrite DiffR_time_zero.
 
 Theorem DiffR_time_one :
-  forall bt n dt,
+  forall A (bt:@bin_tree A) n dt,
     DiffR bt n 1 dt ->
     dt = cl_log (n+1).
 Proof.
-  intros bt n dt DR.
+  intros A bt n dt DR.
   remember 1 in DR.
   rename n0 into df.
   rename Heqn0 into EQ.
@@ -204,11 +204,11 @@ Qed.
 Hint Rewrite DiffR_time_one.
 
 Theorem DiffR_time :
-  forall bt n df dt,
+  forall A (bt:@bin_tree A) n df dt,
     DiffR bt n df dt ->
     (dt = fl_log n) \/ (dt = cl_log (n + 1)).
 Proof.
-  intros bt n df dt DR.
+  intros A bt n df dt DR.
   destruct (DiffR_correct_ans DR); subst.
 
   left. apply (DiffR_time_zero DR).
@@ -217,7 +217,7 @@ Qed.
 Hint Resolve DiffR_time.
 
 Theorem diff_dec :
-  forall bt m,
+  forall A (bt:@bin_tree A) m,
     { df | exists t, DiffR bt m df t } +
     { forall df t, ~ DiffR bt m df t }.
 Proof.
@@ -276,23 +276,23 @@ Proof.
 Defined.
 
 Theorem diff_Braun :
-  forall bt m,
+  forall A (bt:@bin_tree A) m,
     (Braun bt m) \/ (Braun bt (m+1)) ->
     exists df t,
       DiffR bt m df t.
 Proof.
-  intros bt m [B | B].
+  intros A bt m [B | B].
   eauto.
   exists 1.
   eauto.
 Qed.
 
 Theorem diff :
-  forall bt m,
+  forall A (bt:@bin_tree A) m,
     (Braun bt m) \/ (Braun bt (m+1)) ->
     { df | exists t, DiffR bt m df t }.
 Proof.
-  intros bt m Bor.
+  intros A bt m Bor.
   destruct (diff_dec bt m) as [OK | FAIL].
   eauto.
   apply diff_Braun in Bor.
@@ -302,7 +302,7 @@ Proof.
   auto.
 Defined.
 
-Inductive SizeR : bin_tree -> nat -> nat -> Prop :=
+Inductive SizeR {A:Set} : (@bin_tree A) -> nat -> nat -> Prop :=
 | SR_mt :
     SizeR bt_mt 0 0
 | SR_node :
@@ -313,7 +313,7 @@ Inductive SizeR : bin_tree -> nat -> nat -> Prop :=
 Hint Constructors SizeR.
 
 Theorem SizeR_correct :
-  forall bt n,
+  forall A (bt:@bin_tree A) n,
     Braun bt n ->
     exists t, SizeR bt n t.
 Proof.
@@ -344,11 +344,11 @@ Qed.
 Hint Resolve SizeR_correct.
 
 Theorem SizeR_time :
-  forall bt n st,
+  forall A (bt:@bin_tree A) n st,
     SizeR bt n st ->
     st = sum_of_logs n.
 Proof.
-  intros bt n st SR.
+  intros A bt n st SR.
   induction SR.
 
   auto.
@@ -375,13 +375,13 @@ Qed.
 Hint Rewrite SizeR_time.
 
 Lemma SizeR_fun :
-  forall s sz st,
+  forall A (s:@bin_tree A) sz st,
     SizeR s sz st ->
     forall sz' st',
       SizeR s sz' st' ->
       sz = sz' /\ st = st'.
 Proof.
-  intros s sz st SR.
+  intros A s sz st SR.
 
   induction SR; intros sz' st' SR';
   inversion SR'; clear SR'; subst;
@@ -394,7 +394,7 @@ Qed.
 Hint Rewrite SizeR_fun.
 
 Theorem size_dec :
-  forall bt,
+  forall A (bt:@bin_tree A),
     { sz | exists t, SizeR bt sz t } +
     { forall sz t, ~ SizeR bt sz t }.
 Proof.
@@ -421,10 +421,10 @@ Proof.
 Defined.
 
 Theorem size :
-  forall bt m,
+  forall A (bt:@bin_tree A) m,
     Braun bt m ->
     { sz | exists t, SizeR bt sz t }.
 Proof.
-  intros bt m B.
+  intros A bt m B.
   destruct (size_dec bt) as [ OK | FAIL ]; eauto.
 Defined.

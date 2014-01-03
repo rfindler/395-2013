@@ -1,7 +1,7 @@
 Require Import braun util index list_util List.
 Require Import Omega.
 
-Inductive SequenceR : bin_tree -> list A -> Prop :=
+Inductive SequenceR {A:Set} : @bin_tree A -> list A -> Prop :=
 | SR_mt :
     SequenceR bt_mt nil
 | SR_node :
@@ -12,13 +12,13 @@ Inductive SequenceR : bin_tree -> list A -> Prop :=
 Hint Constructors SequenceR.
 
 Lemma BraunR_SequenceR :
-  forall b n,
+  forall A (b:@bin_tree A) n,
     Braun b n ->
     forall l,
       SequenceR b l ->
       n = (length l).
 Proof.
-  intros b n B.
+  intros A b n B.
   induction B; intros l SR; invclr SR.
   auto.
 
@@ -35,14 +35,14 @@ Qed.
 Hint Rewrite BraunR_SequenceR.
 
 Theorem SequenceR_IndexR :
-  forall b i x,
+  forall A (b:@bin_tree A) i x,
     IndexR b i x ->
     forall xs,
       Braun b (length xs) ->
       SequenceR b xs ->
       ListIndexR xs i x.
 Proof.
-  intros b i x IR.
+  intros A b i x IR.
   induction IR; intros xs BP SR; invclr SR; eauto;
   rename H3 into SRs; rename H4 into SRt.
 
@@ -73,14 +73,14 @@ Qed.
 Hint Resolve SequenceR_IndexR.
 
 Lemma SequenceR_In :
-  forall bt xs,
+  forall A (bt:@bin_tree A) xs,
     SequenceR bt xs ->
     forall y,
       In y xs ->
       exists i,
         IndexR bt i y.
 Proof.
-  intros bt xs SR.
+  intros A bt xs SR.
   induction SR; simpl; intros y; try tauto.
   intros [EQ|IN].
   subst. eauto.

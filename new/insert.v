@@ -2,7 +2,7 @@ Require Import util log braun sequence list_util.
 Require Import Omega.
 Require Import Arith Arith.Even Arith.Div2.
 
-Inductive InsertR : A -> bin_tree -> bin_tree -> nat -> Prop :=
+Inductive InsertR {A:Set} : A -> (@bin_tree A) -> (@bin_tree A) -> nat -> Prop :=
 | IR_mt :
     forall (x:A),
       InsertR x bt_mt (bt_node x bt_mt bt_mt) 1
@@ -13,22 +13,22 @@ Inductive InsertR : A -> bin_tree -> bin_tree -> nat -> Prop :=
 Hint Constructors InsertR.
 
 Theorem InsertR_fun :
-  forall (a : A) (b b' : bin_tree) (rt : nat),
+  forall (A:Set) (a : A) (b b' : bin_tree) (rt : nat),
     InsertR a b b' rt ->
     forall (_b' : bin_tree) (_rt : nat),
       InsertR a b _b' _rt -> b' = _b' /\ rt = _rt.
 Proof.
-  intros a b b' rt IR.
+  intros A a b b' rt IR.
 
   induction IR; intros _b' _rt IR'; invclr IR'; eauto.
   destruct (IHIR _ _ H5). subst. eauto.
 Qed.
 
 Theorem insert :
-  forall (x:A) (bt:bin_tree),
+  forall (A:Set) (x:A) (bt:bin_tree),
     { bt' | exists n, InsertR x bt bt' n }.
 Proof.
-  intros x bt.
+  intros A x bt.
   generalize x. clear x.
   induction bt as [|y s t]; intros x.
 
@@ -41,22 +41,22 @@ Proof.
 Defined.
 
 Lemma InsertR_dec :
-  forall (a : A) (b : bin_tree),
+  forall (A:Set) (a : A) (b : bin_tree),
     {b' : bin_tree | exists rt : nat, InsertR a b b' rt} +
     {(forall (b' : bin_tree) (rt : nat), ~ InsertR a b b' rt)}.
 Proof.
-  intros a b.
-  destruct (insert a b).
+  intros A a b.
+  destruct (insert A a b).
   eauto.
 Defined.
 
 Theorem InsertR_Braun :
-  forall (x:A) (n n':nat) (bt bt':bin_tree),
+  forall (A:Set) (x:A) (n n':nat) (bt bt':bin_tree),
     Braun bt n ->
     InsertR x bt bt' n' ->
     Braun bt' (S n).
 Proof.
-  intros x n n' bt.
+  intros A x n n' bt.
   generalize x n n'. clear x n n'.
   induction bt as [|y s t]; intros x n n' bt' BT IR.
 
@@ -86,12 +86,12 @@ Proof.
 Qed.
 
 Theorem InsertR_time :
-  forall (x:A) (n n':nat) (bt bt':bin_tree),
+  forall (A:Set) (x:A) (n n':nat) (bt bt':bin_tree),
     Braun bt n ->
     InsertR x bt bt' n' ->
     n' = (fl_log n + 1).
 Proof.
-  intros x n n' bt bt' BP IR.
+  intros A x n n' bt bt' BP IR.
   generalize n BP. clear n BP.
   induction IR; intros BPn BP.
 
@@ -106,7 +106,7 @@ Proof.
 Qed.
 
 Lemma InsertR_SequenceR:
-  forall t ts y t' n,
+  forall (A:Set) t ts (y:A) t' n,
     SequenceR t ts ->
     InsertR y t t' n ->
     SequenceR t' (y :: ts).
@@ -114,7 +114,7 @@ Proof.
   induction t as [|x s IHs t IHt]; intros ts y t' n SR IR.
 
   invclr SR. invclr IR.
-  cut (nil = interleave nil nil). intros EQ; rewrite EQ.
+  cut (nil = @interleave A nil nil). intros EQ; rewrite EQ.
   eapply SR_node; eauto.
   auto.
 

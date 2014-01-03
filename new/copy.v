@@ -3,7 +3,7 @@ Require Import Program.Equality.
 Require Import Omega.
 Require Import Arith Arith.Even Arith.Div2 List.
 
-Inductive Copy2R : A -> nat -> bin_tree * bin_tree -> nat -> Prop :=
+Inductive Copy2R {A:Set} : A -> nat -> (@bin_tree A) * (@bin_tree A) -> nat -> Prop :=
   C2R_zero :
     forall x,
       Copy2R x 0 (bt_node x bt_mt bt_mt, bt_mt) 1
@@ -17,7 +17,7 @@ Inductive Copy2R : A -> nat -> bin_tree * bin_tree -> nat -> Prop :=
       Copy2R x (2*m+2) (bt_node x s s, bt_node x s t) (time+2).
 Hint Constructors Copy2R.
 
-Inductive CopyR : A -> nat -> bin_tree -> nat -> Prop :=
+Inductive CopyR {A:Set} : A -> nat -> (@bin_tree A) -> nat -> Prop :=
   CR :
     forall x n bt1 bt2 time,
       Copy2R x n (bt1,bt2) time ->
@@ -25,10 +25,10 @@ Inductive CopyR : A -> nat -> bin_tree -> nat -> Prop :=
 Hint Constructors CopyR.
 
 Lemma copy2 :
-  forall x (n:nat),
+  forall (A:Set) (x:A) (n:nat),
     {pr | exists time, Copy2R x n pr time}.
 Proof.
-  intros x.
+  intros A x.
   apply (well_founded_induction_type
            lt_wf
            (fun n => {pr | exists time, Copy2R x n pr time})).
@@ -60,21 +60,21 @@ Proof.
 Defined.
 
 Theorem copy :
-  forall x (n:nat), {bt | exists time, CopyR x n bt time}.
+  forall (A:Set) (x:A) (n:nat), {bt | exists time, CopyR x n bt time}.
 Proof.
-  intros x n.
-  destruct (copy2 x n) as [[s t] E].
+  intros A x n.
+  destruct (copy2 A x n) as [[s t] E].
   exists t.
   destruct E.
   eauto.
 Defined.
 
 Lemma Copy2_produces_Braun :
-  forall x n bt1 bt2 time,
+  forall (A:Set) (x:A) n bt1 bt2 time,
     (Copy2R x n (bt1,bt2) time)
     -> Braun bt1 (n+1) /\ Braun bt2 n.
 Proof.
-  intros x n s t time CSR.
+  intros A x n s t time CSR.
   dependent induction CSR; try (inversion IHCSR; clear IHCSR).
 
   constructor.
@@ -100,11 +100,11 @@ Proof.
 Qed.
 
 Lemma Copy_produces_Braun :
-  forall x n bt time,
+  forall (A:Set) (x:A) n bt time,
     (CopyR x n bt time) ->
     Braun bt n.
 Proof.
-  intros x n bt time CSR.
+  intros A x n bt time CSR.
   inversion CSR.
   apply Copy2_produces_Braun in H.
   inversion H.
@@ -112,7 +112,7 @@ Proof.
 Qed.
 
 Lemma Copy2R_correct_elems :
-  forall x n bt1 bt2 ct,
+  forall (A:Set) (x:A) n bt1 bt2 ct,
     Copy2R x n (bt1, bt2) ct ->
     (forall i y,
        IndexR bt1 i y ->
@@ -124,7 +124,7 @@ Proof.
   Ltac indexr_mt :=
     match goal with [ H : IndexR bt_mt ?i ?n |- ?G ] => inversion H end.
 
-  intros x n bt1 bt2 ct CR.
+  intros A x n bt1 bt2 ct CR.
   remember (bt1, bt2) as bp.
   generalize bt1 bt2 Heqbp. clear bt1 bt2 Heqbp.
   induction CR; intros bt1 bt2 Heqbp; inversion_clear Heqbp;
@@ -135,21 +135,21 @@ Qed.
 Hint Resolve Copy2R_correct_elems.
 
 Lemma CopyR_correct_elems :
-  forall x n bt ct,
+  forall (A:Set) (x:A) n bt ct,
     CopyR x n bt ct ->
     forall i y,
       IndexR bt i y ->
       y = x.
 Proof.
-  intros x n bt ct CR i y IR.
+  intros A x n bt ct CR i y IR.
   invclr CR.
-  destruct (Copy2R_correct_elems x n bt1 bt ct H).
+  destruct (Copy2R_correct_elems A x n bt1 bt ct H).
   eauto.
 Qed.
 Hint Rewrite CopyR_correct_elems.
 
 Theorem CopyR_correct :
-  forall x n bt ct,
+  forall (A:Set) (x:A) n bt ct,
     CopyR x n bt ct ->
     forall xs,
       SequenceR bt xs ->
@@ -157,7 +157,7 @@ Theorem CopyR_correct :
       (forall y,
          In y xs -> y = x).
 Proof.
-  intros x n bt ct CR xs SR. split.
+  intros A x n bt ct CR xs SR. split.
   eapply BraunR_SequenceR; eauto.
   eapply Copy_produces_Braun; eauto.
   intros y IN.
@@ -167,11 +167,11 @@ Qed.
 Hint Resolve CopyR_correct.
 
 Lemma Copy2R_running_time :
-  forall x n bt1 bt2 time,
+  forall (A:Set) (x:A) n bt1 bt2 time,
     Copy2R x n (bt1,bt2) time ->
     time = ((2 * fl_log n) + 1).
 Proof.
-  intros x n bt1 bt2 time Copy2.
+  intros A x n bt1 bt2 time Copy2.
   dependent induction Copy2.
   compute; reflexivity.
 
@@ -186,7 +186,7 @@ Qed.
 Hint Resolve Copy2R_running_time.
 
 Theorem CopyR_running_time :
-  forall x n bt1 time,
+  forall (A:Set) (x:A) n bt1 time,
     CopyR x n bt1 time ->
     time = ((2 * fl_log n) + 1).
 Proof.

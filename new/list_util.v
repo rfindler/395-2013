@@ -3,7 +3,7 @@ Require Import Arith Arith.Even Arith.Div2 List.
 Require Import Program.
 Require Import Omega.
 
-Program Fixpoint interleave (evens : list A) (odds : list A)
+Program Fixpoint interleave {A:Set} (evens : list A) (odds : list A)
         {measure (length (evens ++ odds))} :=
   match evens with
     | nil => odds
@@ -17,36 +17,36 @@ Next Obligation.
 Qed.
 
 Lemma interleave_nil1 :
-  forall s,
-    interleave s nil = s.
+  forall A s,
+    @interleave A s nil = s.
 Proof.
   induction s as [|x s]; auto.
 Qed.
 Hint Rewrite interleave_nil1.
 
 Lemma interleave_nil2 :
-  forall t,
-    interleave nil t = t.
+  forall A t,
+    @interleave A nil t = t.
 Proof.
   auto.
 Qed.
 Hint Rewrite interleave_nil2.
 
 Lemma interleave_case2 :
-  forall x ss ts,
+  forall (A:Set) (x:A) ss ts,
     x :: interleave ss ts = interleave (x :: ts) ss.
 Proof.
   intros.
   unfold interleave.
   WfExtensionality.unfold_sub 
     interleave_func
-    (interleave_func (existT (fun _ : list A => list A) (x :: ts) ss)).
+    (interleave_func (existT (fun A : Set => (sigT (fun _ : list A => list A))) A (existT (fun _ : list A => list A) (x :: ts) ss))).
   fold interleave_func.
   destruct ts; simpl; reflexivity.
 Qed.
 Hint Rewrite interleave_case2.
 
-Inductive ListIndexR : list A -> nat -> A -> Prop :=
+Inductive ListIndexR {A:Set} : list A -> nat -> A -> Prop :=
 | LIR_zero :
     forall x xs,
       ListIndexR (x :: xs) 0 x
@@ -57,14 +57,14 @@ Inductive ListIndexR : list A -> nat -> A -> Prop :=
 Hint Constructors ListIndexR.
 
 Theorem ListIndexR_correct :
-  forall i xs x,
+  forall (A:Set) i xs (x:A),
     nth_error xs i = value x <->
     ListIndexR xs i x.
 Proof.
   induction i as [|n]; intros xs y;
   destruct xs as [|x xs]; simpl;
   split; intros H;
-  inversion H; clear H; subst;
+  inversion H; subst;
   eauto.
 
   apply IHn in H1. eauto.
@@ -72,7 +72,7 @@ Proof.
 Qed.
 
 Lemma ListIndexR_interleave_evens :
-  forall ss i y x ts,
+  forall (A:Set) ss i y (x:A) ts,
     length ts <= length ss <= (length ts) + 1 ->
     ListIndexR ss i y ->
     ListIndexR (x :: interleave ss ts) (2 * i + 1) y.
@@ -103,7 +103,7 @@ Qed.
 Hint Resolve ListIndexR_interleave_evens.
 
 Lemma ListIndexR_interleave_odds :
-  forall ts i y x ss,
+  forall (A:Set) ts i y (x:A) ss,
     length ts <= length ss <= (length ts) + 1 ->
     ListIndexR ts i y ->
     ListIndexR (x :: interleave ss ts) (2 * i + 2) y.
@@ -137,8 +137,8 @@ Qed.
 Hint Resolve ListIndexR_interleave_odds.
 
 Lemma interleave_length_swap :
-  forall ss ts,
-    (length (interleave ss ts)) = (length (interleave ts ss)).
+  forall A ss ts,
+    (length (@interleave A ss ts)) = (length (@interleave A ts ss)).
 Proof.
   induction ss as [|sy ss]; intros ts.
 
@@ -157,8 +157,8 @@ Qed.
 Hint Rewrite interleave_length_swap.
 
 Lemma interleave_length_split :
-  forall ss ts,
-    (length ss) + (length ts) = (length (interleave ss ts)).
+  forall A ss ts,
+    (length ss) + (length ts) = (length (@interleave A ss ts)).
 Proof.
   induction ss as [|sy ss]; intros ts.
 
@@ -172,11 +172,11 @@ Qed.
 Hint Rewrite interleave_length_split.
 
 Lemma interleave_In_swap:
-  forall x s t,
+  forall (A:Set) (x:A) s t,
     In x (interleave s t) ->
     In x (interleave t s).
 Proof.
-  intros x s. generalize x. clear x.
+  intros A x s. generalize x. clear x.
   induction s as [|sy s]; intros x t IN.
 
   rewrite interleave_nil2 in IN.
@@ -194,11 +194,11 @@ Qed.
 Hint Resolve interleave_In_swap.
 
 Lemma interleave_In:
-  forall x s t,
+  forall (A:Set) (x:A) s t,
     In x (interleave s t) ->
     In x s \/ In x t.
 Proof.
-  intros x s. generalize x. clear x.
+  intros A x s. generalize x. clear x.
   induction s as [|sy s]; intros x t IN.
   right. apply IN.
   rewrite <- interleave_case2 in IN.
@@ -211,7 +211,7 @@ Qed.
 Hint Resolve interleave_In.
 
 Lemma skipn_length :
-  forall k (xs:list A),
+  forall A k (xs:list A),
     length xs - k = length (skipn k xs).
 Proof.
   induction k as [|k]; intros xs; simpl.

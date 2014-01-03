@@ -93,7 +93,9 @@ Obligations.
 Admit Obligations.
 
 (* XXX This next one requires a great leap to figure out what the
-connection is *)
+connection is, but let's try it *)
+
+Check bind1.
 
 Program Fixpoint insert1 {A:Set} (x:A) (b:@bin_tree A)
 : @C _ (fun (b':@bin_tree A) (cost:nat) =>
@@ -106,14 +108,13 @@ Program Fixpoint insert1 {A:Set} (x:A) (b:@bin_tree A)
       (inc _ 1
            (ret _ (bt_node x bt_mt bt_mt) _))
     | bt_node y s t =>
-      (bind1 _ (insert1 y t)
-            (fun st =>
-               (inc _ 1
-                    (ret _ (bt_node x st s) _)))
-            _)
+      (@bind1 _ _ _ (fun y yn => yn = 1) _
+              (insert1 y t)
+              (fun st =>
+                 (inc _ 1
+                      (ret _ (bt_node x st s) _)))
+              _)
   end.
-
-
 
 Next Obligation.
   rename H into Bb.
@@ -122,17 +123,25 @@ Next Obligation.
 Qed.
 
 Next Obligation.
-  rename H into Bb.
-  rename H0 into Bb'.
+  rename H into IH.
+  rename x0 into st.
+  rename y0 into b'.
+
+  rename H1 into Bb.
+  rename H2 into Bb'.
   invclr Bb.
   rename H2 into BP.
   rename H4 into Bs.
   rename H5 into Bt.
   invclr Bb'.
-  rename H3 into BP'.
-  rename H4 into Bt'.
-  rename H5 into Bs'.
-  rename H2 into EQ.
+  rename H0 into BP'.
+  rename H1 into Bt'.
+  rename H3 into Bs'.
+  rename H into EQ.
+
+  (* XXX this looks promising *)
+
+
   replace t_size0 with s_size in *. (* same_structure *)
   replace s_size0 with (t_size +1) in *; try omega.
   

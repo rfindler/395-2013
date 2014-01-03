@@ -196,6 +196,7 @@ Proof.
 Qed.
 Hint Resolve MakeArrayTDR_correct.
 
+(* this is http://oeis.org/A001855 *)
 Program Fixpoint mat_time n {measure n} :=
   match n with
     | O => 0

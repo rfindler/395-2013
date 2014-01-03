@@ -181,7 +181,7 @@ Hint Rewrite DiffR_time_zero.
 Theorem DiffR_time_one :
   forall A (bt:@bin_tree A) n dt,
     DiffR bt n 1 dt ->
-    dt = cl_log (n+1).
+    dt = fl_log n+1.
 Proof.
   intros A bt n dt DR.
   remember 1 in DR.
@@ -193,20 +193,22 @@ Proof.
   simpl. auto.
 
   apply IHDR in EQ; clear IHDR. subst.
-  replace (2 * k + 1 + 1) with (k + 1 + k + 1); try omega.
-  apply cl_log_even.
+  replace (2 * k + 1) with (k + k + 1); try omega.
+  rewrite fl_log_odd.
+  reflexivity.
 
   apply IHDR in EQ; clear IHDR. subst.
   symmetry.
-  replace (2 * k + 2 + 1) with ((k + 1) + (k + 1) + 1); try omega.
-  apply cl_log_odd.
+  replace (2 * k + 2) with ((k + 1) + (k + 1)); try omega.
+  rewrite fl_log_even.
+  reflexivity.
 Qed.
 Hint Rewrite DiffR_time_one.
 
 Theorem DiffR_time :
   forall A (bt:@bin_tree A) n df dt,
     DiffR bt n df dt ->
-    (dt = fl_log n) \/ (dt = cl_log (n + 1)).
+    (dt = fl_log n) \/ (dt = fl_log n + 1).
 Proof.
   intros A bt n df dt DR.
   destruct (DiffR_correct_ans DR); subst.
@@ -369,7 +371,11 @@ Proof.
   replace (1 + 2 * m + 1) with (m + 1 + m + 1); try omega.
   rewrite <- sum_of_logs_even.
   cut (cl_log (m+1) + 1 = cl_log (m + 1 + m + 1)).
-  intros EQ. omega.
+  intros EQ. 
+  replace (fl_log m + 1) with (S (fl_log m)); try omega.
+  rewrite fl_log_cl_log_relationship.
+  replace (S m) with (m+1); try omega.
+
   apply cl_log_even.
 Qed.
 Hint Rewrite SizeR_time.

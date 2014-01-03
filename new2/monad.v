@@ -67,17 +67,16 @@ Defined.
 
 Print bind2.
 
-Definition inc (A:Set) PA (k:nat) (x:@C A (fun x xn => PA x (xn+k)))
+Definition inc (A:Set) PA (x:@C A (fun x xn => PA x (xn+1)))
 : @C A PA.
 Proof.
   destruct x as [x Px].
   exists x.
   destruct Px as [n Px].
-  exists (n + k).
+  exists (n + 1).
   apply Px.
 Defined.
 
-Extraction Implicit inc [k].
 Recursive Extraction ret bind0 bind1 bind2 inc.
 
 (*
@@ -106,12 +105,12 @@ Program Fixpoint insert0 {A:Set} (x:A) (b:@bin_tree A)
 : @C _ (@insert_prop A b) :=
   match b with
     | bt_mt =>
-      (inc _ _ 1
+      (inc _ _
            (ret _ _ (bt_node x bt_mt bt_mt) _))
     | bt_node y s t =>
       (bind0 _ _ _ _ (insert0 y t)
             (fun st =>
-               (inc _ _ 1
+               (inc _ _
                     (ret _ _ (bt_node x st s) _)))
             _)
   end.
@@ -128,7 +127,7 @@ Program Fixpoint insert1 {A:Set} (i:A) (b:@bin_tree A)
 : @C _ (@insert_prop A b) :=
   match b with
     | bt_mt =>
-      (inc _ _ 1
+      (inc _ _
            (ret _ _ (bt_node i bt_mt bt_mt) _))
     | bt_node j s t =>
       (@bind1 (@bin_tree A) (@bin_tree A)
@@ -137,7 +136,7 @@ Program Fixpoint insert1 {A:Set} (i:A) (b:@bin_tree A)
               (@insert_prop A (bt_node j s t))
               (insert1 j t)
               (fun st =>
-                 (inc _ _ 1
+                 (inc _ _
                       (ret _ _ (bt_node i st s) _)))
               _)
   end.
@@ -152,12 +151,12 @@ Program Fixpoint insert2 {A:Set} (i:A) (b:@bin_tree A)
 : C _ (insert_prop A b) :=
   match b with
     | bt_mt =>
-      (inc _ _ 1
+      (inc _ _
            (ret _ _ (bt_node i bt_mt bt_mt) _))
     | bt_node j s t =>
       (bind2 _ _ _ _ (insert2 j t)
              (fun st =>
-                (inc _ _ 1
+                (inc _ _
                      (ret _ _ (bt_node i st s) _))))
   end.
 

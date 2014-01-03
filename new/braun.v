@@ -1,13 +1,11 @@
 Set Implicit Arguments.
 
-Variable A : Set.
-
-Inductive bin_tree : Set :=
+Inductive bin_tree {A:Set} : Set :=
 | bt_mt : bin_tree
 | bt_node : A -> bin_tree -> bin_tree -> bin_tree.
 Hint Constructors bin_tree.
 
-Inductive Braun : bin_tree -> nat -> Prop :=
+Inductive Braun {A:Set} : (@bin_tree A) -> nat -> Prop :=
 | B_mt :
     Braun bt_mt 0
 | B_node :

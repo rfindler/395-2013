@@ -3,7 +3,7 @@ Require Import Arith Arith.Even Arith.Div2 List.
 Require Import Program.
 Require Import Omega.
 
-Inductive IndexR : bin_tree -> nat -> A -> Prop :=
+Inductive IndexR {A:Set} : (@bin_tree A) -> nat -> A -> Prop :=
 | IR_zero :
     forall x s t,
       IndexR (bt_node x s t) 0 x
@@ -18,11 +18,11 @@ Inductive IndexR : bin_tree -> nat -> A -> Prop :=
 Hint Constructors IndexR.
 
 Theorem index_dec :
-  forall bt i,
+  forall A (bt:@bin_tree A) i,
     { x | IndexR bt i x } +
     { forall x, ~ IndexR bt i x }.
 Proof.
-  intros bt.
+  intros A bt.
   induction bt as [|x s IRs t IRt]; intros i.
 
   right. intros x IR.
@@ -57,7 +57,7 @@ Proof.
 Defined.
 
 Theorem index_Braun :
-  forall bt n,
+  forall A (bt:@bin_tree A) n,
     Braun bt n ->
     forall i,
       i < n ->
@@ -91,16 +91,16 @@ Proof.
 Qed.
 
 Theorem index :
-  forall bt n,
+  forall A (bt:@bin_tree A) n,
     Braun bt n ->
     forall i,
       i < n ->
       { x | IndexR bt i x }.
 Proof.
-  intros bt n B i LT.
-  destruct (index_dec bt i) as [OK | FAIL].
+  intros A bt n B i LT.
+  destruct (index_dec A bt i) as [OK | FAIL].
   auto.
   assert False; try tauto.
-  destruct (index_Braun bt n B i LT) as [y IR].
+  destruct (index_Braun A bt n B i LT) as [y IR].
   apply (FAIL y). auto.
 Defined.

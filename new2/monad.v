@@ -3,7 +3,7 @@ Require Import Program.
 Definition C (A:Set) (P:A -> nat -> Prop) : Set := {a | exists n, (P a n)}.
 Hint Unfold C.
 
-Definition ret (A:Set) (PA:A -> nat -> Prop) (x:A) (PAx:PA x 0) : @C A PA.
+Definition ret (A:Set) (PA:A -> nat -> Prop) (x:A) (PAx:PA x 0) : C A PA.
 Proof.
   exists x.
   exists 0.
@@ -12,14 +12,14 @@ Defined.
 
 Definition bind (A:Set) (B:Set)
            (PA:A -> nat -> Prop) (PB:B -> nat -> Prop)
-           (xm:@C A PA) 
+           (xm:C A PA) 
            (yf:forall (x:A),
-                 @C B 
-                    (fun y yn => 
-                       forall xn, 
-                         PA x xn ->
-                         PB y (xn+yn)))
-: @C B PB.
+                 C B 
+                   (fun y yn => 
+                      forall xn, 
+                        PA x xn ->
+                        PB y (xn+yn)))
+: C B PB.
 Proof.
   destruct xm as [x Px].
   edestruct (yf x) as [y Py].
@@ -31,8 +31,8 @@ Proof.
   apply Px.
 Defined.
 
-Definition inc (A:Set) PA (x:@C A (fun x xn => PA x (xn+1)))
-: @C A PA.
+Definition inc (A:Set) PA (x:C A (fun x xn => PA x (xn+1)))
+: C A PA.
 Proof.
   destruct x as [x Px].
   exists x.
@@ -41,13 +41,6 @@ Proof.
   apply Px.
 Defined.
 
-(*
-Notation "x >>= y" := (bind x y) (at level 55).
-Notation "x >> y" := (bind x (fun _ => y)) (at level 30, right associativity).
-Notation "x <- y ; z" := (bind y (fun x : _ => z)) (at level 30, right associativity).
-Notation "++ k ; c" := (inc k c) (at level 30, right associativity).
-*)
-
 Require Import Coq.Logic.JMeq Coq.Program.Wf.
 Require Import Arith Arith.Even Arith.Div2.
 Require Import Omega.
@@ -55,21 +48,26 @@ Require Import Program.Syntax.
 Require Import braun util same_structure.
 Require Import log.
 
+Notation "<== x" := (ret _ _ x _) (at level 55).
+Notation "++ ; c" := (inc _ _ c) (at level 30, right associativity).
+Notation "x <- y ; z" := (bind _ _ _ _ y (fun x : _ => z) ) (at level 30, right associativity).
+Notation "x >>= y" := (bind _ _ _ _ x y) (at level 55).
+Notation "x >> y" := (bind _ _ _ _ x (fun _ => y)) (at level 30, right associativity).
+
+Notation "{ x !:! A !<! c !>!  P  }" := (C A (fun (x:A) (c:nat) => P)) (at level 55).
+
 Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A)
-: C _ (fun (b':@bin_tree A) (cost:nat) =>
-         forall n,
-           Braun b n ->
-           Braun b' (S n) ->
-           cost = fl_log n + 1) :=
+: { b' !:! (@bin_tree A) !<! c !>!
+       (forall n,
+          Braun b n ->
+          Braun b' (S n) ->
+          c = fl_log n + 1) } :=
   match b with
     | bt_mt =>
-      (inc _ _
-           (ret _ _ (bt_node i bt_mt bt_mt) _))
+      (++ ; (<== (bt_node i bt_mt bt_mt)))
     | bt_node j s t =>
-      (bind _ _ _ _ (insert j t)
-            (fun st =>
-               (inc _ _
-                    (ret _ _ (bt_node i st s) _))))
+      (st <- (insert j t) ;
+       (++ ; (<== (bt_node i st s))))
   end.
 
 Obligations.

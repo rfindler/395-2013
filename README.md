@@ -42,7 +42,7 @@ TODO:
 - try to share code related to correctness [jay]
 - insert (correctness) [jay]
 - extraction setup [jay]
-- size_linear (time, correctness)
+- size_linear (time, correctness) [Max]
 - size (time, correctness)
 - copy_linear (time, correctness)
 - copy_fib (time, correctness)

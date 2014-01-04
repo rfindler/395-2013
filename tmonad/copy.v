@@ -1,5 +1,5 @@
-Require Import monad.
-Require Import Braun.common.braun Braun.common.log.
+Require Import Braun.tmonad.monad Braun.logical.index.
+Require Import Braun.common.braun Braun.common.log Braun.common.util.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 
 Set Implicit Arguments.
@@ -28,6 +28,8 @@ Section copy2.
       let (s,t) := pr in
       Braun s (n+1) /\
       Braun t n /\
+      (forall i y, IndexR s i y -> y = x) /\
+      (forall i y, IndexR t i y -> y = x) /\
       c = copy_rt n} :=
     match n with 
       | 0 => (++ ; <== (bt_node x bt_mt bt_mt, bt_mt))
@@ -45,7 +47,12 @@ Section copy2.
   Proof.
     (* zero case *)
     replace 1 with (0+0+1);[|omega].
-    repeat constructor.
+    split; [|split]; try repeat constructor; 
+    (* proof of correct elems *)
+    intros i y IR; invclr IR.
+    auto.
+    invclr H4.
+    invclr H4.
   Qed.
 
   Next Obligation.
@@ -57,6 +64,10 @@ Section copy2.
     replace (S (n'+1)) with ((div2 n' + 1)+(div2 n')+1);[|omega].
     replace (S n') with (div2 n' + div2 n' + 1);[|omega].
     repeat constructor; try omega; try assumption.
+
+    (* proof of correct elems *)
+    intros i y IR. clear H. invclr IR; eauto.
+    intros i y IR. clear H. invclr IR; eauto.
 
     (* proof of running time *)
     rewrite <- H.
@@ -73,6 +84,10 @@ Section copy2.
     replace (S n') with ((div2 n'+1) + (div2 n') + 1);[|omega].
     repeat constructor; try omega; try assumption.
 
+    (* proof of correct elems *)
+    intros i y IR. clear H. invclr IR; eauto.
+    intros i y IR. clear H. invclr IR; eauto.
+
     (* proof of running time *)
     replace (div2 n' + 1 + div2 n' + 1) with (n'+1);[|omega].
     apply copy_rt_Sn.
@@ -80,7 +95,9 @@ Section copy2.
 
   Program Definition copy (n:nat)
   :  {b !:! bin_tree !<! c !>!  
-        Braun b n /\ c = copy_rt n } := 
+        Braun b n /\ 
+        (forall i y, IndexR b i y -> y = x) /\
+        c = copy_rt n } := 
     c <- (copy2 n) ;
     match c with
       | (t1,t2) => <== t2

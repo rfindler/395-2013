@@ -41,8 +41,6 @@ Proof.
   apply Px.
 Defined.
 
-Recursive Extraction ret bind inc.
-
 (*
 Notation "x >>= y" := (bind x y) (at level 55).
 Notation "x >> y" := (bind x (fun _ => y)) (at level 30, right associativity).
@@ -57,16 +55,12 @@ Require Import Program.Syntax.
 Require Import braun util same_structure.
 Require Import log.
 
-Definition insert_prop (A:Set) (b:@bin_tree A) :=
-  (fun (b':@bin_tree A) (cost:nat) =>
-     forall n,
-       Braun b n ->
-       Braun b' (S n) ->
-       cost = fl_log n + 1).
-Hint Unfold insert_prop.
-
 Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A)
-: C _ (insert_prop A b) :=
+: C _ (fun (b':@bin_tree A) (cost:nat) =>
+         forall n,
+           Braun b n ->
+           Braun b' (S n) ->
+           cost = fl_log n + 1) :=
   match b with
     | bt_mt =>
       (inc _ _
@@ -81,8 +75,8 @@ Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A)
 Obligations.
 
 Next Obligation.
-  unfold insert_prop.
-  intros n B B'.
+  rename H into B.
+  rename H0 into B'.
   invclr B.
   auto.
 Qed.
@@ -100,8 +94,8 @@ Hint Rewrite same_tree_same_size.
 
 Next Obligation.
   rename H into IH.
-  unfold insert_prop.
-  intros n B B'.
+  rename H0 into B.
+  rename H1 into B'.
 
   invclr B.
   rename H2 into BP.
@@ -131,4 +125,4 @@ Next Obligation.
   replace (S t_size) with (t_size + 1); try omega.
 Qed.
 
-Extraction insert.
+Recursive Extraction insert.

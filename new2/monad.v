@@ -11,15 +11,15 @@ Proof.
 Defined.
 
 Definition bind (A:Set) (B:Set)
-           (PA:A -> nat -> Prop) (PB:B -> nat -> Prop)
+           (PA:A -> nat -> Prop) (PAB:A -> B -> nat -> Prop)
            (xm:C A PA) 
            (yf:forall (x:A),
                  C B 
                    (fun y yn => 
                       forall xn, 
                         PA x xn ->
-                        PB y (xn+yn)))
-: C B PB.
+                        PAB x y (xn+yn)))
+: C B (PAB (proj1_sig xm)).
 Proof.
   destruct xm as [x Px].
   edestruct (yf x) as [y Py].
@@ -50,9 +50,9 @@ Require Import log.
 
 Notation "<== x" := (ret _ _ x _) (at level 55).
 Notation "++ ; c" := (inc _ _ c) (at level 30, right associativity).
-Notation "x <- y ; z" := (bind _ _ _ _ y (fun x : _ => z) ) (at level 30, right associativity).
-Notation "x >>= y" := (bind _ _ _ _ x y) (at level 55).
-Notation "x >> y" := (bind _ _ _ _ x (fun _ => y)) (at level 30, right associativity).
+Notation "x <- y ; z" := (bind _ _ _ (fun _ => _) y (fun x : _ => z) ) (at level 30, right associativity).
+Notation "x >>= y" := (bind _ _ _ (fun _ => _) x y) (at level 55).
+Notation "x >> y" := (bind _ _ _ (fun _ => _) x (fun _ => y)) (at level 30, right associativity).
 
 Notation "{ x !:! A !<! c !>!  P  }" := (C A (fun (x:A) (c:nat) => P)) (at level 55).
 

@@ -10,41 +10,7 @@ Proof.
   apply PAx.
 Defined.
 
-Definition bind0 (A:Set) (B:Set) (PA:A -> nat -> Prop) (PB:B -> nat -> Prop)
-           (xn:@C A PA) (yf:A -> @C B PB)
-           (PBA:forall x xn y yn, (PA x xn) -> (PB y yn) -> (PB y (xn + yn)))
-: @C B PB.
-Proof.
-  destruct xn as [x Px].
-  edestruct yf as [y Py].
-  apply x.
-  exists y.
-  destruct Px as [xn Px].
-  destruct Py as [yn Py].
-  exists (xn + yn).
-  eapply PBA;
-  eauto.
-Defined.
-
-Definition bind1 (A:Set) (B:Set) (PA:A -> nat -> Prop) (PBi:B -> nat -> Prop) 
-           (PB:B -> nat -> Prop)
-           (xm:@C A PA) (yf:A -> @C B PBi)
-           (PBA:forall x xn y yn, (PA x xn) -> (PBi y yn) -> (PB y (xn + yn)))
-: @C B PB.
-Proof.
-  destruct xm as [x Px].
-  edestruct yf as [y Py].
-  apply x.
-  exists y.
-  destruct Px as [xn Px].
-  destruct Py as [yn Py].
-  exists (xn + yn).
-  eapply PBA.
-  apply Px.
-  apply Py.
-Defined.
-
-Definition bind2 (A:Set) (B:Set)
+Definition bind (A:Set) (B:Set)
            (PA:A -> nat -> Prop) (PB:B -> nat -> Prop)
            (xm:@C A PA) 
            (yf:forall (x:A),
@@ -65,8 +31,6 @@ Proof.
   apply Px.
 Defined.
 
-Print bind2.
-
 Definition inc (A:Set) PA (x:@C A (fun x xn => PA x (xn+1)))
 : @C A PA.
 Proof.
@@ -77,7 +41,7 @@ Proof.
   apply Px.
 Defined.
 
-Recursive Extraction ret bind0 bind1 bind2 inc.
+Recursive Extraction ret bind inc.
 
 (*
 Notation "x >>= y" := (bind x y) (at level 55).
@@ -101,63 +65,17 @@ Definition insert_prop (A:Set) (b:@bin_tree A) :=
        cost = fl_log n + 1).
 Hint Unfold insert_prop.
 
-Program Fixpoint insert0 {A:Set} (x:A) (b:@bin_tree A)
-: @C _ (@insert_prop A b) :=
-  match b with
-    | bt_mt =>
-      (inc _ _
-           (ret _ _ (bt_node x bt_mt bt_mt) _))
-    | bt_node y s t =>
-      (bind0 _ _ _ _ (insert0 y t)
-            (fun st =>
-               (inc _ _
-                    (ret _ _ (bt_node x st s) _)))
-            _)
-  end.
-Obligations.
-
-(* Obligation 2 is clearly false. *)
-
-Admit Obligations.
-
-(* XXX This next one requires a great leap to figure out what the
-connection is, but let's try it *)
-
-Program Fixpoint insert1 {A:Set} (i:A) (b:@bin_tree A)
-: @C _ (@insert_prop A b) :=
-  match b with
-    | bt_mt =>
-      (inc _ _
-           (ret _ _ (bt_node i bt_mt bt_mt) _))
-    | bt_node j s t =>
-      (@bind1 (@bin_tree A) (@bin_tree A)
-              (@insert_prop A t)
-              (fun y yn => yn = 1)
-              (@insert_prop A (bt_node j s t))
-              (insert1 j t)
-              (fun st =>
-                 (inc _ _
-                      (ret _ _ (bt_node i st s) _)))
-              _)
-  end.
-
-Obligations.
-
-(* Obligation 3 is bad because y is not (bt_node x st s) *)
-
-Admit Obligations.
-
-Program Fixpoint insert2 {A:Set} (i:A) (b:@bin_tree A)
+Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A)
 : C _ (insert_prop A b) :=
   match b with
     | bt_mt =>
       (inc _ _
            (ret _ _ (bt_node i bt_mt bt_mt) _))
     | bt_node j s t =>
-      (bind2 _ _ _ _ (insert2 j t)
-             (fun st =>
-                (inc _ _
-                     (ret _ _ (bt_node i st s) _))))
+      (bind _ _ _ _ (insert j t)
+            (fun st =>
+               (inc _ _
+                    (ret _ _ (bt_node i st s) _))))
   end.
 
 Obligations.
@@ -213,4 +131,4 @@ Next Obligation.
   replace (S t_size) with (t_size + 1); try omega.
 Qed.
 
-Extraction insert2.
+Extraction insert.

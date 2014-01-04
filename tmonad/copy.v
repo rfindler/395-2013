@@ -24,13 +24,13 @@ Section copy2.
 
 
   Program Fixpoint copy2 (n:nat) {wf lt n}
-  :  {pr !:! bin_tree * bin_tree !<! c !>! 
+  :  {! pr !:! bin_tree * bin_tree !<! c !>! 
       let (s,t) := pr in
       Braun s (n+1) /\
       Braun t n /\
       (forall i y, IndexR s i y -> y = x) /\
       (forall i y, IndexR t i y -> y = x) /\
-      c = copy_rt n} :=
+      c = copy_rt n !} :=
     match n with 
       | 0 => (++ ; <== (bt_node x bt_mt bt_mt, bt_mt))
       | S n' => 
@@ -94,10 +94,10 @@ Section copy2.
   Qed.
 
   Program Definition copy (n:nat)
-  :  {b !:! bin_tree !<! c !>!  
+  :  {! b !:! bin_tree !<! c !>!  
         Braun b n /\ 
         (forall i y, IndexR b i y -> y = x) /\
-        c = copy_rt n } := 
+        c = copy_rt n !} := 
     c <- (copy2 n) ;
     match c with
       | (t1,t2) => <== t2

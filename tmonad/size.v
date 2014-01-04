@@ -1,17 +1,17 @@
 Require Import Braun.tmonad.monad.
 Require Import Braun.common.braun.
+Require Import Omega.
 
 Section size_linear.
   Variable A : Set.
-  Locate "{ _ : _ | _ }".
 
   (* If it's a braun tree, this is its size *)
   Definition ifBraunSize (bt : @bin_tree A) n : Prop :=
-    forall (p : (sig (fun m : nat => Braun bt m))), proj1_sig p = n.
+    forall (p : { m : nat | Braun bt m }), proj1_sig p = n.
   
-  Program Fixpoint size_linear (bt : @bin_tree A) : { n !:! nat !<! c !>!
-                                                        n = c /\ ifBraunSize bt n
-                                                    } :=
+  Program Fixpoint size_linear (bt : @bin_tree A) : {! n !:! nat !<! c !>!
+                                                       n = c /\ ifBraunSize bt n
+                                                    !} :=
     match bt with
       | bt_mt =>
         <== 0

@@ -5,11 +5,11 @@ Require Import Program.
 Require Import Omega.
 
 Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A)
-: { b' !:! (@bin_tree A) !<! c !>!
-       (forall n,
-          Braun b n ->
-          (Braun b' (S n) /\
-           c = fl_log n + 1)) } :=
+: {! b' !:! (@bin_tree A) !<! c !>!
+        (forall n,
+           Braun b n ->
+           (Braun b' (S n) /\
+            c = fl_log n + 1)) !} :=
   match b with
     | bt_mt =>
       (++ ; (<== (bt_node i bt_mt bt_mt)))

@@ -45,4 +45,4 @@ Notation "x <- y ; z" := (bind _ _ _ (fun _ => _) y (fun x : _ => z) ) (at level
 Notation "x >>= y" := (bind _ _ _ (fun _ => _) x y) (at level 55).
 Notation "x >> y" := (bind _ _ _ (fun _ => _) x (fun _ => y)) (at level 30, right associativity).
 
-Notation "{ x !:! A !<! c !>!  P  }" := (C A (fun (x:A) (c:nat) => P)) (at level 55).
+Notation "{! x !:! A !<! c !>!  P !}" := (C A (fun (x:A) (c:nat) => P)) (at level 55).

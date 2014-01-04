@@ -41,7 +41,6 @@ New monadic approach, with improved extraction
 TODO:
 - try to share code related to correctness [jay]
 - insert (correctness) [jay]
-- size_linear (time, correctness) [Max]
 - size (time, correctness) [robby]
 - copy_linear (time, correctness)
 - copy_fib (time, correctness)

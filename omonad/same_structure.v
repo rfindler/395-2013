@@ -1,7 +1,7 @@
 (* prove that there can be only one
    shape braun tree for a given size *)
 
-Require Import braun Omega.
+Require Import Braun.omonad.braun Omega.
 Require Import Program.Equality.
 Set Implicit Arguments.
 

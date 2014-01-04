@@ -1,4 +1,4 @@
-Require Import braun util.
+Require Import Braun.omonad.braun Braun.common.util.
 Require Import Arith.Even Arith.Div2 Omega.
 Set Implicit Arguments.
 

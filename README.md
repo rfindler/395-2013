@@ -43,7 +43,7 @@ TODO:
 - insert (correctness) [jay]
 - extraction setup [jay]
 - size_linear (time, correctness) [Max]
-- size (time, correctness)
+- size (time, correctness) [robby]
 - copy_linear (time, correctness)
 - copy_fib (time, correctness)
 - copy_log2 (time, correctness)

@@ -42,6 +42,8 @@ TODO:
 - sharing as much code as possible
 - insert (correctness) [jay]
 - extraction setup [jay]
+- size_linear (time, correctness)
+- size (time, correctness)
 - copy_linear (time, correctness)
 - copy_fib (time, correctness)
 - copy_log2 (time, correctness)

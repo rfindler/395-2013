@@ -1,4 +1,4 @@
-Require Import Braun.logical.braun Braun.logical.log Braun.logical.insert Braun.logical.util Braun.logical.index Braun.logical.list_util Braun.logical.sequence.
+Require Import Braun.common.braun Braun.common.log Braun.logical.insert Braun.common.util Braun.logical.index Braun.logical.list_util Braun.logical.sequence.
 Require Import Arith Arith.Even Arith.Div2 List NPeano NPow.
 Require Import Program.
 Require Import Omega.

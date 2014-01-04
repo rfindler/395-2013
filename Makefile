@@ -4,7 +4,7 @@ BINS := $(VERSIONS:%=%.bin)
 MLS := $(VERSIONS:%=%.ml)
 MLIS := $(VERSIONS:%=%.mli)
 
-all: $(BINS)
+all: coq $(BINS)
 	@echo ""
 	@echo ""
 	@ ! grep -i admit $(VS)
@@ -30,4 +30,4 @@ Makefile.coq: Makefile $(VS)
 clean: Makefile.coq
 	$(MAKE) -f Makefile.coq clean
 	rm -f $(BINS) $(MLS) $(MLIS)
-	find . -name '*.vo' -o -name '*.glob' -o -name '*.cmi' -exec rm {} \;
+	find . \( -name '*.vo' -o -name '*.d' -o -name '*.glob' -o -name '*.cmi' -o -name '*.cmo' \) -exec rm -f {} \;

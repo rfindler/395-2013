@@ -1,7 +1,7 @@
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Coq.Logic.JMeq Coq.Program.Wf.
 Require Import Program.Syntax List.
-Require Import Braun.tmonad.util.
+Require Import Braun.common.util.
 
 Set Implicit Arguments.
 

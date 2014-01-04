@@ -1,4 +1,4 @@
-Require Import Braun.logical.braun Braun.logical.util Braun.logical.log.
+Require Import Braun.common.braun Braun.common.util Braun.common.log.
 Require Import Coq.Program.Tactics Coq.Program.Wf.
 Require Import Arith Arith.Even Arith.Div2.
 Set Implicit Arguments.

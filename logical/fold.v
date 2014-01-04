@@ -1,4 +1,4 @@
-Require Import Braun.logical.util List Omega.
+Require Import Braun.common.util List Omega.
 
 (* XXX I tried to use this for Make_Array_Linear, but it failed. *)
 

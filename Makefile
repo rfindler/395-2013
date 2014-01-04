@@ -1,43 +1,27 @@
-CPDTSRC = cpdt-src
-COQC = coqc
-GEN_DEPS = braun.vo util.vo monad.vo log.vo
-# log.vo here is more than strictly neccessary,
-# because make_array is probably not going to depend on it
+VS := $(shell find . -type f -name '*v')
 
-all: insert.vo copy.vo size.vo log_sq.vo make_array.vo same_structure.vo
+all: braun
+	@echo ""
+	@echo ""
+	@ ! grep -i admit *v
 
-insert.vo : insert.v $(GEN_DEPS)
-	$(COQC) insert.v
+.PHONY: coq clean
 
-copy.vo: copy.v $(GEN_DEPS)
-	$(COQC) copy.v
+coq: Makefile.coq
+	$(MAKE) -f Makefile.coq
 
-size.vo: size.v $(GEN_DEPS)
-	$(COQC) size.v
+Makefile.coq: Makefile $(VS)
+	coq_makefile -R . Braun $(VS) -o Makefile.coq
 
-make_array.vo: make_array.v insert.vo le_util.vo $(GEN_DEPS)
-	$(COQC) make_array.v
+clean:: Makefile.coq
+	$(MAKE) -f Makefile.coq clean
+	rm -f Makefile.coq
+	find . -name '*.vo' -o -name '*.glob' -o -name '*.cmi' -o -name '*.mli' -o -name 'braun.ml' -o -name 'braun' -exec rm {} \;
 
-same_structure.vo: same_structure.v braun.vo
-	$(COQC) same_structure.v
+VERSIONS := (original omonad logical tmonad)
 
-log_sq.vo: log_sq.v util.vo log.vo le_util.vo
-	$(COQC) log_sq.v
+braun: braun.ml braun.cmi
+	ocamlc $@.ml -o $@
 
-braun.vo: braun.v
-	$(COQC) braun.v
-
-le_util.vo: le_util.v log.vo util.vo
-	$(COQC) le_util.v
-
-util.vo: util.v
-	$(COQC) util.v
-
-monad.vo: monad.v util.vo
-	$(COQC) monad.v
-
-log.vo: log.v util.vo
-	$(COQC) log.v
-
-clean:
-	rm -f *.vo *.glob
+braun.cmi: braun.mli
+	ocamlc -c $^

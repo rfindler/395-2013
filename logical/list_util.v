@@ -1,4 +1,4 @@
-Require Import braun util index.
+Require Import Braun.logical.braun Braun.logical.util Braun.logical.index.
 Require Import Arith Arith.Even Arith.Div2 List.
 Require Import Program.
 Require Import Omega.

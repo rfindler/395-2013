@@ -62,6 +62,7 @@ Program Example diff1 :
         3)
   = Some 1.
 compute;reflexivity.
+Qed.
 
 Program Example diff2 :
   (diff (Node 1 
@@ -70,3 +71,4 @@ Program Example diff2 :
         3)
   = Some 0.
 compute;reflexivity.
+Qed.

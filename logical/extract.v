@@ -1,5 +1,5 @@
 Require Import Arith.Div2 Arith.Even.
-Require Import insert copy size index make_array_naive make_array_td.
+Require Import Braun.logical.insert Braun.logical.copy Braun.logical.size Braun.logical.index Braun.logical.make_array_naive Braun.logical.make_array_td.
 
 Extract Inductive bool => "bool" [ "false" "true" ].
 Extract Inductive sumbool => "bool" [ "false" "true" ].

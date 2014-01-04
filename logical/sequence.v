@@ -1,4 +1,4 @@
-Require Import braun util index list_util List.
+Require Import Braun.logical.braun Braun.logical.util Braun.logical.index Braun.logical.list_util List.
 Require Import Omega.
 
 Inductive SequenceR {A:Set} : @bin_tree A -> list A -> Prop :=

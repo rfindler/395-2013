@@ -45,8 +45,8 @@ Require Import Coq.Logic.JMeq Coq.Program.Wf.
 Require Import Arith Arith.Even Arith.Div2.
 Require Import Omega.
 Require Import Program.Syntax.
-Require Import braun util same_structure.
-Require Import log.
+Require Import Braun.tmonad.braun Braun.tmonad.util Braun.tmonad.same_structure.
+Require Import Braun.tmonad.log.
 
 Notation "<== x" := (ret _ _ x _) (at level 55).
 Notation "++ ; c" := (inc _ _ c) (at level 30, right associativity).

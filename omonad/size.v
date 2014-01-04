@@ -1,4 +1,5 @@
-Require Import Braun.omonad.braun Braun.omonad.util Braun.omonad.monad Braun.omonad.log.
+Require Import Braun.common.util Braun.common.log.
+Require Import Braun.omonad.braun Braun.omonad.monad.
 Require Import Arith Arith.Even Arith.Div2.
 Set Implicit Arguments.
 

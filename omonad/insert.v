@@ -1,6 +1,7 @@
 Set Implicit Arguments.
 
-Require Import Braun.omonad.braun Braun.omonad.util Braun.omonad.monad Braun.omonad.log.
+Require Import Braun.common.log Braun.common.util.
+Require Import Braun.omonad.braun Braun.omonad.monad.
 Require Import Coq.Logic.JMeq Coq.Program.Wf.
 Require Import Arith Arith.Even Arith.Div2.
 Require Import Omega.

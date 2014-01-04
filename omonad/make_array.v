@@ -1,5 +1,5 @@
-Require Import Braun.omonad.braun Braun.omonad.monad Braun.omonad.log 
-        Braun.omonad.insert Braun.omonad.le_util.
+Require Import Braun.common.le_util Braun.common.log.
+Require Import Braun.omonad.braun Braun.omonad.monad Braun.omonad.insert.
 Require Import Program.Equality Omega.
 Require Import Div2 List.
 Set Implicit Arguments.
@@ -48,7 +48,7 @@ Section make_array_naive.
            (ret Empty)
            s.
   Obligation 1. omega. Qed.
-  Obligation 2. 
+  Obligation 2.
   replace (n0 + 1) with (S n0);[reflexivity|omega]. 
   Qed.
 

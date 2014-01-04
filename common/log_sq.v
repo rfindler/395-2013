@@ -1,6 +1,6 @@
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Coq.Logic.JMeq Coq.Program.Wf.
-Require Import util log le_util.
+Require Import Braun.common.util Braun.common.log Braun.common.le_util.
 
 Set Implicit Arguments.
 

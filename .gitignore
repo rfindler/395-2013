@@ -6,6 +6,6 @@
 *.mli
 *.d
 Makefile.coq
-braun.ml
-braun
+/*.ml
+*.bin
 compiled/

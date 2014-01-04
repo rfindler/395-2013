@@ -60,8 +60,8 @@ Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A)
 : { b' !:! (@bin_tree A) !<! c !>!
        (forall n,
           Braun b n ->
-          Braun b' (S n) ->
-          c = fl_log n + 1) } :=
+          (Braun b' (S n) /\
+           c = fl_log n + 1)) } :=
   match b with
     | bt_mt =>
       (++ ; (<== (bt_node i bt_mt bt_mt)))
@@ -74,9 +74,11 @@ Obligations.
 
 Next Obligation.
   rename H into B.
-  rename H0 into B'.
+
   invclr B.
-  auto.
+  split; auto.
+  replace 1 with (0 + 0 + 1); try omega.
+  eapply B_node; auto; try omega.
 Qed.
 
 Lemma same_tree_same_size :
@@ -93,25 +95,14 @@ Hint Rewrite same_tree_same_size.
 Next Obligation.
   rename H into IH.
   rename H0 into B.
-  rename H1 into B'.
 
   invclr B.
   rename H2 into BP.
   rename H4 into Bs.
   rename H5 into Bt.
 
-  invclr B'.
-  rename H3 into BP'.
-  rename H4 into Bst.
-  rename H5 into Bs_again.
-  rename H2 into SIZE_EQ.
-
-  replace t_size0 with s_size in *; [|eapply same_tree_same_size; eauto].
-  clear Bs_again.
-  replace s_size0 with (t_size+1) in *; try omega.
-  clear SIZE_EQ.
-  replace (t_size + 1) with (S t_size) in Bst; try omega.
-  apply IH in Bst; auto.
+  apply IH in Bt.
+  destruct Bt as [Bst EQ].
   subst xn.
   replace (fl_log t_size + 1) with (S (fl_log t_size)); try omega.
   rewrite fl_log_cl_log_relationship.
@@ -119,6 +110,9 @@ Next Obligation.
     try omega.
   rewrite fl_log_cl_log_relationship.
   replace (S (s_size + t_size + 1)) with ((S t_size) + s_size + 1); try omega.
+
+  split.
+  eapply B_node; auto; try omega.
   apply braun_invariant_implies_cl_log_property.
   replace (S t_size) with (t_size + 1); try omega.
 Qed.

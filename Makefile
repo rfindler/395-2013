@@ -1,5 +1,5 @@
 VS := $(shell find . -type f -name '*v')
-VERSIONS := logical
+VERSIONS := logical tmonad
 BINS := $(VERSIONS:%=%.bin)
 MLS := $(VERSIONS:%=%.ml)
 MLIS := $(VERSIONS:%=%.mli)

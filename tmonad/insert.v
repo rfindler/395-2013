@@ -1,5 +1,5 @@
 Require Import Braun.common.braun Braun.common.util Braun.common.same_structure.
-Require Import Braun.common.log.
+Require Import Braun.common.log Braun.logical.sequence Braun.logical.list_util.
 Require Import Braun.tmonad.monad.
 Require Import Program.
 Require Import Omega.
@@ -9,6 +9,7 @@ Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A)
         (forall n,
            Braun b n ->
            (Braun b' (S n) /\
+            (forall xs, SequenceR b xs -> SequenceR b' (i::xs)) /\
             c = fl_log n + 1)) !} :=
   match b with
     | bt_mt =>
@@ -25,6 +26,15 @@ Next Obligation.
   split; auto.
   replace 1 with (0 + 0 + 1); try omega.
   eapply B_node; auto; try omega.
+  split.
+
+  (* correctness *)
+  intros xs SR.
+  invclr SR.
+  apply SR_singleton.
+
+  (* running time *)
+  auto.
 Qed.
 
 Lemma same_tree_same_size :
@@ -48,7 +58,7 @@ Next Obligation.
   rename H5 into Bt.
 
   apply IH in Bt.
-  destruct Bt as [Bst EQ].
+  destruct Bt as [Bst [SRst EQ]].
   subst xn.
   replace (fl_log t_size + 1) with (S (fl_log t_size)); try omega.
   rewrite fl_log_cl_log_relationship.
@@ -58,7 +68,19 @@ Next Obligation.
   replace (S (s_size + t_size + 1)) with ((S t_size) + s_size + 1); try omega.
 
   split.
+  (* braun *)
   eapply B_node; auto; try omega.
+
+  split.
+  (* correctness *)
+  intros xs SR.
+  invclr SR. 
+  rename H3 into SRs.
+  rename H4 into SRt.
+  rewrite interleave_case2.
+  eapply SR_node; eauto.
+
+  (* running time*)
   apply braun_invariant_implies_cl_log_property.
   replace (S t_size) with (t_size + 1); try omega.
 Qed.

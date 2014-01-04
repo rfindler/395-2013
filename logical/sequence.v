@@ -11,6 +11,17 @@ Inductive SequenceR {A:Set} : @bin_tree A -> list A -> Prop :=
       SequenceR (bt_node x s t) (x::interleave ss ts).
 Hint Constructors SequenceR.
 
+Lemma SR_singleton:
+  forall (A:Set) (x:A),
+    SequenceR (bt_node x bt_mt bt_mt) (x :: nil).
+Proof.
+  intros A x.
+  cut (nil = (@interleave A nil nil)).
+  intros EQ. rewrite EQ. clear EQ.
+  eapply SR_node; eauto.
+  auto.
+Qed.
+
 Lemma BraunR_SequenceR :
   forall A (b:@bin_tree A) n,
     Braun b n ->

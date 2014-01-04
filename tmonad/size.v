@@ -1,17 +1,13 @@
 Require Import Braun.tmonad.monad.
-Require Import Braun.common.braun.
+Require Import Braun.common.braun Braun.common.util.
 Require Import Omega.
 
 Section size_linear.
   Variable A : Set.
 
-  (* If it's a braun tree, this is its size *)
-  Definition ifBraunSize (bt : @bin_tree A) n : Prop :=
-    forall (p : { m : nat | Braun bt m }), proj1_sig p = n.
-  
-  Program Fixpoint size_linear (bt : @bin_tree A) : {! n !:! nat !<! c !>!
-                                                       n = c /\ ifBraunSize bt n
-                                                    !} :=
+  Program Fixpoint size_linear (bt : @bin_tree A) : 
+    {! n !:! nat !<! c !>!
+       n = c /\ (forall m, Braun bt m -> m = n) !} :=
     match bt with
       | bt_mt =>
         <== 0
@@ -24,22 +20,15 @@ Section size_linear.
   Next Obligation.
   Proof.
     split; [auto |].
-    unfold ifBraunSize.
-    intros.
-    remember (proj2_sig p) as P.
-    inversion P.
+    intros m B.
+    invclr B.
     auto.
   Qed.
   Next Obligation.
     split; [omega|].
-    unfold ifBraunSize.
-    unfold ifBraunSize in H1, H2.
-    intros.
-    remember (proj2_sig p) as BT.
-    simpl in BT; inversion BT; subst.
-    assert (s_size = xn0); [| assert (t_size = xn)].
-    remember (H1 (exist (Braun l) s_size H6)); auto.
-    remember (H2 (exist (Braun r) t_size H7)); auto.
-    auto.
+    intros m B. invclr B.
+    apply H1 in H6.
+    apply H2 in H7.
+    subst. auto.
   Qed.
 End size_linear.

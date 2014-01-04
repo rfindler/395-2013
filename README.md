@@ -39,7 +39,7 @@ tmonad
 New monadic approach, with improved extraction
 
 TODO:
-- sharing as much code as possible
+- try to share code related to correctness [jay]
 - insert (correctness) [jay]
 - extraction setup [jay]
 - size_linear (time, correctness)

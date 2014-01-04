@@ -4,4 +4,8 @@
 *.cmi
 *.cmo
 *.mli
-
+*.d
+Makefile.coq
+braun.ml
+braun
+compiled/

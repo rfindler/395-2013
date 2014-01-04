@@ -47,7 +47,6 @@ TODO:
 - copy_linear (time, correctness)
 - copy_fib (time, correctness)
 - copy_log2 (time, correctness)
-- copy_log (time, correctness) [robby]
 - make_array_naive (time, correctness)
 - make_array_td (time, correctness)
 - make_array_bu (time, correctness)

@@ -41,7 +41,7 @@ New monadic approach, with improved extraction
 TODO:
 - try to share code related to correctness [jay]
 - copy_linear (time, correctness, extraction)
-- copy_fib (time, correctness, extraction)
+- copy_fib (time, correctness, extraction) [burke]
 - copy_log2 (time, correctness, extraction)
 - make_array_naive (time, correctness, extraction) [max]
 - make_array_td (time, correctness, extraction)

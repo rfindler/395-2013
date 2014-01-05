@@ -40,7 +40,6 @@ New monadic approach, with improved extraction
 
 TODO:
 - try to share code related to correctness [jay]
-- size (extraction)
 - copy_linear (time, correctness, extraction)
 - copy_fib (time, correctness, extraction)
 - copy_log2 (time, correctness, extraction)

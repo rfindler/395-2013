@@ -209,3 +209,26 @@ Proof.
   omega.
 Qed.
 Hint Resolve pow_le_S.
+
+
+Lemma braun_invariant_even_size : 
+  forall s_size t_size, even (s_size+t_size+1) -> (t_size <= s_size <= t_size+1) -> s_size = t_size+1.
+  intros.
+  assert (t_size = s_size \/ s_size = t_size + 1) as TWOCASES;[omega|destruct TWOCASES].
+  subst.
+  apply odd_not_even in H.
+  intuition.
+  assumption.
+Qed.
+
+Lemma braun_invariant_odd_size : 
+  forall s_size t_size, odd (s_size+t_size+1) -> (t_size <= s_size <= t_size+1) -> s_size = t_size.
+  intros.
+  assert (t_size = s_size \/ s_size = t_size + 1) as TWOCASES;[omega|destruct TWOCASES].
+  subst; reflexivity.
+
+  subst.
+  replace (t_size+1+t_size+1) with ((t_size+1)+(t_size+1)) in H;[|omega].
+  apply even_not_odd in H.
+  intuition.
+Qed.

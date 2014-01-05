@@ -23,10 +23,9 @@
   (for ([n (in-range 10)])
     (for ([m (in-list (list (- n 1) n))])
       (when (positive? m)
-        (define d (diff-rt (copy n) m))
-        (define f (if (= n m)
-                      (fl_log n)
-                      (cl_log n)))
+        (define bt (copy n))
+        (define d (diff-rt bt m))
+        (define f (+ (fl_log m) (diff bt m)))
         (unless (= d f)
           (eprintf "diff rt wrong: n = ~a m = ~a d = ~a f = ~a\n" n m d f))))))
 

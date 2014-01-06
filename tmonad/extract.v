@@ -1,5 +1,7 @@
 Require Import Arith.Div2 Arith.Even.
-Require Import Braun.tmonad.insert Braun.tmonad.copy Braun.tmonad.size Braun.tmonad.size2.
+Require Import Braun.tmonad.insert.
+Require Import Braun.tmonad.copy Braun.tmonad.copy_linear.
+Require Import Braun.tmonad.size Braun.tmonad.size2.
 Require Import Braun.tmonad.monad.
 
 Extract Inductive bool => "bool" [ "false" "true" ].
@@ -18,4 +20,6 @@ Extract Constant even_odd_dec => "fun a -> (a mod 2) != 0".
 
 Extraction Inline ret bind inc.
 
-Extraction "tmonad.ml" insert.insert copy.copy size.size_linear size2.size.
+Extraction "tmonad.ml" insert.insert 
+           copy.copy copy_linear.copy_linear
+           size.size_linear size2.size.

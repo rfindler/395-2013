@@ -10,7 +10,7 @@ Section copy_linear.
   Variable A : Set.
   Variable x : A.
 
-  Program Fixpoint copy (n:nat) {wf lt n}
+  Program Fixpoint copy_linear (n:nat) {wf lt n}
   :  {! b !:! bin_tree !<! c !>!  
         Braun b n /\ 
         (forall i y, IndexR b i y -> y = x) /\
@@ -18,8 +18,8 @@ Section copy_linear.
     match n with 
       | 0 => <== bt_mt
       | S n' => 
-        (l <- copy (div2 n);
-         r <- copy (div2 n');
+        (l <- copy_linear (div2 n);
+         r <- copy_linear (div2 n');
          ++;
          <== (bt_node x l r))
     end.

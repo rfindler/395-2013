@@ -20,10 +20,10 @@ Section make_array_naive.
                                          !} :=
     match xs with
       | nil      => <== bt_mt
-      | (cons x xs') => ++ ;
-                       bt <- make_array_naive xs';
-                       i <- insert x bt;
-                       <== i
+      | (cons x xs') => 
+        bt  <- make_array_naive xs';
+        bt' <- insert x bt;
+        <== bt'  
     end.
 
   Next Obligation.
@@ -31,6 +31,13 @@ Section make_array_naive.
     remember (H (length xs') H0) as IND.
     destruct IND as [BT [SEQ XN]].
     repeat constructor; auto.
-    admit.
+    
+    assert (xn = cl_log (S (length xs'))); [| omega].
+    remember (H (length xs') H0).
+    subst.
+    assert (fl_log (length xs') + 1 = S (fl_log (length xs'))); [omega | ].
+    rewrite H1.
+    apply fl_log_cl_log_relationship.
+    
   Qed.
 End make_array_naive.

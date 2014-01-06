@@ -40,6 +40,19 @@ Hint Resolve lt_div2''.
 
 Hint Resolve lt_div2.
 
+Lemma lt_div2''' : forall m', div2 (m' - 1) < S m'.
+Proof.
+  intros.
+  apply (le_lt_trans (div2 (m' - 1))
+                     (div2 m')
+                     (S m')); auto.
+  destruct m'; auto.
+  replace (S m' - 1) with m';[|omega].
+  auto.
+Qed.
+Hint Resolve lt_div2'''.
+
+
 Lemma double_div2 : 
   forall n, div2 (n + n) = n.
 Proof.

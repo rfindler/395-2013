@@ -4,18 +4,6 @@ Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith.
 
 Set Implicit Arguments.
 
-Lemma recur_ok : forall m', div2 (m' - 1) < S m'.
-Proof.
-  intros.
-  apply (le_lt_trans (div2 (m' - 1))
-                     (div2 m')
-                     (S m')); auto.
-  destruct m'; auto.
-  replace (S m' - 1) with m';[|omega].
-  auto.
-Qed.
-Hint Resolve recur_ok.
-
 Program Fixpoint diff A (b : @bin_tree A) (m : nat) {wf lt m} 
 : {! n !:! nat !<! c !>! 
    (Braun b m     -> (n = 0 /\ c = fl_log m)) 

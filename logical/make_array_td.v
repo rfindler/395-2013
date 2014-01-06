@@ -1,5 +1,6 @@
-Require Import Braun.common.braun Braun.common.log Braun.logical.insert Braun.common.util Braun.logical.index Braun.logical.list_util Braun.logical.sequence Braun.common.le_util.
-Require Import Braun.logical.make_array_naive. (* used only for proof that two running times are the same *)
+Require Import Braun.common.braun Braun.common.log Braun.common.util Braun.common.le_util.
+Require Import Braun.logical.insert Braun.logical.index Braun.logical.list_util Braun.logical.sequence.
+Require Import Braun.common.array. (* used only for proof that the running time is the same as naive *)
 Require Import Arith Arith.Even Arith.Div2 List.
 Require Import Program.
 Require Import Omega.

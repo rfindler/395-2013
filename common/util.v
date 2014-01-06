@@ -153,6 +153,14 @@ Proof.
 Qed.
 Hint Rewrite minus_0r.
 
+Lemma div_ceil_floor_sum : forall n, n = div2 n + div2 (n + 1).
+  apply (ind_0_1_SS (fun n => n = div2 n + div2 (n + 1)));auto.
+  intros.
+  simpl.
+  replace (S (div2 n + S (div2 (n + 1)))) 
+  with ((div2 n + div2 (n+1))+2);omega.
+Qed.
+
 Ltac dispatch_if name2 name3 :=
   match goal with
     | [ |- context[if ?X then _ else _] ] =>

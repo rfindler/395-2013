@@ -4,6 +4,7 @@ Require Import Braun.logical.sequence.
 Require Import Braun.logical.list_util.
 
 Require Import Braun.common.braun.
+Require Import Braun.common.util.
 
 (* This is a hack way to simply declare how expensive a function is *)
 
@@ -11,19 +12,42 @@ Program Fixpoint cinterleave (A:Set) (e:list A) (o:list A) :
   {! xs !:! list A
      !<! c !>!
      xs = interleave e o
-   /\ c = length xs !} :=
+   /\ c = (length e) + (length o) !} :=
   interleave e o.
 
 Next Obligation.
-  exists (length (interleave e o)).
-  auto.
+  eauto.
 Qed.
+
+Fixpoint tln_time n :=
+  match n with
+    | O =>
+      0
+    | S n' =>
+      1 + n' + 2 * tln_time n'
+  end.
+
+Lemma tln_time_split:
+  forall sn tn,
+    tln_time sn + tln_time tn <= 2 * tln_time (sn + tn).
+Proof.
+  induction sn as [|sn]; simpl; intros tn.
+
+  omega.
+  assert (tln_time sn + tln_time tn <= 2 * tln_time (sn + tn)) as LE.
+  auto. omega.
+Qed.
+
+(* COMMENT: This is a <= because s and t may not be equal in size, so
+doubling is the wrong operation. Maybe if I used Braun-ness in the
+correctness, then I could change the function to use something like
+div2, but I'm not sure. *)
 
 Program Fixpoint to_list_naive (A:Set) b :
   {! xs !:! list A
      !<! c !>!
      SequenceR b xs
-   /\ c = 2 * (length xs) !} :=
+   /\ c <= tln_time (length xs) !} :=
   match b with
     | bt_mt =>
       <== nil
@@ -36,13 +60,17 @@ Program Fixpoint to_list_naive (A:Set) b :
   end.
 
 Next Obligation.
-  rename H0 into SRt.
-  rename H1 into SRs.
   rewrite <- interleave_length_split.
-  split. eauto.
   remember (length sl) as sn.
   remember (length tl) as tn.
-
-  (* xxx this just isn't right *)
-  admit.
+  split; eauto.
+  remember (sn + tn + 1) as p.
+  replace (xn1 + (xn0 + p)) with
+          (p + (xn1 + xn0)); try omega.
+  replace (S (sn + tn + (tln_time (sn + tn) + (tln_time (sn + tn) + 0)))) with
+          (p + 2 * tln_time (sn + tn)); try omega.
+  apply Plus.plus_le_compat_l.
+  apply Le.le_trans with (tln_time sn + tln_time tn); try omega.
+  apply tln_time_split.
 Qed.
+

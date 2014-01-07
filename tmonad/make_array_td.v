@@ -29,21 +29,70 @@ Next Obligation.
   apply interleave_case2.
 Qed.
 
-(* XXX admit to automatically resolve wf *)
-Lemma unravel_length_evens:
-  forall A xs,
-    length (fst (proj1_sig (unravel A xs))) <= length xs.
+(* XXX This proof, and the need for it, stinks. *)
+
+Theorem unravel' (A:Set) (xs:list A) :
+  {! eo !:! (sig (fun eo => xs = interleave (fst eo) (snd eo)))
+     !<! c !>!
+     c = length xs !}.
 Proof.
-Admitted.
-Hint Resolve unravel_length_evens.
+  destruct (unravel A xs) as [[e o] P].
+  simpl in *.
+  assert (xs = interleave e o) as EQ.
+
+  destruct P as [n [P_EQ P_len]]; eauto.
+
+  assert { eo | xs = interleave (fst eo) (snd eo) } as ANS.
+  exists (e,o). simpl. auto.
+
+  exists ANS.
+  destruct P as [n [P_EQ P_len]]; eauto.
+Defined.
+
+Lemma interleave_both:
+  forall (A:Set) (e:list A) o,
+    length e < S (length (interleave e o))
+    /\ length o < S (length (interleave e o)).
+Proof.
+  intros A. induction e as [|e]; intros o.
+
+  rewrite interleave_nil2.
+  simpl. omega.
+
+  rewrite <- interleave_case2.
+  simpl.
+  rewrite <- interleave_length_swap.
+  destruct (IHe o). omega.
+Qed.
+Hint Resolve interleave_both.
 
 Lemma interleave_braun:
   forall A e o xs,
   xs = @interleave A e o ->
   length e <= length o <= length e + 1.
 Proof.
+  intros A. induction e as [|e]; intros o xs EQ.
+
+  rewrite interleave_nil2 in *. subst xs.
+  simpl. 
 Admitted.
 Hint Resolve interleave_braun.
+
+Lemma interleave_evens:
+  forall (A:Set) (e:list A) o,
+    length e < S (length (interleave e o)).
+Proof.
+  intros A e o. destruct (interleave_both A e o). auto.
+Qed.
+Hint Resolve interleave_evens.
+
+Lemma interleave_odds:
+  forall (A:Set) (e:list A) o,
+    length o < S (length (interleave e o)).
+Proof.
+  intros A e o. destruct (interleave_both A e o). auto.
+Qed.
+Hint Resolve interleave_odds.
 
 Program Fixpoint make_array_td (A:Set) xs {measure (length xs)} :
   {! b !:! @bin_tree A
@@ -56,26 +105,27 @@ Program Fixpoint make_array_td (A:Set) xs {measure (length xs)} :
     | nil      =>
       <== bt_mt
     | (cons x xs') =>
-      let eoc := unravel A xs' in
-      eo <- eoc ;
+      eo <- (unravel' A xs') ;
       oa <- make_array_td A (fst eo) ;
       ea <- make_array_td A (snd eo) ;
       <== (bt_node x oa ea)
   end.
 
-Obligations.
+Next Obligation.
+  simpl. auto.
+Qed.
 
-(* XXX This is very interesting, Obligations 2 and 3 are wrong because
-they drop the relation between eo and the argument, so I can't use
-theorems about interleave. *)
-
-Obligation 4.
+Next Obligation.
+  simpl. auto.
+Qed.
+ 
+Next Obligation.
  simpl in *.
  rename l into e. rename l0 into o.
  rename H into Be.
- rename H6 into SRe.
+ rename H5 into SRe.
  rename H0 into Bo.
- rename H4 into SRo.
+ rename H3 into SRo.
  clear make_array_td.
  remember (interleave e o) as xs.
  rename Heqxs into EQxs.
@@ -85,7 +135,7 @@ Obligation 4.
 
  (* braun *)
  replace (S (length e + length o)) with (length e + length o + 1); try omega.
- eapply B_node; eauto.
+ eapply B_node.
 
  (* XXX running time *)
  admit.
@@ -93,5 +143,3 @@ Obligation 4.
  (* correctness *)
  eauto.
 Qed.
-
-Admit Obligations.

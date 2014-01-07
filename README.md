@@ -40,6 +40,5 @@ New monadic approach, with improved extraction
 
 TODO:
 - copy_fib (time, correctness, extraction) [burke]
-- make_array_td (time, correctness, extraction) [jay]
 - make_array_bu (time, correctness, extraction)
 - to_list (time, correctness, extraction)

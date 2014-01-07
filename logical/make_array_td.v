@@ -217,78 +217,7 @@ Proof.
   remember (length odds) as x.
   remember (length evens) as y.
   clear Heqx Heqy odds evens.
-  rewrite mat_time_Sn.
-
-  assert (x = y \/ x = y+1) as TWOCASES;[omega|clear BTI].
-  destruct TWOCASES; subst x.
-
-  rewrite div2_with_odd_argument.
-  rewrite double_div2.
-  omega.
-
-  replace (S (y + 1 + y)) with ((y+1)+(y+1));[|omega].
-  replace (y+1+y) with (S (y + y));[|omega].
-  rewrite div2_with_odd_argument.
-  rewrite double_div2.
-  omega.
-Qed.
-
-Lemma mat_time_nlogn : 
-  forall n,
-    mat_time n <= n * cl_log n.
-Proof.
-  apply (well_founded_ind
-           lt_wf
-           (fun n => mat_time n <= n * cl_log n)).
-  intros n IND.
-  destruct n. 
-  compute;constructor.
-
-  rewrite mat_time_Sn.
-
-  apply (le_trans (mat_time (div2 (S n)) + mat_time (div2 n) + S n)
-                  (div2 (S n) * cl_log (div2 (S n)) + 
-                   (div2 n) * cl_log (div2 n) +
-                   S n)
-                  (S n * cl_log (S n))).
-  apply le_plus_left.
-
-  assert (mat_time (div2 (S n)) <= div2 (S n) * cl_log (div2 (S n)));
-    [apply IND; auto|].
-  assert (mat_time (div2 n) <=  div2 n * cl_log (div2 n));
-    [apply IND;auto|].
-  omega.
-
-  rewrite cl_log_div2'.
-  assert (S n * S (cl_log (div2 (S n))) = (S n) * cl_log (div2 (S n)) + S n) as H;
-    [rewrite mult_comm;
-     unfold mult at 1;fold mult;
-     rewrite plus_comm;
-     rewrite mult_comm;
-     reflexivity|rewrite H;clear H].
-
-  apply le_plus_left.
-
-  apply (le_trans
-           (div2 (S n) * cl_log (div2 (S n)) + div2 n * cl_log (div2 n))
-           (div2 (S n) * cl_log (div2 (S n)) + div2 (S n) * cl_log (div2 (S n)))
-           (S n * cl_log (div2 (S n)))).
-
-  apply le_plus_right.
-
-  apply le_pieces_le_prod.
-  apply div2_monotone.
-  
-  assert (even n \/ odd n) as H; [apply even_or_odd|destruct H].
-  rewrite even_div2;[|assumption].
-  constructor.
-
-  rewrite <- odd_div2;[|assumption].
-  apply cl_log_monotone.
-
-  rewrite mult_comm.
-  replace (S n * cl_log (div2 (S n))) with (cl_log (div2 (S n)) * S n);[|apply mult_comm].
-  apply div2_mult.
+  auto.
 Qed.
 
 Theorem MakeArrayTDR_time :

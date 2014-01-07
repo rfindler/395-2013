@@ -62,6 +62,7 @@ Program Fixpoint make_array_td (A:Set) xs {measure (length xs)} :
       eo <- (unravel' A xs') ;
       oa <- make_array_td A (fst eo) ;
       ea <- make_array_td A (snd eo) ;
+      ++ ; 
       <== (bt_node x oa ea)
   end.
 
@@ -95,8 +96,8 @@ Next Obligation.
   replace (S (length e + length o)) with (length e + length o + 1); try omega.
   eauto.
 
-  (* XXX running time *)
-  admit.
+  (* running time *)
+  rewrite <- braun_implies_mat_time; omega.
 
   (* correctness *)
   eauto.

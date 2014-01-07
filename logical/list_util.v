@@ -171,6 +171,39 @@ Proof.
 Qed.
 Hint Rewrite interleave_length_split.
 
+Lemma interleave_both:
+  forall (A:Set) (e:list A) o,
+    length e < S (length (interleave e o))
+    /\ length o < S (length (interleave e o)).
+Proof.
+  intros A. induction e as [|e]; intros o.
+
+  rewrite interleave_nil2.
+  simpl. omega.
+
+  rewrite <- interleave_case2.
+  simpl.
+  rewrite <- interleave_length_swap.
+  destruct (IHe o). omega.
+Qed.
+Hint Resolve interleave_both.
+
+Lemma interleave_evens:
+  forall (A:Set) (e:list A) o,
+    length e < S (length (interleave e o)).
+Proof.
+  intros A e o. destruct (interleave_both A e o). auto.
+Qed.
+Hint Resolve interleave_evens.
+
+Lemma interleave_odds:
+  forall (A:Set) (e:list A) o,
+    length o < S (length (interleave e o)).
+Proof.
+  intros A e o. destruct (interleave_both A e o). auto.
+Qed.
+Hint Resolve interleave_odds.
+
 Lemma interleave_In_swap:
   forall (A:Set) (x:A) s t,
     In x (interleave s t) ->

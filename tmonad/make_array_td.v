@@ -9,10 +9,16 @@ Require Import Braun.common.array.
 Require Import Braun.common.util.
 Require Import Braun.common.log.
 
+Definition unravel_prop (A:Set) (xs:list A) (eo:((list A) * (list A))) :=
+  let (e, o) := eo in
+  xs = interleave e o 
+  /\ length o <= length e <= length o + 1.
+Hint Unfold unravel_prop.
+
 Program Fixpoint unravel (A:Set) (xs:list A) :
   {! eo !:! ((list A) * (list A))
      !<! c !>!
-     xs = interleave (fst eo) (snd eo) 
+     unravel_prop A xs eo
    /\ c = length xs !} :=
   match xs with
     | nil =>
@@ -25,28 +31,21 @@ Program Fixpoint unravel (A:Set) (xs:list A) :
 
 Next Obligation.
   simpl. rename l into e. rename l0 into o.
-  split; try omega.
+  destruct H as [EQ BP]. subst.
+  split; [split|]; try omega.
   apply interleave_case2.
 Qed.
 
 (* XXX This proof, and the need for it, stinks. *)
 
 Theorem unravel' (A:Set) (xs:list A) :
-  {! eo !:! (sig (fun eo => xs = interleave (fst eo) (snd eo)))
+  {! eo !:! (sig (unravel_prop A xs))
      !<! c !>!
      c = length xs !}.
 Proof.
   destruct (unravel A xs) as [[e o] P].
-  simpl in *.
-  assert (xs = interleave e o) as EQ.
-
-  destruct P as [n [P_EQ P_len]]; eauto.
-
-  assert { eo | xs = interleave (fst eo) (snd eo) } as ANS.
-  exists (e,o). simpl. auto.
-
-  exists ANS.
-  destruct P as [n [P_EQ P_len]]; eauto.
+  assert (unravel_prop A xs (e,o)) as UP; eauto.
+  destruct P as [n [[P_EQ P_BP] P_len]]; eauto.
 Defined.
 
 Lemma interleave_both:
@@ -65,18 +64,6 @@ Proof.
   destruct (IHe o). omega.
 Qed.
 Hint Resolve interleave_both.
-
-Lemma interleave_braun:
-  forall A e o xs,
-  xs = @interleave A e o ->
-  length e <= length o <= length e + 1.
-Proof.
-  intros A. induction e as [|e]; intros o xs EQ.
-
-  rewrite interleave_nil2 in *. subst xs.
-  simpl. 
-Admitted.
-Hint Resolve interleave_braun.
 
 Lemma interleave_evens:
   forall (A:Set) (e:list A) o,
@@ -112,34 +99,38 @@ Program Fixpoint make_array_td (A:Set) xs {measure (length xs)} :
   end.
 
 Next Obligation.
-  simpl. auto.
+  rename l into e. rename l0 into o.
+  destruct H as [EQ BP]. subst.
+  simpl. rewrite <- interleave_length_split.
+  omega.
 Qed.
 
 Next Obligation.
-  simpl. auto.
+  rename l into e. rename l0 into o.
+  destruct H as [EQ BP]. subst.
+  simpl. rewrite <- interleave_length_split.
+  omega.
 Qed.
  
 Next Obligation.
- simpl in *.
- rename l into e. rename l0 into o.
- rename H into Be.
- rename H5 into SRe.
- rename H0 into Bo.
- rename H3 into SRo.
- clear make_array_td.
- remember (interleave e o) as xs.
- rename Heqxs into EQxs.
- rewrite EQxs.
- rewrite <- interleave_length_split.
- split; [|split].
+  destruct H6 as [EQ BP]. subst.
+  simpl in *.
+  rename l into e. rename l0 into o.
+  rename H into Be.
+  rename H5 into SRe.
+  rename H0 into Bo.
+  rename H3 into SRo.
+  clear make_array_td.
+  rewrite <- interleave_length_split.
+  split; [|split].
 
- (* braun *)
- replace (S (length e + length o)) with (length e + length o + 1); try omega.
- eapply B_node.
+  (* braun *)
+  replace (S (length e + length o)) with (length e + length o + 1); try omega.
+  eauto.
 
- (* XXX running time *)
- admit.
+  (* XXX running time *)
+  admit.
 
- (* correctness *)
- eauto.
+  (* correctness *)
+  eauto.
 Qed.

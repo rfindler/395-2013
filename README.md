@@ -39,7 +39,6 @@ tmonad
 New monadic approach, with improved extraction
 
 TODO:
-- make a centralized build directory [jay]
 - try to share code related to correctness [jay]
 - copy_fib (time, correctness, extraction) [burke]
 - make_array_naive (time, correctness, extraction) [max]

@@ -1,17 +1,21 @@
 VS := $(shell find . -type f -name '*v')
 VERSIONS := logical tmonad
-BINS := $(VERSIONS:%=%.bin)
-MLS := $(VERSIONS:%=%.ml)
-MLIS := $(VERSIONS:%=%.mli)
+BINS := $(VERSIONS:%=ml/%.bin)
+MLS := $(VERSIONS:%=ml/%.ml)
+MLIS := $(VERSIONS:%=ml/%.mli)
 
 all: coq $(BINS)
 	@echo ""
 	@echo ""
 	@ ! grep -i admit $(VS)
 
-.PHONY: coq clean
+.PHONY: coq clean clean-ml
+
+clean-ml:
+	rm -f $(VERSIONS:%=%/extract.vo)
 
 coq: Makefile.coq
+	mkdir -p ml
 	$(MAKE) -f Makefile.coq
 
 Makefile.coq: Makefile $(VS)
@@ -21,10 +25,16 @@ Makefile.coq: Makefile $(VS)
 
 %.ml : %/extract.vo
 
-%.bin : %.ml %.cmi
-	ocamlc $(basename $@).ml -o $@
+ml/%.ml: %.ml
+	mv $^ $@
 
-%.cmi : %.mli
+ml/%.mli: %.mli
+	mv $^ $@
+
+ml/%.bin : ml/%.ml ml/%.cmi
+	ocamlc -I ml $(basename $@).ml -o $@
+
+ml/%.cmi : ml/%.mli
 	ocamlc -c $^
 
 clean: Makefile.coq

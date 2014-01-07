@@ -79,6 +79,21 @@ into
 
 so that only one thing gets pulled out.
 
+Neither version interferes with proving correctness, however. This
+seems to /not/ be a problem with the monad definition, but an
+annoyance of Program's default rules for constructing measure
+contexts. Maybe there's a way to change the monad to get in the way of
+these rules, but I'm worried that it would be too invasive.
+
+One idea is that this version of unravel is more pure because it looks
+like:
+
+(sig (sig ResultType CorrectCondition) (exists nat : TimeCondition))
+
+This pushes the CorrectCondition outside of "exists nat" and
+modularizes the two pieces. Maybe we should change the monad to
+require these two pieces separately.
+
 *)
 
 Program Fixpoint make_array_td (A:Set) xs {measure (length xs)} :
@@ -92,7 +107,7 @@ Program Fixpoint make_array_td (A:Set) xs {measure (length xs)} :
     | nil      =>
       <== bt_mt
     | (cons x xs') =>
-      eo <- (unravel' A xs') ;
+      eo <- unravel' A xs' ;
       oa <- make_array_td A (fst eo) ;
       ea <- make_array_td A (snd eo) ;
       ++ ; 
@@ -100,14 +115,12 @@ Program Fixpoint make_array_td (A:Set) xs {measure (length xs)} :
   end.
 
 Next Obligation.
-  rename l into e. rename l0 into o.
   destruct H as [EQ BP]. subst.
   simpl. rewrite <- interleave_length_split.
   omega.
 Qed.
 
 Next Obligation.
-  rename l into e. rename l0 into o.
   destruct H as [EQ BP]. subst.
   simpl. rewrite <- interleave_length_split.
   omega.
@@ -117,11 +130,6 @@ Next Obligation.
   destruct H6 as [EQ BP]. subst.
   simpl in *.
   rename l into e. rename l0 into o.
-  rename H into Be.
-  rename H5 into SRe.
-  rename H0 into Bo.
-  rename H3 into SRo.
-  clear make_array_td.
   rewrite <- interleave_length_split.
   split; [|split].
 

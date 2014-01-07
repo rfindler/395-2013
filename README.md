@@ -41,7 +41,6 @@ New monadic approach, with improved extraction
 TODO:
 - try to share code related to correctness [jay]
 - copy_fib (time, correctness, extraction) [burke]
-- make_array_naive (time, correctness, extraction) [max]
 - make_array_td (time, correctness, extraction)
 - make_array_bu (time, correctness, extraction)
 - to_list (time, correctness, extraction)

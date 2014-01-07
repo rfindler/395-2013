@@ -11,15 +11,16 @@ Require Import Braun.common.log.
 Section make_array_naive.
   Variable A : Set.
 
-  Program Fixpoint make_array_naive xs : {! b !:! @bin_tree A
-                                            !<! c !>!
-                                            let n := length xs in
-                                            Braun b n
-                                            /\ c = man_time n
-                                            /\ SequenceR b xs
-                                         !} :=
+  Program Fixpoint make_array_naive xs : 
+    {! b !:! @bin_tree A
+       !<! c !>!
+       let n := length xs in
+       Braun b n
+       /\ c = man_time n
+       /\ SequenceR b xs !} :=
     match xs with
-      | nil      => <== bt_mt
+      | nil      => 
+        <== bt_mt
       | (cons x xs') => 
         bt  <- make_array_naive xs';
         bt' <- insert x bt;

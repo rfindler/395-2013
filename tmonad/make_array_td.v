@@ -48,6 +48,39 @@ Proof.
   destruct P as [n [[P_EQ P_BP] P_len]]; eauto.
 Defined.
 
+(* COMMENT: Here's what is going on: 
+
+Suppose that (unravel A xs') were used and the name we give to it is
+eoc. If we write (fst eoc), then Program will change
+
+let eoc := ... in
+
+into
+
+let eoc := (_0 ...) in
+
+and infer an obligation that we can transform the monad result into a
+"fst"-able thing. This proof is easy (proj1_sig). The problem, though,
+is that this makes it so when we do
+
+recursive_call (fst eoc)
+
+then recursive_call gets to see the result of the inference on _0,
+which has lost the property that was in proj2_sig, which is what
+justifies recursion based on the measure.
+
+The trick I've pulled here is to transform
+
+(sig A (P1 /\ P2))
+
+into
+
+(sig (sig A P1) P2)
+
+so that only one thing gets pulled out.
+
+*)
+
 Program Fixpoint make_array_td (A:Set) xs {measure (length xs)} :
   {! b !:! @bin_tree A
      !<! c !>!

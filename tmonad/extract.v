@@ -3,6 +3,7 @@ Require Import Braun.tmonad.insert.
 Require Import Braun.tmonad.copy Braun.tmonad.copy_linear.
 Require Import Braun.tmonad.size Braun.tmonad.size2.
 Require Import Braun.tmonad.make_array_naive.
+Require Import Braun.tmonad.make_array_td.
 Require Import Braun.tmonad.monad.
 
 Extract Inductive bool => "bool" [ "false" "true" ].
@@ -24,4 +25,5 @@ Extraction Inline ret bind inc.
 Extraction "tmonad.ml" insert.insert 
            copy.copy copy_linear.copy_linear
            size.size_linear size2.size
-           make_array_naive.make_array_naive.
+           make_array_naive.make_array_naive
+           make_array_td.make_array_td.

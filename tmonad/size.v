@@ -27,8 +27,8 @@ Section size_linear.
   Next Obligation.
     split; [omega|].
     intros m B. invclr B.
-    apply H1 in H6.
-    apply H2 in H7.
+    apply H1 in H8.
+    apply H2 in H9.
     subst. auto.
   Qed.
 End size_linear.

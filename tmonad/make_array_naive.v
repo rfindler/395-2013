@@ -29,16 +29,19 @@ Section make_array_naive.
 
   Next Obligation.
   Proof.
-    remember (H (length xs') H0) as IND.
+    rename H into IH.
+    clear H3.
+    rename H0 into B.
+    rename H2 into SR.
+    remember (IH (length xs') B) as IND.
     destruct IND as [BT [SEQ XN]].
     repeat constructor; auto.
     
     assert (xn = cl_log (S (length xs'))); [| omega].
-    remember (H (length xs') H0).
+    remember (IH (length xs') B).
     subst.
-    assert (fl_log (length xs') + 1 = S (fl_log (length xs'))); [omega | ].
-    rewrite H1.
+    assert (fl_log (length xs') + 1 = S (fl_log (length xs'))) as EQ; [omega | ].
+    rewrite EQ.
     apply fl_log_cl_log_relationship.
-    
   Qed.
 End make_array_naive.

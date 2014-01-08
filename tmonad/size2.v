@@ -36,8 +36,8 @@ Next Obligation.
   apply even_2n in E. destruct E as [mm EQ].
   unfold double in EQ. 
   split; intros B; invclr B;
-  rename H3 into BP; rename H4 into Bs; rename H5 into Bt;
-  rename H2 into EQ'.
+  rename H5 into BP; rename H6 into Bs; rename H7 into Bt;
+  rename H4 into EQ'.
 
   replace m' with (s_size + t_size) in *; try omega.
   clear EQ'.
@@ -79,8 +79,8 @@ Next Obligation.
   clear EQ.
   rewrite div2_double in *.
   split; intros B; invclr B;
-  rename H3 into BP; rename H4 into Bs; rename H5 into Bt;
-  rename H2 into EQ.
+  rename H5 into BP; rename H6 into Bs; rename H7 into Bt;
+  rename H4 into EQ.
 
   replace mm with t_size in *; try omega.
   replace s_size with t_size in *; try omega.
@@ -125,8 +125,8 @@ Proof.
   invclr H1.
   rename H into SIZE_SAME.
   rename H2 into SIZE_DIFF.
-  rename H8 into BRAUNS.
-  rename H9 into BRAUNT.
+  rename H11 into BRAUNS.
+  rename H12 into BRAUNT.
 
   apply H0 in BRAUNT. clear H0.
   destruct BRAUNT as [EQm EQxn]. subst.

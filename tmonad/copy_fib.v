@@ -58,12 +58,19 @@ Section copy_fib.
     apply lt_trans with (m := div2 (S n)).
     replace (div2 (S n) - 1) with (pred (div2 (S n))); try omega.
     apply lt_pred_n_n.
-    destruct n; [invclr H0; invclr H2|unfold div2; omega].
-    apply lt_div2; omega.
+    destruct n; [invclr H0; invclr H4|unfold div2; omega].
+    apply lt_div2. omega.
   Qed.
 
   Next Obligation.
     (* even case *)
+    rename H0 into E.
+    rename H10 into Bl.
+    rename H11 into IRl.
+    rename H7 into Br.
+    rename H8 into IRr.
+    clear H1 H5 H2 H3.
+    rename H into NEQ.
 
     split. 
 
@@ -73,39 +80,40 @@ Section copy_fib.
     split. 
     replace (div2 n - 1) with (pred (div2 n)); try omega.
     replace (div2 n - 1 + 1) with (div2 n); try constructor.
-    destruct n as [|n']; [unfold not in H; assert (0 = 0)|]; try omega.
-    assert (div2 (S n') <> 0). unfold not. intros.
-    destruct n'. inversion H0. inversion H7. inversion H4. omega.
+    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
+    assert (div2 (S n') <> 0) as NEQ'. unfold not. intros NEQ'.
+    destruct n'; simpl in NEQ'. invclr E. rename H0 into O. invclr O. invclr NEQ'.
+    omega.
     rewrite even_double; try assumption. 
     unfold double.
-    destruct n as [|n']; [unfold not in H; assert (0 = 0)|]; try omega.
+    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
     assert (div2 (S n') <> 0); try omega.
-    unfold not. intros.
-    destruct n'. inversion H0. inversion H7. inversion H4. 
+    unfold not. intros EQ.
+    destruct n'. inversion E. rename H0 into O. inversion O. 
+    inversion EQ.
 
-    
     split.
 
     (* correct elems *)
-    intros. inversion H4; eauto.
+    intros i y IR. inversion IR; eauto.
 
     (* running time *)
-    destruct n as [|n']; [unfold not in H; assert (0 = 0)|]; try omega.
+    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
     WfExtensionality.unfold_sub rt_copy_fib (rt_copy_fib (S n')).
     destruct (even_odd_dec (S n')).
     repeat fold_sub rt_copy_fib. 
      
     rewrite plus_assoc. rewrite plus_comm. simpl.
     apply eq_S.
-    destruct n'. inversion e. inversion H6. 
+    destruct n'. inversion e. inversion H0. 
     replace (S (div2 n') - 1) with  (div2 (S n')). 
     reflexivity.
     replace (S (div2 n') - 1) with (div2 n').
     
-    inversion e. inversion H6.
+    inversion e. inversion H0.
     symmetry. apply even_div2. assumption. omega.
 
-    apply not_even_and_odd in H0. contradiction. assumption.
+    apply not_even_and_odd in E. contradiction. assumption.
   Qed.    
 
   Next Obligation.
@@ -127,7 +135,7 @@ Section copy_fib.
     split.
 
     (* correct elems *)
-    intros; inversion H3; auto. eapply H2. apply H9. eapply H2. apply H9.
+    intros; inversion H3; auto. eapply H2. apply H11. eapply H2. apply H11.
 
     (* running time *)
     destruct n as [|n']; [unfold not in H; assert (0 = 0)|]; try omega.
@@ -138,8 +146,7 @@ Section copy_fib.
     destruct n'. compute. reflexivity.
     rewrite <- even_div2.
     rewrite odd_div2. omega.
-    inversion o. inversion H4. assumption.
+    inversion o. inversion H6. assumption.
     inversion o. assumption.
 Qed.
-
 End copy_fib.

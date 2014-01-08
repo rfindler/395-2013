@@ -53,9 +53,9 @@ Next Obligation.
   rename H0 into B.
 
   invclr B.
-  rename H2 into BP.
-  rename H4 into Bs.
-  rename H5 into Bt.
+  rename H3 into BP.
+  rename H5 into Bs.
+  rename H6 into Bt.
 
   apply IH in Bt.
   destruct Bt as [Bst [SRst EQ]].
@@ -75,8 +75,8 @@ Next Obligation.
   (* correctness *)
   intros xs SR.
   invclr SR. 
-  rename H3 into SRs.
-  rename H4 into SRt.
+  rename H4 into SRs.
+  rename H5 into SRt.
   rewrite interleave_case2.
   eapply SR_node; eauto.
 

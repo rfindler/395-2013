@@ -39,6 +39,7 @@ tmonad
 New monadic approach, with improved extraction
 
 TODO:
+- copy_fib (time bound) [burke]
 - make_array_bu (time, correctness, extraction) [max]
 - to_list_naive (exact time [vs bound])
 - to_list (time, correctness, extraction)

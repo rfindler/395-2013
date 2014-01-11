@@ -42,4 +42,4 @@ TODO:
 - copy_fib (time bound) [burke]
 - make_array_bu (time, correctness, extraction) [max]
 - to_list_naive (exact time [vs bound])
-- to_list (time, correctness, extraction)
+- to_list_bu (time, correctness, extraction)

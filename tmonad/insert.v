@@ -23,18 +23,12 @@ Next Obligation.
   rename H into B.
 
   invclr B.
-  split; auto.
-  replace 1 with (0 + 0 + 1); try omega.
-  eapply B_node; auto; try omega.
-  split.
+  repeat constructor; auto.
 
   (* correctness *)
   intros xs SR.
   invclr SR.
   apply SR_singleton.
-
-  (* running time *)
-  auto.
 Qed.
 
 Lemma same_tree_same_size :

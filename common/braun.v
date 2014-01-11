@@ -23,6 +23,7 @@ Lemma braun_node_construction:
     Braun s (div2 (n+1)) ->
     Braun t (div2 n) ->
     Braun (bt_node x s t) (S n).
+Proof.
   intros.
   replace (S n) with (div2 (n+1) + div2 n + 1).
   constructor; auto.

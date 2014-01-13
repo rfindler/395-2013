@@ -39,6 +39,17 @@ tmonad
 New monadic approach, with improved extraction
 
 TODO:
+- prove monad laws
+
+Left identity:	
+return a >>= f≡	f a
+Right identity:	
+m >>= return ≡	m
+Associativity:	
+(m >>= f) >>= g ≡ m >>= (\x -> f x >>= g)
+
+- write racket monad insertion system [robby]
+- re-prove times after uniform ++ insertion
 - copy_fib (time bound) [burke]
 - make_array_bu (time, correctness, extraction) [max]
 - to_list_naive (exact time [vs bound])

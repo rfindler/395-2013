@@ -6,18 +6,21 @@ Require Import Omega.
 
 Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A)
 : {! b' !:! (@bin_tree A) !<! c !>!
-        (forall n,
-           Braun b n ->
-           (Braun b' (S n) /\
-            (forall xs, SequenceR b xs -> SequenceR b' (i::xs)) /\
-            c = fl_log n + 1)) !} :=
-  match b with
-    | bt_mt =>
-      (++ ; (<== (bt_node i bt_mt bt_mt)))
-    | bt_node j s t =>
-      (st <- (insert j t) ;
-       (++ ; (<== (bt_node i st s))))
-  end.
+     (forall n,
+        Braun b n ->
+        (Braun b' (S n) /\
+         (forall xs, SequenceR b xs -> SequenceR b' (i::xs)) /\
+         c = 3 * fl_log n + 2)) !} :=
+(match b with
+   | bt_mt => 
+     (++; ++;
+      (<== (bt_node i bt_mt bt_mt)))
+   | bt_node j s t => 
+     (x3 <- (insert j t);
+      (++; ++; ++;
+       (<== (bt_node i x3 s))))
+ end).
+
 
 Next Obligation.
   rename H into B.
@@ -54,18 +57,13 @@ Next Obligation.
   apply IH in Bt.
   destruct Bt as [Bst [SRst EQ]].
   subst xn.
-  replace (fl_log t_size + 1) with (S (fl_log t_size)); try omega.
-  rewrite fl_log_cl_log_relationship.
-  replace (fl_log (s_size + t_size + 1) + 1) with (S (fl_log (s_size + t_size + 1)));
-    try omega.
-  rewrite fl_log_cl_log_relationship.
-  replace (S (s_size + t_size + 1)) with ((S t_size) + s_size + 1); try omega.
 
-  split.
+  repeat constructor.
+
   (* braun *)
+  replace (S (s_size + t_size + 1)) with ((S t_size) + s_size + 1); try omega.
   eapply B_node; auto; try omega.
 
-  split.
   (* correctness *)
   intros xs SR.
   invclr SR. 
@@ -75,6 +73,6 @@ Next Obligation.
   eapply SR_node; eauto.
 
   (* running time*)
-  apply braun_invariant_implies_cl_log_property.
-  replace (S t_size) with (t_size + 1); try omega.
+  rewrite <- braun_invariant_implies_fl_log_property; auto.
+  omega.
 Qed.

@@ -105,96 +105,88 @@ Proof.
   intuition.
 Qed.
 
+Require Import ProofIrrelevance.
+
 Theorem associativity:
   forall 
     (A:Set)
     (B:Set)
     (G:Set)
     (PA:A -> nat -> Prop)
-    (PB:B -> nat -> Prop)
     (PAB:A -> B -> nat -> Prop)
-    (PBG:B -> G -> nat -> Prop)
-    (PAG:A -> G -> nat -> Prop)
+    (PABG:A -> B -> G -> nat -> Prop)
     (ma:C A PA)
-    (fb1:forall (a:A) (pa:exists an, PA a an),
+    (fb:forall (a:A) (pa:exists an, PA a an),
           C B
             (fun b bn =>
                 forall an : nat, 
                   PA a an -> 
                   PAB a b (an + bn)))
-    (fb2:forall (a:A) (pa:exists an, PA a an),
-          C B PB)
-    (fb_eq:
-       forall a pa,
-         proj1_sig (fb1 a pa) = proj1_sig (fb2 a pa))
-    (gg1:forall (b:B) (pb:exists bn, PAB (proj1_sig ma) b bn),
+    (gg:forall (b:B) (pb:exists bn, PAB (proj1_sig ma) b bn),
           C G
             (fun g gn =>
                forall anbn : nat,
                  PAB (proj1_sig ma) b anbn ->
-                 PBG b g (anbn + gn)))
-    (gg2:forall (a:A) (b:B) (pb:exists bn, PB b bn),
-          C G
-            (fun g gn =>
-               forall bn : nat,
-                 PB b bn ->
-                 PBG b g (bn + gn)))
-    (gg_eq:
-       forall a b pb1 pb2,
-         proj1_sig (gg1 b pb1) = proj1_sig (gg2 a b pb2))
-    (helper1:forall (a : A) (pa:exists an, PA a an) (g : G)
-                    (pag : (exists gn, (PBG (proj1_sig (fb2 a pa)) g gn))),
-               (exists gn : nat,
-                  forall an : nat, PA a an -> PAG a g (an + gn))),
+                 PABG (proj1_sig ma) b g (anbn + gn)))
+    helper1 helper2 helper3,
     sig_eqv _ _ _
-            (bind B G (PAB (proj1_sig ma)) PBG
+            (bind B G (PAB (proj1_sig ma)) 
+                  (fun b g n => PABG (proj1_sig ma) b g n)
                   (bind A B PA PAB
                         ma
-                        fb1)
-                  gg1)
-            (bind A G PA PAG
-                  ma 
+                        fb)
+                  gg)
+            (bind A G PA
+                  (fun a g n => 
+                     PABG a 
+                          (proj1_sig (fb (proj1_sig ma) (proj2_sig ma)))
+                          g n)
+                  ma
                   (fun (a:A) (pa:exists an, PA a an) => 
-                     let mg := 
-                         (bind B G PB PBG
-                               (fb2 a pa)
-                               (gg2 a)) in
-                     (exist _ (proj1_sig mg) 
-                            (helper1 a _ (proj1_sig mg) (proj2_sig mg))))).
+                     let mg :=
+                         (bind B G
+                               (fun b bn => 
+                                  forall an,
+                                    PA a an ->
+                                    PAB a b (an + bn))
+                               (fun b g bngn =>
+                                  PABG a b g bngn)
+                               (fb a pa)
+                               (fun b pb =>
+                                  let mg := gg b (helper1 a pa b pb) in
+                                  let (g, pg) := mg in
+                                  exist _ g (helper2 a pa b pb g pg))) in
+                     let (g, pg) := mg in
+                     exist _ g (helper3 a pa g pg))).
 Proof.
   intros.
   unfold sig_eqv, bind.
-  simpl.
   destruct ma as [a [an pa]].
   remember (ex_intro (fun n : nat => PA a n) an pa) as pae.
 
+  simpl in *.
+
   remember (helper1 a pae) as helper1'.
-  clear Heqhelper1'.
-  simpl.
-  remember (fb_eq a pae) as fb_eq'.
-  clear Heqfb_eq'.
-  remember (fb1 a pae) as mb1.
-  remember (fb2 a pae) as mb2.
-  destruct mb1 as [b1 [bn1 pb1]].
-  destruct mb2 as [b2 [bn2 pb2]].
-  simpl in *. subst b2.
+  remember (helper2 a pae) as helper2'.
+  remember (helper3 a pae) as helper3'.
+  clear Heqhelper1' helper1 Heqhelper2' helper2 Heqhelper3' helper3.
 
-  remember (ex_intro (fun n : nat => PAB a b1 n) (an + bn1) (pb1 an pa)) as pb1e.
-  remember (ex_intro (fun n : nat => PB b1 n) bn2 pb2) as pb2e.
-  remember (gg_eq a b1 pb1e pb2e) as gg_eq'.
-  clear Heqgg_eq'.
-  remember (gg1 b1 pb1e) as mg1.
-  remember (gg2 a b1 pb2e) as mg2.
+  remember (fb a pae) as mb.
+  destruct mb as [b [bn pb]].
+  simpl in *.
+  remember (ex_intro (fun n : nat => PAB a b n) (an + bn) (pb an pa)) as pbe1.
+  remember (ex_intro
+              (fun n : nat =>
+                 forall an0 : nat,
+                   PA a an0 -> PAB a b (an0 + n)) bn pb) as pbe2.
 
-  destruct mg1 as [g1 [gn1 pg1]].
-  destruct mg2 as [g2 [gn2 pg2]].
-  simpl in *. subst g2.
-  split.
-  auto.
-  
-  split; intros [gn pg'].
+  replace (helper1' b pbe2) with pbe1 in *.
 
-  edestruct (helper1' g1); eauto.
+  remember (gg b pbe1) as mg.
+  destruct mg as [g [gn pg]].
+  simpl in *.
 
-  eauto.
+  intuition.
+
+  apply proof_irrelevance.
 Qed.

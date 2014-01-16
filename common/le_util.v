@@ -76,6 +76,15 @@ Proof.
   apply lt_div2''.
 Qed.
 
+Lemma one_le_fl_log_S : forall n, 1 <= fl_log (S n).
+Proof.
+  induction n;auto.
+  apply (le_trans 1
+                  (fl_log (S n))
+                  (fl_log (S (S n)))); auto.
+  apply fl_log_monotone.
+Qed.
+
 Lemma le_plus_left :
   forall n n' m,
     n <= n' -> n+m <= n'+m.

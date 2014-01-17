@@ -1,3 +1,4 @@
+tmonad/*_gen.v
 *~
 *.vo
 *.glob
@@ -10,3 +11,4 @@ Makefile.coq
 *.bin
 compiled/
 /ml
+

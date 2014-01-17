@@ -1,10 +1,11 @@
-VS := $(shell find . -type f -name '*v')
+VS := $(shell find . -type f -name '*v' | grep -v _gen.v$)
 VERSIONS := logical tmonad
 BINS := $(VERSIONS:%=ml/%.bin)
 MLS := $(VERSIONS:%=ml/%.ml)
 MLIS := $(VERSIONS:%=ml/%.mli)
+GEN_DEPS := rkt/emit.rkt rkt/tmonad.rkt
 
-all: coq $(BINS)
+all: coq $(BINS) tmonad-gen
 	@echo ""
 	@echo ""
 	@ ! grep -i admit $(VS)
@@ -17,6 +18,11 @@ clean-ml:
 coq: Makefile.coq
 	mkdir -p ml
 	$(MAKE) -f Makefile.coq
+
+tmonad-gen: tmonad/insert_gen.v # more generated files go here
+
+tmonad/insert_gen.v: rkt/insert.rkt $(GEN_DEPS)
+	racket rkt/insert.rkt > tmonad/insert_gen.v
 
 Makefile.coq: Makefile $(VS)
 	coq_makefile -R . Braun $(VS) -o Makefile.coq

@@ -47,6 +47,7 @@
     [(zero? n) 0]
     [else (+ 1 (p2 (div2 n)) (p2sub1 (div2 (sub1 n))))]))
 
+#;
 (define (f n)
   (cond
     [(zero? n) 0]
@@ -85,6 +86,27 @@
              (jl (div2 n))
              (jl (div2 (div2 n))))]))
 
+(define (f n)
+  (cond
+    [(<= n 0) 2]
+    [(= n 1) 2]
+    [else (+ 1
+             (f (div2 n))
+             (g (div2 n)))]))
+
+(define (g n)
+  (cond
+    [(<= n 0) 2]
+    [(= n 1) 2]
+    [else (+ 1 (f (div2 n)))]))
+
+#|
+
+even n -> rtcf n <= f n
+odd n  -> rtcf n <= g n
+
+|#
+
 (define (make-plot upper-bound)
     (plot
      #:x-label "n"
@@ -104,11 +126,19 @@
       (lines 
        #:color 'red
        (for/list ([n (in-range upper-bound)])
-         (vector n (jl n))))
+         (vector n (f n))))
+      (lines 
+       #:color 'orange
+       (for/list ([n (in-range upper-bound)])
+         (vector n (g n))))
       (lines 
        #:color 'purple
        (for/list ([n (in-range upper-bound)])
          (vector n (* 6 (fib (cl_log n))))))
+      #;(lines 
+       #:color 'purple
+       (for/list ([n (in-range upper-bound)])
+         (vector n (* 3 (fib (cl_log n))))))
       (points
        #:color 'blue
        (for/list ([n (in-range upper-bound)]

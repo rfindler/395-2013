@@ -63,17 +63,15 @@ Section take_drop.
 End take_drop.
 
 (* Cannot guess decreasing arg of fix *)
-Program Fixpoint rows (A : Set) (k : nat) (l : list A) : {! rs !:! list (nat * list A) 
-                                                            !<! c !>!
-                                                            True
-                                                            !} :=
-  match l with 
-    | nil => <== nil
-    | _ =>
-      front <- take k l;
-        back <- (drop k l);
-        tl <- rows (k + k) back;
-        <== cons (k, front) tl
-  end.
-      
-                                                           
+(* Program Fixpoint rows (A : Set) (k : nat) (l : list A) : {! rs !:! list (nat * list A)  *)
+(*                                                             !<! c !>! *)
+(*                                                             True *)
+(*                                                             !} := *)
+(*   match l with  *)
+(*     | nil => <== nil *)
+(*     | _ => *)
+(*       front <- take k l; *)
+(*         back <- (drop k l); *)
+(*         tl <- rows (k + k) back; *)
+(*         <== cons (k, front) tl *)
+(*   end. *)

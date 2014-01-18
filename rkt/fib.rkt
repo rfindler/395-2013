@@ -47,12 +47,6 @@
     [(zero? n) 0]
     [else (+ 1 (p2 (div2 n)) (p2sub1 (div2 (sub1 n))))]))
 
-#;
-(define (f n)
-  (cond
-    [(zero? n) 0]
-    [else (+ 1 (f (div2 n)) (* 2 (f (div2 (sub1 n)))))]))
-
 (define pows (list 8 16 32 64 128 256 512))
 (define maxes  (list 12 26 52 106 212 426))
 
@@ -78,17 +72,9 @@
 (define gjs (for/list ([n (in-range 10)]) (gj n)))
 (define (is-gj? n) (member n gjs))
 
-(define (jl n)
-  (cond
-    [(= n 0) 1]
-    [(= n 1) 2]
-    [else (+ 2
-             (jl (div2 n))
-             (jl (div2 (div2 n))))]))
-
 (define (f n)
   (cond
-    [(<= n 0) 2]
+    [(= n 0) 1]
     [(= n 1) 2]
     [else (+ 1
              (f (div2 n))
@@ -96,8 +82,8 @@
 
 (define (g n)
   (cond
-    [(<= n 0) 2]
-    [(= n 1) 2]
+    [(= n 0) 1]
+    [(= n 1) 1]
     [else (+ 1 (f (div2 n)))]))
 
 #|
@@ -135,10 +121,6 @@ odd n  -> rtcf n <= g n
        #:color 'purple
        (for/list ([n (in-range upper-bound)])
          (vector n (* 6 (fib (cl_log n))))))
-      #;(lines 
-       #:color 'purple
-       (for/list ([n (in-range upper-bound)])
-         (vector n (* 3 (fib (cl_log n))))))
       (points
        #:color 'blue
        (for/list ([n (in-range upper-bound)]

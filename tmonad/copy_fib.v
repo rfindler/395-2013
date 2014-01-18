@@ -317,7 +317,7 @@ true only in the limit, so now I am really stuck.
     apply lt_trans with (m := div2 (S n)).
     replace (div2 (S n) - 1) with (pred (div2 (S n))); try omega.
     apply lt_pred_n_n.
-    destruct n; [invclr H0; admit|unfold div2; omega].
+    destruct n; [ invclr H0; invclr H4|unfold div2; omega].
     apply lt_div2. omega.
   Qed.
 
@@ -384,6 +384,7 @@ true only in the limit, so now I am really stuck.
     rename H1 into Brt.
     rename H2 into Irt.
     rename H0 into On.
+    clear H4 H5.
 
     split. 
     
@@ -394,12 +395,12 @@ true only in the limit, so now I am really stuck.
     rewrite odd_double; try assumption. 
     unfold double. rewrite plus_comm. omega. 
 
-    admit.
-(*
+
+
     split.
 
     (* correct elems *)
-    intros i y HIr; inversion HIr; auto; eapply Irt; apply H4.
+    intros i y HIr; inversion HIr; auto; apply Irt with (i := i0); auto.
 
     (* running time *)
     destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
@@ -412,6 +413,6 @@ true only in the limit, so now I am really stuck.
     rewrite odd_div2. omega.
     inversion o. inversion H0. assumption.
     inversion o. assumption.
-*)
+
 Qed.
 End copy_fib.

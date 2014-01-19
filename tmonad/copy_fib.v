@@ -1,5 +1,6 @@
 Require Import Braun.tmonad.monad Braun.logical.index.
 Require Import Braun.common.braun Braun.common.log Braun.common.util.
+Require Import Braun.common.big_oh.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Program.Wf Init.Wf.
 
@@ -276,22 +277,173 @@ Qed.
   Definition g n := h (g_arg n).
 
 
-  Lemma f_monotone : forall m n, m < n -> f m <= f n.
-    Admitted.
+  Lemma fg_monotone : forall m n, m <= n -> 
+                                  (f m <= f n /\ g m <= g n).
+  Proof.
+    intros m n.
+    generalize dependent m.
+    generalize dependent n.
+    apply (well_founded_induction lt_wf
+                                  (fun (n : nat) =>
+                                     forall m, (m <= n
+                                               ->  (f m <= f n /\ g m <= g n)))).
+    intros n H m Hmn.
+    split.
 
-  Lemma g_monotone : forall m n, m < n -> g m <= g n.
-    Admitted.
+    (* f *)
+    destruct m as [|m]; destruct n as [|n].
+    compute; omega.
+    destruct n as [|n].
+    compute; omega.
+    unfold f.
+    unfold_sub h (h (f_arg (S (S n)))).
+    replace (h (f_arg 0)) with 1; [omega|compute;omega]. 
+    inversion Hmn.
+    destruct m as [|m]; destruct n as [|n].
+    auto.
+    unfold f.
+    unfold_sub h (h (f_arg (S (S n)))).
+    replace (h (f_arg 1)) with 2; [|compute;omega].
+    destruct (div2 n); [compute;omega|].
+    unfold_sub h (h (f_arg (S (S n0)))); omega.
+    inversion Hmn; inversion H1.
+    unfold f.
+    unfold_sub h (h (f_arg (S (S n)))).
+    unfold_sub h (h (f_arg (S (S m)))).
+    rewrite <- plus_assoc. rewrite <- plus_assoc. 
+    apply plus_le_compat_l.
+    replace (h (f_arg (S (div2 m)))) with (f (S (div2 m))); [|auto].
+    replace (h (f_arg (S (div2 n)))) with (f (S (div2 n))); [|auto].
+    replace (h (g_arg (S (div2 m)))) with (g (S (div2 m))); [|auto].
+    replace (h (g_arg (S (div2 n)))) with (g (S (div2 n))); [|auto].
+    assert (f (S (div2 m)) <= f (S (div2 n)) /\ g (S (div2 m)) <= g (S (div2 n))).
+    apply H.
+    intuition. 
+    apply le_n_S; apply div2_monotone'; intuition.
+    inversion H0.
+    apply plus_le_compat; assumption.
 
-  Lemma g_lt_f : forall n, g n < f n.
-    Admitted.
+    (* g *)
+    destruct m as [|m]; destruct n as [|n].
+    compute; omega.
+    destruct n as [|n].
+    compute; omega.
+    unfold g.
+    unfold_sub h (h (g_arg (S (S n)))).
+    replace (h (g_arg 0)) with 1; [omega|compute;omega].
+    inversion Hmn.
+    destruct m as [|m]; destruct n as [|n].
+    auto.
+    unfold g.
+    unfold_sub h (h (g_arg (S (S n)))).
+    replace (h (g_arg 1)) with 1; [omega|compute;omega].
+    intuition.
+    unfold g.
+    unfold_sub h (h (g_arg (S (S n)))).
+    unfold_sub h (h (g_arg (S (S m)))).
+    apply plus_le_compat_l.
+    replace (h (f_arg (S (div2 m)))) with (f (S (div2 m))); [|auto].
+    replace (h (f_arg (S (div2 n)))) with (f (S (div2 n))); [|auto].
+    assert (f (S (div2 m)) <= f (S (div2 n)) /\ g (S (div2 m)) <= g (S (div2 n))).
+    apply H.
+    intuition. 
+    apply le_n_S; apply div2_monotone'; intuition.
+    inversion H0.
+    auto.
+  Qed.
+  
+  Hint Resolve fg_monotone.
+  
+  Lemma f_monotone :  forall m n, m <= n -> f m <= f n.
+  Proof.
+    intros m n H.
+    apply fg_monotone in H.
+    inversion H.
+    auto.
+  Qed.
+  
+  Lemma g_monotone : forall m n, m <= n -> g m <= g n.
+  Proof.
+    intros m n H.
+    apply fg_monotone in H.
+    inversion H.
+    auto.
+  Qed.
 
-  Lemma even_div2_minus : forall m, even m
+  Lemma g_lt_f : forall n, n <> 0 -> g n < f n.
+  Proof.
+    intros n NE.    
+    unfold g.
+    unfold f.
+    destruct n as [|n]; [unfold not in NE;intuition|].
+    destruct n as [|n]; [compute;omega|].
+    unfold_sub h (h (g_arg (S (S n)))).
+    unfold_sub h (h (f_arg (S (S n)))).
+    rewrite <- plus_assoc.
+    apply plus_lt_compat_l.
+    assert (h (g_arg (S (div2 n))) > 0). 
+    destruct (div2 n) as [|n0]; 
+      [compute;omega|unfold_sub h (h (g_arg (S (S n0))));omega].
+    intuition.
+  Qed.
+
+  Lemma even_pred : forall n, n <> 0 -> even n -> odd (n - 1).
+    intros n NE.
+    destruct n.
+    unfold not in NE; intuition.
+    intros E.
+    simpl. inversion E.
+    replace (n - 0) with n; try omega.
+    auto.
+  Qed.
+
+  Lemma odd_pred : forall n, odd n -> even (n - 1).
+    intros n E.
+    destruct n; inversion E.
+    simpl.
+    replace (n - 0) with n; try omega.
+    auto.
+  Qed.
+
+  Lemma even_div2_minus : forall m, even m -> m > 1
                                     -> ((even (div2 m) /\ odd (div2 (m - 1))) \/
-                                       (odd (div2 m) /\ even (div2 (m - 1)))).
-    Admitted.
+                                        (odd (div2 m) /\ even (div2 (m - 1)))).
+  Proof.
+    intros m em NE.
+    assert (div2 (m - 1) = (div2 m) - 1) as HD.
+    inversion em. auto.
+    rewrite <- odd_div2. simpl. 
+    repeat rewrite <- minus_n_O. reflexivity.
+    auto.
+    destruct (even_odd_dec (div2 m)).
+    left.
+    split.
+    assumption.
+    rewrite HD.
+    apply even_pred.
+    destruct m as [|m].
+    inversion NE.
+    destruct m as [|m].
+    inversion NE; inversion H0.
+    simpl. omega.
+    assumption.
+    right.
+    split.
+    assumption.
+    rewrite HD.
+    apply odd_pred.
+    assumption.
+  Qed.    
 
   Lemma even_div2_SS_odd : forall n, even (div2 (S (S n))) -> odd (div2 n).
-    Admitted.
+  Proof.
+    intros n E.
+    apply even_pred in E.
+    simpl in E.
+    replace (div2 n - 0) with (div2 n) in E; [auto|omega].
+    simpl; omega.
+  Qed.
+
 
   Hint Resolve g_lt_f.
 
@@ -412,6 +564,7 @@ Qed.
     subst.
     apply le_trans with (m := g (div2 (S (S (S (S n)))))). apply O; auto.
     apply lt_le_weak. auto.
+    apply g_lt_f. simpl; omega.
     simpl; omega.
     unfold g.
     unfold_sub h (h (g_arg (S n))). 
@@ -421,6 +574,7 @@ Qed.
       [apply le_n_S|]; auto.
 Qed.
 
+Check big_oh.
     
 
     

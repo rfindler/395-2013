@@ -50,9 +50,9 @@
     [id
      (identifier? arg)
      (values arg
-             #`(coq-arg 
+             #`(coq-arg
                 'id
-                #,(if implicit? 
+                #,(if implicit?
                     (format "{~a}" (symbol->string (syntax-e arg)))
                     (symbol->string (syntax-e arg)))))]
     [(id strs ...)
@@ -61,11 +61,11 @@
                   (syntax->list #'(strs ...))))
      (let ()
        (define brackets (if implicit? "{~a:~a}" "(~a:~a)"))
-       (values 
+       (values
         #'id
-        #`(coq-arg 
+        #`(coq-arg
            'id
-           #,(format 
+           #,(format
               brackets
               (syntax-e #'id)
               (apply string-append (map syntax-e (syntax->list #'(strs ...))))))))]
@@ -76,27 +76,27 @@
   (let loop ([args args]
              [racket-args '()]
              [coq-args '()])
-  (syntax-case args ()
-    [(#:implicit arg . args)
-     (let ()
-       (define-values (racket-arg coq-arg) (parse-Fixpoint-arg stx #'arg #t))
-       (loop #'args racket-args (cons coq-arg coq-args)))]
-    [(#:returns result)
-     (let ()
-       (define res-strs (syntax->list #'result))
-       (unless res-strs (raise-syntax-error #f "expected a sequence of strings" stx #'result))
-       (values (reverse racket-args)
-               (reverse coq-args)
-               (apply string-append (map syntax-e res-strs))))]
-    [(kw . args)
-     (keyword? (syntax-e #'kw))
-     (raise-syntax-error #f "unexpected keyword" stx #'kw)]
-    [(arg . args)
-     (let ()
-       (define-values (racket-arg coq-arg) (parse-Fixpoint-arg stx #'arg #f))
-       (loop #'args (cons racket-arg racket-args) (cons coq-arg coq-args)))]
-    [()
-     (raise-syntax-error #f "didn't find #:returns keyword" stx)])))
+    (syntax-case args ()
+      [(#:implicit arg . args)
+       (let ()
+         (define-values (racket-arg coq-arg) (parse-Fixpoint-arg stx #'arg #t))
+         (loop #'args racket-args (cons coq-arg coq-args)))]
+      [(#:returns result)
+       (let ()
+         (define res-strs (syntax->list #'result))
+         (unless res-strs (raise-syntax-error #f "expected a sequence of strings" stx #'result))
+         (values (reverse racket-args)
+                 (reverse coq-args)
+                 (apply string-append (map syntax-e res-strs))))]
+      [(kw . args)
+       (keyword? (syntax-e #'kw))
+       (raise-syntax-error #f "unexpected keyword" stx #'kw)]
+      [(arg . args)
+       (let ()
+         (define-values (racket-arg coq-arg) (parse-Fixpoint-arg stx #'arg #f))
+         (loop #'args (cons racket-arg racket-args) (cons coq-arg coq-args)))]
+      [()
+       (raise-syntax-error #f "didn't find #:returns keyword" stx)])))
 
 (define-syntax (Fixpoint stx)
   (syntax-case stx ()
@@ -108,7 +108,7 @@
        (define-values (racket-args coq-args coq-result)
          (parse-Fixpoint-args stx #'(args ...)))
        (define exp (add-plusses/check-stx-errs #'body))
-       #`(begin 
+       #`(begin
            (module+ main
              (require "emit.rkt")
              (out-Fp (Fp 'id (list #,@coq-args) #,coq-result '#,exp)))
@@ -119,60 +119,100 @@
 ;; (the lets are already the right binds)
 
 (define-for-syntax (add-plusses/check-stx-errs orig-stx)
-  (define (in-monad stx)
+  (define (in-monad k stx)
     (syntax-case stx (match if bind => <==)
       [(match t [ps => es] ...)
        ;; destructuring matches are free
        (let ([inc (if (= 1 (length (syntax->list #'(ps ...)))) 0 1)])
          (for ([p (in-list (syntax->list #'(ps ...)))])
            (check-match-pattern p))
-         (with-syntax ([(mes ...) (for/list ([e (in-list (syntax->list #'(es ...)))])
-                                    (in-monad e))])
-           (add+= (+ inc (count-expr #'t))
-                  #`(match t [ps => mes] ...))))]
+         (define addl-k (+ inc (count-expr #'t)))
+         (with-syntax
+             ([(mes ...)
+               (for/list ([e (in-list (syntax->list #'(es ...)))])
+                 (in-monad (+ k addl-k) e))])
+           #`(match t [ps => mes] ...)))]
       [(if tst thn els)
-       (add+= (+ 1 (count-expr #'tst))
-              #`(if tst #,(in-monad #'thn) #,(in-monad #'els)))]
+       (let ()
+         (define addl-k (+ 1 (count-expr #'tst)))
+         #`(if tst
+             #,(in-monad (+ k addl-k) #'thn)
+             #,(in-monad (+ k addl-k) #'els)))]
       [(bind ([x rhs]) body)
-       (add+= 1 #`(bind ([x #,(in-monad #'rhs)]) #,(in-monad #'body)))]
+       (let ()
+         (define-values (rhs-k rhs-t) (in-monad/!tail #'rhs))
+         #`(bind ([x #,rhs-t])
+                 #,(in-monad (+ 1 k rhs-k) #'body)))]
       [(f x ...)
        (nmid? #'f)
-       (raise-syntax-error #f "non-monad returning function in a monad place" orig-stx #'f)]
+       (raise-syntax-error #f "non-monad returning function in a monad place"
+                           orig-stx #'f)]
       [(<== e)
-       (add+= (count-expr #'e) stx)]
+       (add+= (+ k (count-expr #'e)) stx)]
       [(f x ...)
        (identifier? #'f)
        (let ()
          (define extra
            (for/sum ([e (in-list (syntax->list #'(x ...)))])
-             (count-expr e)))
-         (add+= (+ extra 1) stx))]))
-  
+                    (count-expr e)))
+         (add+= (+ extra 1 k) stx))]))
+
+  (define (in-monad/!tail stx)
+    (syntax-case stx (match if bind => <==)
+      [(match t [ps => es] ...)
+       (raise-syntax-error #f "match must not occur in non-tail position"
+                           orig-stx stx)]
+      [(if tst thn els)
+       (raise-syntax-error #f "if must not occur in non-tail position"
+                           orig-stx stx)]
+      [(bind ([x rhs]) body)
+       (raise-syntax-error #f "bind must not occur in non-tail position"
+                           orig-stx stx)]
+      [(f x ...)
+       (nmid? #'f)
+       (raise-syntax-error #f "non-monad returning function in a monad place"
+                           orig-stx #'f)]
+      [(<== e)
+       (values (count-expr #'e) stx)]
+      [(f x ...)
+       (identifier? #'f)
+       (let ()
+         (define extra
+           (for/sum ([e (in-list (syntax->list #'(x ...)))])
+                    (count-expr e)))
+         (values (+ extra) stx))]))
+
   (define (count-expr stx)
     (syntax-case stx (match if bind => <==)
       [(match . whatever)
-       (raise-syntax-error #f "cannot count a `match' outside of the monad" orig-stx stx)]
+       (raise-syntax-error #f "cannot count a `match' outside of the monad"
+                           orig-stx stx)]
       [(if . whatever)
-       (raise-syntax-error #f "cannot count an `if' outside of the monad" orig-stx stx)]
+       (raise-syntax-error #f "cannot count an `if' outside of the monad"
+                           orig-stx stx)]
       [(bind . whatever)
-       (raise-syntax-error #f "found `bind' outside of the monad" orig-stx stx)]
+       (raise-syntax-error #f "found `bind' outside of the monad"
+                           orig-stx stx)]
       [(<== . whatever)
-       (raise-syntax-error #f "found `<==' outside of the monad" orig-stx stx)]
+       (raise-syntax-error #f "found `<==' outside of the monad"
+                           orig-stx stx)]
       [(f x ...)
        (identifier? #'f)
        (+ 1 (for/sum ([x (in-list (syntax->list #'(x ...)))])
-              (count-expr x)))]
+                     (count-expr x)))]
       [x
        (or (identifier? #'x)
            (number? (syntax-e #'x)))
        1]))
-  
+
   (define (check-match-pattern stx)
     (syntax-case stx (nil bt_mt)
       [nil
-       (raise-syntax-error #f "nil needs parens in a pattern position" orig-stx stx)]
+       (raise-syntax-error #f "nil needs parens in a pattern position"
+                           orig-stx stx)]
       [bt_mt
-       (raise-syntax-error #f "bt_mt needs parens in a pattern position" orig-stx stx)]
+       (raise-syntax-error #f "bt_mt needs parens in a pattern position"
+                           orig-stx stx)]
       [(id1 id2 ...)
        (and (identifier? #'id1)
             (andmap identifier? (syntax->list #'(id2 ...))))
@@ -181,13 +221,13 @@
        (identifier? #'id)]
       [_
        (raise-syntax-error #f "malformed pattern" orig-stx stx)]))
-  
+
   (define (add+= n e)
     (cond
       [(zero? n) e]
       [else #`(+= #,n #,e)]))
-  
-  (in-monad orig-stx))
+
+  (in-monad 0 orig-stx))
 
 (define-syntax-rule
   (+= k exp)
@@ -211,9 +251,9 @@
          (r:match x [test body] ...))]))
 
 (struct bt_mt-struct () #:transparent
-  #:methods gen:custom-write
-  [(define (write-proc val port mode)
-     (display "bt_mt" port))])
+        #:methods gen:custom-write
+        [(define (write-proc val port mode)
+           (display "bt_mt" port))])
 
 (define the-bt_mt (bt_mt-struct))
 

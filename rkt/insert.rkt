@@ -29,7 +29,8 @@ values: the result of the function and the step count.
 (still plenty of work to do here)
 |#
 
-(Fixpoint 
+
+(Fixpoint
  insert #:implicit @A{Set} @i{A} @b{@"@"bin_tree A}
  #:returns @{@"@"bin_tree A}
  (match b 

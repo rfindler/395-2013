@@ -33,9 +33,11 @@
        (out " ")
        (out (coq-arg-name i)))
      (out " res c !} :=")
-     (out-nl)
-     (out-exp body)
-     (out ".")
+     (indent
+      2
+      (out-nl)
+      (out-exp body)
+      (out "."))
      (out-nl)]))
 
 (define (out-exp exp)

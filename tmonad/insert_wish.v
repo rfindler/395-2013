@@ -1,12 +1,3 @@
-(*
-  This file represents my current state as far as using
-  the script to generate Coq code. The currently generated
-  obligations are problematic (hence the admits below).
-
-  I'm not sure if the fault is in the monad constructors
-  or in the generated code (or both).
-*)
-
 Require Import Braun.common.braun Braun.common.util Braun.common.same_structure.
 Require Import Braun.common.log Braun.logical.sequence Braun.logical.list_util.
 Require Import Braun.tmonad.monad.
@@ -35,15 +26,6 @@ Next Obligation.
   apply SR_singleton.
 Qed.
 
-Next Obligation.
-  remember True as T.
-  apply T.
-Qed.
-
-Next Obligation.
-  admit.
-Defined.
-
 Lemma same_tree_same_size :
   forall A (s:@bin_tree A) n m,
     Braun s n ->
@@ -56,5 +38,36 @@ Qed.
 Hint Rewrite same_tree_same_size.
 
 Next Obligation.
-  admit.
+  clear H1 xm.
+  rename H0 into IH.
+  unfold insert_result in *.
+
+  intros n B.
+
+  invclr B.
+  rename H2 into BP.
+  rename H4 into Bs.
+  rename H5 into Bt.
+
+  apply IH in Bt.
+  destruct Bt as [Bst [SRst EQ]].
+  subst xn.
+
+  repeat constructor.
+
+  (* braun *)
+  replace (S (s_size + t_size + 1)) with ((S t_size) + s_size + 1); try omega.
+  eapply B_node; auto; try omega.
+
+  (* correctness *)
+  intros xs SR.
+  invclr SR.
+  rename H3 into SRs.
+  rename H4 into SRt.
+  rewrite interleave_case2.
+  eapply SR_node; eauto.
+
+  (* running time*)
+  rewrite <- braun_invariant_implies_fl_log_property; auto.
+  omega.
 Qed.

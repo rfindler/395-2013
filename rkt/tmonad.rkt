@@ -23,7 +23,7 @@
   (syntax-case stx ()
     [(_ . e)
      (let ()
-       (define converted (add-plusses #'e))
+       (define converted (add-plusses/check-stx-errs #'e))
        #`(let-values ([(val time) #,converted])
            (printf "~a steps\n" time)
            val))]))
@@ -107,7 +107,7 @@
                              stx #'id))
        (define-values (racket-args coq-args coq-result)
          (parse-Fixpoint-args stx #'(args ...)))
-       (define exp (add-plusses #'body))
+       (define exp (add-plusses/check-stx-errs #'body))
        #`(begin 
            (module+ main
              (require "emit.rkt")
@@ -118,12 +118,14 @@
 ;; returns something with ret and inc annotations
 ;; (the lets are already the right binds)
 
-(define-for-syntax (add-plusses orig-stx)
+(define-for-syntax (add-plusses/check-stx-errs orig-stx)
   (define (in-monad stx)
     (syntax-case stx (match if bind => <==)
       [(match t [ps => es] ...)
        ;; destructuring matches are free
        (let ([inc (if (= 1 (length (syntax->list #'(ps ...)))) 0 1)])
+         (for ([p (in-list (syntax->list #'(ps ...)))])
+           (check-match-pattern p))
          (with-syntax ([(mes ...) (for/list ([e (in-list (syntax->list #'(es ...)))])
                                     (in-monad e))])
            (add+= (+ inc (count-expr #'t))
@@ -164,6 +166,21 @@
        (or (identifier? #'x)
            (number? (syntax-e #'x)))
        1]))
+  
+  (define (check-match-pattern stx)
+    (syntax-case stx (nil bt_mt)
+      [nil
+       (raise-syntax-error #f "nil needs parens in a pattern position" orig-stx stx)]
+      [bt_mt
+       (raise-syntax-error #f "bt_mt needs parens in a pattern position" orig-stx stx)]
+      [(id1 id2 ...)
+       (and (identifier? #'id1)
+            (andmap identifier? (syntax->list #'(id2 ...))))
+       (void)]
+      [id
+       (identifier? #'id)]
+      [_
+       (raise-syntax-error #f "malformed pattern" orig-stx stx)]))
   
   (define (add+= n e)
     (cond

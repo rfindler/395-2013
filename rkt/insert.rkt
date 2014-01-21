@@ -29,15 +29,11 @@ values: the result of the function and the step count.
 (still plenty of work to do here)
 |#
 
-
-;; TODO: Something is wrong because the bt_mt case matches everything
-;; on the Racket side. Not sure why. Leave it this way for now so
-;; the Coq side gets the right code.
 (Fixpoint 
  insert #:implicit @A{Set} @i{A} @b{@"@"bin_tree A}
  #:returns @{@"@"bin_tree A}
  (match b 
-   [bt_mt => (<== (bt_node i bt_mt bt_mt))]
+   [(bt_mt) => (<== (bt_node i bt_mt bt_mt))]
    [(bt_node j s t) 
     => 
     (bind ([bt (insert j t)])

@@ -5,7 +5,7 @@ MLS := $(VERSIONS:%=ml/%.ml)
 MLIS := $(VERSIONS:%=ml/%.mli)
 GEN_DEPS := rkt/emit.rkt rkt/tmonad.rkt
 
-all: coq $(BINS) tmonad-gen
+all: coq $(BINS)
 	@echo ""
 	@echo ""
 	@ ! grep -i admit $(VS)
@@ -24,7 +24,7 @@ tmonad-gen: tmonad/insert_gen.v # more generated files go here
 tmonad/insert_gen.v: rkt/insert.rkt $(GEN_DEPS)
 	racket rkt/insert.rkt > tmonad/insert_gen.v
 
-Makefile.coq: Makefile $(VS)
+Makefile.coq: tmonad-gen Makefile $(VS)
 	coq_makefile -R . Braun $(VS) -o Makefile.coq
 
 %.vo : coq

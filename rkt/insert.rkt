@@ -15,9 +15,10 @@ values: the result of the function and the step count.
 ;; An exp is one of:
 ;;  (match <exp> (<pat> => <exp) ...)
 ;;  (if <exp> <exp> <exp>)
-;;  (let ([<id> <exp>]) <exp>)
+;;  (bind ([<id> <exp>]) <exp>) -- bind in the monad
 ;;  (<mnid> <exp> ...)   -- call to a function that doesn't return something in the monad
 ;;  (<id> <exp> ...)     -- call to a function that returns        something in the monad
+;;  (<== <exp>)
 ;;  <id>
 ;;  <constant>
 
@@ -26,27 +27,21 @@ values: the result of the function and the step count.
 ;;  (<id> <id> ...)
 
 (still plenty of work to do here)
-
 |#
 
 
+;; TODO: Something is wrong because the bt_mt case matches everything
+;; on the Racket side. Not sure why. Leave it this way for now so
+;; the Coq side gets the right code.
 (Fixpoint 
- insert #:implicit A @i{A} @b{@"@"bin_tree A}
+ insert #:implicit @A{Set} @i{A} @b{@"@"bin_tree A}
  #:returns @{@"@"bin_tree A}
  (match b 
-   [bt_mt => (bt_node i bt_mt bt_mt)]
-   [(bt_node j s t) => (bt_node i (insert j t) s)]))
- 
-#|
-#;
-(Fixpoint
- make_array_naive #:implicit A @{}
- (match xs
-   [nil => bt_mt]
-   [(cons x xs′)
-    =>
-    (insert x (make_array_naive xs′))]))
-
+   [bt_mt => (<== (bt_node i bt_mt bt_mt))]
+   [(bt_node j s t) 
+    => 
+    (bind ([bt (insert j t)])
+      (<== (bt_node i bt s)))]))
 
 #;
 (out-exp 
@@ -61,4 +56,3 @@ values: the result of the function and the step count.
           (if (even_odd_dec n′)
               (pair (bt_node x s t) (bt_node x t t))
               (pair (bt_node x s s) (bt_node x s t)))]))]))
-|#

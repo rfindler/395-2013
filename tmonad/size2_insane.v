@@ -1,5 +1,12 @@
-Require Import Braun.common.braun Braun.common.log Braun.common.util Braun.common.log_sq.
-Require Import Braun.tmonad.monad Braun.tmonad.insert.
+(* This version aims be as faithful as possible to Chris's version of
+   the diff function. Specifically, Chris's text suggests that he
+   considers the first input to 'diff' to be always a Braun trees so
+   this insists on that in the type, and this function also has (as
+   close as we can get to) the same four cases as Chris's does.  *)
+
+Require Import Braun.common.braun Braun.common.log.
+Require Import Braun.common.util Braun.common.log_sq.  
+Require Import Braun.tmonad.monad Braun.tmonad.insert.  
 Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith.
 
 Set Implicit Arguments.
@@ -13,7 +20,7 @@ Program Fixpoint diff A
      /\ c = fl_log sm + sn !} :=
   match sb, sm with
     | bt_mt                , 0 => <== (exist _ 0 _)
-    | bt_mt                , S _ => _ (* Prove impossible later *)
+    | bt_mt                , S _ => False_rect _ _
     | bt_node x    _      _, 0 => ++; <== (exist _ 1 _)
     | bt_node x    s      t, (S m') =>
       if (even_odd_dec sm)
@@ -43,12 +50,10 @@ Qed.
 Next Obligation.
   rename wildcard' into m'.
   clear diff.
-  rename H0 into Bb.
+  rename H1 into Bb.
   rename H into Bsm.
+  rename H0 into Bn.
 
-  assert False; try tauto.
-  destruct Bb as [bn Bb].
-  invclr Bb.
   destruct Bsm as [Bsm|Bsm]; invclr Bsm.
 Defined.
 
@@ -116,6 +121,8 @@ worth it. *)
 Admit Obligations.
 
 Recursive Extraction diff.
+
+Print diff_func_obligation_3.
 
 Program Fixpoint size A (b : @bin_tree A) 
 : {! n !:! nat !<! c !>! 

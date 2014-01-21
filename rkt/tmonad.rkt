@@ -7,18 +7,23 @@
 (provide (rename-out [module-begin #%module-begin]
                      [top-interaction #%top-interaction])
          #%datum
+         #%app
          Fixpoint
          bt_mt
          bt_node
-         match if let =>
-         provide)
+         match bind let => <==
+         provide
+         require
+         cons
+         nil
+         pair)
 
 
 (define-syntax (top-interaction stx)
   (syntax-case stx ()
     [(_ . e)
      (let ()
-       (define converted (convert/check #'e))
+       (define converted (add-plusses #'e))
        #`(let-values ([(val time) #,converted])
            (printf "~a steps\n" time)
            val))]))
@@ -32,12 +37,13 @@
              (syntax-case arg ()
                [(id . whatever)
                 (ormap (λ (x) (free-identifier=? x #'id))
-                       (list #'Fixpoint #'provide))
+                       (list #'Fixpoint #'provide #'require))
                 arg]
                [_ #`(top-interaction . #,arg)])))]))
 
 (define-for-syntax (nmid? x)
-  (member x (syntax->list #'(pair bt_node cons)) free-identifier=?))
+  (and (identifier? x)
+       (member x (syntax->list #'(pair bt_node cons)) free-identifier=?)))
 
 (define-for-syntax (parse-Fixpoint-arg stx arg implicit?)
   (syntax-case arg ()
@@ -92,15 +98,6 @@
     [()
      (raise-syntax-error #f "didn't find #:returns keyword" stx)])))
 
-(define-for-syntax (convert/check exp)
-  ;;; need to add checking code
-  (to-monad (anorm exp)))
-
-(define-syntax (convert/check-exp stx)
-  (syntax-case stx ()
-    [(_ exp)
-     (convert/check #'exp)]))
-
 (define-syntax (Fixpoint stx)
   (syntax-case stx ()
     [(_ id args ... body)
@@ -110,118 +107,73 @@
                              stx #'id))
        (define-values (racket-args coq-args coq-result)
          (parse-Fixpoint-args stx #'(args ...)))
-       (define exp (convert/check #'body))
+       (define exp (add-plusses #'body))
        #`(begin 
            (module+ main
              (require "emit.rkt")
              (out-Fp (Fp 'id (list #,@coq-args) #,coq-result '#,exp)))
            (define (id #,@racket-args) #,exp)))]))
 
-(define-for-syntax (anorm exp)
-  (struct mtch-ctxt (pats exps k))
-  (struct if-ctxt (thn els k))
-  (struct let-ctxt (x body k))
-  (struct app-ctxt (f before after k))
-  
-  (define (find exp k)
-    (syntax-case exp (=> match if let)
-      [(match test [pats => exps] ...)
-       (find #'test (mtch-ctxt #'(pats ...) #'(exps ...) k))]
-      [(if test thn els)
-       (find #'test (if-ctxt #'thn #'els k))]
-      [(let ([x rhs]) body)
-       (find #'rhs (let-ctxt #'x #'body k))]
-      [(f arg1 args ...)
-       (find #'arg1 (app-ctxt #'f '() (syntax->list #'(args ...)) k))]
-      [_
-       (or (identifier? exp)
-           (number? (syntax-e exp)))
-       (fill exp k)]
-      [_
-       (error 'find "got bad input: ~s" (syntax->datum exp))]))
-  
-  (define (fill d k)
-    (match k
-      [#f 
-       ;; we could just return 'd' here, but
-       ;; we always introduce another 'bind' so 
-       ;; that Program has one more place to insert
-       ;; invariants
-       (maybe-let d (λ (id) id))]
-      [(mtch-ctxt pats exps k)
-       (maybe-let
-        d
-        (λ (id)
-          (with-syntax ([(f-exps ...) 
-                         (for/list ([exp (in-list (syntax->list exps))])
-                           (find exp k))]
-                        [(pats ...) pats])
-          #`(match #,id
-              [pats => f-exps] ...))))]
-      [(if-ctxt thn els k)
-       (maybe-let
-        d
-        (λ (id)
-          #`(if #,id #,(find thn k) #,(find els k))))]
-      [(let-ctxt x body k)
-       #`(let ([#,x #,d])
-           #,(find body x))]
-      [(app-ctxt f before '() k)
-       (maybe-let 
-        d
-        (λ (id)
-          (fill #`(#,f #,@(reverse before) #,id) k)))]
-      [(app-ctxt f before (cons fst rst) k)
-       (maybe-let 
-        d
-        (λ (id)
-          (find fst (app-ctxt f (cons id before) rst k))))]))
-  
-  (define (maybe-let d/x f)
-    (cond
-      [(or (identifier? d/x)
-           (number? (syntax-e d/x)))
-       (f d/x)]
-      [else
-       (with-syntax ([(var) (generate-temporaries '(anorm))])
-         #`(let ([var #,d/x])
-             #,(f #'var)))]))
-  
-  (find exp #f))
-
 ;; expects an anormalized <exp> as input
 ;; returns something with ret and inc annotations
 ;; (the lets are already the right binds)
 
-(define-for-syntax (to-monad exp)
-  (let loop ([exp exp]
-             [c 0])
-    (syntax-case exp (match if let =>)
+(define-for-syntax (add-plusses orig-stx)
+  (define (in-monad stx)
+    (syntax-case stx (match if bind => <==)
       [(match t [ps => es] ...)
        ;; destructuring matches are free
        (let ([inc (if (= 1 (length (syntax->list #'(ps ...)))) 0 1)])
          (with-syntax ([(mes ...) (for/list ([e (in-list (syntax->list #'(es ...)))])
-                                    (loop e (+ c inc)))])
-           #`(match t [ps => mes] ...)))]
-      [(if x t e)
-       #`(if x #,(loop #'t (+ c 1)) #,(loop #'e (+ c 1)))]
-      [(let ([y (f x ...)]) b)
-       (with-syntax ([wrapped-app
-                      (if (nmid? #'f)
-                          #'(<== (f x ...))
-                          #'(f x ...))])
-         #`(bind ([y wrapped-app])
-             #,(loop #'b (+ c 1))))]
-      [(f x ...) 
-       (if (nmid? #'f)
-           #`(++ #,(+ c 1) (<== (f x ...)))
-           #`(++ #,(+ c 1) (f x ...)))]
-      [x/v
-       (or (identifier? #'x/v) (number? (syntax-e #'x/v)))
-       #`(++ #,c (<== x/v))])))
+                                    (in-monad e))])
+           (add+= (+ inc (count-expr #'t))
+                  #`(match t [ps => mes] ...))))]
+      [(if tst thn els)
+       (add+= (+ 1 (count-expr #'tst))
+              #`(if tst #,(in-monad #'thn) #,(in-monad #'els)))]
+      [(bind ([x rhs]) body)
+       (add+= 1 #`(bind ([x #,(in-monad #'rhs)]) #,(in-monad #'body)))]
+      [(f x ...)
+       (nmid? #'f)
+       (raise-syntax-error #f "non-monad returning function in a monad place" orig-stx #'f)]
+      [(<== e)
+       (add+= (count-expr #'e) stx)]
+      [(f x ...)
+       (identifier? #'f)
+       (let ()
+         (define extra
+           (for/sum ([e (in-list (syntax->list #'(x ...)))])
+             (count-expr e)))
+         (add+= (+ extra 1) stx))]))
+  
+  (define (count-expr stx)
+    (syntax-case stx (match if bind => <==)
+      [(match . whatever)
+       (raise-syntax-error #f "cannot count a `match' outside of the monad" orig-stx stx)]
+      [(if . whatever)
+       (raise-syntax-error #f "cannot count an `if' outside of the monad" orig-stx stx)]
+      [(bind . whatever)
+       (raise-syntax-error #f "found `bind' outside of the monad" orig-stx stx)]
+      [(<== . whatever)
+       (raise-syntax-error #f "found `<==' outside of the monad" orig-stx stx)]
+      [(f x ...)
+       (identifier? #'f)
+       (+ 1 (for/sum ([x (in-list (syntax->list #'(x ...)))])
+              (count-expr x)))]
+      [x
+       (or (identifier? #'x)
+           (number? (syntax-e #'x)))
+       1]))
+  
+  (define (add+= n e)
+    (cond
+      [(zero? n) e]
+      [else #`(+= #,n #,e)]))
+  
+  (in-monad orig-stx))
 
 (define-syntax-rule
-  (++ k exp)
+  (+= k exp)
   (let-values ([(val time) exp])
     (values val (+ time k))))
 
@@ -238,15 +190,19 @@
 (define-syntax (match stx)
   (syntax-case stx (=>)
     [(_ expr [test => body] ...)
-     #'(r:match expr [test body] ...)]))
+     #'(let ([x expr])
+         (r:match x [test body] ...))]))
 
-(define bt_mt 
-  (cond
-    [else
-     (struct bt_mt () #:transparent
-       #:methods gen:custom-write
-       [(define (write-proc val port mode)
-          (display "bt_mt" port))])
-     (bt_mt)]))
+(struct bt_mt-struct () #:transparent
+  #:methods gen:custom-write
+  [(define (write-proc val port mode)
+     (display "bt_mt" port))])
+
+(define the-bt_mt (bt_mt-struct))
 
 (struct bt_node (val left right) #:transparent)
+
+(r:define-match-expander nil (λ (stx) #''()) (λ (stx) #''()))
+(r:define-match-expander bt_mt (λ (stx) #'(bt_mt-struct)) (λ (stx) #'the-bt_mt))
+
+(struct pair (l r) #:transparent)

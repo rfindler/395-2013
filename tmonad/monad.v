@@ -9,7 +9,7 @@ Proof.
 Defined.
 
 Definition bind (A:Set) (B:Set)
-           (PA:A -> nat -> Prop) (PAB:A -> B -> nat -> Prop)
+           (PA:A -> nat -> Prop) (PAB: A -> B -> nat -> Prop)
            (xm:C A PA) 
            (yf:forall x (xm:exists n, PA x n),
                  C B 
@@ -39,8 +39,29 @@ Proof.
   apply Px.
 Defined.
 
+(* this seems like it could replace inc, except
+   that various hypotheses in various places get
+   different names. So I just make a second 'inc'
+   here for now with the plan to fix the other places
+   when this turns out to actually work for insert.
+*)
+Definition inc2 (A:Set) 
+           k
+           (PA : A -> nat -> Prop)
+           (x:C A (fun x xn => forall xm, xn + k = xm -> PA x xm))
+: C A PA.
+Proof.
+  destruct x as [x Px].
+  exists x.
+  destruct Px as [n Px].
+  exists (n + k).
+  apply Px.
+  reflexivity.
+Defined.
+
 Notation "<== x" := (ret _ _ x _) (at level 55).
 Notation "++ ; c" := (inc _ _ c) (at level 30, right associativity).
+Notation "+= k ; c" := (inc2 _ k _ c) (at level 30, right associativity).
 Notation "x <- y ; z" := (bind _ _ _ (fun _ _ => _) y (fun (x : _) (xm : _) => z) ) (at level 30, right associativity).
 Notation "x >>= y" := (bind _ _ _ (fun _ _ => _) x y) (at level 55).
 Notation "x >> y" := (bind _ _ _ (fun _ => _) x (fun _ => y)) (at level 30, right associativity).

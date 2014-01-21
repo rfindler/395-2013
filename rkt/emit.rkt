@@ -84,11 +84,10 @@
      [`(<== ,e)
       (out "<== ")
       (indent 4 (out-exp e))]
-     [`(++ ,k ,e)
-      (for ([x (in-range k)]
-            [i (in-naturals)])
-        (unless (zero? i) (out " "))
-        (out "++;"))
+     [`(+= ,k ,e)
+      (out "+= ")
+      (out k)
+      (out "; ")
       (out-nl)
       (out-exp e)]
      [`(,(? symbol? fn) ,args ...)

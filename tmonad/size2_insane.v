@@ -113,16 +113,13 @@ Next Obligation.
   destruct CASES as [EQ'|EQ']; [rewrite EQ' in *|rewrite <- EQ']; auto.
 Qed.
 
-Obligations.
-
 (* At this point, it is clearly do-able... but I don't think it is
 worth it. *)
 
 Admit Obligations.
 
-Recursive Extraction diff.
-
-Print diff_func_obligation_3.
+(* Recursive Extraction diff. *)
+(* Print diff_func_obligation_3. *)
 
 Program Fixpoint size A (b : @bin_tree A) 
 : {! n !:! nat !<! c !>! 

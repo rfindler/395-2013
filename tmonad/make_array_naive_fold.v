@@ -48,6 +48,9 @@ Section make_array_naive.
   Qed.
 End make_array_naive.
 
+(*
 Extraction Inline ret bind inc.
 (* Almost perfectly matches the paper *)
 Recursive Extraction make_array_naive.
+
+*)

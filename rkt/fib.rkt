@@ -120,7 +120,11 @@ odd n  -> rtcf n <= g n
       (lines 
        #:color 'purple
        (for/list ([n (in-range upper-bound)])
-         (vector n (* 6 (fib (cl_log n))))))
+         (vector n (* 5.5 (fib (cl_log n))))))
+      (lines 
+       #:color 'purple
+       (for/list ([n (in-range upper-bound)])
+         (vector n (* 3.5 (fib (cl_log n))))))
       (points
        #:color 'blue
        (for/list ([n (in-range upper-bound)]

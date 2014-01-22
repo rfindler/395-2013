@@ -444,6 +444,108 @@ Qed.
     simpl; omega.
   Qed.
 
+  Lemma ind_0_1_doubles :
+  forall P:nat -> Prop,
+    P 0 -> P 1 -> 
+    (forall (n:nat), P n -> (P (double n) /\ P (1 + double n)))
+    -> forall n, P n.
+  Proof.
+    intros P P0 P1 IH.
+    apply (well_founded_induction lt_wf).
+    intros N NH.
+    destruct N; [auto|].
+    assert (P (div2 (S N))) as Pd2.
+    apply NH; intuition.
+    apply IH in Pd2.
+    remember (S N) as m.
+    assert (even m \/ odd m) as EO; [apply even_or_odd|].
+    assert ((even m <-> m = double (div2 m)) /\
+            (odd m <-> m = S (double (div2 m)))) as EOD;
+      [apply even_odd_double|].
+    invclr EOD.
+    invclr H.
+    invclr H0;
+    invclr EO.
+    apply H1 in H0;
+    rewrite <- H0 in Pd2; intuition.
+    apply H in H0.
+    replace (1 + double (div2 (S N))) with (S (double (div2 (S N)))) in Pd2;
+      try omega.
+    rewrite <- H0 in Pd2; intuition.
+  Qed.  
+
+  Lemma ind_0_1_div2 :
+    forall P:nat -> Prop,
+    P 0 -> P 1 -> 
+    (forall (n:nat), (P (div2 n) /\ P (div2 (n - 1))) -> (P n))
+    -> forall n, P n.
+  Proof.
+    intros P P0 P1 IH.
+    apply (well_founded_induction lt_wf).
+    intros N NH.
+    destruct N as [|N]; [auto|].
+    destruct N as [|N]; [auto|].
+    assert (P (div2 (S (S N))) /\ P (div2 ((S (S N)) - 1))) as Pd2.
+    split; apply NH; intuition.
+    apply IH in Pd2; auto.
+  Qed.  
+
+  Lemma g_2_3 : forall n, n <> 0 -> 3 * g n < 2 * g (double n).
+  Admitted.
+
+  Lemma f_2_3 : forall n, n <> 0 -> 3 * f n < 2 * f (double n).
+  Admitted.
+
+  Lemma g_5_3 : forall n, n <> 0 -> 5 * g n > 3 * g (double n).
+  Admitted.
+
+  Lemma f_5_3 : forall n, n <> 0 -> 5 * f n < 3 * f (double n).
+  Admitted.
+
+
+  Lemma ratios_ab : forall a b A B, a < b 
+                                    -> 3*a < 2*A < 4*a 
+                                    -> 3*b < 2*B < 4*b
+                                    -> A < B.
+    intros. 
+
+  Lemma fg_lt_fiblog : forall n, n > 0 ->
+                                 (f n < 6 * fib_log n /\  g n < 4 * fib_log n).
+  Proof.
+    apply (ind_0_1_div2
+             (fun n => n > 0 -> f n < 6 * fib_log n /\ g n < 4 * fib_log n)).
+    intros. intuition.
+    intros. compute. omega.
+    intros n IH N0.
+    invclr IH.
+    rename H into nH.
+    rename H0 into nmH.
+    destruct n as [|n]; [intuition|].
+    destruct n as [|n]. compute. omega.
+    destruct n as [|n]; [intuition|].
+    destruct n as [|n]. compute. omega.
+    remember (div2 (S (S (S (S n))))) as p.
+    assert (p > 0) as N02. subst. simpl. omega.
+    subst.
+    apply nH in N02.
+    (* a < b -> 3 a < 2 A -> 3 b < 2 B -> A < B *)
+
+    unfold f; unfold fib_log.
+    split. subst.
+    unfold_sub h (h (f_arg (S (S (S (S n)))))).   
+    unfold_sub cl_log (cl_log (S (S (S (S n))))).
+    remember (S (S (div2 n))) as p.
+    assert ((S (S (div2 n))) = (div2 (S (S (S (S n)))))) as EQ; [intuition|].
+    rewrite <- EQ in nH.
+    apply lt_trans with (m := 9 * fib (cl_log p)).
+    
+
+    
+
+    Focus 2.
+    unfold g.
+    unfold_sub h (h (g_arg (S (S (S (S n)))))).   
+    unfold_sub cl_log (cl_log (S (S (S (S n))))).
 
   Hint Resolve g_lt_f.
 

@@ -10,4 +10,5 @@
    [(cons x xs′)
     =>
     (bind ([bt (make_array_naive xs′)])
-      (insert x bt))]))
+          (bind ([ir (insert x bt)])
+                (<== ir)))]))

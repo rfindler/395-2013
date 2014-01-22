@@ -166,11 +166,8 @@
        (add+= (+ k (count-expr #'e)) stx)]
       [(f x ...)
        (identifier? #'f)
-       (let ()
-         (define extra
-           (for/sum ([e (in-list (syntax->list #'(x ...)))])
-                    (count-expr e)))
-         (add+= (+ extra 1 k) stx))]))
+       (raise-syntax-error #f "calls to functions must be bound in binds"
+                           orig-stx stx)]))
 
   (define (in-monad/!tail stx)
     (syntax-case stx (match if bind => <==)

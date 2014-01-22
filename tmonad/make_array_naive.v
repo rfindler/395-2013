@@ -12,7 +12,7 @@ Require Import Arith Arith.Even Arith.Div2 Omega.
 Fixpoint man_time' n : nat :=
   match n with
     | 0 => 3
-    | S n' => man_time' n' + 7 * (fl_log n') + 11
+    | S n' => man_time' n' + 9 * (fl_log n') + 14
   end.
 
 Definition make_array_naive_result (A:Set) (xs:list A) (b : @bin_tree A) c :=
@@ -26,25 +26,28 @@ Load "make_array_naive_gen.v".
 
 Next Obligation.
 Proof.
-  rename H into MANRxm.
+  rename H3 into MANRxs'.
+  rename H1 into MANRxs''.
+  rename H2 into IRbt.
+  rename H0 into IRbt'.
 
-  exists (7 * fl_log (length xs') + 4).
-  intros xm0 Heqxm0; subst xm0.
-  intros xn MANRxn.
+  destruct MANRxs' as [BTbt [EQxm SRbt]].
+  destruct MANRxs'' as [JUNK [EQxn0 JUNK']].
+  clear JUNK JUNK'.
 
-  unfold proj1_sig.
-  destruct (insert x bt) as [bt' [n IR]].
-  unfold make_array_naive_result in *.
-  destruct MANRxm as [Bbt [XMeqn SRBt]].
+  unfold insert_result in *.
+  remember (IRbt (length xs') BTbt) as ONE; clear HeqONE IRbt.
+  destruct ONE as [BRir [SRimpl EQxm0]].
 
-  unfold insert_result in IR.
-  remember (IR (length xs') Bbt) as Q. 
-  clear IR HeqQ.
-  destruct Q as [Bbt' [SRinsert Neq]].
+  remember (IRbt' (length xs') BTbt) as TWO; clear HeqTWO IRbt'.
+  destruct TWO as [JUNK [JUNK' EQxn]].
+  clear JUNK JUNK'.
 
-  repeat split;auto.
+  replace xm0 with xn in *; try omega.
+  replace xn0 with xm in *; try omega.
 
-  subst xm.
+  repeat split; auto.
+  subst.
   simpl.
   omega.
 Qed.

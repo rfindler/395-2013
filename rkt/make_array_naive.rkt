@@ -1,12 +1,9 @@
 #lang at-exp s-exp "tmonad.rkt"
 
-;; this is broken in strange ways
-;; 1) switching the order of the cases doesn't work.
-
 (require "insert.rkt")
 
 (Fixpoint
- make_array_naive #:implicit A @xs{list A}
+ make_array_naive #:implicit @A{Set} @xs{list A}
  #:returns @{@"@"bin_tree A}
  (match xs
    [(nil) => (<== bt_mt)]

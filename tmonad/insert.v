@@ -4,27 +4,19 @@ Require Import Braun.tmonad.monad.
 Require Import Program.
 Require Import Omega.
 
-Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A)
-: {! b' !:! (@bin_tree A) !<! c !>!
+Definition insert_result (A : Set) (i : A) (b:@bin_tree A)
+           (b':@bin_tree A) c :=
      (forall n,
         Braun b n ->
         (Braun b' (S n) /\
          (forall xs, SequenceR b xs -> SequenceR b' (i::xs)) /\
-         c = 3 * fl_log n + 2)) !} :=
-(match b with
-   | bt_mt => 
-     (++; ++;
-      (<== (bt_node i bt_mt bt_mt)))
-   | bt_node j s t => 
-     (x3 <- (insert j t);
-      (++; ++; ++;
-       (<== (bt_node i x3 s))))
- end).
+         c = 9 * fl_log n + 6)).
 
+Load "insert_gen.v".
 
 Next Obligation.
-  rename H into B.
-
+  unfold insert_result.
+  intros n B.
   invclr B.
   repeat constructor; auto.
 
@@ -46,13 +38,16 @@ Qed.
 Hint Rewrite same_tree_same_size.
 
 Next Obligation.
-  rename H into IH.
-  rename H0 into B.
+  clear H1 xm.
+  rename H0 into IH.
+  unfold insert_result in *.
+
+  intros n B.
 
   invclr B.
-  rename H3 into BP.
-  rename H5 into Bs.
-  rename H6 into Bt.
+  rename H2 into BP.
+  rename H4 into Bs.
+  rename H5 into Bt.
 
   apply IH in Bt.
   destruct Bt as [Bst [SRst EQ]].
@@ -66,9 +61,9 @@ Next Obligation.
 
   (* correctness *)
   intros xs SR.
-  invclr SR. 
-  rename H4 into SRs.
-  rename H5 into SRt.
+  invclr SR.
+  rename H3 into SRs.
+  rename H4 into SRt.
   rewrite interleave_case2.
   eapply SR_node; eauto.
 

@@ -9,59 +9,50 @@ Require Import Braun.common.util.
 Require Import Braun.common.log Braun.common.le_util.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 
-Section make_array_naive.
-  Variable A : Set.
+Fixpoint man_time' n : nat :=
+  match n with
+    | 0 => 3
+    | S n' => man_time' n' + 7 * (fl_log n') + 11
+  end.
 
-  Fixpoint man_time' n : nat :=
-    match n with
-      | 0 => 1
-      | S n' => man_time' n' + 3 * (fl_log n') + 5
-    end.
+Definition make_array_naive_result (A:Set) (xs:list A) (b : @bin_tree A) c :=
+  let n := length xs in
+  Braun b n
+  /\ c = man_time' n
+  /\ SequenceR b xs.
+Hint Unfold make_array_naive_result.
 
-  Program Fixpoint make_array_naive xs : 
-    {! b !:! @bin_tree A
-       !<! c !>!
-       let n := length xs in
-       Braun b n
-       /\ c = man_time' n
-       /\ SequenceR b xs !} :=
-(match xs with
-   | nil => 
-     (++;
-      (<== bt_mt))
-   | cons x xs' => 
-     (anorm5 <- (make_array_naive xs');
-      (anorm6 <- (insert x anorm5);
-       (++; ++; ++;
-        (<== anorm6))))
- end).
+Load "make_array_naive_gen.v".
 
-  Obligation Tactic := auto.
-  Next Obligation.
-  Proof.
-    intros xs x xs' Heqxs; subst xs.
-    intros bt.
-    intros [n [Bb [Heqn Sb]]].
-    subst n.
-    intros bt'.
-    intros junk; clear junk.
-    intros xn IH. 
-    intros xn0.
-    intros [Bbt [Heqxn0 Sbt]].
-    subst xn0.
-    intros n; subst n.
+Next Obligation.
+Proof.
+  rename H into MANRxm.
 
-    remember (IH (length xs') Bb) as CONJ.
-    clear HeqCONJ.
-    destruct CONJ as [Bbt' [SR_IND Heqxn]].
+  exists (7 * fl_log (length xs') + 4).
+  intros xm0 Heqxm0; subst xm0.
+  intros xn MANRxn.
 
-    repeat constructor; auto.
+  unfold proj1_sig.
+  destruct (insert x bt) as [bt' [n IR]].
+  unfold make_array_naive_result in *.
+  destruct MANRxm as [Bbt [XMeqn SRBt]].
 
-    subst xn.
-    simpl.
-    omega.
-  Qed.
+  unfold insert_result in IR.
+  remember (IR (length xs') Bbt) as Q. 
+  clear IR HeqQ.
+  destruct Q as [Bbt' [SRinsert Neq]].
 
+  repeat split;auto.
+
+  subst xm.
+  simpl.
+  omega.
+Qed.
+
+(*
+
+This is a start on the proof of big_oh(nlogn) for the
+old version of man_time'.
 
   Lemma man_time'_nlogn_helper : 
     forall n,
@@ -134,5 +125,4 @@ Section make_array_naive.
     
     unfold mult; fold mult; omega.
 Qed.
-
-End make_array_naive.
+*)

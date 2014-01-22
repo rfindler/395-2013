@@ -5,18 +5,14 @@ Require Import Omega.
 Section size_linear.
   Variable A : Set.
 
-  Program Fixpoint size_linear (bt : @bin_tree A) : 
-    {! n !:! nat !<! c !>!
-       n = c /\ (forall m, Braun bt m -> m = n) !} :=
-    match bt with
-      | bt_mt =>
-        <== 0
-      | bt_node x l r =>
-        ++ ;
-          lsize <- size_linear l;
-          rsize <- size_linear r;
-          <== lsize + rsize + 1
-    end.
+  Definition size_linear_result (bt : @bin_tree A) (n:nat) c := 
+       n = c /\ (forall m, Braun bt m -> m = n).
+
+  Load "size_linear_gen.v".
+
+  Admit Obligations.
+
+(*
   Next Obligation.
   Proof.
     split; [auto |].
@@ -24,11 +20,13 @@ Section size_linear.
     invclr B.
     auto.
   Qed.
+
   Next Obligation.
+  Proof.
     split; [omega|].
-    intros m B. invclr B.
-    apply H1 in H8.
-    apply H2 in H9.
-    subst. auto.
+    intros m B. 
+    invclr B.
+    auto.
   Qed.
+*)
 End size_linear.

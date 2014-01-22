@@ -19,7 +19,8 @@
          pair
          even_odd_dec
          div2
-         (rename-out [-:nat -]))
+         (rename-out [-:nat -])
+         +)
 
 
 (define-syntax (top-interaction stx)

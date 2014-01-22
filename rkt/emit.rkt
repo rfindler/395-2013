@@ -96,12 +96,13 @@
       (out "; ")
       (out-nl)
       (out-exp e)]
-     [`(,(? infixop? fn) ,a1 ,a2)
-      (out-exp a1)
-      (out " ")
-      (out fn)
-      (out " ")
-      (out-exp a2)]
+     [`(,(? infixop? fn) ,arg1 ,args ...)
+      (out-exp arg1)
+      (for ([arg (in-list args)])
+        (out " ")
+        (out fn)
+        (out " ")
+        (out-exp arg))]
      [`(,(? symbol? fn) ,args ...)
       (out fn)
       (for ([arg (in-list args)])
@@ -111,7 +112,7 @@
 
 (define (infixop? x) (member x '(- +)))
 (define (compound-expression? exp) (pair? exp))
-(define (simple? exp) (symbol? exp))
+(define (simple? exp) (or (symbol? exp) (number? exp)))
 (define (out-id id)
   (out (string->symbol (regexp-replace* #rx"′" (symbol->string id) "'"))))
 (define (out-const n) (out n))

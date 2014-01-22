@@ -11,16 +11,20 @@
   (out "(* this file was generated automatically *)")
   (out-nl))
 
-(struct Fp (name args result body))
+(struct Fp (name args measure result body))
 (struct coq-arg (name string))
 (define (out-Fp an-Fp)
   (match an-Fp
-    [(Fp id args result body)
+    [(Fp id args measure result body)
      (out "Program Fixpoint ")
      (out id)
      (for ([arg (in-list args)])
        (out " ")
        (out (coq-arg-string arg)))
+     (when measure
+       (out " {measure ")
+       (out measure)
+       (out "}"))
      (out-nl)
      (out ": {! res !:! ")
      (out result)
@@ -92,6 +96,12 @@
       (out "; ")
       (out-nl)
       (out-exp e)]
+     [`(,(? infixop? fn) ,a1 ,a2)
+      (out-exp a1)
+      (out " ")
+      (out fn)
+      (out " ")
+      (out-exp a2)]
      [`(,(? symbol? fn) ,args ...)
       (out fn)
       (for ([arg (in-list args)])
@@ -99,6 +109,7 @@
         (out-exp arg))]))
   (unless (simple? exp) (out ")")))
 
+(define (infixop? x) (member x '(- +)))
 (define (compound-expression? exp) (pair? exp))
 (define (simple? exp) (symbol? exp))
 (define (out-id id)

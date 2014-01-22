@@ -11,12 +11,15 @@
          Fixpoint
          bt_mt
          bt_node
-         match bind let => <==
+         match if bind let => <==
          provide
          require
          cons
          nil
-         pair)
+         pair
+         even_odd_dec
+         div2
+         (rename-out [-:nat -]))
 
 
 (define-syntax (top-interaction stx)
@@ -75,26 +78,33 @@
 (define-for-syntax (parse-Fixpoint-args stx args)
   (let loop ([args args]
              [racket-args '()]
-             [coq-args '()])
+             [coq-args '()]
+             [measure #f])
     (syntax-case args ()
       [(#:implicit arg . args)
        (let ()
          (define-values (racket-arg coq-arg) (parse-Fixpoint-arg stx #'arg #t))
-         (loop #'args racket-args (cons coq-arg coq-args)))]
+         (loop #'args racket-args (cons coq-arg coq-args) measure))]
+      [(#:measure id . args)
+       (begin
+         (unless (identifier? #'id)
+           (raise-syntax-error #f "expected an identifier for the measure argument"))
+         (loop #'args racket-args coq-args #'id))]
       [(#:returns result)
        (let ()
          (define res-strs (syntax->list #'result))
          (unless res-strs (raise-syntax-error #f "expected a sequence of strings" stx #'result))
          (values (reverse racket-args)
                  (reverse coq-args)
-                 (apply string-append (map syntax-e res-strs))))]
+                 (apply string-append (map syntax-e res-strs))
+                 measure))]
       [(kw . args)
        (keyword? (syntax-e #'kw))
        (raise-syntax-error #f "unexpected keyword" stx #'kw)]
       [(arg . args)
        (let ()
          (define-values (racket-arg coq-arg) (parse-Fixpoint-arg stx #'arg #f))
-         (loop #'args (cons racket-arg racket-args) (cons coq-arg coq-args)))]
+         (loop #'args (cons racket-arg racket-args) (cons coq-arg coq-args) measure))]
       [()
        (raise-syntax-error #f "didn't find #:returns keyword" stx)])))
 
@@ -105,18 +115,16 @@
        (unless (identifier? #'id)
          (raise-syntax-error 'Fixpoint "expected identifier"
                              stx #'id))
-       (define-values (racket-args coq-args coq-result)
+       (define-values (racket-args coq-args coq-result measure)
          (parse-Fixpoint-args stx #'(args ...)))
        (define exp (add-plusses/check-stx-errs #'body))
        #`(begin
            (module+ main
              (require "emit.rkt")
-             (out-Fp (Fp 'id (list #,@coq-args) #,coq-result '#,exp)))
-           (define (id #,@racket-args) #,exp)))]))
-
-;; expects an anormalized <exp> as input
-;; returns something with ret and inc annotations
-;; (the lets are already the right binds)
+             (out-Fp (Fp 'id (list #,@coq-args) '#,measure #,coq-result '#,exp)))
+           (define (id #,@racket-args)
+             (begin #,measure
+                    #,exp))))]))
 
 (define-for-syntax (add-plusses/check-stx-errs orig-stx)
   (define (in-monad k stx)
@@ -132,17 +140,23 @@
                (for/list ([e (in-list (syntax->list #'(es ...)))])
                  (in-monad (+ k addl-k) e))])
            #`(match t [ps => mes] ...)))]
+      [(match . args)
+       (raise-syntax-error #f "malformed match" orig-stx stx)]
       [(if tst thn els)
        (let ()
          (define addl-k (+ 1 (count-expr #'tst)))
          #`(if tst
              #,(in-monad (+ k addl-k) #'thn)
              #,(in-monad (+ k addl-k) #'els)))]
+      [(if . args)
+       (raise-syntax-error #f "malformed if" orig-stx stx)]
       [(bind ([x rhs]) body)
        (let ()
          (define-values (rhs-k rhs-t) (in-monad/!tail #'rhs))
          #`(bind ([x #,rhs-t])
                  #,(in-monad (+ 1 k rhs-k) #'body)))]
+      [(bind . args)
+       (raise-syntax-error #f "malformed bind" orig-stx stx)]
       [(f x ...)
        (nmid? #'f)
        (raise-syntax-error #f "non-monad returning function in a monad place"
@@ -263,3 +277,12 @@
 (r:define-match-expander bt_mt (λ (stx) #'(bt_mt-struct)) (λ (stx) #'the-bt_mt))
 
 (struct pair (l r) #:transparent)
+
+(define (even_odd_dec n) (even? n))
+(define (div2 n) (floor (/ n 2)))
+
+(define (-:nat n m) 
+  (define ans (- n m))
+  (when (negative? ans)
+    (error '- "negative result, ~a - ~a = ~a" n m ans))
+  ans)

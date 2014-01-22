@@ -11,7 +11,6 @@ Set Implicit Arguments.
 Section copy_fib.
 
   Variable A : Set.
-  Variable x : A.
 
   Program Fixpoint fib (n : nat) {measure n} : nat :=
     match n with
@@ -164,7 +163,7 @@ Section copy_fib.
   Lemma rtcf_div2_le : forall (n : nat), (rt_copy_fib (div2 n)) <= rt_copy_fib n.
   Proof.
     apply (well_founded_induction lt_wf).
-    intros.
+    intros x0 H.
     unfold_sub rt_copy_fib (rt_copy_fib x0);
       destruct x0 as [|n']; 
       try destruct (even_odd_dec (S n'));
@@ -175,7 +174,7 @@ Section copy_fib.
   Lemma rtcf_div2_S_lt : forall (n : nat), (rt_copy_fib (div2 (S n))) < rt_copy_fib (S n).
   Proof.
     apply (well_founded_induction lt_wf).
-    intros.
+    intros x0 H.
     unfold_sub rt_copy_fib (rt_copy_fib (S x0));
     destruct (even_odd_dec (S x0));
     repeat fold_sub rt_copy_fib;
@@ -190,7 +189,7 @@ Section copy_fib.
                                   (fun (n : nat) =>
                                      even (S n) ->
                                      rt_copy_fib (div2 (S n)) + rt_copy_fib (div2 n) < rt_copy_fib (S n))).
-    intros.
+    intros x0 H.
     unfold_sub rt_copy_fib (rt_copy_fib (S x0));
     destruct (even_odd_dec (S x0));
     repeat fold_sub rt_copy_fib;
@@ -211,7 +210,7 @@ Qed.
     apply (well_founded_induction lt_wf
                                   (fun (n : nat) =>
                                      cl_log (S (div2 n)) < cl_log (S (S n)))).
-    intros. 
+    intros x0 H. 
     unfold_sub cl_log (cl_log (S (S x0))). omega.
   Qed.
 
@@ -482,23 +481,16 @@ true only in the limit, so now I am really stuck.
 
   Qed.    
 
-    
-
-  Program Fixpoint copy_fib (n : nat) {measure n}
-  : {! t !:! bin_tree !<! c !>!
+  Definition copy_fib_result (x : A) (n : nat) (t : bin_tree) (c : nat) :=
      Braun t n /\
      (forall i y, IndexR t i y -> y = x) /\
-     c = rt_copy_fib n!} :=
-    match n with
-      | 0 => (++ ; <== bt_mt)
-      | _ => if (even_odd_dec n)
-             then (l <- (copy_fib (div2 n));
-                   r <- (copy_fib ((div2 n) - 1));
-                   ++; <== (bt_node x l r))
-             else (t <- (copy_fib (div2 n));
-                   ++; <== (bt_node x t t))
-      end.
+     c = rt_copy_fib n.
 
+  Load "copy_fib_gen.v".
+
+  Admit Obligations.
+
+(*
   Next Obligation.
   Proof.
     split. constructor.
@@ -614,4 +606,5 @@ true only in the limit, so now I am really stuck.
     inversion o. assumption.
 
 Qed.
+*)
 End copy_fib.

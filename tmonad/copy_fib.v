@@ -22,13 +22,147 @@ Section copy_fib.
 
   Program Fixpoint rt_copy_fib (n : nat) {measure n}: nat :=
     match n with 
-      | 0 => 1
+      | 0 => 3
       | (S n') => if (even_odd_dec n)
-                  then (S ((rt_copy_fib (div2 n)) + (rt_copy_fib (div2 n'))))
-                  else (S (rt_copy_fib (div2 n)))
+                  then (19 + ((rt_copy_fib (div2 n)) + (rt_copy_fib (div2 n'))))
+                  else (13 + (rt_copy_fib (div2 n)))
     end. 
 
   Definition fib_log n := fib (cl_log n).
+
+  Definition copy_fib_result (x : A) (n : nat) (t : bin_tree) (c : nat) :=
+     Braun t n /\
+     (forall i y, IndexR t i y -> y = x) /\
+     c = rt_copy_fib n.
+
+  Load "copy_fib_gen.v".
+
+
+  Obligations.
+  
+
+  (*Admit Obligations.*)
+
+  Next Obligation.
+  Proof.
+    split. constructor.
+    split. intros i y H. inversion H.
+    compute. reflexivity.
+  Qed.
+
+  Next Obligation.
+    apply lt_div2. 
+    induction n; [unfold not in H; assert (0 = 0)|]; omega.
+  Qed.
+
+  Next Obligation.
+    destruct n;  [unfold not in H; assert (0 = 0)|]; try omega.
+    apply lt_trans with (m := div2 (S n)).
+    replace (div2 (S n) - 1) with (pred (div2 (S n))); try omega.
+    apply lt_pred_n_n.
+    destruct n; [ invclr H0; invclr H3|unfold div2; omega].
+    apply lt_div2. omega.
+  Qed.
+
+  Next Obligation.
+    (* even case *)
+    rename H0 into E.
+    clear H5 H4 xm0 xm.
+    rename H into NEQ.
+    invclr H2.
+    rename H into Br.
+    invclr H0.
+    rename H into IRr.
+    invclr H3.
+    rename H into Bl.
+    invclr H0.
+    rename H into IRl.
+
+    split. 
+
+    (* Braunness *)
+    replace n with ((div2 n) + (div2 n - 1) + 1).
+    constructor; try assumption. 
+    split. 
+    replace (div2 n - 1) with (pred (div2 n)); try omega.
+    replace (div2 n - 1 + 1) with (div2 n); try constructor.
+    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
+    assert (div2 (S n') <> 0) as NEQ'. unfold not. intros NEQ'.
+    destruct n'; simpl in NEQ'. invclr E. rename H0 into O. invclr O. invclr NEQ'.
+    omega.
+    rewrite even_double; try assumption. 
+    unfold double.
+    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
+    assert (div2 (S n') <> 0); try omega.
+    unfold not. intros EQ.
+    destruct n'. inversion E. rename H0 into O. inversion O. 
+    inversion EQ.
+
+    split.
+
+    (* correct elems *)
+    intros i y IR. inversion IR; eauto.
+
+    (* running time *)
+    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
+    unfold_sub rt_copy_fib (rt_copy_fib (S n')).
+    destruct (even_odd_dec (S n')).
+    repeat fold_sub rt_copy_fib. 
+     
+    rewrite plus_assoc. rewrite plus_comm. simpl.
+    apply eq_S.
+    destruct n'. inversion e. inversion H0. 
+    replace (S (div2 n') - 1) with  (div2 (S n')). 
+    reflexivity.
+    replace (S (div2 n') - 1) with (div2 n').
+    
+    inversion e. inversion H0.
+    symmetry. apply even_div2. assumption. omega.
+
+    apply not_even_and_odd in E. contradiction. assumption.
+  Qed.    
+
+  Next Obligation.
+    apply lt_div2. destruct n. inversion H0. omega.
+  Qed.
+
+  Next Obligation.
+    (* odd case *)
+    clear H3.
+    rename H0 into On.
+    rename H into NEQ.
+    invclr H2.
+    rename H into Brt.
+    invclr H0.
+    rename H into Irt.
+  
+    split. 
+    
+    (* Braunness *)
+    replace n with ((div2 n) + (div2 n) + 1). 
+    constructor; try assumption.
+    split; [constructor | intuition].
+    rewrite odd_double; try assumption. 
+    unfold double. rewrite plus_comm. omega. 
+
+    split.
+
+    (* correct elems *)
+    intros i y HIr; inversion HIr; auto; apply Irt with (i := i0); auto.
+
+    (* running time *)
+    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
+    unfold_sub rt_copy_fib (rt_copy_fib (S n')).
+    destruct (even_odd_dec (S n')).
+    apply not_even_and_odd in e. contradiction. assumption.
+    fold_sub rt_copy_fib. 
+    destruct n'. compute. reflexivity.
+    rewrite <- even_div2.
+    rewrite odd_div2. omega.
+    inversion o. inversion H0. assumption.
+    inversion o. assumption.
+
+Qed.
 
   Lemma minus_plus': forall n m p : nat, m <= n -> p = n - m -> n = m + p.
   Proof.
@@ -172,6 +306,8 @@ Section copy_fib.
       intuition.
   Qed.    
 
+(* TODO: fix to agree with new rt constants *)
+(*
   Lemma rtcf_div2_S_lt : forall (n : nat), (rt_copy_fib (div2 (S n))) < rt_copy_fib (S n).
   Proof.
     apply (well_founded_induction lt_wf).
@@ -503,11 +639,6 @@ Qed.
   Admitted.
 
 
-  Lemma ratios_ab : forall a b A B, a < b 
-                                    -> 3*a < 2*A < 4*a 
-                                    -> 3*b < 2*B < 4*b
-                                    -> A < B.
-    intros. 
 
   Lemma fg_lt_fiblog : forall n, n > 0 ->
                                  (f n < 6 * fib_log n /\  g n < 4 * fib_log n).
@@ -547,7 +678,9 @@ Qed.
     unfold_sub h (h (g_arg (S (S (S (S n)))))).   
     unfold_sub cl_log (cl_log (S (S (S (S n))))).
 
+
   Hint Resolve g_lt_f.
+
 
   (* Clean up this proof! *)
   Lemma rtcf_f_g : forall n,
@@ -676,11 +809,7 @@ Qed.
       [apply le_n_S|]; auto.
 Qed.
 
-Check big_oh.
-    
-
-    
-
+*)
     
     
 (*
@@ -702,7 +831,7 @@ A/B = the golden ratio, exactly (I think, checked on paper).
 Which you can't have in coq and besides that is
 true only in the limit, so now I am really stuck.
 
-*) 
+
 
   Lemma rtcf_is_O_fib_log 
   : exists (N : nat), forall (n : nat), n > 8 -> rt_copy_fib n <= N * fib_log n.
@@ -737,130 +866,6 @@ true only in the limit, so now I am really stuck.
 
   Qed.    
 
-  Definition copy_fib_result (x : A) (n : nat) (t : bin_tree) (c : nat) :=
-     Braun t n /\
-     (forall i y, IndexR t i y -> y = x) /\
-     c = rt_copy_fib n.
 
-  Load "copy_fib_gen.v".
-
-  Admit Obligations.
-
-(*
-  Next Obligation.
-  Proof.
-    split. constructor.
-    split. intros i y H. inversion H.
-    compute. reflexivity.
-  Qed.
-
-  Next Obligation.
-    apply lt_div2. 
-    induction n; [unfold not in H; assert (0 = 0)|]; omega.
-  Qed.
-
-  Next Obligation.
-    destruct n;  [unfold not in H; assert (0 = 0)|]; try omega.
-    apply lt_trans with (m := div2 (S n)).
-    replace (div2 (S n) - 1) with (pred (div2 (S n))); try omega.
-    apply lt_pred_n_n.
-    destruct n; [ invclr H0; invclr H4|unfold div2; omega].
-    apply lt_div2. omega.
-  Qed.
-
-  Next Obligation.
-    (* even case *)
-    rename H0 into E.
-    rename H2 into Bl.
-    rename H3 into IRl.
-    rename H1 into Br.
-    rename H5 into IRr.
-    rename H into NEQ.
-
-    split. 
-
-    (* Braunness *)
-    replace n with ((div2 n) + (div2 n - 1) + 1).
-    constructor; try assumption. 
-    split. 
-    replace (div2 n - 1) with (pred (div2 n)); try omega.
-    replace (div2 n - 1 + 1) with (div2 n); try constructor.
-    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
-    assert (div2 (S n') <> 0) as NEQ'. unfold not. intros NEQ'.
-    destruct n'; simpl in NEQ'. invclr E. rename H0 into O. invclr O. invclr NEQ'.
-    omega.
-    rewrite even_double; try assumption. 
-    unfold double.
-    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
-    assert (div2 (S n') <> 0); try omega.
-    unfold not. intros EQ.
-    destruct n'. inversion E. rename H0 into O. inversion O. 
-    inversion EQ.
-
-    split.
-
-    (* correct elems *)
-    intros i y IR. inversion IR; eauto.
-
-    (* running time *)
-    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
-    unfold_sub rt_copy_fib (rt_copy_fib (S n')).
-    destruct (even_odd_dec (S n')).
-    repeat fold_sub rt_copy_fib. 
-     
-    rewrite plus_assoc. rewrite plus_comm. simpl.
-    apply eq_S.
-    destruct n'. inversion e. inversion H0. 
-    replace (S (div2 n') - 1) with  (div2 (S n')). 
-    reflexivity.
-    replace (S (div2 n') - 1) with (div2 n').
-    
-    inversion e. inversion H0.
-    symmetry. apply even_div2. assumption. omega.
-
-    apply not_even_and_odd in E. contradiction. assumption.
-  Qed.    
-
-  Next Obligation.
-    apply lt_div2. destruct n. inversion H0. omega.
-  Qed.
-
-  Next Obligation.
-    (* odd case *)
-    rename H into NEQ.
-    rename H1 into Brt.
-    rename H2 into Irt.
-    rename H0 into On.
-    clear H4 H5.
-
-    split. 
-    
-    (* Braunness *)
-    replace n with ((div2 n) + (div2 n) + 1). 
-    constructor; try assumption.
-    split; [constructor | intuition].
-    rewrite odd_double; try assumption. 
-    unfold double. rewrite plus_comm. omega. 
-
-
-
-    split.
-
-    (* correct elems *)
-    intros i y HIr; inversion HIr; auto; apply Irt with (i := i0); auto.
-
-    (* running time *)
-    destruct n as [|n']; [unfold not in NEQ; assert (0 = 0)|]; try omega.
-    unfold_sub rt_copy_fib (rt_copy_fib (S n')).
-    destruct (even_odd_dec (S n')).
-    apply not_even_and_odd in e. contradiction. assumption.
-    fold_sub rt_copy_fib. 
-    destruct n'. compute. reflexivity.
-    rewrite <- even_div2.
-    rewrite odd_div2. omega.
-    inversion o. inversion H0. assumption.
-    inversion o. assumption.
-
-Qed.
-*)
 End copy_fib.
+*)

@@ -6,6 +6,7 @@ Require Import Braun.logical.sequence.
 Require Import Braun.common.braun.
 Require Import Braun.common.array.
 Require Import Braun.common.util.
+Require Import Braun.common.big_oh.
 Require Import Braun.common.log Braun.common.le_util.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 
@@ -42,7 +43,7 @@ Proof.
   omega.
 Qed.
 
-Lemma man_time'_nlogn_helper : 
+Lemma man_time'_nlogn_helper: 
   forall n, 
     n * (9 * (fl_log n) + 14) + 3 <=
     23 * n * fl_log n + 3.
@@ -76,22 +77,7 @@ Proof.
   reflexivity.
 Qed.
 
-(*
-  Lemma helper :
-    forall n,
-      n >= 1 ->
-      23 * n * (fl_log n) + 3 <=  230 * n * (fl_log n).
-    intros n Ngt1.
-    destruct n.
-    intuition.
-    clear Ngt1.
-    induction n.
-    simpl.
-    omega.
-    (* inductive case goes here. but there has to be a better way *)
-*)
-
-Lemma man_time'_nlogn:
+Lemma man_time'_nlogn_help:
   forall n,
     man_time' n <=  23 * n * (fl_log n) + 3.
 Proof.
@@ -128,4 +114,46 @@ Proof.
   omega.
   
   unfold mult; fold mult; omega.
+Qed.
+
+Lemma nlogn_plus_3_is_n_log_n:
+  big_oh (fun n => n * fl_log n + 3) 
+         (fun n => n * fl_log n).
+Proof.
+  exists 1.
+  exists 8.
+  intros n LE.
+  destruct n; intuition.
+  clear LE.
+  rewrite <- fl_log_div2.
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+  apply (le_trans (S n * fl_log (div2 n) + S n * 1 + 3)
+                  (S n * fl_log (div2 n) + 8 * (S n * 1))
+                  (8 * (S n * fl_log (div2 n)) + 8 * (S n * 1))).
+  rewrite <- plus_assoc.
+  apply le_plus_right.
+  omega.
+  apply le_plus_left.
+  remember (S n * fl_log (div2 n)) as x.
+  omega.
+Qed.
+
+Theorem man_time'_nlogn: big_oh man_time' (fun n => n * fl_log n).
+Proof.
+  apply (big_oh_trans man_time'
+                      (fun n => n * fl_log n + 3)
+                      (fun n => n * fl_log n)).
+  exists 0.
+  exists 23.
+  intros n JUNK.
+  apply (le_trans (man_time' n)
+                  (23 * n * fl_log n + 3)
+                  (23 * (n * fl_log n + 3))).
+  apply man_time'_nlogn_help.
+  rewrite mult_plus_distr_l.
+  rewrite mult_assoc.
+  apply le_plus_right.
+  omega.
+  apply nlogn_plus_3_is_n_log_n.
 Qed.

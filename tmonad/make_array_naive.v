@@ -52,22 +52,17 @@ Proof.
   omega.
 Qed.
 
-(*
-
-This is a start on the proof of big_oh(nlogn) for the
-old version of man_time'.
-
-  Lemma man_time'_nlogn_helper : 
-    forall n,
-      n * (3 * fl_log n + 5) + 1 <= 
-      8 * n * fl_log n + 1.
+Lemma man_time'_nlogn_helper : 
+  forall n, 
+    n * (9 * (fl_log n) + 14) + 3 <=
+    23 * n * fl_log n + 3.
   Proof.
     intros n.
     apply le_plus_left.
-    replace (n * (3 * fl_log n + 5)) with (3 * n * fl_log n + 5 * n).
-    replace (8*n*fl_log n) with (3 * n * fl_log n + 5 * n * fl_log n).
+    replace (n * (9 * fl_log n + 14)) with (9 * n * fl_log n + 14 * n).
+    replace (23*n*fl_log n) with (9 * n * fl_log n + 14 * n * fl_log n).
     apply le_plus_right.
-    replace (5 * n * fl_log n) with (5 * (n * fl_log n)).
+    replace (14 * n * fl_log n) with (14 * (n * fl_log n)).
     apply le_mult_right.
 
     destruct n; auto.
@@ -78,49 +73,65 @@ old version of man_time'.
 
     apply mult_assoc.
 
-    replace 8 with (3+5);[|omega].
+    replace 23 with (9+14);[|omega].
     rewrite <- mult_plus_distr_r.
-    replace ((3+5)*n) with (3*n+5*n);[reflexivity|rewrite mult_plus_distr_r;reflexivity].
+    replace ((9+14)*n) with (9*n+14*n);
+      [reflexivity|rewrite mult_plus_distr_r;reflexivity].
 
     rewrite mult_plus_distr_l.
-    replace (n * (3 * fl_log n)) with ((n * 3) * fl_log n);
+    replace (n * (9 * fl_log n)) with ((n * 9) * fl_log n);
       [|rewrite mult_assoc;reflexivity].
-    replace (3*n) with (n*3); [|apply mult_comm].
-    replace (5*n) with (n*5); [|apply mult_comm].
+    replace (9*n) with (n*9); [|apply mult_comm].
+    replace (14*n) with (n*14); [|apply mult_comm].
     reflexivity.
   Qed.
-    
+
+(*
+  Lemma helper :
+    forall n,
+      n >= 1 ->
+      23 * n * (fl_log n) + 3 <=  230 * n * (fl_log n).
+    intros n Ngt1.
+    destruct n.
+    intuition.
+    clear Ngt1.
+    induction n.
+    simpl.
+    omega.
+    (* inductive case goes here. but there has to be a better way *)
+*)
+
   Lemma man_time'_nlogn:
     forall n,
-      man_time' n <= 8 * n * fl_log n + 1.
+      man_time' n <=  23 * n * (fl_log n) + 3.
   Proof.
     intros n.
-
     apply (le_trans (man_time' n)
-                    (n * (3 * fl_log n + 5) + 1)
-                    (8 * n * fl_log n + 1)); try (apply man_time'_nlogn_helper).
+                    (n * (9 * (fl_log n) + 14) + 3)
+                    (23 * n * fl_log n + 3)); try (apply man_time'_nlogn_helper).
 
     induction n as [|n].
     simpl; omega.
 
     unfold man_time'; fold man_time'.
 
-    apply (le_trans (man_time' n + 3 * fl_log n + 5)
-                    ((n * (3 * fl_log n + 5) + 1) + 3 * fl_log n + 5)
-                    (S n * (3 * fl_log (S n) + 5) + 1)).
+    apply (le_trans (man_time' n + 9 * fl_log n + 14)
+                    ((n * (9 * fl_log n + 14) + 3) + 9 * fl_log n + 14)
+                    (S n * (9 * fl_log (S n) + 14) + 3)).
+
     repeat (apply le_plus_left).
     assumption.
 
-    replace (S n * (3 * fl_log (S n) + 5))
-    with (n * (3 * fl_log (S n) + 5) + (3 * fl_log (S n) + 5)).
+    replace (S n * (9 * fl_log (S n) + 14))
+    with (n * (9 * fl_log (S n) + 14) + (9 * fl_log (S n) + 14)).
     
-    assert (n * (3 * fl_log n + 5) <= n * (3 * fl_log (S n) + 5)).
+    assert (n * (9 * fl_log n + 14) <= n * (9 * fl_log (S n) + 14)).
     apply le_mult_right.
     apply le_plus_left.
     apply le_mult_right.
     apply fl_log_monotone.
 
-    assert (3 * fl_log n + 5 <= 3 * fl_log (S n) + 5).
+    assert (9 * fl_log n + 14 <= 9 * fl_log (S n) + 14).
     apply le_plus_left.
     apply le_mult_right.
     apply fl_log_monotone.
@@ -128,4 +139,3 @@ old version of man_time'.
     
     unfold mult; fold mult; omega.
 Qed.
-*)

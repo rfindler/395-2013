@@ -57,8 +57,8 @@ Qed.
 Next Obligation.
   tauto.
 Qed.
-Extraction Inline ret bind inc.
-Recursive Extraction sum.
+(* Extraction Inline ret bind inc.
+   Recursive Extraction sum. *)
 
 Program Definition list_id (A : Set) (l : list A) : {! l' !:! list A !<! c !>!
                                                        l' = l !} :=

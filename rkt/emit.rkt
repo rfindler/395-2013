@@ -40,14 +40,16 @@
      (indent
       2
       (out-nl)
-      (out-exp body)
+      (out-exp body #:already-delimited? #t)
       (out "."))
      (out-nl)]))
 
-(define (out-exp exp)
-  (unless (simple? exp) (out "("))
+(define (out-exp exp #:already-delimited? [already-delimited? #f])
+  (define wrap-with-parens? (and (not already-delimited?)
+                                 (not (simple? exp))))
+  (when wrap-with-parens? (out "("))
   (indent
-   (if (simple? exp) 0 1)
+   (if wrap-with-parens? 1 0)
    (match exp
      [`(match ,texp [,tsts => ,rexps] ...)
       (out "match ")
@@ -63,7 +65,7 @@
          (out " => ")
          (indent 2 
                  (out-nl)
-                 (out-exp rexp))))
+                 (out-exp rexp #:already-delimited? #t))))
       (out-nl)
       (out "end")]
      [`(bind ([,xs ,es] ...) ,b)
@@ -72,10 +74,10 @@
         (out x)
         (out " <- ")
         (indent (+ 4 (string-length (symbol->string x)))
-                (out-exp e))
+                (out-exp e #:already-delimited? #t))
         (out ";")
         (out-nl))
-      (out-exp b)]
+      (out-exp b #:already-delimited? #t)]
      [`(if ,e1 ,e2 ,e3)
       (out "if ")
       (indent 3 (out-exp e1))
@@ -95,7 +97,7 @@
       (out k)
       (out "; ")
       (out-nl)
-      (out-exp e)]
+      (out-exp e #:already-delimited? #t)]
      [`(,(? infixop? fn) ,arg1 ,args ...)
       (out-exp arg1)
       (for ([arg (in-list args)])
@@ -108,7 +110,7 @@
       (for ([arg (in-list args)])
         (out " ")
         (out-exp arg))]))
-  (unless (simple? exp) (out ")")))
+  (when wrap-with-parens? (out ")")))
 
 (define (infixop? x) (member x '(- +)))
 (define (compound-expression? exp) (pair? exp))

@@ -19,6 +19,7 @@
          pair
          even_odd_dec
          div2
+         S
          (rename-out [-:nat -])
          +)
 
@@ -273,6 +274,19 @@
 
 (r:define-match-expander nil (λ (stx) #''()) (λ (stx) #''()))
 (r:define-match-expander bt_mt (λ (stx) #'(bt_mt-struct)) (λ (stx) #'the-bt_mt))
+
+(r:define-match-expander S 
+                         (λ (stx) 
+                           (syntax-case stx ()
+                             [(_ n)
+                              (identifier? #'n)
+                              #'(? exact-positive-integer? (app sub1 n))]))
+                         (λ (stx)
+                           (syntax-case stx ()
+                             [(_ n) #'(add1 n)]
+                             [x
+                              (identifier? #'x)
+                              #'add1])))
 
 (struct pair (l r) #:transparent)
 

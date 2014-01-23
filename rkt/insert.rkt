@@ -40,16 +40,3 @@ values: the result of the function and the step count.
     (bind ([bt (insert j t)])
       (<== (bt_node i bt s)))]))
 
-#;
-(out-exp 
- `(match n
-    [0 => (pair (bt_node x bt_mt bt_mt) bt_mt)]
-    [(S n′)
-     =>
-     (let ([pr (copy2 (div2 n′))])
-       (match pr
-         [(pair s t) 
-          => 
-          (if (even_odd_dec n′)
-              (pair (bt_node x s t) (bt_node x t t))
-              (pair (bt_node x s s) (bt_node x s t)))]))]))

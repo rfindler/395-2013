@@ -1,24 +1,13 @@
-#lang racket
-(require "braun.rkt")
+#lang at-exp s-exp "tmonad.rkt"
 
-(provide (all-defined-out))
+(require "copy2.rkt")
 
-(define (copy2 n)
-  (cond
-    [(zero? n) (values (mknode #f #f) #f)]
-    [(odd? (- n 1))
-     (define-values (s t) (copy2 (/ (- n 2) 2)))
-     (values (mknode s s) (mknode s t))]
-    [(even? (- n 1))
-     (define-values (s t) (copy2 (/ (- n 1) 2)))
-     (values (mknode s t) (mknode t t))]))
+(Fixpoint
+ copy #:implicit @A{Set} @x{A} @n{nat}
+ #:returns @{@"@"bin_tree A}
+ (bind ([pr (copy2 x n)])
+       (match pr
+         [(pair s t) => (<== t)])))
 
-(define/contract (copy n)
-  (->i ([n natural-number/c])
-       [result (n) (λ (b) (= (size b) n))])
-  (define-values (s t) (copy2 n))
-  t)
+(provide copy)
 
-(module+ test
-  (printf "testing braun tree invariants for copy\n")
-  (for ([i (in-range 1000)]) (copy i)))

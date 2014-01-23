@@ -1,7 +1,7 @@
 Require Import Arith.Div2 Arith.Even.
 Require Import Braun.tmonad.insert.
 Require Import Braun.tmonad.copy Braun.tmonad.copy_linear Braun.tmonad.copy_fib.
-Require Import Braun.tmonad.size Braun.tmonad.size2.
+Require Import Braun.tmonad.size_linear Braun.tmonad.size2.
 Require Import Braun.tmonad.make_array_naive.
 Require Import Braun.tmonad.to_list_naive.
 Require Import Braun.tmonad.make_array_td.
@@ -27,7 +27,7 @@ Extraction "tmonad.ml" insert.insert
            copy.copy 
            copy_fib.copy_fib
            copy_linear.copy_linear
-           size.size_linear size2.size
+           size_linear.size_linear size2.size
            make_array_naive.make_array_naive
            make_array_td.make_array_td
            to_list_naive.to_list_naive.

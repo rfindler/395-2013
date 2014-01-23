@@ -867,5 +867,5 @@ true only in the limit, so now I am really stuck.
   Qed.    
 
 
-End copy_fib.
 *)
+End copy_fib.

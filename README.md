@@ -39,9 +39,14 @@ tmonad
 New monadic approach, with improved extraction
 
 TODO:
-- re-prove times after uniform ++ insertion
+- size_linear (redo with Racket generation)
+- size_diff (redo with Racket generation)
+- copy_linear (redo with Racket generation)
 - copy_fib (time bound) [burke]
+- copy_insert (not touched yet?)
+- copy2 (redo with Racket generation)
+- make_array_naive_fold (redo with Racket generation)
+- make_array_td (redo with Racket generation)
 - make_array_bu (time, correctness, extraction) [max]
 - to_list_naive (exact time [vs bound])
 - to_list_bu (time, correctness, extraction)
-- make_array_naive, big_oh(nlogn) proof

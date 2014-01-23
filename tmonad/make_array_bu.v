@@ -9,7 +9,6 @@ Set Implicit Arguments.
 Section take_drop.
 
   Variable A : Set. 
-  Check min.
   Program Fixpoint take (k : nat) (l : list A) : {! hds !:! list A
                                                     !<! c !>!
                                                     length hds = min k (length l)
@@ -23,7 +22,6 @@ Section take_drop.
             cons x (take n xs)
         end
     end.
-  Obligations.
   Next Obligation.
   Proof.
     exists 0; auto.
@@ -51,7 +49,6 @@ Section take_drop.
             drop n xs
         end 
     end.
-  Obligations.
   Next Obligation.
   Proof.
     exists (length l); omega.

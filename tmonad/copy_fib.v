@@ -37,12 +37,6 @@ Section copy_fib.
 
   Load "copy_fib_gen.v".
 
-
-  Obligations.
-  
-
-  (*Admit Obligations.*)
-
   Next Obligation.
   Proof.
     split. constructor.

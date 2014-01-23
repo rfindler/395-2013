@@ -26,25 +26,15 @@ Load "make_array_naive_gen.v".
 
 Next Obligation.
 Proof.
-  rename H3 into MANRxs'.
-  rename H1 into MANRxs''.
-  rename H2 into IRbt.
-  rename H0 into IRbt'.
+  clear H2 H3.
+  rename H1 into MANRxs'.
+  rename H0 into IRbt.
 
   destruct MANRxs' as [BTbt [EQxm SRbt]].
-  destruct MANRxs'' as [JUNK [EQxn0 JUNK']].
-  clear JUNK JUNK'.
 
   unfold insert_result in *.
   remember (IRbt (length xs') BTbt) as ONE; clear HeqONE IRbt.
   destruct ONE as [BRir [SRimpl EQxm0]].
-
-  remember (IRbt' (length xs') BTbt) as TWO; clear HeqTWO IRbt'.
-  destruct TWO as [JUNK [JUNK' EQxn]].
-  clear JUNK JUNK'.
-
-  replace xm0 with xn in *; try omega.
-  replace xn0 with xm in *; try omega.
 
   repeat split; auto.
   subst.

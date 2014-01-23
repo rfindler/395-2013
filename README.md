@@ -39,9 +39,9 @@ tmonad
 New monadic approach, with improved extraction
 
 TODO:
-- write racket monad insertion system [robby]
 - re-prove times after uniform ++ insertion
 - copy_fib (time bound) [burke]
 - make_array_bu (time, correctness, extraction) [max]
 - to_list_naive (exact time [vs bound])
 - to_list_bu (time, correctness, extraction)
+- make_array_naive, big_oh(nlogn) proof

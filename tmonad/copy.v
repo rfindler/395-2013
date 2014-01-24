@@ -1,17 +1,18 @@
 Require Import Braun.tmonad.monad Braun.logical.index.
 Require Import Braun.common.braun Braun.common.log Braun.common.util.
+Require Import Braun.common.big_oh.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 
-Definition copy_rt n := cl_log (n + 1) + fl_log n.
-Lemma copy_rt_Sn : forall n, copy_rt (div2 n) + 2 = copy_rt (n + 1).
+Definition copy2_rt n := 19 * fl_log n + 8.
+
+Lemma copy2_rt_Sn : 
+  forall n, 
+    copy2_rt (div2 n) + 19 = copy2_rt (n + 1).
 Proof.
   intros n.
-  unfold copy_rt.
-  replace (n+1+1) with (S (n+1));[|omega].
+  unfold copy2_rt.
   replace (n+1) with (S n);[|omega].
-  rewrite <- fl_log_div2.
-  rewrite cl_log_div2'.
-  replace (div2 (S (S n))) with (div2 n+1); [|simpl;omega].
+  rewrite fl_log_div2'.
   omega.
 Qed.
 
@@ -21,7 +22,7 @@ Definition copy2_result (A:Set) (x:A) n (pr:bin_tree * bin_tree) c :=
   Braun t n /\
   (forall i y, IndexR s i y -> y = x) /\
   (forall i y, IndexR t i y -> y = x) /\
-  c = copy_rt n.
+  c = copy2_rt n.
 
 Load "copy2_gen.v".
 
@@ -37,8 +38,6 @@ Proof.
   invclr H4.
 
   intros i y IR; invclr IR.
-
-  admit.
 Qed.
 
 Next Obligation.
@@ -60,8 +59,7 @@ Proof.
 
   (* proof of running time *)
   rewrite <- EVENn'.
-  admit.
-  (* apply copy_rt_Sn. *)
+  apply copy2_rt_Sn.
 Qed.
 
 Next Obligation.
@@ -82,8 +80,10 @@ Proof.
   
   (* proof of running time *)
   replace (div2 n' + 1 + div2 n' + 1) with (n'+1);[|omega].
-  (* apply copy_rt_Sn. *) admit.
+  apply copy2_rt_Sn.
 Qed.
+
+Definition copy_rt n := copy2_rt n + 5.
 
 Definition copy_result (A:Set) (x:A) (n:nat) (b:@bin_tree A) c :=
   Braun b n /\ 
@@ -93,9 +93,29 @@ Definition copy_result (A:Set) (x:A) (n:nat) (b:@bin_tree A) c :=
 Load "copy_gen.v".
 
 Next Obligation.
+Proof.
   unfold copy_result.
   unfold copy2_result in *.
   intuition.
+Qed.
 
-  admit. (* running time proof .... *)
+Theorem copy_logn : big_oh copy_rt fl_log.
+Proof.
+  apply (big_oh_trans copy_rt
+                      (fun n => fl_log n + 15)
+                      fl_log).
+  exists 0.
+  exists 19.
+  intros.
+  unfold copy_rt.
+  unfold copy2_rt.
+  omega.
+
+  exists 1.
+  exists 16.
+  intros n LE.
+  destruct n; intuition.
+  clear LE.
+  rewrite <- fl_log_div2.
+  omega.
 Qed.

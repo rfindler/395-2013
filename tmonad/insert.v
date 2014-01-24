@@ -1,8 +1,11 @@
 Require Import Braun.common.braun Braun.common.util Braun.common.same_structure.
-Require Import Braun.common.log Braun.logical.sequence Braun.logical.list_util.
+Require Import Braun.common.log Braun.common.big_oh.
+Require Import Braun.logical.sequence Braun.logical.list_util.
 Require Import Braun.tmonad.monad.
 Require Import Program.
 Require Import Omega.
+
+Definition insert_time n := 9 * fl_log n + 6.
 
 Definition insert_result (A : Set) (i : A) (b:@bin_tree A)
            (b':@bin_tree A) c :=
@@ -10,7 +13,7 @@ Definition insert_result (A : Set) (i : A) (b:@bin_tree A)
         Braun b n ->
         (Braun b' (S n) /\
          (forall xs, SequenceR b xs -> SequenceR b' (i::xs)) /\
-         c = 9 * fl_log n + 6)).
+         c = insert_time n)).
 
 Load "insert_gen.v".
 
@@ -68,6 +71,29 @@ Next Obligation.
   eapply SR_node; eauto.
 
   (* running time*)
+  unfold insert_time.
   rewrite <- braun_invariant_implies_fl_log_property; auto.
+  omega.
+Qed.
+
+Theorem insert_time_log:
+  big_oh insert_time fl_log.
+Proof.
+  apply (big_oh_trans insert_time
+                      (fun n => fl_log n + 6)
+                      fl_log).
+  exists 0.
+  exists 9.
+  intros n LE.
+  unfold insert_time.
+  omega.
+
+  exists 1.
+  exists 7.
+  intros n LE.
+  destruct n; intuition.
+  clear LE.
+  rewrite <- fl_log_div2.
+  unfold mult.
   omega.
 Qed.

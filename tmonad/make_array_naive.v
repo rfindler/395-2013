@@ -40,6 +40,7 @@ Proof.
   repeat split; auto.
   subst.
   simpl.
+  unfold insert_time.
   omega.
 Qed.
 

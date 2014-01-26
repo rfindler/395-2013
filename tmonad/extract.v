@@ -6,6 +6,7 @@ Require Import Braun.tmonad.make_array_naive.
 Require Import Braun.tmonad.to_list_naive.
 Require Import Braun.tmonad.make_array_td.
 Require Import Braun.tmonad.monad.
+Require Import Braun.tmonad.sub1.
 
 Extract Inductive bool => "bool" [ "false" "true" ].
 Extract Inductive sumbool => "bool" [ "false" "true" ].
@@ -30,4 +31,5 @@ Extraction "tmonad.ml" insert.insert
            size_linear.size_linear size_diff.size
            make_array_naive.make_array_naive
            make_array_td.make_array_td
-           to_list_naive.to_list_naive.
+           to_list_naive.to_list_naive
+           sub1.sub1.

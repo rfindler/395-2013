@@ -14,24 +14,20 @@
          match if bind let => <==
          provide
          require
-         cons
+         cons list
          nil
          pair
          even_odd_dec
          div2
          S
          (rename-out [-:nat -])
-         +)
+         +
+         false true)
 
 
 (define-syntax (top-interaction stx)
   (syntax-case stx ()
-    [(_ . e)
-     (let ()
-       (define converted (add-plusses/check-stx-errs #'e))
-       #`(let-values ([(val time) #,converted])
-           (printf "~a steps\n" time)
-           val))]))
+    [(_ . e) #'e]))
 
 (define-syntax (module-begin stx)
   (syntax-case stx ()
@@ -298,3 +294,6 @@
   (when (negative? ans)
     (error '- "negative result, ~a - ~a = ~a" n m ans))
   ans)
+
+(define false #f)
+(define true #t)

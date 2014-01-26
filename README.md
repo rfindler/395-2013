@@ -41,7 +41,6 @@ New monadic approach, with improved extraction
 TODO:
 - size_linear (redo with Racket generation, big_oh)
 - size_diff (redo with Racket generation, big_oh)
-- copy_linear (redo with Racket generation, big_oh)
 - copy_fib (time bound) [burke]
 - copy_insert (not touched yet?)
 - copy2 (redo with Racket generation, big_oh)

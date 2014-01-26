@@ -52,6 +52,17 @@ Proof.
 Qed.
 Hint Resolve lt_div2'''.
 
+Lemma div2_succ_lt_div2_plus_one : forall n',  div2 (S n') <= div2 n' + 1.
+Proof.
+  apply (ind_0_1_SS (fun n' =>  div2 (S n') <= div2 n' + 1));auto;try (simpl;omega).
+  intros n IND.
+  replace (div2 (S (S (S n)))) with (S (div2 (S n)));[|auto].
+  replace (div2 (S (S n))) with (S (div2 n));[|auto].
+  replace (S (div2 n) + 1) with (S (div2 n + 1));[|omega].
+  apply le_n_S.
+  assumption.
+Qed.
+Hint Resolve div2_succ_lt_div2_plus_one. 
 
 Lemma double_div2 : 
   forall n, div2 (n + n) = n.

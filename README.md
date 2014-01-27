@@ -49,3 +49,4 @@ TODO:
 - make_array_bu (time, correctness, extraction, big_oh) [max]
 - to_list_naive (exact time [vs bound], big_oh)
 - to_list_bu (time, correctness, extraction, big_oh)
+- investigate sub1's running time (should we consider it constant?)

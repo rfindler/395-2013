@@ -28,8 +28,7 @@ Section foldr.
     end.
 
   Next Obligation.
-    (* I suck at coq :( *)
-    assert ((xn0 + (xn + 0)) = xn + xn0) as Dumb; [omega | rewrite Dumb; clear Dumb].
+    replace (xn0 + (xn + 0)) with (xn + xn0); try omega.
     auto.
   Defined.
 
@@ -60,16 +59,11 @@ Qed.
 (* Extraction Inline ret bind inc.
    Recursive Extraction sum. *)
 
+(* example use of foldr *)
 Program Definition list_id (A : Set) (l : list A) : {! l' !:! list A !<! c !>!
                                                        l' = l !} :=
   foldr (fun xs ys n => xs = ys)
-        cons
+        (fun x ys => <== (cons x ys))
         nil 
         _
         l.
-Next Obligation.
-  exists 0.
-  intros ys _ H.
-  rewrite H.
-  auto.
-Qed.

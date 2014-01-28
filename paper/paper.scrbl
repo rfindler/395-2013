@@ -175,7 +175,11 @@ does not include any dependency, and one
 that describes only the lengths of the lists and thus can be used
 in auxiliary theorems that describe how @tt{drop} treats lists.
 
+XXX or use the (sound) extraction hints that drop arguments, but I think this is an unprincipled hack
+
 This work, however, aims to combine these two techniques via a
 monad so that we can still specify sophisticated properties in
 the type of the function and get functions that extract without
 extra, useless arguments.
+
+XXX and cost!

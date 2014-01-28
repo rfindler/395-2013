@@ -1,4 +1,5 @@
 #lang racket/base
 (require racket/runtime-path "extract.rkt")
 (define-runtime-path lwl.v "lwl.v")
-(provide lwl.v extract)
+(define-runtime-path l.v "l.v")
+(provide l.v lwl.v extract)

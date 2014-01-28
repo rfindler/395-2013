@@ -5,10 +5,13 @@ MLS := $(VERSIONS:%=ml/%.ml)
 MLIS := $(VERSIONS:%=ml/%.mli)
 GEN_DEPS := rkt/emit.rkt rkt/tmonad.rkt
 
-all: coq $(BINS)
+all: coq $(BINS) paper/paper.pdf
 	@echo ""
 	@echo ""
 	@ ! grep -i admit $(VS)
+
+paper/paper.pdf: paper/paper.scrbl paper/background.scrbl paper/util.rkt paper/l.v paper/lwl.v
+	(cd paper; scribble --pdf paper.scrbl; cd ..)
 
 .PHONY: coq clean clean-ml
 
@@ -62,5 +65,6 @@ ml/%.cmi : ml/%.mli
 
 clean: Makefile.coq
 	$(MAKE) -f Makefile.coq clean
+	rm -f paper/paper.pdf
 	rm -f $(BINS) $(MLS) $(MLIS)
 	find . \( -name '*.vo' -o -name '*.d' -o -name '*.glob' -o -name '*.cmi' -o -name '*.cmo' \) -exec rm -f {} \;

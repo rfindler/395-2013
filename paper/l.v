@@ -6,11 +6,9 @@ Section l.
   Variable A:Set.
 
   (* START: list *)
-  Inductive list : Set :=
+  Inductive list : Type :=
   | empty : list
-  | cons (hd : A)
-         (tl : list)
-    : list.
+  | cons (hd : A) (tl : list) : list.
   (* STOP: list *)
 
   (* START: drop *)
@@ -26,7 +24,7 @@ Section l.
   (* STOP: drop *)
   
   (* START: list_has_len *)
-  Inductive list_len : list -> nat -> Set :=
+  Inductive list_len : list -> nat -> Type :=
   | L_empty : list_len empty 0
   | L_cons (tl_len : nat)
            (hd : A)
@@ -95,3 +93,7 @@ Section l.
   Qed.
   
 End l.
+
+(*
+Recursive Extraction drop.
+*)

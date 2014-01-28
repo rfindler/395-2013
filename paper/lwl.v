@@ -6,7 +6,7 @@ Section sl.
   Variable A:Set.
 
   (* START: list_with_len *)
-  Inductive list_with_len : nat -> Set :=
+  Inductive list_with_len : nat -> Type :=
   | empty : list_with_len 0
   | cons (tl_len : nat) 
          (hd : A)

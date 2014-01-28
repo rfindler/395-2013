@@ -88,5 +88,16 @@ Section sl.
     subst len.
     dispatch_if x x'; dispatch_if y y'; omega.
   Qed.  
-  
+
 End sl.
+  
+(*
+Extraction Implicit drop [len].
+Extraction Implicit cons [tl_len].
+Recursive Extraction drop.
+
+signals the error:
+
+Error: The 3rd argument (len) of drop still occurs after extraction.
+Please check the Extraction Implicit declarations.
+*)

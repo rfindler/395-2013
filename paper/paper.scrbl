@@ -29,7 +29,7 @@ One way to think about Coq's dependent type system is
 to just start with type system much like
 ML's or OCaml's type system, and then layer in the 
 ability for types to refer not just to types in the surrounding
-context, but also to ordinary program values. 
+context, but also to ordinary program values.
 
 This section works through an examples with the goal of bringing
 across just enough Coq to be able to read the code fragments
@@ -169,17 +169,19 @@ with the length of the tail of the list, an element for the head of the list,
 and the actual tail. As before, the presence of @tt{tl_len} is
 disappointing. 
 
-The standard work-around for these is to define two @tt{Inductive}s,
+Coq supports declarations that tell it which arguments should be
+dropped in the extracted code, but it cannot always tell when it
+is sound to do so. In our example, Coq can tell that the @tt{tl_len}
+argument to @tt{cons} is sound to eliminate, but not the @tt{len} argument
+to @tt{drop}. 
+The conventional work-around for these is to define two @tt{Inductive}s,
 one that is a match for the extracted version of the code and thus
 does not include any dependency, and one
 that describes only the lengths of the lists and thus can be used
 in auxiliary theorems that describe how @tt{drop} treats lists.
 
-XXX or use the (sound) extraction hints that drop arguments, but I think this is an unprincipled hack
-
 This work, however, aims to combine these two techniques via a
-monad so that we can still specify sophisticated properties in
+monad so that we can still specify sophisticated properties (including
+their runtime costs) in
 the type of the function and get functions that extract without
 extra, useless arguments.
-
-XXX and cost!

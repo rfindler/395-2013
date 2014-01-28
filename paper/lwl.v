@@ -30,18 +30,26 @@ Section sl.
             end.
   (* STOP: drop *)
   
-  Local Obligation Tactic := intros.
-
-(*
-(* START: obligation1 *)
-   len = (if le_dec 0 len then len - 0 else 0)
-(* STOP: obligation1 *)
-*)
-
   Next Obligation.
-    dispatch_if x y;[omega|intuition].
+    dispatch_if x x';[omega|intuition].
   Qed.
   
+  Next Obligation.
+  Proof.
+    dispatch_if x x'; omega.
+  Qed.
+
+  Next Obligation.
+  Proof.
+    omega.
+  Qed.
+
+  Next Obligation.
+  Proof.
+    dispatch_if x x'; dispatch_if y y'; omega.
+  Qed.  
+End sl.
+
 (*
 (* START: obligation2 *)
    forall len n, 
@@ -52,22 +60,6 @@ Section sl.
 (* STOP: obligation2 *)
 *)
 
-  Next Obligation.
-  Proof.
-    dispatch_if x x'; omega.
-  Qed.
-
-(*
-(* START: obligation3 *)
-    (length tl) + 1 = len ->
-    (length tl) = len - 1
-(* STOP: obligation3 *)
-*)
-
-  Next Obligation.
-  Proof.
-    omega.
-  Qed.
 
 (*
 (* START: obligation4 *)
@@ -83,14 +75,6 @@ Section sl.
 (* STOP: obligation4 *)
 *)
 
-  Next Obligation.
-  Proof.
-    subst len.
-    dispatch_if x x'; dispatch_if y y'; omega.
-  Qed.  
-
-End sl.
-  
 (*
 Extraction Implicit drop [len].
 Extraction Implicit cons [tl_len].

@@ -35,6 +35,27 @@ Section l.
     : list_len (cons hd tl) (tl_len + 1).
   (* STOP: list_has_len *)
 
+  Lemma drop_zero : forall l, drop 0 l = l.
+  Proof.
+    intros l.
+    destruct l; simpl; reflexivity.
+  Qed.
+
+  Lemma drop_empty : forall n, drop n empty = empty.
+  Proof.
+    induction n; simpl; reflexivity.
+  Qed.
+
+  Lemma drop_non_empty_non_zero : 
+    forall n hd tl,
+      drop (S n) (cons hd tl) = drop n tl.
+  Proof.
+    intros n hd tl.
+    simpl.
+    replace (n-0) with n; try omega.
+    reflexivity.
+  Qed.
+
   (* START: drop_lengths *) 
   Theorem drop_lengths :
     forall n len l,
@@ -45,32 +66,32 @@ Section l.
                      else 0).
   (* STOP: drop_lengths *) 
   Proof.
-    intros.
-    induction H.
+    intros n. induction n.
+    intros len l LLen.
     simpl.
-    dispatch_if T T'; dispatch_if T2 T2'; constructor.
-
-    simpl.
-    dispatch_if T T'; dispatch_if T2 T2'.
-    subst n.
-    replace (tl_len + 1 - 0) with (tl_len + 1); try omega.
-    constructor.
+    rewrite drop_zero.
+    replace (len-0) with len; try omega.
     assumption.
 
-    unfold not in T2'.
-    subst.
-    assert False; intuition.
+    intros len l.
+    induction 1.
 
-    destruct n. assert False; intuition.
-    clear T'.
-    replace (S n - 1) with n; try omega.
-    replace (tl_len+1-S n) with (tl_len - n); try omega.
-    
-    replace (if le_dec (S n) tl_len then tl_len - S n else 0)
-    with (tl_len - S n) in IHlist_len; [| dispatch_if T3 T3'; omega].
+    rewrite drop_empty.
+    simpl.
+    constructor.
 
-    admit.
-    admit.
+    rewrite drop_non_empty_non_zero.
+    remember (IHn tl_len tl H) as IH; clear HeqIH.
+    dispatch_if x x'.
+
+    assert ((if le_dec n tl_len then tl_len - n else 0) = tl_len + 1 - S n) as IFS;
+      [dispatch_if y y'; omega |
+       rewrite <- IFS; assumption].
+
+    replace (if le_dec n tl_len then tl_len - n else 0) with 0 in IH.
+    assumption.
+
+    dispatch_if z z'; omega.
   Qed.
   
 End l.

@@ -1,6 +1,6 @@
 #lang scribble/sigplan
 
-@(require "util.rkt")
+@(require "util.rkt" scriblib/footnote)
 
 @title{Putting Dependent Types to Work
        @subtitle{A Coq Library That Enforces Correct Running-Times via Type-Checking}}
@@ -179,6 +179,11 @@ one that is a match for the extracted version of the code and thus
 does not include any dependency, and one
 that describes only the lengths of the lists and thus can be used
 in auxiliary theorems that describe how @tt{drop} treats lists.
+This approach, however, require extra auxiliary definitions and longer
+proofs.@note{See @tt{l.v} and @tt{lwl.v} at
+                 @url{https://github.com/rfindler/395-2013/tree/master/paper}
+                 for the fully worked examples from this section using
+                 both approaches.}
 
 This work, however, aims to combine these two techniques via a
 monad so that we can still specify sophisticated properties (including

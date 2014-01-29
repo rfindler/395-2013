@@ -4,45 +4,46 @@ Require Import Braun.tmonad.monad.
 Require Import Program List.
 Require Import Omega.
 
-Set Implicit Arguments.
-
-(* Note: I removed all ++'s for simplicity. Should probably be added back later.  *)
 Section foldr.
   Variables A B : Set.
   Variable P : B -> (list A) -> nat -> Prop.
-  Variable f : forall (x:A) (acc:B),
-                 {! acc' !:! B !<! c !>!
-                    forall xs accC,
-                      P acc         xs       accC -> 
-                      P acc' (x :: xs) (c + accC) !}.
-  Variable base : B.
-  Variable PFbase : P base nil 0.
-  Program Fixpoint foldr (l : list A) : {! b' !:! B !<! c !>! P b' l c !} :=
-    match l with
-      | nil => 
-        <== base
-      | cons x xs =>
-        acc <- foldr xs;
-        out <- f x acc;
-        <== out
-    end.
+
+  Definition f_type := forall (x:A) (acc:B),
+                    {! acc' !:! B !<! c !>!
+                       forall xs accC,
+                         P acc         xs       accC -> 
+                         P acc' (x :: xs) (c + accC + 11) !}.
+
+  Definition foldr_result 
+             (f : f_type)
+             (base : B)
+             (PFbase : P base nil 3)
+             l
+             (res:B)
+             (c : nat) := P res l c.
+
+  Load "fold_gen.v".
 
   Next Obligation.
-    replace (xn0 + (xn + 0)) with (xn + xn0); try omega.
+    unfold foldr_result.
+    replace (xn0 + (xn + 11)) with (xn + xn0 + 11); try omega.
     auto.
   Defined.
 
 End foldr.
 
+Hint Unfold foldr_result.
+
+Arguments foldr [A] [B] P f base PFbase l.
+
 Program Definition sum (l:list nat)
 : {! n !:! nat !<! c !>! 
      (forall x, In x l -> x <= n)
-     /\ c = length l !} 
+     /\ c = 12 * length l + 3 !} 
   :=
     n <- (foldr (fun b al n => 
                    (forall x, In x al -> x <= b)
-                   /\ n = length al)
-                (* plus *)
+                   /\ n = 12 * length al + 3)
                 (fun x y => ++; <== plus x y)
                 0 _ l) ;
     <== n.
@@ -56,8 +57,13 @@ Qed.
 Next Obligation.
   tauto.
 Qed.
-(* Extraction Inline ret bind inc.
-   Recursive Extraction sum. *)
+
+Next Obligation.
+  unfold foldr_result in *.
+  split.
+  tauto.
+  omega.
+Qed.
 
 (* example use of foldr *)
 Program Definition list_id (A : Set) (l : list A) : {! l' !:! list A !<! c !>!

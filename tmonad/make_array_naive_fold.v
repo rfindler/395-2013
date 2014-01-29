@@ -20,7 +20,6 @@ Section make_array_naive.
     /\ c = man_time n
     /\ SequenceR b xs.
 
-  Implicit Arguments foldr.
   Program Definition make_array_naive l : 
     {! b !:! @bin_tree A !<! c !>!
        man_correct b l c !} :=
@@ -46,5 +45,6 @@ Section make_array_naive.
   Next Obligation.
     unfold man_correct.
     repeat split; auto.
+    admit. (* running time; pending running time decision of fold *)
   Qed.
 End make_array_naive.

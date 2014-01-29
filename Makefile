@@ -25,7 +25,7 @@ coq: Makefile.coq
 tmonad-gen: tmonad/insert_gen.v tmonad/make_array_naive_gen.v \
 	    tmonad/copy_fib_gen.v tmonad/size_linear_gen.v \
 	    tmonad/copy2_gen.v tmonad/copy_gen.v tmonad/copy_linear_gen.v \
-            tmonad/sub1_gen.v
+            tmonad/sub1_gen.v tmonad/fold_gen.v
 
 tmonad/insert_gen.v: rkt/insert.rkt $(GEN_DEPS)
 	racket rkt/insert.rkt > tmonad/insert_gen.v
@@ -43,6 +43,8 @@ tmonad/copy_linear_gen.v: rkt/copy_linear.rkt $(GEN_DEPS)
 	racket rkt/copy_linear.rkt > tmonad/copy_linear_gen.v
 tmonad/sub1_gen.v: rkt/sub1.rkt $(GEN_DEPS)
 	racket rkt/sub1.rkt > tmonad/sub1_gen.v
+tmonad/fold_gen.v: rkt/fold.rkt $(GEN_DEPS)
+	racket rkt/fold.rkt > tmonad/fold_gen.v
 
 Makefile.coq: tmonad-gen Makefile $(VS)
 	coq_makefile -R . Braun $(VS) -o Makefile.coq

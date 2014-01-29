@@ -39,21 +39,25 @@ Arguments foldr [A] [B] P f base PFbase l.
 Program Definition sum (l:list nat)
 : {! n !:! nat !<! c !>! 
      (forall x, In x l -> x <= n)
-     /\ c = 12 * length l + 3 !} 
+     /\ c = 14 * length l + 3 !} 
   :=
     n <- (foldr (fun b al n => 
                    (forall x, In x al -> x <= b)
-                   /\ n = 12 * length al + 3)
-                (fun x y => ++; <== plus x y)
+                   /\ n = 14 * length al + 3)
+                (fun x y => += 3; <== plus x y)
                 0 _ l) ;
     <== n.
 
 Next Obligation.
+  rename H0 into CR.
   split; [| omega].
-  intros; destruct H0; try omega.
-  remember (H x0 H0).
+  intros x0 OR.
+  inversion OR as [EQ|IN].
+  omega.
+  remember (CR x0 IN).
   omega.
 Qed.
+
 Next Obligation.
   tauto.
 Qed.

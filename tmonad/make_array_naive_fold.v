@@ -25,32 +25,26 @@ Section make_array_naive.
     {! b !:! @bin_tree A !<! c !>!
        man_correct b l c !} :=
     foldr man_correct
-          insert
+          (fun x y => x <- insert x y; <== x)
           bt_mt
           _ 
           l.
   Next Obligation.
-    exists (3 * fl_log (length l) + 2).
-    rename x0 into bt.
-    unfold man_correct.
-    remember (insert x bt) as INS.
-    intros xs c IH; destruct IH. destruct H0.
-    split; [| split].
+    clear xm H1.
+    rename H into IR.
+    rename H0 into MC.
 
-    (* Pretty sure these are easily provable *)
-    admit.
-    admit.
-    admit.
+    unfold insert_result in IR.
+    destruct MC as [BRy [ACCCeq SR]].
+    unfold man_correct.
+    remember (IR (length xs) BRy) as IRlxs.
+    destruct IRlxs as [BRx0 [SRimpl EQxn]].
+    simpl.
+    repeat split;auto.
+    admit. (* running time; pending running time decision of fold *)
   Qed.
   Next Obligation.
     unfold man_correct.
-    split; [| split]; auto.
+    repeat split; auto.
   Qed.
 End make_array_naive.
-
-(*
-Extraction Inline ret bind inc.
-(* Almost perfectly matches the paper *)
-Recursive Extraction make_array_naive.
-
-*)

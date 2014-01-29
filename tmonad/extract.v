@@ -3,6 +3,7 @@ Require Import Braun.tmonad.insert.
 Require Import Braun.tmonad.copy Braun.tmonad.copy_linear Braun.tmonad.copy_fib.
 Require Import Braun.tmonad.size_linear Braun.tmonad.size_diff.
 Require Import Braun.tmonad.make_array_naive.
+Require Import Braun.tmonad.make_array_naive_fold.
 Require Import Braun.tmonad.to_list_naive.
 Require Import Braun.tmonad.make_array_td.
 Require Import Braun.tmonad.monad.
@@ -30,6 +31,7 @@ Extraction "tmonad.ml" insert.insert
            copy_linear.copy_linear
            size_linear.size_linear size_diff.size
            make_array_naive.make_array_naive
+           make_array_naive_fold.make_array_naive
            make_array_td.make_array_td
            to_list_naive.to_list_naive
            sub1.sub1.

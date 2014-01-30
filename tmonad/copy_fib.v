@@ -621,16 +621,16 @@ Qed.
   Qed.  
 
   Lemma g_2_3 : forall n, n <> 0 -> 3 * g n < 2 * g (double n).
-  Admitted.
+  Adm itted.
 
   Lemma f_2_3 : forall n, n <> 0 -> 3 * f n < 2 * f (double n).
-  Admitted.
+  Adm itted.
 
   Lemma g_5_3 : forall n, n <> 0 -> 5 * g n > 3 * g (double n).
-  Admitted.
+  Adm itted.
 
   Lemma f_5_3 : forall n, n <> 0 -> 5 * f n < 3 * f (double n).
-  Admitted.
+  Adm itted.
 
 
 
@@ -856,7 +856,7 @@ true only in the limit, so now I am really stuck.
     (* even case *)
     destruct n as [|n]; [compute; omega|].
     fold_sub rt_copy_fib.
-    admit.
+    adm it.
 
   Qed.    
 

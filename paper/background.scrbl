@@ -202,9 +202,11 @@ in Coq, but since the constructors can be given dependent types, we can encode
 much more interesting restrictions. So interesting, in fact, that we can consider
 the elements of the datatype to be proofs and the types to be propositions, only 
 some of which will be provable, since only some of the trees we can 
-build will be well-typed.
+build will be well-typed. Put another way, we can read a judgment form definition
+from the declaration of @tt{list_len}; it defines a relation on pairs of lists and
+natural numbers that holds only when the list has the corresponding length.
 
-The first example is simply just to write @tt{L_empty}. This constructor
+The simplest tree is just to write @tt{L_empty}. This constructor
 has the type @tt{list_len empty 0}, as it is written in the second line
 of the definition of @tt{list_len}. And thus we know that the empty list
 is considered to have length @tt{0}. 

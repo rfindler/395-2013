@@ -2,13 +2,14 @@ Require Import Braun.common.braun Braun.common.log Braun.common.util Braun.commo
 Require Import Braun.tmonad.monad.
 Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith.
 
-Set Implicit Arguments.
-
-Program Fixpoint diff A (b : @bin_tree A) (m : nat) {wf lt m} 
-: {! n !:! nat !<! c !>! 
+Definition diff_result (A:Set) (b : @bin_tree A) m n c :=
    (Braun b m     -> (n = 0 /\ c = fl_log m)) 
    /\
-   (Braun b (m+1) -> (n = 1 /\ c = fl_log m + 1)) !} :=
+   (Braun b (m+1) -> (n = 1 /\ c = fl_log m + 1)).
+
+Program Fixpoint diff {A:Set} (b : @bin_tree A) (m : nat) {wf lt m} 
+: {! n !:! nat !<! c !>! 
+     diff_result A b m n c !} :=
   match b,m with
     | bt_mt                , _ => <== 0
     | bt_node x    _      _, 0 => ++; <== 1
@@ -19,39 +20,43 @@ Program Fixpoint diff A (b : @bin_tree A) (m : nat) {wf lt m}
   end.
 
 Next Obligation.
+  unfold diff_result in *.
   replace (m+1) with (S m); try omega.
   split; intros B; invclr B.
   split; auto.
 Qed.
 
 Next Obligation.
+  unfold diff_result in *.
   simpl.
   split; intros B; invclr B; omega.
 Qed.
 
 Next Obligation.
-  rename H0 into Bt1.
-  rename H1 into Bt2.
+  clear xm H1 diff.
+  rename H0 into BTxn.
   rename H into E.
+  destruct BTxn as [BT1 BT2].
+
+  unfold diff_result in *.
   apply even_2n in E. destruct E as [mm EQ].
-  unfold double in EQ. 
+  unfold double in EQ.
   split; intros B; invclr B;
-  rename H5 into BP; rename H6 into Bs; rename H7 into Bt;
-  rename H4 into EQ'.
+  rename H3 into BP; rename H4 into Bs; rename H5 into Bt;
+  rename H2 into EQ'.
 
   replace m' with (s_size + t_size) in *; try omega.
   clear EQ'.
   replace s_size with (t_size + 1) in *; try omega.  
   replace (t_size + 1 + t_size - 1) with (2 * t_size) in *; try omega.
   replace (div2 (2 * t_size)) with t_size in *; try omega.
-  apply Bt1 in Bt.
+  apply BT1 in Bt.
   destruct Bt as [Bt_o Bt_xn].
   subst. split; auto.
   apply braun_invariant_implies_fl_log_property.
   auto.
   symmetry. apply div2_double.
 
-  clear diff Bt1.
   replace s_size with t_size in *; try omega.
   clear BP s_size.
   assert (t_size + t_size = mm + mm) as EQ''; try omega.
@@ -62,7 +67,7 @@ Next Obligation.
   replace (t_size + S t_size - 1) with (2 * t_size) in *; try omega.
   rewrite div2_double in *.
   replace (t_size + 1) with (S t_size) in *; try omega.
-  apply Bt2 in Bt.
+  apply BT2 in Bt.
   destruct Bt as [Bt_o Bt_xn].
   subst. split; auto.
   rewrite <- fl_log_even.
@@ -70,22 +75,24 @@ Next Obligation.
 Qed.
 
 Next Obligation.
-  rename H0 into Bt1.
-  rename H1 into Bt2.
+  clear xm H1.
+  rename H0 into BT.
   rename H into O.
+
+  destruct BT as [BT1 BT2].
   apply odd_S2n in O. destruct O as [mm EQ].
   unfold double in EQ. 
   replace m' with (2 * mm) in *; try omega.
   clear EQ.
   rewrite div2_double in *.
   split; intros B; invclr B;
-  rename H5 into BP; rename H6 into Bs; rename H7 into Bt;
-  rename H4 into EQ.
+  rename H3 into BP; rename H4 into Bs; rename H5 into Bt;
+  rename H2 into EQ.
 
   replace mm with t_size in *; try omega.
   replace s_size with t_size in *; try omega.
   clear EQ s_size.
-  apply Bt1 in Bs.
+  apply BT1 in Bs.
   destruct Bs as [Bt_o Bt_xn]. subst.
   split; auto.
   rewrite <- fl_log_odd.
@@ -93,18 +100,20 @@ Next Obligation.
 
   replace s_size with (t_size + 1) in *; try omega.
   replace mm with t_size in *; try omega.
-  clear EQ s_size mm.
-  apply Bt2 in Bs.
+  apply BT2 in Bs.
   destruct Bs as [Bt_o Bt_xn]. subst.
   split; auto.
   rewrite <- fl_log_odd.
   replace (t_size + t_size + 1) with (S (2 * t_size)); omega.
 Qed.
 
-Program Fixpoint size A (b : @bin_tree A) 
+Definition size_result (A:Set) (b : @bin_tree A) n c :=
+  forall m,
+    (Braun b m -> (n = m /\ c = sum_of_logs n)).
+
+Program Fixpoint size {A:Set} (b : @bin_tree A) 
 : {! n !:! nat !<! c !>! 
-     forall m,
-       (Braun b m -> (n = m /\ c = sum_of_logs n)) !} := 
+     size_result A b n c !} := 
   match b with 
     | bt_mt => <== 0
     | bt_node _ s t =>
@@ -116,20 +125,32 @@ Program Fixpoint size A (b : @bin_tree A)
 
 Next Obligation.
 Proof.
+  unfold size_result.
+  intros m H.
   inversion H.
   constructor;auto.
 Qed.  
 
 Next Obligation.
 Proof.
-  invclr H1.
-  rename H into SIZE_SAME.
-  rename H2 into SIZE_DIFF.
-  rename H11 into BRAUNS.
-  rename H12 into BRAUNT.
+  clear H1 xm0.
+  clear H2 xm.
 
-  apply H0 in BRAUNT. clear H0.
-  destruct BRAUNT as [EQm EQxn]. subst.
+  destruct H as [SIZE_SAME SIZE_DIFF].
+  rename H0 into REC.
+
+  unfold size_result in *.
+
+  intros m0 BTb.
+
+  invclr BTb.
+  rename H2 into LT.
+  rename H4 into BRAUNS.
+  rename H5 into BRAUNT.
+
+  remember (REC t_size BRAUNT) as QQ.
+  destruct QQ; subst.
+  clear HeqQQ REC BRAUNT.
 
   assert (s_size = t_size \/ s_size = t_size + 1) as TWOCASES;[omega|].
   destruct TWOCASES as [EQ|EQ]; subst.

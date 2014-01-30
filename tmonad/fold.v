@@ -14,7 +14,7 @@ Section foldr.
                          P acc         xs       accC -> 
                          P acc' (x :: xs) (c + accC + 10) !}.
 
-  Definition base_type := {bv : B | (P bv nil 3)}.
+  Definition base_type := {bv : B | (P bv nil 4)}.
 
   Definition foldr_result 
              (f : f_type)
@@ -25,10 +25,6 @@ Section foldr.
 
   Load "fold_gen.v".
 
-
-  Admit Obligations.
-
-(*
   Next Obligation.
     unfold base_type in base.
     unfold foldr_result.
@@ -38,10 +34,9 @@ Section foldr.
 
   Next Obligation.
     unfold foldr_result.
-    replace (xn0 + (xn + 11)) with (xn + xn0 + 11); try omega.
+    replace (xn0 + (xn + 10)) with (xn + xn0 + 10); try omega.
     auto.
   Defined.
-*)
 
 End foldr.
 
@@ -52,17 +47,15 @@ Arguments foldr [A] [B] P f base l.
 Program Definition sum (l:list nat)
 : {! n !:! nat !<! c !>! 
      (forall x, In x l -> x <= n)
-     /\ c = 14 * length l + 3 !} 
+     /\ c = 13 * length l + 4 !} 
   :=
     n <- (foldr (fun b al n => 
                    (forall x, In x al -> x <= b)
-                   /\ n = 14 * length al + 3)
+                   /\ n = 13 * length al + 4)
                 (fun x y => += 3; <== plus x y)
                 0 l) ;
     <== n.
 
-Admit Obligations.
-(*
 Next Obligation.
   rename H0 into CR.
   split; [| omega].
@@ -83,7 +76,6 @@ Next Obligation.
   tauto.
   omega.
 Qed.
-*)
 
 (* example use of foldr *)
 Program Definition list_id (A : Set) (l : list A) : {! l' !:! list A !<! c !>!

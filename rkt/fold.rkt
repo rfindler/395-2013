@@ -4,7 +4,7 @@
  foldr @f{f_type} @base{base_type} @l{list A}
  #:returns @{B}
  (match l 
-   [(nil) => (<== base)]
+   [(nil) => (<== (proj1_sig base))]
    [(cons x xs)
     =>
     (bind ((acc (foldr f base xs)))

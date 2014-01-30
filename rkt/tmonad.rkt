@@ -22,8 +22,10 @@
          S
          (rename-out [-:nat -])
          +
-         false true)
+         false true
+         proj1_sig)
 
+(define (proj1_sig x) x)
 
 (define-syntax (top-interaction stx)
   (syntax-case stx ()

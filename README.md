@@ -43,7 +43,6 @@ TODO:
 - copy_fib (time bound) [burke]
 - copy_insert (not touched yet?)
 - copy2 (redo with Racket generation, big_oh)
-- make_array_naive_fold (redo with Racket generation, big_oh)
 - make_array_td (redo with Racket generation, big_oh)
 - make_array_bu (time, correctness, extraction, big_oh) [max]
 - to_list_naive (exact time [vs bound], big_oh)

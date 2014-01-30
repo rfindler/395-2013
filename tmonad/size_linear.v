@@ -32,7 +32,6 @@ Section size_linear.
     unfold size_linear_result.
 
     split.
-    (* Need to figure out what this supposed to be first *)
     unfold size_linear_rt.
     omega.
 

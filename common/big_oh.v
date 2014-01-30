@@ -40,3 +40,39 @@ Proof.
   rewrite <- fl_log_div2.
   omega.
 Qed.
+
+
+Lemma big_oh_nlogn_plus_n__nlogn :
+  big_oh (fun n : nat => n * fl_log n + n) (fun n : nat => n * fl_log n).
+Proof.
+  exists 2.
+  exists 2.
+  intros n L.
+  destruct n; intuition.
+  destruct n; intuition.
+  clear L.
+  replace 2 with (1+1); try omega.
+  rewrite mult_plus_distr_r.
+  unfold mult; fold mult.
+  rewrite plus_0_r.
+
+  assert (1 <= fl_log (S (S n))).
+  induction n.
+  rewrite fl_log_div2'.
+  omega.
+  apply (le_trans 1 (fl_log (S (S n))) (fl_log (S (S (S n))))); auto.
+  apply fl_log_monotone.
+
+  apply le_plus_right.
+  apply (le_trans (S (S n))
+                  (1 + 1 + n * fl_log (S (S n)))
+                  (fl_log (S (S n)) + (fl_log (S (S n)) + n * fl_log (S (S n))))); try omega.
+  apply (le_trans (S (S n))
+                  (1 + 1 + n * 1)
+                  (1 + 1 + n * fl_log (S (S n)))); try omega.
+  rewrite mult_comm.
+  apply le_plus_right.
+  rewrite mult_comm at 1.
+  apply le_mult_right.
+  assumption.
+Qed.

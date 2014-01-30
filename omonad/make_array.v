@@ -27,6 +27,12 @@ Section ifoldr.
     end.
 End ifoldr.
 
+Fixpoint man_time n : nat :=
+  match n with
+    | 0 => 0
+    | S n' => man_time n' + (cl_log n)
+  end.
+
 Section make_array_naive.
   Variable A : Set.
   

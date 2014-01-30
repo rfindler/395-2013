@@ -26,7 +26,6 @@ Section make_array_naive.
     foldr man_correct
           (fun x y => x <- insert x y; <== x)
           bt_mt
-          _ 
           l.
   Next Obligation.
     clear xm H1.

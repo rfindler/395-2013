@@ -23,7 +23,7 @@ Extract Constant minus => "fun x y -> x - y".
 Extract Constant div2 => "fun a -> a / 2".
 Extract Constant even_odd_dec => "fun a -> (a mod 2) != 0".
 
-Extraction Inline ret bind inc.
+Extraction Inline ret bind inc inc2.
 
 Extraction "tmonad.ml" insert.insert 
            copy.copy 

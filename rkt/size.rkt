@@ -1,6 +1,7 @@
 #lang at-exp s-exp "tmonad.rkt"
 
 (require "diff.rkt")
+(provide size)
 
 (Fixpoint
  size #:implicit @A{Set} @b{@"@"bin_tree A}

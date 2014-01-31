@@ -1,5 +1,10 @@
 #lang racket
-(require "braun.rkt" "log.rkt")
+(require "braun.rkt" "log.rkt"
+         (prefix-in fp:
+                    (combine-in
+                     "diff.rkt"
+                     "size.rkt"
+                     (only-in "tmonad.rkt" bt_node bt_mt))))
 
 (module copy racket
   (require "braun.rkt")
@@ -27,6 +32,12 @@
     (for ([i (in-range 1000)]) (copy i))))
 (require 'copy)
 
+(define (convert t)
+  (cond
+    [(node? t) (fp:bt_node (node-v t) 
+                           (convert (node-l t))
+                           (convert (node-r t)))]
+    [else fp:bt_mt]))
 
 ;; computes the running time of diff
 (define/contract (diff-rt b m)
@@ -34,15 +45,9 @@
   (->i ([b (or/c node? #f)]
         [m (b) (λ (m) (<= m (size b) (+ m 1)))])
        any)
-  (match* (b m)
-    [(#f 0) 0]
-    [((node _ #f #f _) 0) 1]
-    [((node _ s t _) (? (and/c odd? non-zero?))) 
-     (define k (/ (- m 1) 2))
-     (+ (diff-rt s k) 1)]
-    [((node _ s t _) (? (and/c even? non-zero?)))
-     (define k (/ (- m 2) 2))
-     (+ (diff-rt t k) 1)]))
+  (define-values (result time) (fp:diff (convert b) m))
+  time)
+
 (define (non-zero? n) (not (= n 0)))
 
 (module+ test
@@ -52,61 +57,30 @@
       (when (positive? m)
         (define bt (copy n))
         (define d (diff-rt bt m))
-        (define f (+ (fl_log m) (diff bt m)))
-        (unless (= d f)
+        (define f (+ (* 13 (fl_log m)) 4))
+        (unless (<= d f)
           (eprintf "diff rt wrong: n = ~a m = ~a d = ~a f = ~a\n" n m d f))))))
-
-;; compute the size according to Okasaki's algorithm
-(define (loglog-size b)
-  (match b
-    [#f 0]
-    [(node _ s t _) 
-     (define m (loglog-size t))
-     (+ 1 (* 2 m) (diff s m))]))
-(define (diff b m) (- (size b) m))
-
-(module+ test
-  (printf "testing size vs loglog-size\n")
-  (for ([i (in-range 1000)])
-    (define b (copy i))
-    (unless (= (size b) (loglog-size b))
-      (error 'size-mismatch "i ~a (size b) ~s (loglog-size b) ~s"
-             i (size b) (loglog-size b)))))
 
 ;; compute the running time of the loglog-size function
 (define (loglog-size-rt b)
-  (match b
-    [#f 0]
-    [(node _ s t _) 
-     (define rt-t (loglog-size-rt t))
-     (+ 1 rt-t (diff-rt s (size t)))]))
+  (define-values (result time) (fp:size (convert b)))
+  time)
 
 (define (sum-of-logs n)
   (cond
-    [(zero? n) 0]
-    [(odd? n) (+ (fl_log n) (sum-of-logs (div2 (- n 1))))]
-    [(even? n) (+ (cl_log n) (sum-of-logs (div2 (- n 1))))]))
+    [(zero? n) 3]
+    [(odd? n)  (+ (* 13 (fl_log n)) 17 (sum-of-logs (div2 (- n 1))))]
+    [(even? n) (+ (* 13 (cl_log n)) 17 (sum-of-logs (div2 (- n 1))))]))
 
 (module+ test
   (printf "testing sum-of-logs\n")
   (for ([n (in-range 200)])
     (define d (loglog-size-rt (copy n)))
     (define f (sum-of-logs n))
-    (unless (= d f)
+    (unless (<= d f)
       (eprintf "size rt wrong: n = ~a d = ~a f = ~a\n" n d f))))
 
-(define (sum-of-logs-lb n) (div2 (* (cl_log n) (fl_log n))))
-
-(module+ test
-  (printf "testing lower bound of sum-of-logs\n")
-  (for ([n (in-range 0 10000000 10000)])
-    (define lb (sum-of-logs-lb n))
-    (define sl (sum-of-logs n))
-    (unless (<= lb sl)
-      (eprintf "lower bound wrong: n = ~a lb = ~a sl = ~a\n"
-               n lb sl))))
-
-(define (sum-of-logs-ub n) (* 2 (fl_log n) (fl_log n)))
+(define (sum-of-logs-ub n) (+ (* 17 (fl_log n) (fl_log n)) 20))
 
 (module+ test
   (printf "testing upper bound of sum-of-logs\n")

@@ -3,7 +3,7 @@
 (Fixpoint
  foldr @f{f_type} @base{base_type} @l{list A}
  #:returns @{B}
- (match l 
+ (match (l)
    [(nil) => (<== (proj1_sig base))]
    [(cons x xs)
     =>

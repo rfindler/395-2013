@@ -5,7 +5,7 @@
  copy_linear #:implicit @A{Set} @x{A} @n{nat}
  #:measure n
  #:returns @{bin_tree}
- (match n 
+ (match (n)
    [0 => (<== bt_mt)]
    [(S n′) 
     => 

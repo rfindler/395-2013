@@ -7,16 +7,27 @@ Definition diff_result (A:Set) (b : @bin_tree A) m n c :=
    /\
    (Braun b (m+1) -> (n = 1 /\ c = fl_log m + 1)).
 
-Program Fixpoint diff {A:Set} (b : @bin_tree A) (m : nat) {wf lt m} 
-: {! n !:! nat !<! c !>! 
-     diff_result A b m n c !} :=
-  match b,m with
-    | bt_mt                , _ => <== 0
-    | bt_node x    _      _, 0 => ++; <== 1
-    | bt_node x    s      t, (S m') =>
+(* this is generated from the rkt code, but 
+   tweaked to have the same constants as the
+   hand-written version *)
+Program Fixpoint diff {A:Set} (b:@bin_tree A) (m:nat) {measure m}
+: {! res !:! nat !<! c !>!
+     diff_result A b m res c !} :=
+  match b, m with
+    | bt_mt, _ => 
+      += 0; 
+      <== 0
+    | bt_node x _ _, 0 => 
+      += 1; 
+      <== 1
+    | bt_node x s t, S m' => 
       if (even_odd_dec m)
-      then o <- diff t (div2 (m'-1)); ++; <== o
-      else o <- diff s (div2 m');     ++; <== o
+      then (o <- diff t (div2 (m' - 1));
+            += 1; 
+            <== o)
+      else (o <- diff s (div2 m');
+            += 1; 
+            <== o)
   end.
 
 Next Obligation.
@@ -33,8 +44,8 @@ Next Obligation.
 Qed.
 
 Next Obligation.
-  clear xm H1 diff.
-  rename H0 into BTxn.
+  clear xm H2 diff.
+  rename H1 into BTxn.
   rename H into E.
   destruct BTxn as [BT1 BT2].
 
@@ -75,8 +86,8 @@ Next Obligation.
 Qed.
 
 Next Obligation.
-  clear xm H1.
-  rename H0 into BT.
+  clear xm H2 diff.
+  rename H1 into BT.
   rename H into O.
 
   destruct BT as [BT1 BT2].
@@ -111,16 +122,21 @@ Definition size_result (A:Set) (b : @bin_tree A) n c :=
   forall m,
     (Braun b m -> (n = m /\ c = sum_of_logs n)).
 
-Program Fixpoint size {A:Set} (b : @bin_tree A) 
-: {! n !:! nat !<! c !>! 
-     size_result A b n c !} := 
-  match b with 
-    | bt_mt => <== 0
-    | bt_node _ s t =>
-      (++;
-       m <- size t ; 
-       zo <- diff s m;
-       <== (1 + 2 * m + zo))
+(* this is generated from the rkt code, but 
+   tweaked to have the same constants as the
+   hand-written version *)
+Program Fixpoint size {A:Set} (b:@bin_tree A)
+: {! res !:! nat !<! c !>!
+     size_result A b res c !} :=
+  match b with
+    | bt_mt => 
+      += 0; 
+      <== 0
+    | bt_node _ s t => 
+      m <- size t;
+      zo <- diff s m;
+      += 1; 
+      <== (1 + (2 * m) + zo)
   end.
 
 Next Obligation.
@@ -133,11 +149,12 @@ Qed.
 
 Next Obligation.
 Proof.
-  clear H1 xm0.
-  clear H2 xm.
+  clear H2 xm0.
+  clear H3 xm.
+  rename H0 into DIFF_RES.
+  rename H1 into REC.
 
-  destruct H as [SIZE_SAME SIZE_DIFF].
-  rename H0 into REC.
+  destruct DIFF_RES as [SIZE_SAME SIZE_DIFF].
 
   unfold size_result in *.
 

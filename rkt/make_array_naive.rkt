@@ -5,7 +5,7 @@
 (Fixpoint
  make_array_naive #:implicit @A{Set} @xs{list A}
  #:returns @{@"@"bin_tree A}
- (match xs
+ (match (xs)
    [(nil) => (<== bt_mt)]
    [(cons x xs′)
     =>

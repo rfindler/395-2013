@@ -3,7 +3,7 @@
 (Fixpoint
  size_linear @bt{@"@"bin_tree A}
  #:returns @{nat}
- (match bt
+ (match (bt)
    [(bt_mt) => (<== 0)]
    [(bt_node x l r)
     =>

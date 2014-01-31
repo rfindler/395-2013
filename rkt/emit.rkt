@@ -51,17 +51,24 @@
   (indent
    (if wrap-with-parens? 1 0)
    (match exp
-     [`(match ,texp [,tsts => ,rexps] ...)
+     [`(match (,texp1 ,texp2 ...) [,tsts1 ,tsts2 ... => ,rexps] ...)
       (out "match ")
-      (define test-count (out-exp texp))
+      (out-exp texp1)
+      (for ([texp (in-list texp2)])
+        (out ", ")
+        (out-exp texp))
       (out " with")
       (indent 
        2
-       (for ([tst (in-list tsts)]
+       (for ([fst-tst (in-list tsts1)]
+             [rst-tsts (in-list tsts2)]
              [rexp (in-list rexps)])
          (out-nl)
          (out "| ")
-         (out-pat tst)
+         (out-pat fst-tst)
+         (for ([rst-tst (in-list rst-tsts)])
+           (out ", ")
+           (out-pat rst-tst))
          (out " => ")
          (indent 2 
                  (out-nl)
@@ -112,7 +119,7 @@
         (out-exp arg))]))
   (when wrap-with-parens? (out ")")))
 
-(define (infixop? x) (member x '(- +)))
+(define (infixop? x) (member x '(- + *)))
 (define (compound-expression? exp) (pair? exp))
 (define (simple? exp) (or (symbol? exp) (number? exp)))
 (define (out-id id)

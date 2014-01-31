@@ -6,12 +6,12 @@
  copy2 #:implicit @A{Set} @x{A} @n{nat}
  #:measure n
  #:returns @{@"@"bin_tree A * @"@"bin_tree A}
- (match n
+ (match (n)
    [0 => (<== (pair (bt_node x bt_mt bt_mt) bt_mt))]
    [(S n′) 
     =>
     (bind ([pr (copy2 x (div2 n′))])
-      (match pr
+      (match (pr)
         [(pair s t) 
          => 
          (if (even_odd_dec n′)

@@ -4,7 +4,7 @@
  copy_fib @x{A} @n{nat}
  #:measure n
  #:returns @{bin_tree}
- (match n
+ (match (n)
    [0 => (<== bt_mt)]
    [_
     =>

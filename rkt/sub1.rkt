@@ -4,7 +4,7 @@
 (Fixpoint
  sub1 @n{nat}
  #:returns @{nat}
- (match n
+ (match (n)
    [0 => (<== 0)]
    [(S _) 
     =>

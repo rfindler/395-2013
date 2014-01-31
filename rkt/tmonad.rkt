@@ -21,7 +21,7 @@
          div2
          S
          (rename-out [-:nat -])
-         +
+         + *
          false true
          proj1_sig)
 
@@ -129,17 +129,22 @@
 (define-for-syntax (add-plusses/check-stx-errs orig-stx)
   (define (in-monad k stx)
     (syntax-case stx (match if bind => <==)
-      [(match t [ps => es] ...)
+      [(match (t ...) [ps1 ps2 ... => es] ...)
        ;; destructuring matches are free
-       (let ([inc (if (= 1 (length (syntax->list #'(ps ...)))) 0 1)])
-         (for ([p (in-list (syntax->list #'(ps ...)))])
-           (check-match-pattern p))
-         (define addl-k (+ inc (count-expr #'t)))
-         (with-syntax
-             ([(mes ...)
-               (for/list ([e (in-list (syntax->list #'(es ...)))])
-                 (in-monad (+ k addl-k) e))])
-           #`(match t [ps => mes] ...)))]
+       (let ([inc (if (= 1 (length (syntax->list #'(ps1 ...)))) 0 1)])
+         (when (null? (syntax->list #'(t ...)))
+           (raise-syntax-error 'match "expected at least one test" stx))
+         (for ([ps (in-list (syntax->list #'((ps1 ps2 ...) ...)))])
+           (for ([p (in-list (syntax->list ps))])
+             (check-match-pattern p)))
+         (define ts-cost 
+           (for/sum ([t (in-list (syntax->list #'(t ...)))])
+             (count-expr t)))
+         (define addl-k (+ inc ts-cost))
+         (with-syntax  ([(mes ...)
+                         (for/list ([e (in-list (syntax->list #'(es ...)))])
+                           (in-monad (+ k addl-k) e))])
+           #`(match (t ...) [ps1 ps2 ... => mes] ...)))]
       [(match . args)
        (raise-syntax-error #f "malformed match" orig-stx stx)]
       [(if tst thn els)
@@ -170,7 +175,7 @@
 
   (define (in-monad/!tail stx)
     (syntax-case stx (match if bind => <==)
-      [(match t [ps => es] ...)
+      [(match . whatever)
        (raise-syntax-error #f "match must not occur in non-tail position"
                            orig-stx stx)]
       [(if tst thn els)
@@ -257,9 +262,8 @@
 
 (define-syntax (match stx)
   (syntax-case stx (=>)
-    [(_ expr [test => body] ...)
-     #'(let ([x expr])
-         (r:match x [test body] ...))]))
+    [(_ (expr ...) [test1 test2 ... => body] ...)
+     #'(r:match* (expr ...) [(test1 test2 ...) body] ...)]))
 
 (struct bt_mt-struct () #:transparent
         #:methods gen:custom-write

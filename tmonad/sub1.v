@@ -24,7 +24,7 @@ Program Fixpoint sub1 (n:nat) {measure n}
   end.
 
 Next Obligation.
-  clear H2 xm.
+  clear H2 am.
   rename H into EW.
   unfold sub1_result in *.
   subst sd2.

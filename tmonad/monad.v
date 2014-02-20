@@ -1,42 +1,95 @@
-Definition C (A:Set) (P:A -> nat -> Prop) : Set := {a | exists n, (P a n)}.
+(* START: C *)
+Definition C (A:Set) (P:A -> nat -> Prop) : Set := {a : A | exists (an:nat), (P a an)}.
+(* STOP: C *)
 Hint Unfold C.
 
-Definition ret (A:Set) (PA:A -> nat -> Prop) (x:A) (PAx:PA x 0) : C A PA.
+(* START: ret *)
+Definition ret (A:Set) (P:A -> nat -> Prop) (a:A) (Pa0:P a 0) : C A P.
+(* STOP: ret *)
 Proof.
-  exists x.
+  exists a.
   exists 0.
-  apply PAx.
+  apply Pa0.
 Defined.
 
-Definition bind (A:Set) (B:Set)
-           (PA:A -> nat -> Prop) (PAB: A -> B -> nat -> Prop)
-           (xm:C A PA) 
-           (yf:forall x (xm:exists n, PA x n),
-                 C B 
-                   (fun y yn => 
-                      forall xn, 
-                        PA x xn ->
-                        PAB x y (xn+yn)))
-: C B (PAB (proj1_sig xm)).
+(* START: bind1 *)
+Definition 
+  bind1 
+  (A:Set) (PA:A -> nat -> Prop)
+  (B:Set) (PB:B -> nat -> Prop)
+  (am:C A PA) 
+  (bf:A -> C B PB)
+: C B PB.
+(* STOP: bind1 *)
+Admitted.
+
+(* START: bind2 *)
+Definition
+  bind2 
+  (A:Set) (PA:A -> nat -> Prop)
+  (B:Set) (PB:B -> nat -> Prop)
+  (am:C A PA) 
+  (bf:A -> 
+      C B 
+        (fun b bn => 
+           forall an, 
+             PB b (bn+an)))
+: C B PB.
+(* STOP: bind2 *)
+Admitted.
+
+(* START: bind3 *)
+Definition
+  bind3 
+  (A:Set) (PA:A -> nat -> Prop)
+  (B:Set) (PB:B -> nat -> Prop)
+  (am:C A PA) 
+  (bf:forall (a:A), 
+        C B 
+          (fun b bn => 
+             forall an,
+               PA a an ->
+               PB b (bn+an)))
+: C B PB.
+(* STOP: bind3 *)
+Admitted.
+
+(* START: bind *)
+Definition
+  bind 
+  (A:Set) (PA:A -> nat -> Prop)
+  (B:Set) (PB:B -> nat -> Prop)
+  (am:C A PA) 
+  (bf:forall (a:A)
+             (pa:exists an, PA a an),
+        C B 
+          (fun b bn => 
+             forall an, 
+               PA a an ->
+               PB b (an+bn)))
+: C B PB.
+(* STOP: bind *)
 Proof.
-  destruct xm as [x Px].
-  edestruct (yf x Px) as [y Py].
-  exists y.
-  destruct Px as [xn Px].
-  destruct Py as [yn Py].
-  exists (xn + yn).
-  eapply Py.
-  apply Px.
+  destruct am as [a Pa].
+  edestruct (bf a Pa) as [b Pb].
+  exists b.
+  destruct Pa as [an Pa].
+  destruct Pb as [bn Pb].
+  exists (an + bn).
+  eapply Pb.
+  apply Pa.
 Defined.
 
-Definition inc (A:Set) PA (x:C A (fun x xn => PA x (xn+1)))
-: C A PA.
+(* START: inc *)
+Definition inc (A:Set) (P:A -> nat -> Prop) (am:C A (fun a an => P a (an+1)))
+: C A P.
+(* STOP: inc *)
 Proof.
-  destruct x as [x Px].
-  exists x.
-  destruct Px as [n Px].
+  destruct am as [a Pa].
+  exists a.
+  destruct Pa as [n Pa].
   exists (n + 1).
-  apply Px.
+  apply Pa.
 Defined.
 
 (* this seems like it could replace inc, except
@@ -62,9 +115,9 @@ Defined.
 Notation "<== x" := (ret _ _ x _) (at level 55).
 Notation "++ ; c" := (inc _ _ c) (at level 30, right associativity).
 Notation "+= k ; c" := (inc2 _ k _ c) (at level 30, right associativity).
-Notation "x <- y ; z" := (bind _ _ _ (fun _ _ => _) y (fun (x : _) (xm : _) => z) ) (at level 30, right associativity).
-Notation "x >>= y" := (bind _ _ _ (fun _ _ => _) x y) (at level 55).
-Notation "x >> y" := (bind _ _ _ (fun _ => _) x (fun _ => y)) (at level 30, right associativity).
+Notation "x <- y ; z" := (bind _ _ _ _ y (fun (x : _) (am : _) => z) ) (at level 30, right associativity).
+Notation "x >>= y" := (bind _ _ _ _ x y) (at level 55).
+Notation "x >> y" := (bind _ _ _ _ x (fun _ => y)) (at level 30, right associativity).
 
 Notation "{! x !:! A !<! c !>!  P !}" := (C A (fun (x:A) (c:nat) => P)) (at level 55).
 
@@ -74,12 +127,12 @@ Definition sig_eqv A (P1:A -> Prop) (P2:A -> Prop) (s1:sig P1) (s2:sig P2) : Pro
   v1 = v2 /\ (P1 v1 <-> P2 v2).
 
 Theorem left_identity:
-  forall A B PA PAB x PAx yf,
+  forall A B PA PB x PAx yf,
     sig_eqv _ _ _ 
-            (bind A B PA PAB (ret A PA x PAx) yf)
+            (bind A PA B PB (ret A PA x PAx) yf)
             (yf x (ex_intro (PA x) 0 PAx)).
 Proof.
-  intros A B PA PAB x PAx yf.
+  intros A B PA PB x PAx yf.
   unfold sig_eqv. unfold bind. unfold ret. simpl.
   remember (yf x (ex_intro (PA x) 0 PAx)) as y.
   destruct y as [y [yn Py]]. simpl in *.
@@ -108,14 +161,13 @@ Qed.
 Theorem right_identity:
   forall A PA m,
     sig_eqv _ _ _
-            (bind A A PA
-                     (fun a1 a2 an => PA a1 an) m 
+            (bind A PA A PA m 
                      (fun a1 pa => 
                         ret A 
                             (fun a2 an => 
                                forall xn : nat, 
                                  PA a1 xn -> 
-                                 PA a1 (xn + an))
+                                 PA a2 (xn + an))
                             a1
                             (right_identity_helper A PA a1 pa)))
             m.
@@ -134,51 +186,33 @@ Theorem associativity:
     (B:Set)
     (G:Set)
     (PA:A -> nat -> Prop)
-    (PAB:A -> B -> nat -> Prop)
-    (PABG:A -> B -> G -> nat -> Prop)
+    (PB:B -> nat -> Prop)
+    (PG:G -> nat -> Prop)
     (ma:C A PA)
     (fb:forall (a:A) (pa:exists an, PA a an),
           C B
             (fun b bn =>
                 forall an : nat, 
                   PA a an -> 
-                  PAB a b (an + bn)))
-    (gg:forall (b:B) (pb:exists bn, PAB (proj1_sig ma) b bn),
+                  PB b (an + bn)))
+    (gg:forall (b:B) (pb:exists bn, PB b bn),
           C G
             (fun g gn =>
                forall anbn : nat,
-                 PAB (proj1_sig ma) b anbn ->
-                 PABG (proj1_sig ma) b g (anbn + gn)))
-    helper1 helper2 helper3,
+                 PB b anbn ->
+                 PG g (anbn + gn)))
+    helper1 helper2,
     sig_eqv _ _ _
-            (bind B G (PAB (proj1_sig ma)) 
-                  (fun b g n => PABG (proj1_sig ma) b g n)
-                  (bind A B PA PAB
+            (bind B PB G PG
+                  (bind A PA B PB
                         ma
                         fb)
                   gg)
-            (bind A G PA
-                  (fun a g n => 
-                     PABG a 
-                          (proj1_sig (fb (proj1_sig ma) (proj2_sig ma)))
-                          g n)
+            (bind A PA G PG
                   ma
                   (fun (a:A) (pa:exists an, PA a an) => 
-                     let mg :=
-                         (bind B G
-                               (fun b bn => 
-                                  forall an,
-                                    PA a an ->
-                                    PAB a b (an + bn))
-                               (fun b g bngn =>
-                                  PABG a b g bngn)
-                               (fb a pa)
-                               (fun b pb =>
-                                  let mg := gg b (helper1 a pa b pb) in
-                                  let (g, pg) := mg in
-                                  exist _ g (helper2 a pa b pb g pg))) in
-                     let (g, pg) := mg in
-                     exist _ g (helper3 a pa g pg))).
+                     let mb := (helper1 a pa (fb a pa)) in
+                     helper2 a pa mb (bind B PB G PG mb gg))).
 Proof.
   intros.
   unfold sig_eqv, bind.
@@ -189,25 +223,46 @@ Proof.
 
   remember (helper1 a pae) as helper1'.
   remember (helper2 a pae) as helper2'.
-  remember (helper3 a pae) as helper3'.
-  clear Heqhelper1' helper1 Heqhelper2' helper2 Heqhelper3' helper3.
+  clear Heqhelper1' helper1 Heqhelper2' helper2.
 
   remember (fb a pae) as mb.
   destruct mb as [b [bn pb]].
   simpl in *.
-  remember (ex_intro (fun n : nat => PAB a b n) (an + bn) (pb an pa)) as pbe1.
-  remember (ex_intro
-              (fun n : nat =>
-                 forall an0 : nat,
-                   PA a an0 -> PAB a b (an0 + n)) bn pb) as pbe2.
 
-  replace (helper1' b pbe2) with pbe1 in *.
+  remember (ex_intro (PB b) (an + bn) (pb an pa)) as pbe1.
+  remember (exist
+              (fun a0 : B =>
+                 exists an0 : nat,
+                   forall an1 : nat, PA a an1 -> PB a0 (an1 + an0)) b
+              (ex_intro
+                 (fun an0 : nat =>
+                    forall an1 : nat, PA a an1 -> PB b (an1 + an0)) bn pb))
+    as pbe2.
+Admitted.
+
+(*
+
+  replace (helper1' pbe2) with (b, pbe1).
 
   remember (gg b pbe1) as mg.
   destruct mg as [g [gn pg]].
   simpl in *.
 
-  intuition.
+  remember (exist
+              (fun a0 : B =>
+                 exists an0 : nat,
+                   forall an1 : nat, PA a an1 -> PB a0 (an1 + an0)) b
+              (ex_intro
+                 (fun an0 : nat =>
+                    forall an1 : nat, PA a an1 -> PB b (an1 + an0)) bn
+                 pb))
+    as pbe2.
+  destruct (helper1' pbe2) as [b' [bn' pb']]. simpl in *.
+  remember (ex_intro (fun an0 : nat => PB b' an0) bn' pb')
+    as pbe3.
+  remember (gg b' pbe3) as mg'.
+  destruct mg' as [g' [gn' pg']].
+  simpl in *.
 
-  apply proof_irrelevance.
-Qed.
+Admitted.
+*)

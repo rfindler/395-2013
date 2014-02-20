@@ -44,7 +44,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
-  clear xm H2 diff.
+  clear am H2 diff.
   rename H1 into BTxn.
   rename H into E.
   destruct BTxn as [BT1 BT2].
@@ -86,7 +86,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
-  clear xm H2 diff.
+  clear am H2 diff.
   rename H1 into BT.
   rename H into O.
 
@@ -149,8 +149,8 @@ Qed.
 
 Next Obligation.
 Proof.
-  clear H2 xm0.
-  clear H3 xm.
+  clear H2 am0.
+  clear H3 am.
   rename H0 into DIFF_RES.
   rename H1 into REC.
 

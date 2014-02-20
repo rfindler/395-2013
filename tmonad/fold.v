@@ -34,7 +34,7 @@ Section foldr.
 
   Next Obligation.
     unfold foldr_result.
-    replace (xn0 + (xn + 10)) with (xn + xn0 + 10); try omega.
+    replace (an0 + (an + 10)) with (an + an0 + 10); try omega.
     auto.
   Defined.
 

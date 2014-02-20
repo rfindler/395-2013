@@ -39,7 +39,7 @@ Section make_array_naive.
 
   Next Obligation.
   Proof.
-    clear xm H2.
+    clear am H2.
     rename H0 into IR.
     rename H1 into MC.
 

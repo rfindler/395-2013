@@ -65,8 +65,8 @@ Next Obligation.
   remember (length tl) as tn.
   split; eauto.
   remember (sn + tn + 1) as p.
-  replace (xn1 + (xn0 + p)) with
-          (p + (xn1 + xn0)); try omega.
+  replace (an1 + (an0 + p)) with
+          (p + (an1 + an0)); try omega.
   replace (S (sn + tn + (tln_time (sn + tn) + (tln_time (sn + tn) + 0)))) with
           (p + 2 * tln_time (sn + tn)); try omega.
   apply Plus.plus_le_compat_l.

@@ -61,7 +61,7 @@ Section copy_fib.
   Next Obligation.
     (* even case *)
     rename H0 into E.
-    clear H5 H4 xm0 xm.
+    clear H5 H4 am0 am.
     rename H into NEQ.
     invclr H2.
     rename H into Br.

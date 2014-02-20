@@ -41,7 +41,7 @@ Qed.
 Hint Rewrite same_tree_same_size.
 
 Next Obligation.
-  clear H1 xm.
+  clear H1 am.
   rename H0 into IH.
   unfold insert_result in *.
 
@@ -54,7 +54,7 @@ Next Obligation.
 
   apply IH in Bt.
   destruct Bt as [Bst [SRst EQ]].
-  subst xn.
+  subst an.
 
   repeat constructor.
 

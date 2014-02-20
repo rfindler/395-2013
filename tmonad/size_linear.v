@@ -22,13 +22,13 @@ Section size_linear.
 
   Next Obligation.
   Proof.
-    clear xm0 H2 xm H3.
+    clear am0 H2 am H3.
     rename H0 into SLRr.
     rename H1 into SLRl.
 
     destruct SLRr as [XNeq Br].
     destruct SLRl as [XN0eq Bl].
-    subst xn xn0.
+    subst an an0.
     unfold size_linear_result.
 
     split.

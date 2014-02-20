@@ -23,7 +23,7 @@ Section copy_linear.
 
   Next Obligation.
   Proof.
-    clear H2 xm0 H3 xm. 
+    clear H2 am0 H3 am. 
     destruct H0 as [Br [IRr EQxn]].
     destruct H1 as [Bl [IRl EQxn0]].
 

@@ -14,14 +14,14 @@ Defined.
 
 (* START: bind1 *)
 Definition 
-  bind1 
+  bind1
   (A:Set) (PA:A -> nat -> Prop)
   (B:Set) (PB:B -> nat -> Prop)
   (am:C A PA) 
   (bf:A -> C B PB)
 : C B PB.
 (* STOP: bind1 *)
-Admitted.
+Abort.
 
 (* START: bind2 *)
 Definition
@@ -36,7 +36,7 @@ Definition
              PB b (bn+an)))
 : C B PB.
 (* STOP: bind2 *)
-Admitted.
+Abort.
 
 (* START: bind3 *)
 Definition
@@ -52,7 +52,7 @@ Definition
                PB b (bn+an)))
 : C B PB.
 (* STOP: bind3 *)
-Admitted.
+Abort.
 
 (* START: bind *)
 Definition
@@ -264,5 +264,4 @@ Admitted.
   destruct mg' as [g' [gn' pg']].
   simpl in *.
 
-Admitted.
 *)

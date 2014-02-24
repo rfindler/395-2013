@@ -39,7 +39,8 @@
         #,@(for/list ([arg (in-list (syntax->list #'(args ...)))])
              (syntax-case arg ()
                [(id . whatever)
-                (ormap (λ (x) (free-identifier=? x #'id))
+                (ormap (λ (x) (and (identifier? x)
+                                   (free-identifier=? x #'id)))
                        (list #'Fixpoint #'provide #'require))
                 arg]
                [_ #`(top-interaction . #,arg)])))]))

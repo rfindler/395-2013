@@ -1,10 +1,10 @@
-#lang at-exp s-exp "tmonad.rkt"
+#reader "tmonad-coq.rkt"
 
-(provide insert)
+Provide insert.
 
-#|
+(*
 
-This language contains 'Fixpoint' 'provide' and
+This language contains 'Fixpoint' 'Provide' and
 expressions of the shape below.
 
 It implicitly defines a main module that emits
@@ -26,17 +26,14 @@ values: the result of the function and the step count.
 ;;  <id>
 ;;  (<id> <id> ...)
 
-(still plenty of work to do here)
-|#
+*)
 
 
-(Fixpoint
- insert #:implicit @A{Set} @i{A} @b{@"@"bin_tree A}
- #:returns @{@"@"bin_tree A}
- (match (b)
-   [(bt_mt) => (<== (bt_node i bt_mt bt_mt))]
-   [(bt_node j s t) 
-    => 
-    (bind ([bt (insert j t)])
-      (<== (bt_node i bt s)))]))
-
+Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A) : @bin_tree A :=
+match b with
+ | bt_mt => 
+   <== bt_node i bt_mt bt_mt
+ | bt_node j s t => 
+   bt <- insert j t;
+   <== bt_node i bt s
+end.

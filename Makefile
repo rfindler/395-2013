@@ -3,7 +3,7 @@ VERSIONS := logical tmonad
 BINS := $(VERSIONS:%=ml/%.bin)
 MLS := $(VERSIONS:%=ml/%.ml)
 MLIS := $(VERSIONS:%=ml/%.mli)
-GEN_DEPS := rkt/emit.rkt rkt/tmonad.rkt
+GEN_DEPS := rkt/emit.rkt rkt/tmonad.rkt rkt/tmonad-coq.rkt
 
 all: coq $(BINS) paper/paper.pdf
 	@echo ""

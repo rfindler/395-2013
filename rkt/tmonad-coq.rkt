@@ -150,9 +150,8 @@
                   (list `[,$2 => ,$4]))
                  ((pipe pat => expr match-cases)
                   (cons `[,$2 => ,$4] $5))]
-    [pat ((id) $1)
-         ((open-paren pat close-paren) $2)
-         ((ids) $1)])
+    [pat ((ids) $1)
+         ((open-paren pat close-paren) $2)])
    
    (tokens coq-empty-tokens coq-tokens)
    (error 

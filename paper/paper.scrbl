@@ -178,6 +178,11 @@ laws that incorporate the proof obligations. The only oddity is that
 the proof of @tt{bind}'s associativity relies on the verifier proving
 the associativity of the correctness properties as well.
 
+In summary, the monad works by requiring the verifier to predict the
+running-time with the @tt{PA} property and then provide evidence that
+the actual cost (that starts at @tt{0} and is incremented as the
+property passes down) is the same as this prediction.
+
 @section{Evaluation}
 
 We did all of Chris's paper. See git repo.

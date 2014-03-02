@@ -15,7 +15,8 @@
                                        (let-values ([(base name dir?) (split-path name)])
                                          (string->symbol
                                           (regexp-replace #rx"[.][^.]*$" (path->string name) "")))
-                                       'anonymous-module)])
+                                       'anonymous-module)]
+                 [current-source name])
     (datum->syntax #f (parse name port))))
 
 (define (parse src port)
@@ -45,7 +46,7 @@
    
    eof))
 (define-tokens coq-tokens
-  (id))
+  (id num))
 
 (define-lex-abbrev ws (:* whitespace))
 
@@ -80,13 +81,30 @@
    [(:: "=>" ws) (token-=>)]
    [(:: "end" ws) (token-end)]
    [(:: (:+ "@" (:/ "a" "z" "A" "Z"))
-        (:* (:+ "_" (:/ "a" "z" "A" "Z" "0" "9"))) 
+        (:* (:+ "_" "'" (:/ "a" "z" "A" "Z" "0" "9"))) 
         ws)
-    (token-id (string->symbol (regexp-replace #rx"[\t\n ]*$" lexeme "")))]
+    (token-id (string->symbol 
+               (regexp-replace 
+                #rx"[\t\n ]*$" 
+                (regexp-replace*
+                 #rx"'" 
+                 lexeme
+                 "′")
+                "")))]
+   [(:: (:/ "0" "9") (:* (:/ "0" "9")) ws)
+    (token-num (string->number (regexp-replace #rx"[\t\n ]*$" lexeme "")))]
    ["(*" (begin (read-nested-comment 1 start-pos input-port)
                 (ws-lexer input-port)
                 (return-without-pos (simple-coq-lexer input-port)))]
-   [(eof) (token-eof)]))
+   [(eof) (token-eof)]
+   [(char-complement (union))
+    (raise-read-error
+     (format "unknown character: ~a" lexeme)
+     (current-source)
+     (position-line start-pos)
+     (position-col start-pos)
+     (position-offset start-pos)
+     1)]))
 
 (define get-next-comment
   (lexer
@@ -141,6 +159,7 @@
           ((id <- expr semicolon expr) 
            `(bind ((,$1 ,$3)) ,$5))
           ((id) $1)
+          ((num) $1)
           
           ;; application needs at least two ids (could be exprs --ack!)
           ((id ids) (cons $1 $2))
@@ -150,8 +169,12 @@
                   (list `[,$2 => ,$4]))
                  ((pipe pat => expr match-cases)
                   (cons `[,$2 => ,$4] $5))]
-    [pat ((ids) $1)
-         ((open-paren pat close-paren) $2)])
+    [pat ((id-or-nums) $1)
+         ((open-paren pat close-paren) $2)]
+    [id-or-nums ((id-or-num) (list $1))
+                ((id-or-num id-or-nums) (cons $1 $2))]
+    [id-or-num ((id) $1)
+               ((num) $1)])
    
    (tokens coq-empty-tokens coq-tokens)
    (error 

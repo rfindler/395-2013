@@ -28,8 +28,10 @@ values: the result of the function and the step count.
 
 *)
 
-
-Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A) : @bin_tree A :=
+(* START: insert *)
+Program Fixpoint insert {A:Set} (i:A) 
+                        (b:@bin_tree A) 
+: @bin_tree A :=
 match b with
  | bt_mt => 
    <== bt_node i bt_mt bt_mt
@@ -37,3 +39,4 @@ match b with
    bt <- insert j t;
    <== bt_node i bt s
 end.
+(* STOP: insert *)

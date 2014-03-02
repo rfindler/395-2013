@@ -2,7 +2,7 @@
 
 @(require "util.rkt" scriblib/footnote)
 
-@title{Warming up to Dependent Typing in Coq}
+@title[#:tag "sec:background"]{Warming up to Dependent Typing in Coq}
 
 One way to think about Coq's dependent type system is
 to just start with type system much like
@@ -219,7 +219,8 @@ the values whose types correspond to the restrictions you'd expect, the
 key one being a value that tells us that @tt{tl} has length @tt{tl_len}.
 As an example, we can write 
 @verbatim{
-  (L_cons 0 true empty L_Empty) : (list_len (cons true empty) 1)
+  (L_cons 0 true empty L_Empty) :
+  (list_len (cons true empty) 1)
 }
 to demonstrate that the singleton list containing @tt{true} has length
 @tt{1}.

@@ -5,15 +5,18 @@ Require Import Braun.tmonad.monad.
 Require Import Program.
 Require Import Omega.
 
+(* START: insert_result *)
 Definition insert_time n := 9 * fl_log n + 6.
-
-Definition insert_result (A : Set) (i : A) (b:@bin_tree A)
-           (b':@bin_tree A) c :=
+Definition insert_result (A : Set) (i : A) 
+                         (b:@bin_tree A)
+           (res:@bin_tree A) c :=
      (forall n,
         Braun b n ->
-        (Braun b' (S n) /\
-         (forall xs, SequenceR b xs -> SequenceR b' (i::xs)) /\
-         c = insert_time n)).
+        (Braun res (S n) /\
+         (forall xs, SequenceR b xs
+                  -> SequenceR res (i::xs))
+         /\ c = insert_time n)).
+(* STOP: insert_result *)
 
 Load "insert_gen.v".
 

@@ -1,6 +1,6 @@
 #lang scribble/sigplan
 
-@(require "util.rkt" scriblib/footnote)
+@(require "util.rkt" "cite.rkt" scriblib/footnote)
 
 @title{Putting Dependent Types to Work
        @subtitle{A Coq Library That Enforces Correct Running-Times via Type-Checking}}
@@ -23,23 +23,24 @@
 
 Running times! Whoo hoo!
 
-@include-section{background.scrbl}
+@include-section["background.scrbl"]
 
-@section{Proving Braun-Tree Insertion is O(n log n)}
+@include-section["insert.scrbl"]
 
-Demo of @tt{insert} code here. Brief discussion of 
-proofs (i.e., say they are "auto" with a few facts about logs)
+@include-section["running-time.scrbl"]
 
 @section{The Monad}
 
-Running-time proofs rely on an accurate static accounting of the costs
-of all operations in the algorithm. However, Coq does not provide an
-innate way of observing the structure of computations, dynamically or
-statically. Consider a single function application, @tt{f a} that
-returns some value @tt{b}: statically, Coq will only give us access to
-the type of @tt{b}, @tt{B}, and an assurance that the @tt{b} came from
-@tt{f a} and dynamically, we will only have access to the actual
-@tt{b}. Where comes the cost?
+Running-time proofs rely on an accurate static accounting
+of the costs of all operations in the algorithm. However,
+Coq does not provide an innate way of observing the
+structure of computations, dynamically or statically.
+Consider a single function application, @tt{f a} that
+returns some value @tt{b}: statically, Coq will only give
+us access to the type of @tt{b}, @tt{B}, and an assurance
+that the @tt{b} came from @tt{f a} and dynamically, we will
+only have access to the actual @tt{b}. Where comes the
+cost?
 
 One way to account for cost is to lift all actual values @tt{b} into a
 pair of a @tt{B} and a natural number representing cost, then ensure
@@ -198,3 +199,5 @@ Other things?
 @section{Related Work}
 
 @section{Conclusion}
+
+@generate-bibliography[]

@@ -100,3 +100,22 @@ Proof.
   apply IH in IN; destruct IN as [i IR]; eauto.
 Qed.
 Hint Resolve SequenceR_In.
+
+Fixpoint mk_list {A:Set} (x:A) (n:nat) :=
+  match n with
+    | 0 => nil
+    | S n' => cons x (mk_list x n')
+  end.
+
+Lemma interleave_mk_list_same_size : 
+  forall (A:Set) (x:A) n,
+    interleave (mk_list x n) (mk_list x n) = mk_list x (n+n).
+  induction n; auto.
+  simpl.
+  rewrite <- interleave_case2.
+  rewrite <- interleave_case2.
+  rewrite IHn.
+  replace (n + S n) with (S (n + n)); try omega.
+  auto.
+Qed.
+

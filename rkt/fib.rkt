@@ -24,9 +24,9 @@
 
 (define (rtcf n)
   (cond
-    [(= n 0) 1]
-    [(even? n) (+ 1 (rtcf (div2 n)) (rtcf (div2 (sub1 n))))]
-    [else (+ 1 (rtcf (div2 n)))]))
+    [(= n 0) 3]
+    [(even? n) (+ 19 (rtcf (div2 n)) (rtcf (div2 (sub1 n))))]
+    [else (+ 13 (rtcf (div2 n)))]))
 
 #|
  P2MO (2^n - 1) = 1 + P2MO (2^(n-1) - 1)
@@ -74,17 +74,17 @@
 
 (define (f n)
   (cond
-    [(= n 0) 1]
-    [(= n 1) 2]
-    [else (+ 1
+    [(= n 0) 3]
+    [(= n 1) 16]
+    [else (+ 19
              (f (div2 n))
              (g (div2 n)))]))
 
 (define (g n)
   (cond
-    [(= n 0) 1]
-    [(= n 1) 1]
-    [else (+ 1 (f (div2 n)))]))
+    [(= n 0) 3]
+    [(= n 1) 16]
+    [else (+ 13 (f (div2 n)))]))
 
 #|
 

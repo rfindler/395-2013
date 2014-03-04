@@ -26,8 +26,9 @@ Section copy_fib.
       | (S n') => if (even_odd_dec n)
                   then (19 + ((rt_copy_fib (div2 n)) + (rt_copy_fib (div2 n'))))
                   else (13 + (rt_copy_fib (div2 n)))
-    end. 
+    end.
 
+ 
   Definition fib_log n := fib (cl_log n).
 
   Definition copy_fib_result (x : A) (n : nat) (t : bin_tree) (c : nat) :=
@@ -300,17 +301,13 @@ Qed.
       intuition.
   Qed.    
 
-(* TODO: fix to agree with new rt constants *)
-(*
   Lemma rtcf_div2_S_lt : forall (n : nat), (rt_copy_fib (div2 (S n))) < rt_copy_fib (S n).
   Proof.
     apply (well_founded_induction lt_wf).
     intros x0 H.
     unfold_sub rt_copy_fib (rt_copy_fib (S x0));
-    destruct (even_odd_dec (S x0));
-    repeat fold_sub rt_copy_fib;
-    destruct x0 as [|n']; 
-    intuition.
+    repeat fold_sub rt_copy_fib.
+    destruct (even_odd_dec (S x0)); simpl; omega.
   Qed.
 
   Lemma rtcf_div2_S_lt' 
@@ -322,19 +319,15 @@ Qed.
                                      rt_copy_fib (div2 (S n)) + rt_copy_fib (div2 n) < rt_copy_fib (S n))).
     intros x0 H.
     unfold_sub rt_copy_fib (rt_copy_fib (S x0));
-    destruct (even_odd_dec (S x0));
-    repeat fold_sub rt_copy_fib;
-    destruct x0 as [|n'];
-    intuition.
-    inversion H0. inversion H2.
-    apply not_even_and_odd in H0; try assumption. contradiction.
+      repeat fold_sub rt_copy_fib.
+    destruct (even_odd_dec (S x0)); [simpl; omega|].
+    intro e; apply not_even_and_odd in o; try assumption. contradiction.
 Qed.     
     
   Lemma lt_S_ab : forall a b c, a < c -> b < c -> S (a + b) < 6 * c.
   Proof.
     intros. omega.
   Qed.
-
 
   Lemma cl_log_a : forall n, cl_log (S (div2 n)) < cl_log (S (S n)).
   Proof.
@@ -376,15 +369,15 @@ Qed.
     match a with
       | f_arg n =>
         match n with
-          | 0 => 1
-          | 1 => 2
-          | _ => 1 + h (f_arg (div2 n)) + h (g_arg (div2 n))
+          | 0 => 3
+          | 1 => 16
+          | _ => 19 + h (f_arg (div2 n)) + h (g_arg (div2 n))
         end
       | g_arg n =>
         match n with
-          | 0 => 1
-          | 1 => 1
-          | _ => 1 + h (f_arg (div2 n))
+          | 0 => 3
+          | 1 => 16
+          | _ => 13 + h (f_arg (div2 n))
         end
     end.
 
@@ -407,6 +400,7 @@ Qed.
   Definition g n := h (g_arg n).
 
 
+
   Lemma fg_monotone : forall m n, m <= n -> 
                                   (f m <= f n /\ g m <= g n).
   Proof.
@@ -427,13 +421,13 @@ Qed.
     compute; omega.
     unfold f.
     unfold_sub h (h (f_arg (S (S n)))).
-    replace (h (f_arg 0)) with 1; [omega|compute;omega]. 
+    replace (h (f_arg 0)) with 3; [omega|compute;omega]. 
     inversion Hmn.
     destruct m as [|m]; destruct n as [|n].
     auto.
     unfold f.
     unfold_sub h (h (f_arg (S (S n)))).
-    replace (h (f_arg 1)) with 2; [|compute;omega].
+    replace (h (f_arg 1)) with 16; [|compute;omega].
     destruct (div2 n); [compute;omega|].
     unfold_sub h (h (f_arg (S (S n0)))); omega.
     inversion Hmn; inversion H1.
@@ -460,13 +454,20 @@ Qed.
     compute; omega.
     unfold g.
     unfold_sub h (h (g_arg (S (S n)))).
-    replace (h (g_arg 0)) with 1; [omega|compute;omega].
+    replace (h (g_arg 0)) with 3; [omega|compute;omega].
     inversion Hmn.
     destruct m as [|m]; destruct n as [|n].
     auto.
     unfold g.
     unfold_sub h (h (g_arg (S (S n)))).
-    replace (h (g_arg 1)) with 1; [omega|compute;omega].
+    replace (h (g_arg 1)) with 16; [|compute; omega].
+    simpl; repeat apply le_n_S. 
+    replace 3 with (f 0); [|compute; omega].
+    replace (h (f_arg (S (div2 n)))) with (f (S (div2 n))).
+    assert ((S (div2 n)) < (S (S n))). apply le_lt_trans with (m := div2 (S (S n))); auto.
+    apply H with (m := 0) in H0; intuition.
+    intuition. 
+    replace (h (g_arg 1)) with 16; [omega|compute;omega].
     intuition.
     unfold g.
     unfold_sub h (h (g_arg (S (S n)))).
@@ -500,20 +501,17 @@ Qed.
     auto.
   Qed.
 
-  Lemma g_lt_f : forall n, n <> 0 -> g n < f n.
+  Lemma g_lt_f : forall n, n > 1 -> g n < f n.
   Proof.
     intros n NE.    
     unfold g.
     unfold f.
-    destruct n as [|n]; [unfold not in NE;intuition|].
-    destruct n as [|n]; [compute;omega|].
+    destruct n as [|n]; try intuition.
+    destruct n as [|n]; try intuition.
     unfold_sub h (h (g_arg (S (S n)))).
     unfold_sub h (h (f_arg (S (S n)))).
     rewrite <- plus_assoc.
-    apply plus_lt_compat_l.
-    assert (h (g_arg (S (div2 n))) > 0). 
-    destruct (div2 n) as [|n0]; 
-      [compute;omega|unfold_sub h (h (g_arg (S (S n0))));omega].
+    simpl; repeat apply lt_n_S.
     intuition.
   Qed.
 
@@ -620,63 +618,14 @@ Qed.
     apply IH in Pd2; auto.
   Qed.  
 
-  Lemma g_2_3 : forall n, n <> 0 -> 3 * g n < 2 * g (double n).
-  Adm itted.
-
-  Lemma f_2_3 : forall n, n <> 0 -> 3 * f n < 2 * f (double n).
-  Adm itted.
-
-  Lemma g_5_3 : forall n, n <> 0 -> 5 * g n > 3 * g (double n).
-  Adm itted.
-
-  Lemma f_5_3 : forall n, n <> 0 -> 5 * f n < 3 * f (double n).
-  Adm itted.
-
-
-
+(*
   Lemma fg_lt_fiblog : forall n, n > 0 ->
-                                 (f n < 6 * fib_log n /\  g n < 4 * fib_log n).
+                                 (f n < ?? * fib_log n /\  g n < ?? * fib_log n).
   Proof.
-    apply (ind_0_1_div2
-             (fun n => n > 0 -> f n < 6 * fib_log n /\ g n < 4 * fib_log n)).
-    intros. intuition.
-    intros. compute. omega.
-    intros n IH N0.
-    invclr IH.
-    rename H into nH.
-    rename H0 into nmH.
-    destruct n as [|n]; [intuition|].
-    destruct n as [|n]. compute. omega.
-    destruct n as [|n]; [intuition|].
-    destruct n as [|n]. compute. omega.
-    remember (div2 (S (S (S (S n))))) as p.
-    assert (p > 0) as N02. subst. simpl. omega.
-    subst.
-    apply nH in N02.
-    (* a < b -> 3 a < 2 A -> 3 b < 2 B -> A < B *)
+   
+  Nope....
+*)
 
-    unfold f; unfold fib_log.
-    split. subst.
-    unfold_sub h (h (f_arg (S (S (S (S n)))))).   
-    unfold_sub cl_log (cl_log (S (S (S (S n))))).
-    remember (S (S (div2 n))) as p.
-    assert ((S (S (div2 n))) = (div2 (S (S (S (S n)))))) as EQ; [intuition|].
-    rewrite <- EQ in nH.
-    apply lt_trans with (m := 9 * fib (cl_log p)).
-    
-
-    
-
-    Focus 2.
-    unfold g.
-    unfold_sub h (h (g_arg (S (S (S (S n)))))).   
-    unfold_sub cl_log (cl_log (S (S (S (S n))))).
-
-
-  Hint Resolve g_lt_f.
-
-
-  (* Clean up this proof! *)
   Lemma rtcf_f_g : forall n,
                      n > 1 ->
                      (even n -> rt_copy_fib n <= f n) /\
@@ -702,6 +651,7 @@ Qed.
             (odd (div2 m) /\ even (div2 (m - 1)))) as mOE;
       [apply even_div2_minus; auto|].
     inversion mOE as [L|R].
+
     (* even/odd *)
     subst.
     unfold f.
@@ -713,27 +663,22 @@ Qed.
     replace (1 + f (S (div2 n)) + g (S (div2 n))) with 
             (S (f (S (div2 n)) + g (S (div2 n)))); [|omega].
     assert ((S (div2 n) < (S (S n)))) as HL; [intuition|].
-    destruct n as [|n]; [compute; omega|].
-    destruct n as [|n]; [invclr He; invclr H1; invclr H2; invclr H1|].
-    destruct n as [|n]; [compute; omega|].
-    destruct n as [|n]; 
-      [invclr He; invclr H1; invclr H2; invclr H1; invclr H2; invclr H1|].
-    apply H in HL. inversion HL as [E O].
-    apply le_n_S.
+    rewrite <- plus_assoc; apply plus_le_compat_l.
+    do 4 (destruct n as [|n]; [compute; omega|]).
+    apply H in HL; [|simpl;omega]. 
+    inversion HL as [E O].
+    replace (div2 (S (S (S (S (S (S n))))))) with (S (div2 (S (S (S (S n))))));
+      [|simpl;omega].
     apply plus_le_compat.
-    simpl.
-    apply E. intuition.
-    rewrite <- even_div2.
+    apply E; intuition.
+    rewrite <- even_div2; [|inversion e; inversion H1; assumption].
     apply le_trans with (m := (g (div2 (S (S (S (S n))))))).
     assert ((div2 (S (S (S (S n))))) < (S (S (S (S (S (S n))))))) as HL2; 
       [intuition|].
-    apply H in HL2. inversion HL2 as [E2 O2].
-    apply O2.
-    inversion L. apply even_div2_SS_odd in H0. assumption.
-    simpl; omega.
-    apply g_monotone. intuition.
-    inversion e. inversion H1. assumption.
-    simpl; omega.
+    apply H in HL2; [|simpl;omega]. inversion HL2 as [E2 O2].
+    apply O2; inversion L; apply even_div2_SS_odd in H0; assumption.
+    apply g_monotone; intuition.
+
     (* odd/even *)
     subst.
     replace (S n - 1) with n in mOE; [|omega].
@@ -752,24 +697,22 @@ Qed.
     destruct n as [|n]; [compute; omega|].
     destruct n as [|n]; 
       [invclr He; invclr H1; invclr H2; invclr H1; invclr H2; invclr H1|].
-    apply H in HL. inversion HL as [E O].
-    apply le_n_S.
-    rewrite plus_comm.
-    apply plus_le_compat.
+    apply H in HL; [|simpl;omega]. 
+    inversion HL as [E O].
+    repeat apply le_n_S.
+    rewrite plus_comm; apply plus_le_compat.
     apply le_trans with (m := (f (div2 (S (S (S (S (S n)))))))).
     apply E. inversion R; assumption.
     apply f_monotone.
-    rewrite <- even_div2. omega.
-    inversion e. inversion H1. auto.
-    replace (S (div2 (S (S (S (S n)))))) with (div2 (S (S (S (S (S (S n))))))).
+    rewrite <- even_div2;
+      [omega|inversion e; inversion H1; auto].
+    replace (S (div2 (S (S (S (S n)))))) with (div2 (S (S (S (S (S (S n))))))); 
+      [|simpl;omega].
     assert ((div2 (S (S (S (S (S (S n))))))) < (S (S (S (S (S (S n)))))))
       as HL2; [intuition|].
-    apply H in HL2. inversion HL2 as [E2 O2].
-    apply O2. inversion R; assumption.
-    simpl; omega.
-    auto.
-    simpl; omega.
-    auto.
+    apply H in HL2; [|simpl;omega]. 
+    inversion HL2 as [E2 O2].
+    apply O2; inversion R; assumption.
 
     (* odd case *)
     intros Ho.
@@ -778,23 +721,23 @@ Qed.
     destruct (even_odd_dec (S n));
       [apply not_even_and_odd in e; intuition|].
     fold_sub rt_copy_fib.
-    apply le_trans with (m := (1 + f (div2 (S n)))).
-    apply le_n_S. 
+    apply le_trans with (m := (13 + f (div2 (S n)))).
+    repeat apply le_n_S. 
     assert ((div2 (S n)) < S n) as L; auto.
     destruct n as [|n]; [compute; omega|].
-    destruct n as [|n]; [inversion Ho;auto|].
+    destruct n as [|n]; [invclr Ho; invclr H1; invclr H2|].
     destruct n as [|n]; [compute; omega|].
-    apply H in L.
+    apply H in L; [|simpl;omega].
     remember (div2 (S (S (S (S n))))) as m.
-    assert (even m \/ odd m). apply even_or_odd.
+    assert (even m \/ odd m); [apply even_or_odd|].
     inversion L as [E O]. 
     inversion H0.
     apply E; auto.
     subst.
-    apply le_trans with (m := g (div2 (S (S (S (S n)))))). apply O; auto.
-    apply lt_le_weak. auto.
-    apply g_lt_f. simpl; omega.
-    simpl; omega.
+    apply le_trans with (m := g (div2 (S (S (S (S n)))))). 
+    apply O; auto.
+    apply lt_le_weak; auto.
+    apply g_lt_f; simpl; omega.
     unfold g.
     unfold_sub h (h (g_arg (S n))). 
     fold_sub h.
@@ -803,63 +746,4 @@ Qed.
       [apply le_n_S|]; auto.
 Qed.
 
-*)
-    
-    
-(*
- 
-Proof idea that seemed like it would work, but didn't:
-
-Show, for n > n_0,
-even n -> rtcf n <= N_E * fib_log n
-odd n  -> rtcf n <= N_O * fib_log n
-using,
-A * fib_log (div2 n) < B * fib_log n
-
-That seemed like a good idea since actually N_E can
-be significantly larger that N_O (about double or so), 
-so there's a chance the even case could go through.
-
-But in order for that to work, it turns out that you need
-A/B = the golden ratio, exactly (I think, checked on paper).
-Which you can't have in coq and besides that is
-true only in the limit, so now I am really stuck.
-
-
-
-  Lemma rtcf_is_O_fib_log 
-  : exists (N : nat), forall (n : nat), n > 8 -> rt_copy_fib n <= N * fib_log n.
-  Proof.
-    exists 6.
-    unfold fib_log.
-    apply (well_founded_induction lt_wf
-                                  (fun (n : nat) =>
-                                     n > 8 ->
-                                     rt_copy_fib n <= 6 * fib (cl_log n))).
-    intros n IH nG.
-    unfold_sub rt_copy_fib (rt_copy_fib n).
-    destruct (even_odd_dec n) as [e|o];
-    repeat fold_sub rt_copy_fib.
-    
-    Focus 2.
-
-    (* odd case *)
-    do 18 (destruct n as [|n]; [compute; omega|]).
-    eapply le_lt_trans.
-    apply IH. auto. 
-    unfold div2; fold div2; repeat apply lt_n_S; apply lt_0_Sn.
-    apply mult_lt_compat_l; try omega.
-    apply rtcf_math.
-    apply fib_log_div2.
-    repeat apply lt_n_S; omega.
-
-    (* even case *)
-    destruct n as [|n]; [compute; omega|].
-    fold_sub rt_copy_fib.
-    adm it.
-
-  Qed.    
-
-
-*)
 End copy_fib.

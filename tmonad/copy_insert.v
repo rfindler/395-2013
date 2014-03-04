@@ -133,6 +133,42 @@ Next Obligation.
   rewrite copy_insert_time_odd; auto; try omega.
 Qed.
 
+Program Fixpoint copy_insert_time2 (n:nat) {measure n} :=
+  match n with
+    | 0 => 3
+    | S n' => 16 + copy_insert_time2 (div2 n') + insert_time (div2 n')
+  end.
+
+Lemma copy_insert_time12 : big_oh copy_insert_time copy_insert_time2.
+  exists 0.
+  exists 1.
+  intros n LT. clear LT.
+  unfold mult.
+  rewrite plus_0_r.
+  apply (well_founded_induction 
+           lt_wf 
+           (fun n => copy_insert_time n <= copy_insert_time2 n)).
+  clear n.
+  intros n IND.
+  destruct n.
+  unfold_sub copy_insert_time (copy_insert_time 0).
+  unfold_sub copy_insert_time2 (copy_insert_time2 0).
+  omega.
+
+  unfold_sub copy_insert_time2 (copy_insert_time2 (S n)).
+  remember (even_or_odd n) as EO.
+  clear HeqEO.
+  destruct EO as [EVEN|ODD].
+
+  rewrite copy_insert_time_even; auto.
+  remember (IND (div2 n) (lt_div2' n)).
+  omega.
+
+  rewrite copy_insert_time_odd; auto.
+  remember (IND (div2 n) (lt_div2' n)).
+  omega.
+Qed.
+
 Theorem copy_insert_log_sq : big_oh copy_insert_time (fun n => fl_log n * fl_log n).
-admit.
+  admit.
 Qed.

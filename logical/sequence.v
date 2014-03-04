@@ -119,3 +119,95 @@ Lemma interleave_mk_list_same_size :
   auto.
 Qed.
 
+Lemma interleave_constant_lists :
+  forall (A:Set) ss tt (x:A) n,
+    interleave ss tt = mk_list x n ->
+    exists n1 n2,
+      ss = mk_list x n1 /\ tt = mk_list x n2.
+  induction ss; induction tt.
+
+  (* nil nil *)
+  intros.
+  exists 0.
+  exists 0.
+  constructor;auto.
+
+  (* cons nil *)
+  intros x n ILML.
+  rewrite interleave_nil2 in ILML.
+  destruct n; simpl in ILML.
+  inversion ILML.
+  injection ILML; clear ILML; intros ILML AEQ.
+  subst a.
+  exists 0.
+  exists (S n).
+  simpl.
+  subst tt.
+  split;auto.
+
+(* nil cons *)
+  intros x n ILML.
+  rewrite interleave_nil1 in ILML.
+  destruct n; simpl in ILML.
+  inversion ILML.
+  injection ILML; clear ILML; intros ILML AEQ.
+  subst a ss.
+  exists (S n).
+  exists 0.
+  simpl.
+  split; auto.
+
+(* cons cons *)
+  intros.
+  rewrite <- interleave_case2 in H.
+  rewrite <- interleave_case2 in H.
+  destruct n; simpl in H.
+  inversion H.
+  injection H; clear H; intros.
+  subst a.
+  destruct n; simpl in H.
+  inversion H.
+  injection H; clear H; intros.
+  subst a0.
+  remember (IHss tt x n H) as EN1N2EQ.
+  clear HeqEN1N2EQ.
+  destruct EN1N2EQ as [n1 [n2 [SSEQ TTEQ]]].
+  subst ss tt.
+  exists (S n1).
+  exists (S n2).
+  simpl.
+  split; reflexivity.
+Qed.
+
+Lemma sequence_constant_list_index_is_constant :
+  forall (A:Set) n (x:A) (y:A) i t,
+    SequenceR t (mk_list x n)
+    -> IndexR t i y
+    -> x = y.
+  intros A n x y i t SR IR.
+  generalize dependent n.
+  induction IR; intros n SR.
+  destruct n; simpl in SR.
+  inversion SR.
+  inversion SR;auto.
+  invclr SR.
+  rename H3 into ILML.
+  destruct n; simpl in ILML.
+  inversion ILML.
+  injection ILML;clear ILML;intros ILML XISX0.
+  remember (interleave_constant_lists A ss ts x n ILML) as THING.
+  clear HeqTHING.
+  destruct THING as [n1 [n2 [SSEQ TSEQ]]].
+  subst ss.
+  apply (IHIR n1); auto.
+
+  destruct n; simpl in SR.
+  inversion SR.
+  invclr SR.
+  rename H4 into ILML.
+  remember (interleave_constant_lists A ss ts x n ILML) as THING.
+  clear HeqTHING.
+  destruct THING as [n1 [n2 [SSEQ TSEQ]]].
+  subst ts.
+  apply (IHIR n2);auto.
+Qed.

@@ -1,9 +1,11 @@
 Require Import Braun.tmonad.monad Braun.logical.index Braun.tmonad.insert.
 Require Import Braun.common.braun Braun.common.util Braun.common.big_oh.
-Require Import Braun.logical.list_util.
-Require Import Braun.logical.sequence.
+Require Import Braun.common.log.
+Require Import Braun.logical.list_util Braun.logical.sequence.
 Require Import Arith Arith.Even Arith.Div2 Omega.
-Require Import Program.Wf.
+Require Import Program.Wf Init.Wf.
+
+Include WfExtensionality.
 
 Program Fixpoint copy_insert_time (n:nat) {measure n} :=
   match n with
@@ -23,6 +25,20 @@ Load "copy_insert_gen.v".
 Next Obligation.
   unfold copy_insert_result.
   repeat constructor; auto.
+Qed.
+
+Lemma copy_insert_time_even : 
+  forall n',
+    even n' ->
+    copy_insert_time (S n') = copy_insert_time (div2 n') + 13.
+  intros n EVEN.
+  unfold_sub copy_insert_time (copy_insert_time (S n)).
+  destruct (even_odd_dec n).
+  fold_sub copy_insert_time.
+  omega.
+  assert False.
+  apply (not_even_and_odd n); auto.
+  intuition.
 Qed.
 
 Next Obligation.
@@ -53,8 +69,23 @@ Next Obligation.
   rewrite -> (even_double n') at 3; auto.
 
   (* running time *)
-  admit.
+  rewrite copy_insert_time_even; auto; omega.
 Qed. 
+
+Lemma copy_insert_time_odd : 
+  forall n',
+    odd n' ->
+    copy_insert_time (S n') =
+    copy_insert_time (div2 n') + (insert_time (div2 n') + 16).
+  intros n EVEN.
+  unfold_sub copy_insert_time (copy_insert_time (S n)).
+  destruct (even_odd_dec n).
+  assert False.
+  apply (not_even_and_odd n); auto.
+  intuition.
+  fold_sub copy_insert_time.
+  omega.
+Qed.  
 
 Next Obligation.
   clear am0 H3.
@@ -99,5 +130,9 @@ Next Obligation.
   reflexivity.
 
   (* running time *)
-  admit.
+  rewrite copy_insert_time_odd; auto; try omega.
+Qed.
+
+Theorem copy_insert_log_sq : big_oh copy_insert_time (fun n => fl_log n * fl_log n).
+admit.
 Qed.

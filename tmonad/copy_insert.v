@@ -5,7 +5,13 @@ Require Import Braun.logical.sequence.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Program.Wf.
 
-Definition copy_insert_time (n:nat) := 3.
+Program Fixpoint copy_insert_time (n:nat) {measure n} :=
+  match n with
+    | 0 => 3
+    | S n' => if (even_odd_dec n')
+              then 13 + copy_insert_time (div2 n')
+              else 16 + copy_insert_time (div2 n') + insert_time (div2 n')
+  end.
 
 Definition copy_insert_result (A:Set) (x:A) (n:nat) (b:@bin_tree A) (c:nat):=
   Braun b n /\ 

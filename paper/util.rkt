@@ -9,7 +9,7 @@
 (define-runtime-path monad.v "../tmonad/monad.v")
 (define-runtime-path insert.v "../tmonad/insert.v")
 (define-runtime-path insert_gen.v "../tmonad/insert_gen.v")
-(define-runtime-path insert_no_gen.v "../tmonad/insert_no_gen.v")
+(define-runtime-path insert_no_gen.v "../tmonad/insert_nogen.v")
 
 (provide extract
          (all-defined-out))

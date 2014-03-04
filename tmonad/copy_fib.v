@@ -156,14 +156,7 @@ Section copy_fib.
     rewrite odd_div2. omega.
     inversion o. inversion H0. assumption.
     inversion o. assumption.
-
-Qed.
-
-  Lemma minus_plus': forall n m p : nat, m <= n -> p = n - m -> n = m + p.
-  Proof.
-    intros. subst. apply le_plus_minus. auto.
   Qed.
-
       
   Lemma fib_monotone : forall (n : nat) (m : nat), m < n -> fib m <= fib n.
   Proof.
@@ -244,13 +237,7 @@ Qed.
     simpl. intuition.
   Qed.
 
-  Lemma mle_9_and_6 : forall a b, 3 * a <= 2 * b -> 9 * a <= 6 * b.
-  Proof.
-    simpl. intuition.
-  Qed.
-
   Hint Resolve mle_2_and_3.
-  Hint Resolve mle_9_and_6.
   
   Lemma fib_S : forall (n : nat), n > 3 -> 3 * fib n < 2 * (fib (S n)).
   Proof.
@@ -289,68 +276,6 @@ Qed.
   Qed.
 
   Hint Resolve fib_log_div2.
-
-  Lemma rtcf_div2_le : forall (n : nat), (rt_copy_fib (div2 n)) <= rt_copy_fib n.
-  Proof.
-    apply (well_founded_induction lt_wf).
-    intros x0 H.
-    unfold_sub rt_copy_fib (rt_copy_fib x0);
-      destruct x0 as [|n']; 
-      try destruct (even_odd_dec (S n'));
-      repeat fold_sub rt_copy_fib;
-      intuition.
-  Qed.    
-
-  Lemma rtcf_div2_S_lt : forall (n : nat), (rt_copy_fib (div2 (S n))) < rt_copy_fib (S n).
-  Proof.
-    apply (well_founded_induction lt_wf).
-    intros x0 H.
-    unfold_sub rt_copy_fib (rt_copy_fib (S x0));
-    repeat fold_sub rt_copy_fib.
-    destruct (even_odd_dec (S x0)); simpl; omega.
-  Qed.
-
-  Lemma rtcf_div2_S_lt' 
-  : forall (n : nat), even (S n) -> (rt_copy_fib (div2 (S n)) + rt_copy_fib (div2 n)) < rt_copy_fib (S n).
-  Proof.
-    apply (well_founded_induction lt_wf
-                                  (fun (n : nat) =>
-                                     even (S n) ->
-                                     rt_copy_fib (div2 (S n)) + rt_copy_fib (div2 n) < rt_copy_fib (S n))).
-    intros x0 H.
-    unfold_sub rt_copy_fib (rt_copy_fib (S x0));
-      repeat fold_sub rt_copy_fib.
-    destruct (even_odd_dec (S x0)); [simpl; omega|].
-    intro e; apply not_even_and_odd in o; try assumption. contradiction.
-Qed.     
-    
-  Lemma lt_S_ab : forall a b c, a < c -> b < c -> S (a + b) < 6 * c.
-  Proof.
-    intros. omega.
-  Qed.
-
-  Lemma cl_log_a : forall n, cl_log (S (div2 n)) < cl_log (S (S n)).
-  Proof.
-    apply (well_founded_induction lt_wf
-                                  (fun (n : nat) =>
-                                     cl_log (S (div2 n)) < cl_log (S (S n)))).
-    intros x0 H. 
-    unfold_sub cl_log (cl_log (S (S x0))). omega.
-  Qed.
-
-  Lemma le_div2 : forall n, div2 n <= n.
-    induction n; auto.
-    unfold div2.
-    destruct n as [|n'].
-    omega.
-    fold div2.
-    intuition.
-  Qed.
-  
-  Lemma rtcf_math : forall a b, 3 * a < 2 * b -> a < b.
-  Proof.
-    intros. omega.
-  Qed.
 
   (* This ugliness is because Program doesn't allow
      mutual recursion on well-founded arguments. *)
@@ -539,28 +464,22 @@ Qed.
   Proof.
     intros m em NE.
     assert (div2 (m - 1) = (div2 m) - 1) as HD.
-    inversion em. auto.
-    rewrite <- odd_div2. simpl. 
-    repeat rewrite <- minus_n_O. reflexivity.
+    inversion em; auto.
+    rewrite <- odd_div2; simpl. 
+    repeat rewrite <- minus_n_O; reflexivity.
     auto.
     destruct (even_odd_dec (div2 m)).
     left.
     split.
     assumption.
-    rewrite HD.
-    apply even_pred.
-    destruct m as [|m].
-    inversion NE.
-    destruct m as [|m].
-    inversion NE; inversion H0.
-    simpl. omega.
-    assumption.
+    rewrite HD; apply even_pred; [|assumption].
+    destruct m as [|m]; [inversion NE|].
+    destruct m as [|m]; [inversion NE; inversion H0|].
+    simpl; omega.
     right.
     split.
     assumption.
-    rewrite HD.
-    apply odd_pred.
-    assumption.
+    rewrite HD; apply odd_pred;assumption.
   Qed.    
 
   Lemma even_div2_SS_odd : forall n, even (div2 (S (S n))) -> odd (div2 n).
@@ -571,52 +490,6 @@ Qed.
     replace (div2 n - 0) with (div2 n) in E; [auto|omega].
     simpl; omega.
   Qed.
-
-  Lemma ind_0_1_doubles :
-  forall P:nat -> Prop,
-    P 0 -> P 1 -> 
-    (forall (n:nat), P n -> (P (double n) /\ P (1 + double n)))
-    -> forall n, P n.
-  Proof.
-    intros P P0 P1 IH.
-    apply (well_founded_induction lt_wf).
-    intros N NH.
-    destruct N; [auto|].
-    assert (P (div2 (S N))) as Pd2.
-    apply NH; intuition.
-    apply IH in Pd2.
-    remember (S N) as m.
-    assert (even m \/ odd m) as EO; [apply even_or_odd|].
-    assert ((even m <-> m = double (div2 m)) /\
-            (odd m <-> m = S (double (div2 m)))) as EOD;
-      [apply even_odd_double|].
-    invclr EOD.
-    invclr H.
-    invclr H0;
-    invclr EO.
-    apply H1 in H0;
-    rewrite <- H0 in Pd2; intuition.
-    apply H in H0.
-    replace (1 + double (div2 (S N))) with (S (double (div2 (S N)))) in Pd2;
-      try omega.
-    rewrite <- H0 in Pd2; intuition.
-  Qed.  
-
-  Lemma ind_0_1_div2 :
-    forall P:nat -> Prop,
-    P 0 -> P 1 -> 
-    (forall (n:nat), (P (div2 n) /\ P (div2 (n - 1))) -> (P n))
-    -> forall n, P n.
-  Proof.
-    intros P P0 P1 IH.
-    apply (well_founded_induction lt_wf).
-    intros N NH.
-    destruct N as [|N]; [auto|].
-    destruct N as [|N]; [auto|].
-    assert (P (div2 (S (S N))) /\ P (div2 ((S (S N)) - 1))) as Pd2.
-    split; apply NH; intuition.
-    apply IH in Pd2; auto.
-  Qed.  
 
 (*
   Lemma fg_lt_fiblog : forall n, n > 0 ->
@@ -652,7 +525,7 @@ Qed.
       [apply even_div2_minus; auto|].
     inversion mOE as [L|R].
 
-    (* even/odd *)
+    (* even: even/odd *)
     subst.
     unfold f.
     unfold_sub h (h (f_arg (S n))).
@@ -679,7 +552,7 @@ Qed.
     apply O2; inversion L; apply even_div2_SS_odd in H0; assumption.
     apply g_monotone; intuition.
 
-    (* odd/even *)
+    (* even: odd/even *)
     subst.
     replace (S n - 1) with n in mOE; [|omega].
     replace (S n - 1) with n in R; [|omega].

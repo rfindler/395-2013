@@ -1,6 +1,6 @@
 Require Import Braun.tmonad.monad Braun.logical.index.
 Require Import Braun.common.braun Braun.common.log Braun.common.util.
-Require Import Braun.common.big_oh.
+Require Import Braun.common.big_oh Braun.common.le_util.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Program.Wf Init.Wf.
 
@@ -157,7 +157,7 @@ Section copy_fib.
     inversion o. inversion H0. assumption.
     inversion o. assumption.
   Qed.
-      
+     
   Lemma fib_monotone : forall (n : nat) (m : nat), m < n -> fib m <= fib n.
   Proof.
     apply (well_founded_induction lt_wf
@@ -277,6 +277,27 @@ Section copy_fib.
 
   Hint Resolve fib_log_div2.
 
+  Program Fixpoint p (n : nat) {measure n} : nat :=
+    match n with
+      | 0 => 0
+      | 1 => 1
+      | _ => 1 + p (div2 n) + p (div2 (div2 n))
+    end.
+
+  Next Obligation.
+  Proof.
+    apply lt_div2; intuition.
+  Qed.
+
+  Next Obligation.
+    apply lt_trans with (m := (div2 n)).
+    apply lt_div2. 
+    destruct n as [|n]; [unfold not in H0; intuition|].
+    destruct n as [|n]; [unfold not in H; intuition|].
+    simpl; omega.
+    apply lt_div2; intuition.
+  Qed.
+    
   (* This ugliness is because Program doesn't allow
      mutual recursion on well-founded arguments. *)
 
@@ -323,7 +344,6 @@ Section copy_fib.
 
   Definition f n := h (f_arg n).
   Definition g n := h (g_arg n).
-
 
 
   Lemma fg_monotone : forall m n, m <= n -> 
@@ -465,21 +485,17 @@ Section copy_fib.
     intros m em NE.
     assert (div2 (m - 1) = (div2 m) - 1) as HD.
     inversion em; auto.
-    rewrite <- odd_div2; simpl. 
+    rewrite <- odd_div2; simpl; [|auto].
     repeat rewrite <- minus_n_O; reflexivity.
-    auto.
     destruct (even_odd_dec (div2 m)).
     left.
-    split.
-    assumption.
+    split; [assumption|].
     rewrite HD; apply even_pred; [|assumption].
     destruct m as [|m]; [inversion NE|].
     destruct m as [|m]; [inversion NE; inversion H0|].
     simpl; omega.
     right.
-    split.
-    assumption.
-    rewrite HD; apply odd_pred;assumption.
+    split; [|rewrite HD; apply odd_pred]; assumption.
   Qed.    
 
   Lemma even_div2_SS_odd : forall n, even (div2 (S (S n))) -> odd (div2 n).
@@ -617,6 +633,116 @@ Section copy_fib.
     destruct n as [|n']; [inversion n1; intuition|].
     replace (h (f_arg (S (div2 n')))) with (f (S (div2 n'))); 
       [apply le_n_S|]; auto.
-Qed.
+  Qed.
+
+  Lemma g_le_f : forall (n : nat), g n <= f n.
+    intros n.
+    destruct n; [compute; omega|].
+    destruct n; [compute; omega|].
+    unfold g. unfold f.
+    unfold_sub h (h (g_arg (S (S n)))).
+    unfold_sub h (h (f_arg (S (S n)))).
+    omega.
+  Qed.
+  
+  Lemma rtcf_big_oh_f : big_oh rt_copy_fib f.
+    exists 2.
+    exists 1.
+    intros n LT.
+    remember (rtcf_f_g LT).
+    clear Heqa.
+    destruct a as [EV OD].
+    destruct (even_or_odd n) as [E|O].
+    apply EV in E.
+    omega.
+    apply OD in O. 
+    unfold mult.
+    rewrite plus_0_r.
+    apply (le_trans (rt_copy_fib n)
+                    (g n)
+                    (f n)).
+    omega.
+    apply g_le_f.
+  Qed.  
+
+  Lemma f_big_oh_p : big_oh f p.
+    exists 1.
+    exists 32.
+    unfold f.
+    apply (well_founded_induction 
+             lt_wf
+             (fun n => 1 <= n -> h (f_arg n) <= 32 * p n)).
+    intros n IND LT.
+    destruct n; intuition.
+    clear LT.
+    destruct n; [compute; omega|].
+    destruct n; [compute; omega|].
+    destruct n; [compute; omega|].
+    unfold_sub h (h (f_arg (S (S (S (S n)))))).
+    unfold_sub h (h (g_arg (S (S (div2 n))))).
+    unfold_sub p (p (S (S (S (S n))))).
+    replace (19 + h (f_arg (S (S (div2 n)))) + (13 + h (f_arg (S (div2 (div2 n))))))
+    with (32 + (h (f_arg (S (S (div2 n)))) + h (f_arg (S (div2 (div2 n))))));
+      [|omega].
+    replace (32 * (1 + p (S (S (div2 n))) + p (S (div2 (div2 n)))))
+    with  (32 + (32 * p (S (S (div2 n))) + 32 * p (S (div2 (div2 n)))));
+      [|omega].
+    apply plus_le_compat_l.
+    apply plus_le_compat; apply IND; intuition.
+    apply lt_n_S.
+    apply le_lt_trans with (m := div2 n);
+      intuition.
+  Qed.
+
+  Lemma l1 : forall (a b c d : nat),
+               a < 4 * b -> c < 4 * d
+               -> 1 + a + c < 4 * (b + d).
+    intros; omega.
+  Qed.  
+
+  Lemma p_lt_fl : forall (n : nat), n <> 0
+                                    -> p n < 4 * (fib (cl_log n)).
+    apply (well_founded_induction 
+             lt_wf
+             (fun n => n <> 0
+                       -> p n < 4 * (fib (cl_log n)))).
+    intros n IH N0.
+    destruct n as [|n]; [intuition|].
+    destruct n as [|n]; [compute; omega|].
+    destruct n as [|n]; [compute; omega|].
+    destruct n as [|n]; [compute; omega|].
+    unfold_sub cl_log (cl_log (S (S (S (S n))))).
+    unfold_sub cl_log (cl_log (S (S (div2 n)))).
+    remember (cl_log (S (div2 (div2 n)))) as m.
+    unfold_sub fib (fib (S (S m))).
+    unfold_sub p (p (S (S (S (S n))))).
+    subst.
+    replace (S (cl_log (S (div2 (div2 n)))))
+    with (cl_log (S (S (div2 n))));
+      [|unfold_sub cl_log (cl_log (S (S (div2 n)))); auto].
+    apply l1. 
+    apply IH; intuition.
+    apply IH; [|omega].
+    apply lt_n_S. 
+    apply le_lt_trans with (m := (div2 n)); intuition.
+  Qed.
+
+  Lemma p_big_oh_fl : big_oh p fib_log.
+    exists 1.
+    exists 4.
+    intros n LE.
+    unfold fib_log.
+    apply lt_le_weak.
+    apply p_lt_fl.
+    intuition.
+  Qed.
+
+  Lemma rtcf_big_oh_fib_log : big_oh rt_copy_fib fib_log.
+    apply big_oh_trans with (g := f).
+    apply rtcf_big_oh_f.
+    apply big_oh_trans with (g := p).
+    apply f_big_oh_p.
+    apply p_big_oh_fl.
+  Qed.
 
 End copy_fib.

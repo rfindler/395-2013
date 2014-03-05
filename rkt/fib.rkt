@@ -86,6 +86,37 @@
     [(= n 1) 16]
     [else (+ 13 (f (div2 n)))]))
 
+(define (f2 n)
+  (cond
+    [(= n 0) 3]
+    [(= n 1) 16]
+    [else (+ 32
+             (f2 (div2 n))
+             (f2 (div2 (div2 n))))]))
+
+(define (p n)
+  (cond
+    [(= n 0) 0]
+    [(= n 1) 1]
+    [else (+ 1
+             (p (div2 n))
+             (p (div2 (div2 n))))]))
+
+#|
+Program Fixpoint pow2 (n : nat) {measure n} : nat :=
+  match n with 
+    | 0 => 0
+    | 1 => 1
+    | (S n) => 2 * pow2 n
+  end.
+|#
+
+(define (pow2 n)
+  (match n
+    [0 0]
+    [1 1]
+    [_ (* 2 (pow2 (sub1 n)))]))
+
 #|
 
 even n -> rtcf n <= f n
@@ -108,7 +139,7 @@ odd n  -> rtcf n <= g n
       (lines 
        #:color 'green
        (for/list ([n (in-range upper-bound)])
-         (vector n (p2 n))))
+         (vector n (p n))))
       (lines 
        #:color 'red
        (for/list ([n (in-range upper-bound)])
@@ -120,7 +151,7 @@ odd n  -> rtcf n <= g n
       (lines 
        #:color 'purple
        (for/list ([n (in-range upper-bound)])
-         (vector n (* 5.5 (fib (cl_log n))))))
+         (vector n (* 72 (fib (cl_log n))))))
       (lines 
        #:color 'purple
        (for/list ([n (in-range upper-bound)])
@@ -140,6 +171,23 @@ odd n  -> rtcf n <= g n
        (for/list ([n (in-range upper-bound)]
                   #:when (is-gj? n))
          (vector n (rtcf n)))))))
+
+(define (make-plot2 upper-bound)
+    (plot
+     #:x-label "n"
+     (list
+      (lines 
+       #:color 'green
+       (for/list ([n (in-range upper-bound)])
+         (vector n (p n))))
+      (lines 
+       #:color 'purple
+       (for/list ([n (in-range upper-bound)])
+         (vector n (fib (cl_log n)))))
+      (lines 
+       #:color 'red
+       (for/list ([n (in-range upper-bound)])
+         (vector n (* 4 (fib (cl_log n)))))))))
 
 #;
 (trace rtcf

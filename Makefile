@@ -22,28 +22,34 @@ coq: Makefile.coq
 	mkdir -p ml
 	$(MAKE) -f Makefile.coq
 
-tmonad-gen: tmonad/insert_gen.v tmonad/make_array_naive_gen.v \
-	    tmonad/copy_fib_gen.v tmonad/size_linear_gen.v \
-	    tmonad/copy2_gen.v tmonad/copy_gen.v \
-            tmonad/copy_linear_gen.v tmonad/copy_insert_gen.v \
+tmonad-gen: insert/insert_log_gen.v \
+            size/size_linear_gen.v \
+            copy/copy_linear_gen.v \
+	    copy/copy_fib_log_gen.v \
+            copy/copy_log_sq_gen.v \
+	    copy/copy2_gen.v copy/copy_log_gen.v \
+            make_array/make_array_nlogn1_gen.v \
             tmonad/sub1_gen.v tmonad/fold_gen.v
 
-tmonad/insert_gen.v: rkt/insert.rkt $(GEN_DEPS)
-	racket rkt/insert.rkt > tmonad/insert_gen.v
-tmonad/make_array_naive_gen.v: rkt/make_array_naive.rkt $(GEN_DEPS)
-	racket rkt/make_array_naive.rkt > tmonad/make_array_naive_gen.v
-tmonad/copy_fib_gen.v: rkt/copy_fib.rkt $(GEN_DEPS)
-	racket rkt/copy_fib.rkt > tmonad/copy_fib_gen.v
-tmonad/size_linear_gen.v: rkt/size_linear.rkt $(GEN_DEPS)
-	racket rkt/size_linear.rkt > tmonad/size_linear_gen.v
-tmonad/copy2_gen.v: rkt/copy2.rkt $(GEN_DEPS)
-	racket rkt/copy2.rkt > tmonad/copy2_gen.v
-tmonad/copy_gen.v: rkt/copy.rkt $(GEN_DEPS)
-	racket rkt/copy.rkt > tmonad/copy_gen.v
-tmonad/copy_linear_gen.v: rkt/copy_linear.rkt $(GEN_DEPS)
-	racket rkt/copy_linear.rkt > tmonad/copy_linear_gen.v
-tmonad/copy_insert_gen.v: rkt/copy_insert.rkt $(GEN_DEPS)
-	racket rkt/copy_insert.rkt > tmonad/copy_insert_gen.v
+insert/insert_log_gen.v: rkt/insert.rkt $(GEN_DEPS)
+	racket rkt/insert.rkt > insert/insert_log_gen.v
+
+size/size_linear_gen.v: rkt/size_linear.rkt $(GEN_DEPS)
+	racket rkt/size_linear.rkt > size/size_linear_gen.v
+
+copy/copy_linear_gen.v: rkt/copy_linear.rkt $(GEN_DEPS)
+	racket rkt/copy_linear.rkt > copy/copy_linear_gen.v
+copy/copy_fib_log_gen.v: rkt/copy_fib.rkt $(GEN_DEPS)
+	racket rkt/copy_fib.rkt > copy/copy_fib_log_gen.v
+copy/copy_log_sq_gen.v: rkt/copy_insert.rkt $(GEN_DEPS)
+	racket rkt/copy_insert.rkt > copy/copy_log_sq_gen.v
+copy/copy2_gen.v: rkt/copy2.rkt $(GEN_DEPS)
+	racket rkt/copy2.rkt > copy/copy2_gen.v
+copy/copy_log_gen.v: rkt/copy.rkt $(GEN_DEPS)
+	racket rkt/copy.rkt > copy/copy_log_gen.v
+
+make_array/make_array_nlogn1_gen.v: rkt/make_array_naive.rkt $(GEN_DEPS)
+	racket rkt/make_array_naive.rkt > make_array/make_array_nlogn1_gen.v
 tmonad/sub1_gen.v: rkt/sub1.rkt $(GEN_DEPS)
 	racket rkt/sub1.rkt > tmonad/sub1_gen.v
 tmonad/fold_gen.v: rkt/fold.rkt $(GEN_DEPS)
@@ -72,4 +78,4 @@ clean: Makefile.coq
 	$(MAKE) -f Makefile.coq clean
 	rm -f paper/paper.pdf
 	rm -f $(BINS) $(MLS) $(MLIS)
-	find . \( -name '*.vo' -o -name '*.d' -o -name '*.glob' -o -name '*.cmi' -o -name '*.cmo' \) -exec rm -f {} \;
+	find . \( -name '*.vo' -o -name '*.d' -o -name '*.glob' -o -name '*.cmi' -o -name '*.cmo' -o -name '*_gen.v' \) -exec rm -f {} \;

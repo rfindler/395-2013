@@ -1,5 +1,5 @@
 Require Import Braun.tmonad.monad.
-Require Import Braun.tmonad.insert.
+Require Import Braun.insert.insert_log.
 
 Require Import Braun.logical.sequence.
 
@@ -23,7 +23,7 @@ Definition make_array_naive_result (A:Set) (xs:list A) (b : @bin_tree A) c :=
   /\ SequenceR b xs.
 Hint Unfold make_array_naive_result.
 
-Load "make_array_naive_gen.v".
+Load "make_array_nlogn1_gen.v".
 
 Next Obligation.
 Proof.

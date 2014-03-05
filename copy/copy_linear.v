@@ -1,4 +1,4 @@
-Require Import Braun.tmonad.monad Braun.logical.index Braun.tmonad.insert.
+Require Import Braun.tmonad.monad Braun.logical.index Braun.insert.insert_log.
 Require Import Braun.common.braun Braun.common.util Braun.common.big_oh.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Program.Wf.

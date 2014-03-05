@@ -1,6 +1,6 @@
 Require Import Braun.tmonad.monad.
-Require Import Braun.tmonad.insert.
-Require Import Braun.tmonad.fold.
+Require Import Braun.insert.insert_log.
+Require Import Braun.fold.fold.
 
 Require Import Braun.logical.sequence.
 

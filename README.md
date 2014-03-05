@@ -23,3 +23,6 @@ TODO:
 - investigate sub1's running time (should we consider it constant?)
 - improve coq parser and use it everywhere [robby]
 - rearrange the files & directories in the repo [robby]
+- move the rest of the files out of tmonad/ into function-specific directories
+- rename the files in rkt/ to match the new naming convention (the
+  function name followed by the running time)

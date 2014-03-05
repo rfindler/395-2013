@@ -90,7 +90,7 @@ Definition copy_result (A:Set) (x:A) (n:nat) (b:@bin_tree A) c :=
   (forall i y, IndexR b i y -> y = x) /\
   c = copy_rt n.
 
-Load "copy_gen.v".
+Load "copy_log_gen.v".
 
 Next Obligation.
 Proof.

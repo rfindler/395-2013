@@ -18,7 +18,7 @@ Definition insert_result (A : Set) (i : A)
          /\ c = insert_time n)).
 (* STOP: insert_result *)
 
-Load "insert_gen.v".
+Load "insert_log_gen.v".
 
 Next Obligation.
   unfold insert_result.

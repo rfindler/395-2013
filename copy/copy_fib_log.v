@@ -36,7 +36,7 @@ Section copy_fib.
      (forall i y, IndexR t i y -> y = x) /\
      c = rt_copy_fib n.
 
-  Load "copy_fib_gen.v".
+  Load "copy_fib_log_gen.v".
 
   Next Obligation.
   Proof.

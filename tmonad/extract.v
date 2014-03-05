@@ -1,11 +1,17 @@
 Require Import Arith.Div2 Arith.Even.
-Require Import Braun.tmonad.insert.
-Require Import Braun.tmonad.copy Braun.tmonad.copy_linear Braun.tmonad.copy_fib.
-Require Import Braun.tmonad.size_linear Braun.tmonad.size_diff.
-Require Import Braun.tmonad.make_array_naive.
-Require Import Braun.tmonad.make_array_naive_fold.
+
+Require Import Braun.insert.insert_log.
+
+Require Import Braun.copy.copy_linear Braun.copy.copy_fib_log.
+Require Import Braun.copy.copy_log_sq Braun.copy.copy_log.
+
+Require Import Braun.size.size_linear Braun.size.size_log_sq.
+
+Require Import Braun.make_array.make_array_nlogn1.
+Require Import Braun.make_array.make_array_nlogn1_fold.
 Require Import Braun.tmonad.to_list_naive.
 Require Import Braun.tmonad.make_array_td.
+
 Require Import Braun.tmonad.monad.
 Require Import Braun.tmonad.sub1.
 
@@ -25,13 +31,17 @@ Extract Constant even_odd_dec => "fun a -> (a mod 2) != 0".
 
 Extraction Inline ret bind inc inc2.
 
-Extraction "tmonad.ml" insert.insert 
-           copy.copy 
-           copy_fib.copy_fib
+Extraction "tmonad.ml" insert_log.insert
+           size_linear.size_linear
+           size_log_sq.size
+
            copy_linear.copy_linear
-           size_linear.size_linear size_diff.size
-           make_array_naive.make_array_naive
-           make_array_naive_fold.make_array_naive
+           copy_fib_log.copy_fib
+           copy_log_sq.copy_insert
+           copy_log.copy
+
+           make_array_nlogn1.make_array_naive
+           make_array_nlogn1_fold.make_array_naive
            make_array_td.make_array_td
            to_list_naive.to_list_naive
            sub1.sub1.

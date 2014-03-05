@@ -1,4 +1,4 @@
-Require Import Braun.tmonad.monad Braun.logical.index Braun.tmonad.insert.
+Require Import Braun.tmonad.monad Braun.logical.index Braun.insert.insert_log.
 Require Import Braun.common.braun Braun.common.util Braun.common.big_oh.
 Require Import Braun.common.log Braun.common.le_util.
 Require Import Braun.logical.list_util Braun.logical.sequence.
@@ -23,7 +23,7 @@ Definition copy_insert_result (A:Set) (x:A) (n:nat) (b:@bin_tree A) (c:nat):=
    copy algorithm's correctness conditions, but it implies
    the other; see sequence_constant_list_index_is_constant *)
 
-Load "copy_insert_gen.v".
+Load "copy_log_sq_gen.v".
 
 Next Obligation.
   unfold copy_insert_result.

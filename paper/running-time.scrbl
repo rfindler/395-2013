@@ -103,7 +103,7 @@
     plain
     (map-append/blanks
      (apply hacked-verbatim (extract insert.rkt "insert"))
-     (apply hacked-verbatim (extract insert_gen.v drop-leading-comment)))))
+     (apply hacked-verbatim (extract insert_log_gen.v drop-leading-comment)))))
 }
 
 One disadvantage to the code in the previous section
@@ -134,7 +134,7 @@ separately and the translation's output must be used in that
 context. 
 
 Here is the definition of @tt{insert_result}:
-@(apply verbatim (extract insert.v "insert_result"))
+@(apply verbatim (extract insert_log.v "insert_result"))
 Unlike the previous version, this one accounts for the 
 larger constant factors and it also includes a stricter
 correctness condition. Specifically, the new conjunct

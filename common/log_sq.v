@@ -6,46 +6,6 @@ Set Implicit Arguments.
 
 Section sq_log.
 
-  Lemma fl_log_monotone :
-    forall n, fl_log n <= fl_log (S n).
-    apply (well_founded_ind
-             lt_wf
-             (fun n => fl_log n <= fl_log (S n))).
-    intros.
-    destruct x.
-    compute. omega.
-    rewrite <- fl_log_div2.
-    rewrite <- fl_log_div2.
-    rewrite plus_comm.
-    unfold plus at 1.
-    rewrite plus_comm.
-    unfold plus.
-    apply le_n_S.
-    assert (even x \/ odd x) as EO; [apply even_or_odd | inversion EO; clear EO].
-    rewrite even_div2;[constructor|assumption].
-    rewrite <- odd_div2;[|assumption].
-    apply H.
-    apply lt_div2'.
-  Qed.
-
-  Lemma cl_log_monotone :
-    forall n, cl_log n <= cl_log (S n).
-    apply (well_founded_ind
-             lt_wf
-             (fun n => cl_log n <= cl_log (S n))).
-    intros.
-    destruct x.
-    compute. omega.
-    rewrite cl_log_div2'.
-    rewrite cl_log_div2'.
-    apply le_n_S.
-    assert (even (S x) \/ odd (S x)) as EO; [apply even_or_odd | inversion EO; clear EO].
-    rewrite even_div2;[constructor|assumption].
-    rewrite <- (odd_div2 (S x));[|assumption].
-    apply H.
-    apply lt_div2''.
-  Qed.
-
   Lemma fl_log_leq_cl_log : 
     forall n, fl_log n <= cl_log n.
     apply (well_founded_ind 
@@ -66,7 +26,7 @@ Section sq_log.
     omega.
 
     rewrite <- odd_div2; [|assumption].
-    apply fl_log_monotone.
+    apply fl_log_monotone_Sn.
 
     apply H.
     apply lt_div2''.
@@ -139,9 +99,9 @@ Section sq_log.
                     (cl_log (S n) * cl_log n)
                     (cl_log (S n) * cl_log (S n))).
     apply le_mult_left.
-    apply cl_log_monotone.
+    apply cl_log_monotone_Sn.
     apply le_mult_right.
-    apply cl_log_monotone.
+    apply cl_log_monotone_Sn.
   Qed.
 
 

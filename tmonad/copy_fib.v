@@ -179,58 +179,8 @@ Section copy_fib.
     apply le_plus_trans.
     inversion H0; auto.
   Qed.
-
   Hint Resolve fib_monotone.
   
-  Lemma div2_monotone' : forall (n : nat) (m : nat), m <= n -> div2 m <= div2 n.
-    apply (well_founded_induction lt_wf
-                                  (fun (n : nat) =>
-                                     forall (m : nat),
-                                       
-                                       m <= n -> div2 m <= div2 n)).
-    intros n IH m Hm.
-    unfold div2.
-    destruct m as [|m']; destruct n as [|n']; try auto.
-    destruct n' as [|n'']; try auto.
-    apply le_0_n.
-    destruct m' as [|m'']; try auto.
-    inversion Hm.
-    destruct n' as [|n'']; destruct m' as [|m'']; try auto.
-    inversion Hm; inversion H0.
-    apply le_0_n.
-    repeat fold div2.
-    apply le_n_S.
-    apply IH; auto.
-    apply le_S_n; apply le_S_n; assumption.
-  Qed.
-
-  Hint Resolve div2_monotone'.
-
-  Lemma cl_log_monotone' : forall (n : nat) (m : nat), m <= n -> cl_log m <= cl_log n.
-    apply (well_founded_induction lt_wf
-                                  (fun (n : nat) =>
-                                     forall (m : nat), 
-                                       m <= n -> cl_log m <= cl_log n)).
-    intros n IH m Hm.
-    destruct m as [|m'].
-    destruct n as [|n'].
-    compute; auto;
-    unfold_sub cl_log (cl_log (S n')).
-    replace (cl_log 0) with 0; [omega|compute;auto].
-    destruct n as [|n'].
-    replace (cl_log 0) with 0; [omega|compute;auto].
-    unfold_sub cl_log (cl_log (S n')).
-    destruct n' as [|n'']. 
-    inversion Hm; auto.
-    unfold_sub cl_log (cl_log (S m')).
-    destruct m' as [|m''].
-    replace (cl_log 0) with 0; [omega|compute;auto].
-    apply le_n_S.
-    apply IH.
-    apply lt_n_S; auto.
-    apply le_n_S; repeat apply le_S_n in Hm; auto.
-  Qed.
-
   Lemma mle_2_and_3 : forall a b, 3 * a < 2 * b -> 3 * (b + a) < 2 * (b + a + b).
   Proof.
     intros.
@@ -271,7 +221,7 @@ Section copy_fib.
     apply fib_S.
     unfold gt.
     apply lt_le_trans with (m := cl_log 8); [compute; auto|]. 
-    apply cl_log_monotone'. 
+    apply cl_log_monotone. 
     intuition.
   Qed.
 
@@ -388,7 +338,7 @@ Section copy_fib.
     assert (f (S (div2 m)) <= f (S (div2 n)) /\ g (S (div2 m)) <= g (S (div2 n))).
     apply H.
     intuition. 
-    apply le_n_S; apply div2_monotone'; intuition.
+    apply le_n_S; apply div2_monotone; intuition.
     inversion H0.
     apply plus_le_compat; assumption.
 
@@ -423,7 +373,7 @@ Section copy_fib.
     assert (f (S (div2 m)) <= f (S (div2 n)) /\ g (S (div2 m)) <= g (S (div2 n))).
     apply H.
     intuition. 
-    apply le_n_S; apply div2_monotone'; intuition.
+    apply le_n_S; apply div2_monotone; intuition.
     inversion H0.
     auto.
   Qed.

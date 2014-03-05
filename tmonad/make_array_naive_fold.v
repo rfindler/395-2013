@@ -77,7 +77,7 @@ Section make_array_naive.
       unfold insert_time.
       apply le_plus_left.
       apply le_mult_right.
-      apply fl_log_monotone.
+      apply fl_log_monotone_Sn.
 
       assert (n * insert_time n <= n * insert_time (S n)) as NITLT.
       apply le_mult_right.

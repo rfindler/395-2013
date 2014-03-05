@@ -1,10 +1,13 @@
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Coq.Logic.JMeq Coq.Program.Wf.
 Require Import Braun.common.util Braun.common.log.
+Require Import Program.Wf Init.Wf.
+
+Include WfExtensionality.
 
 Set Implicit Arguments.
 
-Lemma fl_log_monotone :
+Lemma fl_log_monotone_Sn:
   forall n,
     fl_log n <= fl_log (S n).
 Proof.
@@ -28,7 +31,14 @@ Proof.
   apply lt_div2'.
 Qed.
 
-Lemma cl_log_monotone :
+Lemma fl_log_monotone : forall n m, n <= m -> fl_log n <= fl_log m.
+  intros n m.
+  induction 1; auto.
+  apply (le_trans (fl_log n) (fl_log m) (fl_log (S m))); auto.
+  apply fl_log_monotone_Sn.
+Qed.
+
+Lemma cl_log_monotone_Sn :
   forall n,
     cl_log n <= cl_log (S n).
 Proof.
@@ -46,6 +56,13 @@ Proof.
   rewrite <- (odd_div2 (S x));[|assumption].
   apply H.
   apply lt_div2''.
+Qed.
+
+Lemma cl_log_monotone : forall n m, n <= m -> cl_log n <= cl_log m.
+  intros n m.
+  induction 1; auto.
+  apply (le_trans (cl_log n) (cl_log m) (cl_log (S m))); auto.
+  apply cl_log_monotone_Sn.
 Qed.
 
 Lemma fl_log_leq_cl_log :
@@ -70,7 +87,7 @@ Proof.
   omega.
 
   rewrite <- odd_div2; [|assumption].
-  apply fl_log_monotone.
+  apply fl_log_monotone_Sn.
 
   apply H.
   apply lt_div2''.
@@ -82,7 +99,7 @@ Proof.
   apply (le_trans 1
                   (fl_log (S n))
                   (fl_log (S (S n)))); auto.
-  apply fl_log_monotone.
+  apply fl_log_monotone_Sn.
 Qed.
 
 Lemma le_plus_left :

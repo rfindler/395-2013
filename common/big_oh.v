@@ -61,7 +61,7 @@ Proof.
   rewrite fl_log_div2'.
   omega.
   apply (le_trans 1 (fl_log (S (S n))) (fl_log (S (S (S n))))); auto.
-  apply fl_log_monotone.
+  apply fl_log_monotone_Sn.
 
   apply le_plus_right.
   apply (le_trans (S (S n))

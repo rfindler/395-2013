@@ -106,12 +106,12 @@ Proof.
   apply le_mult_right.
   apply le_plus_left.
   apply le_mult_right.
-  apply fl_log_monotone.
+  apply fl_log_monotone_Sn.
   
   assert (9 * fl_log n + 14 <= 9 * fl_log (S n) + 14).
   apply le_plus_left.
   apply le_mult_right.
-  apply fl_log_monotone.
+  apply fl_log_monotone_Sn.
   omega.
   
   unfold mult; fold mult; omega.

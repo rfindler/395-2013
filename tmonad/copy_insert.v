@@ -231,20 +231,10 @@ Qed.
 
 Definition copy_insert_time4 (n:nat) := fl_log n * insert_time n.
 
-Lemma fl_log_monotone_star : forall n m, n <= m -> fl_log n <= fl_log m.
-  intros n m.
-  induction 1.
-  omega.
-  apply (le_trans (fl_log n)
-                  (fl_log m)
-                  (fl_log (S m))); auto.
-  apply fl_log_monotone.
-Qed.
-
 Lemma random_fl_log_le : forall n,
                            fl_log (S (div2 n)) <= fl_log (S (S (S n))).
   intros.
-  apply fl_log_monotone_star.
+  apply fl_log_monotone.
   apply (well_founded_induction 
            lt_wf
            (fun n => S (div2 n) <= S (S (S n)))).

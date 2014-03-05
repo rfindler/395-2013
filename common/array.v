@@ -122,14 +122,14 @@ Proof.
   apply le_plus_right.
 
   apply le_pieces_le_prod.
-  apply div2_monotone.
+  apply div2_monotone_Sn.
   
   assert (even n \/ odd n) as H; [apply even_or_odd|destruct H].
   rewrite even_div2;[|assumption].
   constructor.
 
   rewrite <- odd_div2;[|assumption].
-  apply cl_log_monotone.
+  apply cl_log_monotone_Sn.
 
   rewrite mult_comm.
   replace (S n * cl_log (div2 (S n))) with (cl_log (div2 (S n)) * S n);[|apply mult_comm].

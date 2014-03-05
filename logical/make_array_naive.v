@@ -96,7 +96,7 @@ Proof.
   assumption.
   
   apply le_mult_right.
-  apply cl_log_monotone.
+  apply cl_log_monotone_Sn.
 Qed.
 Hint Resolve man_time_nlogn.
 

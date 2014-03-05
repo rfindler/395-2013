@@ -10,7 +10,7 @@ Proof.
 Qed.
 Hint Rewrite plus_r_inj.
 
-Lemma div2_monotone : 
+Lemma div2_monotone_Sn : 
   forall n, 
     (div2 n <= div2 (S n)).
 Proof.
@@ -18,14 +18,20 @@ Proof.
   [ | | intros n IndHyp; simpl in IndHyp];
   simpl; omega.
 Qed.
-Hint Resolve div2_monotone.
+Hint Resolve div2_monotone_Sn.
+
+Lemma div2_monotone : forall n m, n <= m -> div2 n <= div2 m.
+  intros n m.
+  induction 1; auto.
+  apply (le_trans (div2 n) (div2 m) (div2 (S m))); auto.
+Qed.
 
 Lemma lt_div2' :
   forall n, div2 n < S n.
 Proof.
   intros n.
   apply (le_lt_trans (div2 n) (div2 (S n)) (S n));
-    [ apply div2_monotone |  apply lt_div2 ] ;
+    [ apply div2_monotone_Sn |  apply lt_div2 ] ;
     omega.
 Qed.
 Hint Resolve lt_div2'.

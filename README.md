@@ -13,30 +13,6 @@ Volume 7 Issue 6, November 1997, 661 - 666
 
 [pdf from citeseer](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.52.6090&rep=rep1&type=pdf)
 
-original
-=======
-
-First approach
-
-omonad
-======
-
-First monadic approach, had poor extraction
-
-logical
-=======
-
-Based on logical relations and proofs of decidability
-
-TODO:
-- Two variants of copy (correctness + timing)
-- Bottom-up make_array (correctness + timing)
-- Sequence finding (inverse of make_array) algorithm (correctness + timing)
-
-tmonad
-======
-
-New monadic approach, with improved extraction
 
 TODO:
 - size_diff (redo with Racket generation, big_oh)   [robby]

@@ -1,5 +1,5 @@
 VS := $(shell find . -type f -name '*v' | grep -v _gen.v$)
-VERSIONS := logical tmonad
+VERSIONS := tmonad
 BINS := $(VERSIONS:%=ml/%.bin)
 MLS := $(VERSIONS:%=ml/%.ml)
 MLIS := $(VERSIONS:%=ml/%.mli)

@@ -19,6 +19,9 @@ Definition copy_insert_result (A:Set) (x:A) (n:nat) (b:@bin_tree A) (c:nat):=
   Braun b n /\ 
   SequenceR b (mk_list x n) /\
   c = copy_insert_time (n).
+(* this correctness condition is different than the other
+   copy algorithm's correctness conditions, but it implies
+   the other; see sequence_constant_list_index_is_constant *)
 
 Load "copy_insert_gen.v".
 

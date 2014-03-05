@@ -9,8 +9,8 @@ Require Import Braun.size.size_linear Braun.size.size_log_sq.
 
 Require Import Braun.make_array.make_array_nlogn1.
 Require Import Braun.make_array.make_array_nlogn1_fold.
+Require Import Braun.make_array.make_array_nlogn2.
 Require Import Braun.tmonad.to_list_naive.
-Require Import Braun.tmonad.make_array_td.
 
 Require Import Braun.tmonad.monad.
 Require Import Braun.tmonad.sub1.
@@ -42,6 +42,6 @@ Extraction "tmonad.ml" insert_log.insert
 
            make_array_nlogn1.make_array_naive
            make_array_nlogn1_fold.make_array_naive
-           make_array_td.make_array_td
+           make_array_nlogn2.make_array_td
            to_list_naive.to_list_naive
            sub1.sub1.

@@ -1,6 +1,6 @@
 Require Import Braun.tmonad.monad Braun.logical.index Braun.tmonad.insert.
 Require Import Braun.common.braun Braun.common.util Braun.common.big_oh.
-Require Import Braun.common.log.
+Require Import Braun.common.log Braun.common.le_util.
 Require Import Braun.logical.list_util Braun.logical.sequence.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Program.Wf Init.Wf.
@@ -169,6 +169,176 @@ Lemma copy_insert_time12 : big_oh copy_insert_time copy_insert_time2.
   omega.
 Qed.
 
-Theorem copy_insert_log_sq : big_oh copy_insert_time (fun n => fl_log n * fl_log n).
-  admit.
+Program Fixpoint copy_insert_time3 (n:nat) {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' => copy_insert_time3 (div2 n') + insert_time (div2 n')
+  end.
+
+Lemma copy_insert_time23 : big_oh copy_insert_time2 copy_insert_time3.
+  exists 1.
+  exists 16.
+  intros n LT.
+  destruct n; intuition.
+  clear LT.
+  unfold_sub copy_insert_time2 (copy_insert_time2 (S n)).
+  unfold_sub copy_insert_time3 (copy_insert_time3 (S n)).
+  rewrite mult_plus_distr_l.
+  replace (16*insert_time (div2 n)) with ((15+1)*insert_time (div2 n)); try omega.
+  rewrite mult_plus_distr_r.
+  rewrite plus_assoc.
+  replace (1*insert_time (div2 n)) with (insert_time (div2 n)); try omega.
+  apply le_plus_left.
+  remember (div2 n) as m; clear Heqm n; rename m into n.
+  apply (le_trans (16 + copy_insert_time2 n)
+                  (16 * copy_insert_time3 n + 15 * 1)
+                  (16 * copy_insert_time3 n + 15 * insert_time n)).
+  replace (15*1) with 15; try omega.
+  apply (well_founded_induction 
+           lt_wf 
+           (fun n => 16 + copy_insert_time2 n <=
+                     16 * copy_insert_time3 n + 15)).
+  clear n. intros n IND.
+  destruct n.
+  unfold_sub copy_insert_time2 (copy_insert_time2 0).
+  unfold_sub copy_insert_time3 (copy_insert_time3 0).
+  omega.
+  unfold_sub copy_insert_time2 (copy_insert_time2 (S n)).
+  unfold_sub copy_insert_time3 (copy_insert_time3 (S n)).
+  apply (le_trans (16 + (16 + copy_insert_time2 (div2 n) + insert_time (div2 n)))
+                  (16 + (16 * copy_insert_time3 (div2 n) + 15 + insert_time (div2 n)))
+                  (16 * (copy_insert_time3 (div2 n) + insert_time (div2 n)) + 15)).
+  apply le_plus_right.
+  apply le_plus_left.
+  apply (IND (div2 n)); auto.
+  rewrite mult_plus_distr_l.
+  rewrite plus_comm.
+  repeat (rewrite <- plus_assoc).
+  apply le_plus_right.
+  rewrite plus_comm.
+  apply le_plus_left.
+  clear IND.
+  remember (div2 n) as m; clear Heqm n; rename m into n.
+  unfold insert_time.
+  omega.
+
+  unfold insert_time.
+  omega.
+Qed.  
+
+Definition copy_insert_time4 (n:nat) := fl_log n * insert_time n.
+
+Lemma fl_log_monotone_star : forall n m, n <= m -> fl_log n <= fl_log m.
+  intros n m.
+  induction 1.
+  omega.
+  apply (le_trans (fl_log n)
+                  (fl_log m)
+                  (fl_log (S m))); auto.
+  apply fl_log_monotone.
+Qed.
+
+Lemma random_fl_log_le : forall n,
+                           fl_log (S (div2 n)) <= fl_log (S (S (S n))).
+  intros.
+  apply fl_log_monotone_star.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => S (div2 n) <= S (S (S n)))).
+  clear n; intros n IND; destruct n.
+  simpl.
+  omega.
+  destruct n.
+  simpl.
+  omega.
+  simpl.
+  replace (S (S (div2 n))) with (1+(S (div2 n))); try omega.
+  replace (S (S (S (S (S n))))) with (1+(S (S (S (S n))))); try omega.
+  apply le_plus_right.
+  apply (le_trans (S (div2 n))
+                  (S (S (S n)))
+                  (S (S (S (S n))))).
+  apply IND.
+  omega.
+  omega.
+Qed.
+
+Lemma copy_insert_time34 : big_oh copy_insert_time3 copy_insert_time4.
+  exists 1.
+  exists 1.
+  intros n LT.  
+  destruct n; intuition.
+  clear LT.
+  unfold mult.
+  rewrite plus_0_r.
+  unfold copy_insert_time4.
+  unfold_sub copy_insert_time3 (copy_insert_time3 (S n)).
+  apply (well_founded_induction 
+           lt_wf 
+           (fun n => copy_insert_time3 (div2 n) + insert_time (div2 n) <=
+                     fl_log (S n) * insert_time (S n))).
+  clear n; intros n IND.
+  destruct n.
+  unfold insert_time.
+  simpl.
+  omega.
+  destruct n.
+  unfold insert_time.
+  simpl.
+  omega.
+  unfold div2.
+  fold div2.
+  unfold_sub copy_insert_time3 (copy_insert_time3 (S (div2 n))).
+  apply (le_trans (copy_insert_time3 (div2 (div2 n)) + 
+                   insert_time (div2 (div2 n)) +
+                   insert_time (S (div2 n)))
+                  (fl_log (S (div2 n)) * insert_time (S (div2 n))
+                   + insert_time (S (div2 n)))
+                  (fl_log (S (S (S n))) * insert_time (S (S (S n))))).
+  apply le_plus_left.
+  apply IND.
+  apply (lt_trans (div2 n) (S n) (S (S n))); auto.
+  replace (fl_log (S (S (S n)))) with (S (fl_log (div2 (S (S n))))); 
+    [|rewrite fl_log_div2'; omega].
+  unfold div2; fold div2.
+  replace (S (fl_log (S (div2 n)))) with ((fl_log (S (div2 n))) + 1); [|omega].
+  rewrite mult_plus_distr_r.
+  replace (1*insert_time (S (S (S n)))) with (insert_time (S (S (S n)))); try omega.
+  unfold insert_time.
+
+  apply (le_trans (fl_log (S (div2 n)) * (9 * fl_log (S (div2 n)) + 6) +
+                   (9 * fl_log (S (div2 n)) + 6))
+                  (fl_log (S (div2 n)) * (9 * fl_log (S (div2 n)) + 6) +
+                   (9 * fl_log (S (S (S n))) + 6))
+                  (fl_log (S (div2 n)) * (9 * fl_log (S (S (S n))) + 6) +
+                   (9 * fl_log (S (S (S n))) + 6))).
+  apply le_plus_right.
+  apply le_plus_left.
+  apply le_mult_right.
+  apply random_fl_log_le.
+
+  apply le_plus_left.
+  apply le_mult_right.
+  apply le_plus_left.
+  apply le_mult_right.
+  apply random_fl_log_le.
+Qed.
+
+Theorem copy_insert_log_sq : big_oh copy_insert_time
+                                    (fun n => fl_log n * fl_log n).
+  apply (big_oh_trans copy_insert_time
+                      copy_insert_time4
+                      (fun n => fl_log n * fl_log n)).
+  apply (big_oh_trans copy_insert_time
+                      copy_insert_time3
+                      copy_insert_time4).
+  apply (big_oh_trans copy_insert_time
+                      copy_insert_time2
+                      copy_insert_time3).
+  apply copy_insert_time12.
+  apply copy_insert_time23.
+  apply copy_insert_time34.
+  unfold copy_insert_time4.
+  apply big_oh_mult.
+  apply insert_time_log.
 Qed.

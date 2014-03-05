@@ -41,7 +41,7 @@ New monadic approach, with improved extraction
 TODO:
 - size_diff (redo with Racket generation, big_oh)   [robby]
 - copy_fib (time bound) [burke]
-- copy_insert [robby]
+- copy_insert (get better correctness condition) [robby]
 - copy2 (redo with Racket generation, big_oh)
 - make_array_td (redo with Racket generation, big_oh)
 - make_array_bu (time, correctness, extraction, big_oh) [max]

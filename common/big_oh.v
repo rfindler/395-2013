@@ -76,3 +76,20 @@ Proof.
   apply le_mult_right.
   assumption.
 Qed.
+
+
+Lemma big_oh_mult :
+  forall f g h,
+    big_oh f g ->
+    big_oh (fun x => (h x) * (f x)) (fun x => (h x) * (g x)).
+  intros f g n [n0 [m FG]].
+  exists n0.
+  exists m.
+  intros n1 LT.
+  apply FG in LT.
+  rewrite mult_assoc.
+  replace (m * n n1) with (n n1 * m); try (apply mult_comm).
+  rewrite <- mult_assoc.
+  apply le_mult_right.
+  assumption.
+Qed.

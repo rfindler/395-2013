@@ -30,14 +30,14 @@ information is not needed in the data structure that
 represents Braun trees; we can use a simple binary tree
 definition.
 
-@(apply verbatim (extract braun.v "bin_tree"))
+@(apply inline-code (extract braun.v "bin_tree"))
 
 To be able to state facts about Braun trees, however,
 we use @tt{Braun} to define when a binary tree is a
 Braun tree of size @tt{n} (much like our definition of
 lists of length @tt{n} in @secref["sec:background"]).
 
-@(apply verbatim (extract braun.v "Braun"))
+@(apply inline-code (extract braun.v "Braun"))
 
 This says that the empty binary tree is a Braun tree of size
 @tt{0}, and that if two numbers @tt{s_size}, @tt{t_size}
@@ -47,13 +47,12 @@ the @tt{s} and @tt{t} into a single tree produces
 a braun tree of size @tt{s_size+t_size+1}.
 
 Here is the insertion function:
-
-@(apply verbatim (extract insert_no_gen.v "insert"))
+@(apply inline-code (extract insert_no_gen.v "insert"))
 
 It is fairly complex, so let us look carefully at each piece.
 It accepts an object @tt{i} (of type @tt{A}) to insert into
 the Braun tree @tt{b}. Its result type uses a new notation:
-@verbatim|{
+@inline-code|{
   {! «result variable» |:| «simple result type»
     |<| «running time variable» |>|
     «property of the function» !}
@@ -111,7 +110,7 @@ this as a single abstract step of computation.
 Once this function is submitted to Coq, it responds with requests to
 prove two claims, one from each of the cases of the function. The first
 one is:
-@verbatim{
+@inline-code{
 forall n,
   Braun bt_mt n ->
    Braun (bt_node i bt_mt bt_mt) (n + 1) /\
@@ -121,7 +120,7 @@ which may look a bit baroque. The left-hand side of the implication
 is saying that we get to assume that @tt{n} is the size of
 the empty binary tree. Of course, that tells us than @tt{n} must be
 zero. So simplifying we are asked to prove that:
-@verbatim{
+@inline-code{
 Braun (bt_node i bt_mt bt_mt) 1
 /\
 1 = fl_log 0 + 1
@@ -132,7 +131,7 @@ for the base case to be correct: the singleton tree is a Braun tree
 of size @tt{1} and the running time is correct when the input is empty.
 
 For the second case, we are asked to prove:
-@verbatim{
+@inline-code{
 forall i j s t bt an n, 
   forall n : nat, Braun t n -> 
      Braun bt (n + 1) /\ an = fl_log n + 1
@@ -155,7 +154,7 @@ insertion function, Coq does not know to specialize the
 inductive hypothesis to the size of @tt{t}. To clarify that
 we can replace @tt{n} with @tt{s_size+t_size+1} and specialize
 the first assumption to arrive at this theorem to prove
-@verbatim{
+@inline-code{
  forall i j s t bt n t_size, 
   Braun bt (t_size + 1)
   Braun (bt_node j s t) (s_size + t_size + 1)

@@ -1,5 +1,6 @@
 #lang racket/base
 (require racket/runtime-path
+         scribble/base
          "extract.rkt")
 
 (define-runtime-path lwl.v "lwl.v")
@@ -13,3 +14,6 @@
 
 (provide extract
          (all-defined-out))
+
+(define (inline-code . args)
+  (apply verbatim args))

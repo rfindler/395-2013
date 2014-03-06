@@ -19,9 +19,7 @@ in the rest of the paper.
 To get started, consider
 the definition of a @tt{drop} function that removes
 the first @tt{n} elements from a list.
-
-@(apply verbatim (extract lwl.v "drop"))
-
+@(apply inline-code (extract lwl.v "drop"))
 Ignore the types and the @tt{len} argument for a moment
 (@tt{len} is there only in support of the types).
 The other two arguments are @tt{n}, the number of
@@ -77,7 +75,7 @@ be proven in order to finish type checking.
 
 In this case, there are four. The simplest one is the one
 for the @tt{empty} case in the @tt{match} expression:
-@(apply verbatim (extract lwl.v "obligation2"))
+@(apply inline-code (extract lwl.v "obligation2"))
 This corresponds to proving that the length of the
 result list (@tt{0} since it is @tt{empty}) is equal
 to the declared length in @tt{drop}'s header, where
@@ -104,9 +102,9 @@ The most complex of these is the last one. Here's what
 Coq asks you to prove, and it holds by very similar 
 reasoning to the case above, just with a few more situations
 to consider:
-@centered{@(apply verbatim (extract lwl.v "obligation4")).}
+@centered{@(apply inline-code (extract lwl.v "obligation4")).}
 
-@section{Extraction: Too Much Information}
+@section[#:tag "sec:extraction-tmi"]{Extraction: Too Much Information}
 
 Coq supports a way to extract programs with these rich
 types into OCaml in order to efficiently run programs that have
@@ -122,13 +120,11 @@ Even worse, however, is that these extra arguments are
 not just in @tt{drop}, but they are built into the list
 list data structure too, for very similar reasons. Here's the 
 definition of @tt{list_with_len}:
-
-@(apply verbatim (extract lwl.v "list_with_len"))
-
+@(apply inline-code (extract lwl.v "list_with_len"))
 The keyword @tt{Inductive} is Coq's version of ML's
 @tt{datatype} declaration and the corresponding ML
 datatype (but without the list length information) is
-@verbatim{
+@inline-code{
   datatype 'a list = 
     empty
   | cons of 'a * 'a list
@@ -178,17 +174,13 @@ Fundamentally, the combination of dependent types and data structure definitions
 gives us the power to define a datatype whose elements
 correspond to proofs and whose types correspond to facts. To see how
 this works, lets start with the definition of @tt{list}:
-
-@(apply verbatim (extract l.v "list"))
-
+@(apply inline-code (extract l.v "list"))
 It has no dependency and is a one-for-one match with the earlier ML fragment
 that defines lists. Accordingly, it will extract directly into the ordinary
 OCaml list type.
 
 Here's the @tt{Inductive} definition that captures the length of a list:
-
-@(apply verbatim (extract l.v "list_has_len"))
-
+@(apply inline-code (extract l.v "list_has_len"))
 The first line doesn't just say @tt{list_len : Type} like the @tt{list} declaration
 did. Instead, it indicates that in order to get a type, @tt{list_len} must 
 first be supplied with two arguments, a @tt{list} and a @tt{nat}. Our goal
@@ -218,7 +210,7 @@ arguments to @tt{L_cons}. And, unsurprisingly, we need to supply all of
 the values whose types correspond to the restrictions you'd expect, the
 key one being a value that tells us that @tt{tl} has length @tt{tl_len}.
 As an example, we can write 
-@verbatim{
+@inline-code{
   (L_cons 0 true empty L_Empty) :
   (list_len (cons true empty) 1)
 }
@@ -227,8 +219,6 @@ to demonstrate that the singleton list containing @tt{true} has length
 
 Once we have @tt{list_len} defined, proving the same property of @tt{drop}
 corresponds to this @tt{Theorem} declaration in Coq:
-
-@(apply verbatim (extract l.v "drop_lengths"))
-
+@(apply inline-code (extract l.v "drop_lengths"))
 This version of @tt{drop} and @tt{list} are easily extractable, producing
 the expected code without any extra declarations to guide Coq.

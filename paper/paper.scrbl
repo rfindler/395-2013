@@ -53,6 +53,8 @@ Running times! Whoo hoo!
 
 @include-section["running-time.scrbl"]
 
+@include-section["extract-insert.scrbl"]
+
 @section{The Monad}
 
 Running-time proofs rely on an accurate static accounting
@@ -81,8 +83,7 @@ have a @tt{Set} paired with something from the universe of truth
 propositions, @tt{Prop}. The trouble is finding the right proposition.
 
 Our model using the following lift target:
-
-@(apply verbatim (extract monad.v "C"))
+@(apply inline-code (extract monad.v "C"))
 
 This specifies that @tt{C A P} is a dependent pair of an actual @tt{A}
 value, @tt{a}, and a proof that there exists some natural @tt{an} for
@@ -101,8 +102,7 @@ returns an empty list, @tt{ret nil}. Such a program takes no steps to
 compute, because the value is readily available. This logic applies to
 all places where a computation ends. We can reflect this in our monad
 by given the following type to @tt{ret}:
-
-@(apply verbatim (extract monad.v "ret"))
+@(apply inline-code (extract monad.v "ret"))
 
 This specifies that @tt{ret} will only construct a @tt{C A P} when
 given a proof, @tt{Pa0}, that the correct/runtime property holds
@@ -137,16 +137,14 @@ transformed into whatever the actual cost along that path was.
 
 We enapsulate this logic into a simple extra-monadic operator,
 @tt{inc}, that introduces a unit of cost:
-
-@(apply verbatim (extract monad.v "inc"))
+@(apply inline-code (extract monad.v "inc"))
 
 In principle, the logic for @tt{bind} is very similar. A @tt{bind}
 represents a composition of two computations: an @tt{A}-producing one
 and an @tt{A}-consuming, @tt{B}-producing one. If we assume that
 property for @tt{A} is @tt{PA} and @tt{PB} for @tt{B}, then the type
 of @tt{bind} is:
-
-@(apply verbatim (extract monad.v "bind1"))
+@(apply inline-code (extract monad.v "bind1"))
 
 But, this definition is incorrect from the perspective of cost,
 because it misses the key point of ensuring that whatever the cost was
@@ -161,8 +159,7 @@ However, we cannot "look inside" the @tt{A} computation to know that
 it cost 7 units. Instead, we have to show that @emph{whatever} the
 cost for @tt{A} was, the cost of @tt{B} is still as expected. This is
 reflected in the type of @tt{bind} with:
-
-@(apply verbatim (extract monad.v "bind2"))
+@(apply inline-code (extract monad.v "bind2"))
 
 Unfortunately, this is far too strong of a statement because there are
 some costs @tt{an} that are too much. The only @tt{an} costs that our
@@ -170,8 +167,7 @@ proof about an application of @tt{bind} must be concerned with are
 those that respect the @tt{PA} property given the @emph{actual} value
 of @tt{a} that the @tt{A} computation produced. This is reflected as a
 dependent type for @tt{bf}:
-
-@(apply verbatim (extract monad.v "bind3"))
+@(apply inline-code (extract monad.v "bind3"))
 
 This version of @tt{bind} is complete from a cost perspective but has
 one problem for practical theorem proving. The body of the function
@@ -193,8 +189,7 @@ list in half for each recursive call.
 It is trivial to incorporate this information into the type of @tt{bf}
 by adding an additional proposition argument that corresponds to the
 right-hand side of the @tt{C A PA} value @tt{am}:
-
-@(apply verbatim (extract monad.v "bind"))
+@(apply inline-code (extract monad.v "bind"))
 
 As expected, these three operators (@tt{ret}, @tt{inc}, and @tt{bind})
 extract to the identity monad, so they leave no residue in the dynamic

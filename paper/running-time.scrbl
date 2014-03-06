@@ -134,7 +134,7 @@ separately and the translation's output must be used in that
 context. 
 
 Here is the definition of @tt{insert_result}:
-@(apply verbatim (extract insert_log.v "insert_result"))
+@(apply inline-code (extract insert_log.v "insert_result"))
 Unlike the previous version, this one accounts for the 
 larger constant factors and it also includes a stricter
 correctness condition. Specifically, the new conjunct

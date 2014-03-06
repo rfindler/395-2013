@@ -1,9 +1,13 @@
 #lang scribble/sigplan
 
-@(require "util.rkt" "cite.rkt" scriblib/footnote)
+@(require "util.rkt" "cite.rkt" 
+          scriblib/footnote
+          scribble/core
+          scribble/latex-properties)
 
-@title{Putting Dependent Types to Work
-       @subtitle{A Coq Library That Enforces Correct Running-Times via Type-Checking}}
+@title[#:style (style #f (list (tex-addition #"\\usepackage{inconsolata}\n")))]{
+  Putting Dependent Types to Work
+  @subtitle{A Coq Library That Enforces Correct Running-Times via Type-Checking}}
 @doi{}
 
 @authorinfo["Jay McCarthy"

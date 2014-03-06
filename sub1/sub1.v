@@ -3,25 +3,15 @@ Require Import Braun.common.util.
 Require Import Arith Arith.Even Arith.Div2.
 Require Import Coq.Program.Wf.
 
+(* This file exists only to check that
+   the rkt version of sub1 really does
+   compute n-1. The running time aspects
+   of this function are complex. *)
+
 Definition sub1_result (n:nat) (res:nat) (c:nat) := n-1 = res.
 Hint Unfold sub1_result.
 
-(* this file was generated automatically *)
-Program Fixpoint sub1 (n:nat) {measure n}
-: {! res !:! nat !<! c !>!
-     sub1_result n res c !} :=
-  match n with
-    | 0 => 
-      += 3; 
-      <== 0
-    | S _ => 
-      if (even_odd_dec n)
-      then (sd2 <- sub1 (div2 n);
-            += 12; 
-            <== (sd2 + sd2 + 1))
-      else (+= 8; 
-            <== (n - 1))
-  end.
+Load "sub1_gen.v".
 
 Next Obligation.
   clear H2 am.

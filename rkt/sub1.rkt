@@ -3,6 +3,7 @@
 
 (Fixpoint
  sub1 @n{nat}
+ #:measure n
  #:returns @{nat}
  (match (n)
    [0 => (<== 0)]

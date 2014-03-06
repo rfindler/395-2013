@@ -13,7 +13,7 @@ Require Import Braun.make_array.make_array_nlogn2.
 Require Import Braun.tmonad.to_list_naive.
 
 Require Import Braun.tmonad.monad.
-Require Import Braun.tmonad.sub1.
+Require Import Braun.sub1.sub1.
 
 Extract Inductive bool => "bool" [ "false" "true" ].
 Extract Inductive sumbool => "bool" [ "false" "true" ].
@@ -44,4 +44,4 @@ Extraction "tmonad.ml" insert_log.insert
            make_array_nlogn1_fold.make_array_naive
            make_array_nlogn2.make_array_td
            to_list_naive.to_list_naive
-           sub1.sub1.
+           sub1.sub1.sub1.

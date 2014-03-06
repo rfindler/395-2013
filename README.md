@@ -13,6 +13,14 @@ Volume 7 Issue 6, November 1997, 661 - 666
 
 [pdf from citeseer](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.52.6090&rep=rep1&type=pdf)
 
+To build:
+
+  Use coq verison 8.4 (September 2012) and Racket 6.0 (or later).
+
+  Run 'make' twice. The first time should finish everything except the
+  extraction, but will end with an error. Run make a second time and
+  it should pick up where it left off, completing the extraction.
+
 
 TODO:
 - size_diff (redo with Racket generation, big_oh)   [robby]

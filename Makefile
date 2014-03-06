@@ -32,7 +32,7 @@ tmonad-gen: insert/insert_log_gen.v \
             make_array/make_array_nlogn2_gen.v \
             make_array/unravel_gen.v \
             sub1/sub1_gen.v \
-            tmonad/fold_gen.v
+            fold/fold_gen.v
 
 insert/insert_log_gen.v: rkt/insert.rkt $(GEN_DEPS)
 	racket rkt/insert.rkt > insert/insert_log_gen.v
@@ -59,8 +59,8 @@ make_array/unravel_gen.v: rkt/unravel.rkt $(GEN_DEPS)
 	racket rkt/unravel.rkt > make_array/unravel_gen.v
 sub1/sub1_gen.v: rkt/sub1.rkt $(GEN_DEPS)
 	racket rkt/sub1.rkt > sub1/sub1_gen.v
-tmonad/fold_gen.v: rkt/fold.rkt $(GEN_DEPS)
-	racket rkt/fold.rkt > tmonad/fold_gen.v
+fold/fold_gen.v: rkt/fold.rkt $(GEN_DEPS)
+	racket rkt/fold.rkt > fold/fold_gen.v
 
 Makefile.coq: tmonad-gen Makefile $(VS)
 	coq_makefile -R . Braun $(VS) -o Makefile.coq

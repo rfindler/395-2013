@@ -14,7 +14,7 @@ This section works through an examples with the goal of bringing
 across just enough Coq to be able to read the code fragments
 in the rest of the paper.
 
-@section{A First Dependently-Typed Function: @tt{drop}}
+@section[#:tag "sec:drop1"]{A First Dependently-Typed Function: @tt{drop}}
 
 To get started, consider
 the definition of a @tt{drop} function that removes
@@ -93,7 +93,7 @@ and since we know that @tt{len} is 0, this case simplifies
 to just @tt{0 = 0 - 0}.
 
 The other three correspond to the @tt{then} branch of the
-@tt{if} in the body of @tt{bind}, 
+@tt{if} in the body of @tt{drop},
 that the arguments
 to the recursive call match up, and
 the result of the
@@ -162,13 +162,11 @@ in auxiliary theorems that describe how @tt{drop} treats lists.
 
 Separating the theorems from the function, however, typically requires
 longer and more complex proofs because the proof essentially has to
-mimic the structure of the function.@note{See @tt{l.v} and @tt{lwl.v} at
-  @url{https://github.com/rfindler/395-2013/tree/master/paper}
-  for the fully worked examples from this section using
-  both approaches.} Still, the combination of dependent types and 
+mimic the structure of the function. 
+Still, the combination of dependent types and 
 data definitions is remarkably expressive and an important part of our 
-approach, but we will combine this with expressive types directly on 
-functions. For now, lets see how the separation plays out for @tt{drop}.
+approach. Our library combines this power with expressive types directly on 
+functions. For now, however, lets see how the separation plays out for @tt{drop}.
 
 Fundamentally, the combination of dependent types and data structure definitions
 gives us the power to define a datatype whose elements
@@ -222,3 +220,15 @@ corresponds to this @tt{Theorem} declaration in Coq:
 @(apply inline-code (extract l.v "drop_lengths"))
 This version of @tt{drop} and @tt{list} are easily extractable, producing
 the expected code without any extra declarations to guide Coq.
+
+Unfortunately, the proof that @tt{drop} behaves properly is now significantly
+longer. In the version from @secref["sec:drop1"], there were four
+proofs, each of which requires only one lines of Coq code. The
+corresponding proof for this version of the function is 20 non-trivial
+lines. Perhaps unsurprisingly the proof for the current version of
+@tt{drop} has the previous version's proof embedded inside it. Most of the
+extra is boilerplate proof manipulation to mimic the case dispatching
+that the function itself does.@note{See @tt{l.v} and @tt{lwl.v} at
+  @url{https://github.com/rfindler/395-2013/tree/master/paper}
+  for the fully worked examples from this section using
+  both approaches.}

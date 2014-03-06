@@ -1,13 +1,13 @@
 Require Import Program.
 Require Import Omega.
-Require Import Braun.common.log.
+Require Import Braun.common.log Braun.common.big_oh.
 Require Import Braun.common.util Braun.common.le_util.
 Require Import Arith Arith.Even Arith.Div2 List.
 
 (* this is http://oeis.org/A001855 *)
 Program Fixpoint mat_time n {measure n} :=
   match n with
-    | O => 0
+    | 0 => 0
     | S n' =>
       mat_time (div2 n) + mat_time (div2 n') + n
   end.
@@ -78,7 +78,7 @@ Proof.
 Qed.
 Hint Resolve braun_implies_mat_time.
 
-Lemma mat_time_nlogn : 
+Lemma mat_time_le_nlogn : 
   forall n,
     mat_time n <= n * cl_log n.
 Proof.
@@ -134,4 +134,15 @@ Proof.
   rewrite mult_comm.
   replace (S n * cl_log (div2 (S n))) with (cl_log (div2 (S n)) * S n);[|apply mult_comm].
   apply div2_mult.
+Qed.
+
+
+Lemma mat_time_nlogn : big_oh mat_time (fun n => n * cl_log n).
+  exists 0.
+  exists 1.
+  intros n LT.
+  clear LT.
+  simpl.
+  rewrite plus_0_r.
+  apply mat_time_le_nlogn.
 Qed.

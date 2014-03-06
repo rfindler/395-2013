@@ -43,12 +43,6 @@ Program Fixpoint make_array_td_time n {measure n} :=
       make_array_td_time (div2 (n'+1)) +
       make_array_td_time (div2 n')
   end.
-Next Obligation.
-Proof.
-  replace (n'+1) with (S n').
-  auto.
-  omega.
-Qed.
 
 Definition make_array_td_result (A:Set) xs (b:@bin_tree A) c :=
   let n := length xs in
@@ -136,51 +130,88 @@ Proof.
   eauto.
 Qed.
 
-Theorem make_array_td_nlogn : big_oh make_array_td_time (fun n => n*fl_log n).
-Proof.
+Program Fixpoint make_array_td_time2 n {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' => 
+      n' + 
+      make_array_td_time2 (div2 (n'+1)) +
+      make_array_td_time2 (div2 n')
+  end.
+
+Lemma make_array_td_time12 : big_oh make_array_td_time make_array_td_time2.
+  exists 0.
+  exists 28.
+  intros n LT;clear LT.
+  apply (well_founded_induction
+           lt_wf
+           (fun n =>  make_array_td_time n <= 28 * make_array_td_time2 n)).
+  clear n; intros n IND.
+  destruct n.
+  compute.
+  omega.
+  unfold_sub make_array_td_time (make_array_td_time (S n)).
+  unfold_sub make_array_td_time2 (make_array_td_time2 (S n)).
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+  destruct n.
+  compute.
+  omega.
+  replace (10 * S n) with (10 + 10 * n); [|omega].
+  replace (28 * S n) with (28 + 28 * n); [|omega].
+  assert (make_array_td_time (div2 (S n + 1)) <=
+          28 * make_array_td_time2 (div2 (S n + 1))).
+  apply IND; auto.
+  assert (make_array_td_time (div2 (S n)) <=
+          28 * make_array_td_time2 (div2 (S n))).
+  apply IND; auto.
+  omega.
+Qed.
+
+Lemma make_array_td_time2_mat_time : big_oh make_array_td_time2 mat_time.
   exists 1.
-  exists 50.
+  exists 2.
   intros n LT.
   destruct n;intuition.
   clear LT.
   apply (well_founded_induction
            lt_wf
-           (fun n =>  make_array_td_time (S n) <= 50 * (S n * fl_log (S n)))).
+           (fun n => make_array_td_time2 (S n) <= 2 * mat_time (S n))).
   clear n; intros n IND.
   destruct n.
   compute.
   omega.
+  rewrite mat_time_Sn.
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+
+  replace (make_array_td_time2 (S (S n)))
+  with ((S n) + make_array_td_time2 (div2 ((S n)+1)) +
+        make_array_td_time2 (div2 (S n))).
+  replace (S n + 1) with (S (S n)); [|omega].
   destruct n.
   compute.
   omega.
-  remember (S (S n)) as m.
-  unfold_sub make_array_td_time (make_array_td_time (S m)).
-  subst m.
-  replace (S (S n) + 1) with (S (S (S n))); try omega.
-  replace (div2 (S (S (S n)))) with (S (div2 (S n)));[|simpl;reflexivity].
-  replace (div2 (S (S n))) with (S (div2 n));[|simpl;reflexivity].
-  apply (le_trans (10 * S (S n) + 18 +
-                   make_array_td_time (S (div2 (S n))) +
-                   make_array_td_time (S (div2 n)))
-                  (10 * S (S n) + 18 +
-                   make_array_td_time (S (div2 (S n))) +
-                   (50 * (S (div2 n) * fl_log (S (div2 n)))))
-                  (50 * (S (S (S n)) * fl_log (S (S (S n)))))).
-  apply le_plus_right.
-  apply IND.
-  apply (lt_trans (div2 n) (S n) (S (S n))); auto.
-  apply (le_trans (10 * S (S n) + 18 +
-                   make_array_td_time (S (div2 (S n))) +
-                   (50 * (S (div2 n) * fl_log (S (div2 n)))))
-                  (10 * S (S n) + 18 +
-                   (50 * (S (div2 (S n)) * fl_log (S (div2 (S n))))) +
-                   (50 * (S (div2 n) * fl_log (S (div2 n)))))
-                  (50 * (S (S (S n)) * fl_log (S (S (S n)))))).
-  apply le_plus_left.
-  apply le_plus_right.
-  apply IND;auto.
+  replace (div2 (S (S (S n)))) with (S (div2 (S n)));[|simpl;omega].
+  replace (div2 (S (S n))) with (S (div2 n));[|simpl;omega].
 
-  clear IND.
-  
-  admit. (* might be true .... *)
+  assert (make_array_td_time2 (S (div2 (S n))) <= 2 * mat_time (S (div2 (S n)))).
+  apply IND;auto.
+  assert (make_array_td_time2 (S (div2 n)) <= 2 * mat_time (S (div2 n))).
+  apply IND.
+  apply (lt_trans (div2 n) (S n) (S (S n)));auto.
+  omega.
+
+  unfold_sub make_array_td_time2 (make_array_td_time2 (S (S n))).
+  unfold div2.
+  reflexivity.
+Qed.  
+
+Theorem make_array_td_nlogn : big_oh make_array_td_time (fun n => n*cl_log n).
+Proof.
+  apply (big_oh_trans make_array_td_time mat_time (fun n => n*cl_log n)).
+  apply (big_oh_trans make_array_td_time make_array_td_time2 mat_time).
+  apply make_array_td_time12.
+  apply make_array_td_time2_mat_time.
+  apply mat_time_nlogn.
 Qed.

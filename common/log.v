@@ -70,6 +70,13 @@ Proof.
 Qed.
 Hint Rewrite fl_log_div2'.
 
+Lemma fl_log_div2'' :  forall n, div2 (n + 1) < S n.
+  intros n.
+  replace (n+1) with (S n);[|omega].
+  auto.
+Qed.
+Hint Resolve fl_log_div2''.
+
 Lemma cl_log_div2' : 
   forall n, 
     cl_log (S n) = S (cl_log (div2 (S n))).

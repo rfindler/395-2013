@@ -15,21 +15,15 @@ Volume 7 Issue 6, November 1997, 661 - 666
 
 To build:
 
-  Use coq verison 8.4 (September 2012) and Racket 6.0 (or later).
-
-  Run 'make' twice. The first time should finish everything except the
-  extraction, but will end with an error. Run make a second time and
-  it should pick up where it left off, completing the extraction.
-
+  Install coq verison 8.4 (September 2012) and Racket 6.0 (or later).
+  And if you've got everything on your path, just run 'make'. This will
+  check all of the proofs, extract ocaml code, and build the paper.
 
 TODO:
 - size_diff (redo with Racket generation, big_oh)   [robby]
 - make_array_bu (time, correctness, extraction, big_oh) [max]
 - to_list_naive (exact time [vs bound], big_oh)
 - to_list_bu (time, correctness, extraction, big_oh)
-- investigate sub1's running time (should we consider it constant?)
 - improve coq parser and use it everywhere [robby]
-- move the rest of the files out of tmonad/ into function-specific directories [robby]
-- rename the files in rkt/ to match the new naming convention (the
-  function name followed by the running time) [robby]
+
 

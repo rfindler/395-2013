@@ -1,11 +1,8 @@
-VS := $(shell find . -type f -name '*v' | grep -v _gen.v$)
+VS := $(shell find . -type f -name '*v' | grep -v _gen.v | grep -v /extract.v $)
 VERSIONS := tmonad
-BINS := $(VERSIONS:%=ml/%.bin)
-MLS := $(VERSIONS:%=ml/%.ml)
-MLIS := $(VERSIONS:%=ml/%.mli)
 GEN_DEPS := rkt/emit.rkt rkt/tmonad.rkt rkt/tmonad-coq.rkt
 
-all: coq $(BINS) paper/paper.pdf
+all: coq paper/paper.pdf extract/a.out
 	@echo ""
 	@echo ""
 	@ ! grep -i admit $(VS)
@@ -21,6 +18,16 @@ clean-ml:
 coq: Makefile.coq
 	mkdir -p ml
 	$(MAKE) -f Makefile.coq
+
+# this dependency doesn't exist so this is always built
+# not sure how to build this into Makefile.coq and without
+# that it is hard to see what to depend on.
+extract/extract.ml: coq
+	coqc -q -R . Braun extract/extract.v
+	mv extract.ml extract/
+
+extract/a.out: extract/extract.ml
+	(cd extract; ocamlc -I ml extract.ml)
 
 tmonad-gen: insert/insert_log_gen.v \
             size/size_linear_gen.v \
@@ -67,22 +74,8 @@ Makefile.coq: tmonad-gen Makefile $(VS)
 
 %.vo : coq
 
-%.ml : %/extract.vo
-
-ml/%.ml: %.ml
-	mv $^ $@
-
-ml/%.mli: %.mli
-	mv $^ $@
-
-ml/%.bin : ml/%.ml ml/%.cmi
-	ocamlc -I ml $(basename $@).ml -o $@
-
-ml/%.cmi : ml/%.mli
-	ocamlc -c $^
-
 clean: Makefile.coq
 	$(MAKE) -f Makefile.coq clean
 	rm -f paper/paper.pdf
-	rm -f $(BINS) $(MLS) $(MLIS)
+	rm -f extract/extract.ml extract/a.out
 	find . \( -name '*.vo' -o -name '*.d' -o -name '*.glob' -o -name '*.cmi' -o -name '*.cmo' -o -name '*_gen.v' \) -exec rm -f {} \;

@@ -11,5 +11,6 @@ Makefile.coq
 /*.ml
 *.bin
 compiled/
-/ml
+extract/extract.ml
+extract/a.out
 

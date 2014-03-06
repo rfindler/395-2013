@@ -10,7 +10,7 @@ Require Import Braun.size.size_linear Braun.size.size_log_sq.
 Require Import Braun.make_array.make_array_nlogn1.
 Require Import Braun.make_array.make_array_nlogn1_fold.
 Require Import Braun.make_array.make_array_nlogn2.
-Require Import Braun.tmonad.to_list_naive.
+Require Import Braun.to_list.to_list_naive.
 
 Require Import Braun.tmonad.monad.
 Require Import Braun.sub1.sub1.
@@ -31,7 +31,7 @@ Extract Constant even_odd_dec => "fun a -> (a mod 2) != 0".
 
 Extraction Inline ret bind inc inc2.
 
-Extraction "tmonad.ml" insert_log.insert
+Extraction "extract.ml" insert_log.insert
            size_linear.size_linear
            size_log_sq.size
 

@@ -86,11 +86,12 @@
        (let ()
          (define-values (racket-arg coq-arg) (parse-Fixpoint-arg stx #'arg #t))
          (loop #'args racket-args (cons coq-arg coq-args) measure))]
-      [(#:measure id . args)
+      [(#:measure the-measure . args)
        (begin
-         (unless (identifier? #'id)
-           (raise-syntax-error #f "expected an identifier for the measure argument"))
-         (loop #'args racket-args coq-args #'id))]
+         (unless (or (identifier? #'the-measure)
+                     (string? (syntax-e #'the-measure)))
+           (raise-syntax-error #f "expected an identifier or a string for the measure argument"))
+         (loop #'args racket-args coq-args #'the-measure))]
       [(#:returns result)
        (let ()
          (define res-strs (syntax->list #'result))
@@ -124,7 +125,9 @@
              (require "emit.rkt")
              (out-Fp (Fp 'id (list #,@coq-args) '#,measure #,coq-result '#,exp)))
            (define (id #,@racket-args)
-             (begin #,measure
+             (begin #,(if (identifier? measure)
+                          measure
+                          #'(void))
                     #,exp))))]))
 
 (define-for-syntax (add-plusses/check-stx-errs orig-stx)

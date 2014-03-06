@@ -29,6 +29,8 @@ tmonad-gen: insert/insert_log_gen.v \
             copy/copy_log_sq_gen.v \
 	    copy/copy2_gen.v copy/copy_log_gen.v \
             make_array/make_array_nlogn1_gen.v \
+            make_array/make_array_nlogn2_gen.v \
+            make_array/unravel_gen.v \
             tmonad/sub1_gen.v tmonad/fold_gen.v
 
 insert/insert_log_gen.v: rkt/insert.rkt $(GEN_DEPS)
@@ -50,6 +52,10 @@ copy/copy_log_gen.v: rkt/copy.rkt $(GEN_DEPS)
 
 make_array/make_array_nlogn1_gen.v: rkt/make_array_naive.rkt $(GEN_DEPS)
 	racket rkt/make_array_naive.rkt > make_array/make_array_nlogn1_gen.v
+make_array/make_array_nlogn2_gen.v: rkt/make_array_nlogn2.rkt $(GEN_DEPS)
+	racket rkt/make_array_nlogn2.rkt > make_array/make_array_nlogn2_gen.v
+make_array/unravel_gen.v: rkt/unravel.rkt $(GEN_DEPS)
+	racket rkt/unravel.rkt > make_array/unravel_gen.v
 tmonad/sub1_gen.v: rkt/sub1.rkt $(GEN_DEPS)
 	racket rkt/sub1.rkt > tmonad/sub1_gen.v
 tmonad/fold_gen.v: rkt/fold.rkt $(GEN_DEPS)

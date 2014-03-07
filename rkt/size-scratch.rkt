@@ -51,7 +51,7 @@
 (define (non-zero? n) (not (= n 0)))
 
 (module+ test
-  (printf "testing running time of diff\n")
+  (printf "testing upper bound of running time of diff\n")
   (for ([n (in-range 10)])
     (for ([m (in-list (list (- n 1) n))])
       (when (positive? m)
@@ -60,6 +60,25 @@
         (define f (+ (* 13 (fl_log m)) 4))
         (unless (<= d f)
           (eprintf "diff rt wrong: n = ~a m = ~a d = ~a f = ~a\n" n m d f))))))
+
+
+(define (diff-rt-in-terms-of-m m)
+  (cond
+    [(zero? m) 4]
+    [else (if (even? m)
+              (+ 13 (diff-rt-in-terms-of-m (div2 (- m 2))))
+              (+ 11 (diff-rt-in-terms-of-m (div2 (- m 1)))))]))
+
+(module+ test
+  (printf "testing exact running time of diff\n")
+  (for ([n (in-range 1000)])
+    (for ([m (in-list (list (- n 1) n))])
+      (when (positive? m)
+        (define bt (copy n))
+        (define d (diff-rt bt m))
+        (define f (diff-rt-in-terms-of-m m))
+        (unless (= d f)
+          (eprintf "diff rt wrong: n = ~a m = ~a delta ~a\n" n m (- d f)))))))
 
 ;; compute the running time of the loglog-size function
 (define (loglog-size-rt b)

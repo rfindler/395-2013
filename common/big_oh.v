@@ -77,7 +77,6 @@ Proof.
   assumption.
 Qed.
 
-
 Lemma big_oh_mult :
   forall f g h,
     big_oh f g ->

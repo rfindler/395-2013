@@ -131,6 +131,87 @@ Next Obligation.
   omega.
 Qed.
 
+Program Fixpoint diff_time2 m {measure m} :=
+  match m with
+    | 0 => 4
+    | S m' => 13 + diff_time2 (div2 m')
+  end.
+
+Lemma diff_time12 : big_oh diff_time diff_time2.
+Proof.
+  exists 0. exists 1.
+  intros n LT; clear LT.
+  unfold mult; rewrite plus_0_r.
+  apply (well_founded_induction
+           lt_wf
+           (fun n => diff_time n <= diff_time2 n)).
+  clear n; intros n IND.
+  destruct n.
+  compute.
+  omega.
+  remember (even_or_odd (S n)) as EO; destruct EO; clear HeqEO.
+
+  rewrite diff_time_nz_even; auto.
+  unfold_sub diff_time2 (diff_time2 (S n)).
+  apply le_plus_right.
+  apply (le_trans (diff_time (div2 (n - 1)))
+                  (diff_time2 (div2 (n - 1)))
+                  (diff_time2 (div2 n))).
+  apply IND; auto.
+  destruct n.
+  compute.
+  omega.
+  replace (S n - 1) with n;[|omega].
+  inversion e; subst.
+  inversion H0; subst.
+  rewrite <- even_div2; auto.
+
+  rewrite diff_time_nz_odd; auto.
+  unfold_sub diff_time2 (diff_time2 (S n)).
+  apply (le_trans (11 + diff_time (div2 n))
+                  (11 + diff_time2 (div2 n))
+                  (13 + diff_time2 (div2 n))).
+  apply le_plus_right.
+  apply IND;auto.
+  apply le_plus_left.
+  omega.
+Qed.
+
+Lemma diff_time2_big_oh_fl_log : big_oh diff_time2 fl_log.
+Proof.
+  exists 1. exists 17.
+  apply (well_founded_induction
+           lt_wf
+           (fun n => 1 <= n -> diff_time2 n <= 17 * fl_log n)).
+  intros n IND LT.
+  destruct n; intuition.
+  clear LT.  
+  destruct n.
+  compute.
+  omega.
+  destruct n.
+  compute.
+  omega.
+  remember (S (S n)) as m.
+  unfold_sub diff_time2 (diff_time2 (S m)).
+  unfold_sub fl_log (fl_log (S m)).
+  subst m.
+  replace (div2 (S (S n))) with (S (div2 n));[|unfold div2;omega].
+  apply (le_trans (13 + diff_time2 (S (div2 n)))
+                  (13 + 17 * fl_log (S (div2 n)))
+                  (17 * S (fl_log (S (div2 n))))); try omega.
+  apply le_plus_right.
+  apply IND.
+  apply lt_n_S.
+  apply (lt_le_trans (div2 n) (S n) (S (S n))); auto.
+  omega.
+Qed.
+
+Theorem size_big_oh_fl_log : big_oh diff_time fl_log.
+  apply (big_oh_trans diff_time diff_time2 fl_log).
+  apply diff_time12.
+  apply diff_time2_big_oh_fl_log.
+Qed.
 
 Program Fixpoint size_time n {measure n} :=
   match n with
@@ -194,4 +275,3 @@ Theorem size_logsq : big_oh size_time (fun n => cl_log n * cl_log n).
 Proof.
   admit.
 Qed.
-

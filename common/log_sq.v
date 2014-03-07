@@ -186,7 +186,8 @@ Section sq_log.
       
   Theorem upper_bound_sum_of_logs :
     forall n, sum_of_logs n <= cl_log n * cl_log n.
-    apply (well_founded_ind              lt_wf 
+    apply (well_founded_ind
+             lt_wf 
              (fun n => sum_of_logs n <= cl_log n * cl_log n)).
     intros.
     destruct x.

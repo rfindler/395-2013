@@ -46,6 +46,7 @@ Hint Resolve lt_div2''.
 
 Hint Resolve lt_div2.
 
+
 Lemma lt_div2''' : forall m', div2 (m' - 1) < S m'.
 Proof.
   intros.
@@ -57,6 +58,13 @@ Proof.
   auto.
 Qed.
 Hint Resolve lt_div2'''.
+
+Lemma lt_div2'''' : forall n, S (div2 n) < S (S (S n)).
+  intros n.
+  apply lt_n_S.
+  apply (lt_trans (div2 n) (S n) (S (S n))); auto.
+Qed.
+Hint Resolve lt_div2''''.
 
 Lemma div2_succ_lt_div2_plus_one : forall n',  div2 (S n') <= div2 n' + 1.
 Proof.

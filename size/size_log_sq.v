@@ -201,9 +201,7 @@ Proof.
                   (13 + 17 * fl_log (S (div2 n)))
                   (17 * S (fl_log (S (div2 n))))); try omega.
   apply le_plus_right.
-  apply IND.
-  apply lt_n_S.
-  apply (lt_le_trans (div2 n) (S n) (S (S n))); auto.
+  apply IND; auto.
   omega.
 Qed.
 
@@ -245,7 +243,6 @@ Proof.
 
   unfold size_result in *.
   unfold_sub size_time (size_time (S (m + (m + 0) + zo))).
-(*  replace (m + (m + 0) + zo) *)
 
   intros m0 BTb.
 
@@ -271,7 +268,105 @@ Proof.
   split; try omega.
 Qed.
 
-Theorem size_logsq : big_oh size_time (fun n => cl_log n * cl_log n).
+Program Fixpoint size_time2 n {measure n} :=
+  match n with
+    | 0 => 0
+    | S n' => 
+      1 + diff_time (div2 n') + size_time2 (div2 n')
+  end.
+
+Lemma size_time12 : big_oh size_time size_time2.
+  exists 1.
+  exists 17.
+  apply (well_founded_ind
+           lt_wf
+           (fun n =>  1 <= n -> size_time n <= 17 * size_time2 n)).
+  intros n IND LT.
+  destruct n; intuition.
+  clear LT.
+  destruct n. compute. omega.
+  destruct n. compute. omega.
+  remember (S (S n)) as m.
+  unfold_sub size_time (size_time (S m)).
+  unfold_sub size_time2 (size_time2 (S m)).
+  subst m.
+  replace (div2 (S (S n))) with (S (div2 n)); [|simpl;omega].
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+  apply (le_trans (13 + diff_time (S (div2 n)) + size_time (S (div2 n)))
+                  (13 + diff_time (S (div2 n)) + 17 * size_time2 (S (div2 n)))
+                  (17 * 1 + 17 * diff_time (S (div2 n)) + 17 * size_time2 (S (div2 n))));
+    try omega.
+  apply le_plus_right.
+  apply IND;auto.
+  omega.
+Qed.
+
+Definition size_time3 n := fl_log n * diff_time n.
+
+Lemma size_time23 : big_oh size_time2 size_time3.
+  exists 0.
+  exists 1.
+  intros n LT.
+  unfold mult.
+  rewrite plus_0_r.
+  clear LT.
+  unfold size_time3.
+  apply (well_founded_induction
+           lt_wf
+           (fun n => size_time2 n <= fl_log n * diff_time n)).
+  clear n. intros n IND.
+  destruct n.
+  compute. 
+  omega.
+  unfold_sub size_time2 (size_time2 (S n)).
+  rewrite fl_log_div2'.
+  replace (S (fl_log (div2 n))) with (1 + fl_log (div2 n));[|omega].
+  rewrite mult_plus_distr_r.
+  replace (1 * diff_time (S n)) with (diff_time (S n)); [|omega].
+  apply (le_trans (1 + diff_time (div2 n) + size_time2 (div2 n))
+                  (diff_time (S n) + size_time2 (div2 n))
+                  (diff_time (S n) + fl_log (div2 n) * diff_time (S n))).
+  apply le_plus_left.
+  unfold_sub diff_time (diff_time (S n)).
+  dispatch_if x x'; fold_sub diff_time.
+  inversion x; subst.
+  destruct n.
+  inversion H0.
+  replace (S n - 1) with n;[|omega].
+  inversion H0.
+  subst.
+  rewrite <- even_div2; auto.
+  omega.
+  omega.
+  
+  apply le_plus_right.
+  apply (le_trans (size_time2 (div2 n))
+                  (fl_log (div2 n) * diff_time (div2 n))
+                  (fl_log (div2 n) * diff_time (S n))).
+  apply IND;auto.
+  apply le_mult_right.
+  unfold_sub diff_time (diff_time (S n)).
+  dispatch_if x x'; fold_sub diff_time; try omega.
+  inversion x; subst.
+  destruct n.
+  compute.
+  omega.
+  inversion H0; subst.
+  replace (S n - 1) with n; [|omega].
+  rewrite <- even_div2; auto.
+  omega.
+Qed.
+
+Theorem size_logsq : big_oh size_time (fun n => fl_log n * fl_log n).
 Proof.
-  admit.
+  apply (big_oh_trans size_time size_time2
+                      (fun n => fl_log n * fl_log n)).
+  apply size_time12.
+  apply (big_oh_trans size_time2 size_time3
+                      (fun n => fl_log n * fl_log n)).
+  apply size_time23.
+  unfold size_time3.
+  apply big_oh_mult.
+  apply size_big_oh_fl_log.
 Qed.

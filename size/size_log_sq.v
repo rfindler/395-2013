@@ -1,5 +1,5 @@
-Require Import Braun.common.braun Braun.common.log Braun.common.util Braun.common.log_sq.
-Require Import Braun.tmonad.monad Braun.common.big_oh.
+Require Import Braun.common.braun Braun.common.log Braun.common.util.
+Require Import Braun.tmonad.monad Braun.common.big_oh Braun.common.le_util.
 Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith Init.Wf.
 
 Include WfExtensionality.

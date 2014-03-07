@@ -3,7 +3,7 @@
          (prefix-in fp:
                     (combine-in
                      "diff.rkt"
-                     "size.rkt"
+                     "size_log_sq.rkt"
                      (only-in "tmonad.rkt" bt_node bt_mt))))
 
 (module copy racket

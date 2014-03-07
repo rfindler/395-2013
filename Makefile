@@ -31,6 +31,8 @@ extract/a.out: extract/extract.ml
 
 tmonad-gen: insert/insert_log_gen.v \
             size/size_linear_gen.v \
+            size/diff_gen.v \
+            size/size_log_sq_gen.v \
             copy/copy_linear_gen.v \
 	    copy/copy_fib_log_gen.v \
             copy/copy_log_sq_gen.v \
@@ -46,6 +48,10 @@ insert/insert_log_gen.v: rkt/insert.rkt $(GEN_DEPS)
 
 size/size_linear_gen.v: rkt/size_linear.rkt $(GEN_DEPS)
 	racket rkt/size_linear.rkt > size/size_linear_gen.v
+size/diff_gen.v: rkt/diff.rkt $(GEN_DEPS)
+	racket rkt/diff.rkt > size/diff_gen.v
+size/size_log_sq_gen.v: rkt/size_log_sq.rkt $(GEN_DEPS)
+	racket rkt/size_log_sq.rkt > size/size_log_sq_gen.v
 
 copy/copy_linear_gen.v: rkt/copy_linear.rkt $(GEN_DEPS)
 	racket rkt/copy_linear.rkt > copy/copy_linear_gen.v

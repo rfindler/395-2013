@@ -1,5 +1,6 @@
 (* START: C *)
-Definition C (A:Set) (P:A -> nat -> Prop) : Set := {a : A | exists (an:nat), (P a an)}.
+Definition C (A:Set) (P:A -> nat -> Prop) : Set :=
+   {a : A | exists (an:nat), (P a an)}.
 (* STOP: C *)
 Hint Unfold C.
 
@@ -81,28 +82,12 @@ Proof.
 Defined.
 
 (* START: inc *)
-Definition inc (A:Set) (P:A -> nat -> Prop) (am:C A (fun a an => P a (an+1)))
-: C A P.
-(* STOP: inc *)
-Proof.
-  destruct am as [a Pa].
-  exists a.
-  destruct Pa as [n Pa].
-  exists (n + 1).
-  apply Pa.
-Defined.
-
-(* this seems like it could replace inc, except
-   that various hypotheses in various places get
-   different names. So I just make a second 'inc'
-   here for now with the plan to fix the other places
-   when this turns out to actually work for insert.
-*)
-Definition inc2 (A:Set) 
+Definition inc (A:Set) 
            k
            (PA : A -> nat -> Prop)
            (x:C A (fun x xn => forall xm, xn + k = xm -> PA x xm))
 : C A PA.
+(* STOP: inc *)
 Proof.
   destruct x as [x Px].
   exists x.
@@ -113,8 +98,7 @@ Proof.
 Defined.
 
 Notation "<== x" := (ret _ _ x _) (at level 55).
-Notation "++ ; c" := (inc _ _ c) (at level 30, right associativity).
-Notation "+= k ; c" := (inc2 _ k _ c) (at level 30, right associativity).
+Notation "+= k ; c" := (inc _ k _ c) (at level 30, right associativity).
 Notation "x <- y ; z" := (bind _ _ _ _ y (fun (x : _) (am : _) => z) ) (at level 30, right associativity).
 Notation "x >>= y" := (bind _ _ _ _ x y) (at level 55).
 Notation "x >> y" := (bind _ _ _ _ x (fun _ => y)) (at level 30, right associativity).

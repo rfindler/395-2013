@@ -55,11 +55,13 @@ Program Fixpoint to_list_naive (A:Set) b :
       sl <- to_list_naive A s ;
       tl <- to_list_naive A t ;
       xs' <- cinterleave A sl tl ;
-      ++ ;
+      += 1 ;
       <== (cons x xs')
   end.
 
 Next Obligation.
+  clear am0 H8 H9.
+  clear am H10 H11.
   rewrite <- interleave_length_split.
   remember (length sl) as sn.
   remember (length tl) as tn.
@@ -73,4 +75,3 @@ Next Obligation.
   apply Le.le_trans with (tln_time sn + tln_time tn); try omega.
   apply tln_time_split.
 Qed.
-

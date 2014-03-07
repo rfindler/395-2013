@@ -80,6 +80,22 @@
         (unless (= d f)
           (eprintf "diff rt wrong: n = ~a m = ~a delta ~a\n" n m (- d f)))))))
 
+(define (size-rt-in-terms-of-bt-size n)
+  (cond
+    [(zero? n) 3]
+    [else (+ (diff-rt-in-terms-of-m (div2 (- n 1)))
+             (size-rt-in-terms-of-bt-size (div2 (- n 1)))
+             13)]))
+
+(module+ test
+  (printf "testing exact running time of size\n")
+  (for ([n (in-range 3000)])
+    (define bt (copy n))
+    (define d (loglog-size-rt bt))
+    (define f (size-rt-in-terms-of-bt-size n))
+    (unless (= d f)
+      (eprintf "size rt wrong: n = ~a delta ~a\n" n (- d f)))))
+
 ;; compute the running time of the loglog-size function
 (define (loglog-size-rt b)
   (define-values (result time) (fp:size (convert b)))

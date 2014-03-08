@@ -76,6 +76,8 @@ the extraction is "polluted" by functions that are defined by more complex recur
 
 Other things?
 
+@include-section["prims.scrbl"]
+
 @section{Related Work}
 
 @citet[a-machine-checked-proof-of-the-average-case-complexity-of-quicksort-in-coq]

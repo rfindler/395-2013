@@ -23,5 +23,13 @@ type 'a bin_tree =
 | Bt_node (j, s, t) -> 
   Bt_node (i, (insert j t), s)
 }
-This code does not have any proof residue, unlike the code
+This exactly the code that Coq produces, whitespace, 
+newlines and all. The only declarations we added to
+aid Coq's extraction was the suggestion that it should
+inline the monad operations. And since the extracted
+version of our monad is the identity monad, the monad
+operations simply evaporate when they are inlined.
+
+More importantly, however, note that this code does not
+have any proof residue, unlike the code
 extracted for @tt{drop} in @secref["sec:extraction-tmi"].

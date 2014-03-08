@@ -1,7 +1,7 @@
 #lang scribble/base
 @(require "util.rkt" "cite.rkt")
 
-@title{Introducing Our Library: Braun Tree Insert}
+@title[#:tag "sec:insert"]{Introducing Our Library: Braun Tree Insert}
 
 The core of our library is a monad that, as part of
 its types, tracks the running time of functions.

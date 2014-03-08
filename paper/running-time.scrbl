@@ -121,12 +121,6 @@ translation function that accepts functions written in our
 monad without any @tt{+=} expressions and turns them into
 ones with @tt{+=} expressions in just the right places.
 
-We follow @citet[automatic-complexity-analysis] and count
-function calls, variable lookups, and case-dispatches each
-as counting a single unit of abstract time. 
-
-@; XXX Should we mention here or elsewhere that we could change the time of time from "nat" to something like "nat * nat" where one represents CPU and one represent memory, so we can have a more specific notion of cost?
-
 Our translation function then accepts a function written in the
 monad, but without the monadic type on its result and produces
 one with it. For example, the @tt{insert} function shown on the
@@ -136,6 +130,14 @@ translation process also generates a call to @tt{insert_result}
 in the monadic result type. This function must then be defined 
 separately and the translation's output must be used in that
 context. 
+
+We follow @citet[automatic-complexity-analysis] and treat
+each function call, variable lookup, and case-dispatch
+as counting a single unit of abstract time. Other cost functions
+are also possible to account for different cost semantics. Indeed,
+we could even adapt the machinery in a straight-forward way to count
+multiple aspects of the computation, e.g., the running time and
+the number of allocations.
 
 Here is the definition of @tt{insert_result}:
 @(apply inline-code (extract insert_log.v "insert_result"))

@@ -114,7 +114,7 @@ the verifier must provide that @tt{0} is an appropriate cost is
 transformed into whatever the actual cost along that path was.
 
 We enapsulate this logic into a simple extra-monadic operator,
-@tt{inc}, that introduces a unit of cost:
+@tt{inc}, that introduces @tt{k} units of cost:
 @(apply inline-code (extract monad.v "inc"))
 In programs using our monad, we write @tt{+= k e}, a
 shorthand for @tt{inc _ k _ c}.
@@ -180,7 +180,7 @@ dynamic content. Specifically @tt{ret} is simply the identity function,
 @tt{inc} is a function that just returns its second argument and @tt{bind}
 simply applies its second argument to its first.
 
-Furthermore, we have proven that the obey variants of the monad
+Furthermore, we have proven that they obey variants of the monad
 laws that incorporate the proof obligations. The only oddity is that
 the proof of @tt{bind}'s associativity relies on the verifier proving
 the associativity of the correctness properties as well.

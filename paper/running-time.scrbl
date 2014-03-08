@@ -118,12 +118,14 @@ we are using.
 
 To handle this situation, we've written a simple Coq-to-Coq
 translation function that accepts functions written in our
-monad without and @tt{+=} expressions and turns them into
+monad without any @tt{+=} expressions and turns them into
 ones with @tt{+=} expressions in just the right places.
 
 We follow @citet[automatic-complexity-analysis] and count
 function calls, variable lookups, and case-dispatches each
 as counting a single unit of abstract time. 
+
+@; XXX Should we mention here or elsewhere that we could change the time of time from "nat" to something like "nat * nat" where one represents CPU and one represent memory, so we can have a more specific notion of cost?
 
 Our translation function then accepts a function written in the
 monad, but without the monadic type on its result and produces

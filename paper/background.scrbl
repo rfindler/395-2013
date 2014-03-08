@@ -10,7 +10,7 @@ ML's or OCaml's type system, and then layer in the
 ability for types to refer not just to types in the surrounding
 context, but also to ordinary program values.
 
-This section works through an examples with the goal of bringing
+This section works through an example with the goal of bringing
 across just enough Coq to be able to read the code fragments
 in the rest of the paper.
 
@@ -102,7 +102,7 @@ The most complex of these is the last one. Here's what
 Coq asks you to prove, and it holds by very similar 
 reasoning to the case above, just with a few more situations
 to consider:
-@centered{@(apply inline-code (extract lwl.v "obligation4")).}
+@centered{@(apply inline-code (extract lwl.v "obligation4"))}
 
 @section[#:tag "sec:extraction-tmi"]{Extraction: Too Much Information}
 
@@ -116,21 +116,16 @@ never does anything with that value; it just pipes it
 around in the function and lets it pollute 
 @tt{drop}'s interface.
 
-Even worse, however, is that these extra arguments are
-not just in @tt{drop}, but they are built into the list
-list data structure too, for very similar reasons. Here's the 
-definition of @tt{list_with_len}:
-@(apply inline-code (extract lwl.v "list_with_len"))
-The keyword @tt{Inductive} is Coq's version of ML's
-@tt{datatype} declaration and the corresponding ML
-datatype (but without the list length information) is
-@inline-code{
-  datatype 'a list = 
-    empty
-  | cons of 'a * 'a list
-}
+Even worse, however, is that these extra arguments are not just in
+@tt{drop}, but they are built into the list data structure too, for
+very similar reasons. Here's the definition of @tt{list_with_len}:
+@(apply inline-code (extract lwl.v "list_with_len")) The keyword
+@tt{Inductive} is Coq's version of ML's @tt{datatype} declaration and
+the corresponding ML datatype (but without the list length
+information) is @inline-code{ datatype 'a list = empty | cons of 'a *
+'a list }
 
-In keeping with Coq' dependency,
+In keeping with Coq's dependency,
 an @tt{Inductive} can be parameterized over more than just types.
 In this case, the first line declares that it is parameterized
 over a natural number, which we use to represent the length of the list.
@@ -223,7 +218,7 @@ the expected code without any extra declarations to guide Coq.
 
 Unfortunately, the proof that @tt{drop} behaves properly is now significantly
 longer. In the version from @secref["sec:drop1"], there were four
-proofs, each of which requires only one lines of Coq code. The
+proofs, each of which requires only one line of Coq code. The
 corresponding proof for this version of the function is 20 non-trivial
 lines. Perhaps unsurprisingly the proof for the current version of
 @tt{drop} has the previous version's proof embedded inside it. Most of the

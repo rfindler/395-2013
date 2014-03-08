@@ -20,7 +20,7 @@ To build:
   check all of the proofs, extract ocaml code, and build the paper.
 
 TODO:
-- make_array_bu (time, correctness, extraction, big_oh) [max]
+- make_array_bu (time, correctness, extraction, big_oh) [robby]
 - to_list_naive (exact time [vs bound], big_oh)
 - to_list_bu (time, correctness, extraction, big_oh)
 - improve coq parser and use it everywhere [robby]

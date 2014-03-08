@@ -45,3 +45,46 @@ Next Obligation.
   omega.
 Qed.
 
+Definition drop_result (A:Set) n (xs:list A) (res:list A) c := 
+  ((length xs) < n -> c = 8 * (length xs) + 5) /\
+  (n <= (length xs)  -> c = 8 * n + 3).
+
+Load "drop_gen.v".
+
+Next Obligation.
+  unfold drop_result.
+  split; intros REL.
+  inversion REL.
+  omega.
+Qed.
+
+Next Obligation.
+  unfold drop_result.
+  split; intros REL.
+  simpl.
+  reflexivity.
+  simpl in REL.
+  inversion REL.
+Qed.
+
+Next Obligation.
+  clear am H1.
+  rename H0 into RC.
+
+  unfold drop_result in *.
+  destruct RC as [SHORT LONG].
+
+  split; intros REL.
+  
+  simpl in REL.
+  apply lt_S_n in REL.
+  apply SHORT in REL.
+  subst an.
+  simpl; omega.
+  
+  simpl in REL.
+  apply le_S_n in REL.
+  apply LONG in REL.
+  omega.
+Qed.
+

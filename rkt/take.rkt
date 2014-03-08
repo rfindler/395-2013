@@ -1,5 +1,5 @@
 #lang at-exp s-exp "tmonad.rkt"
-;(provide take)
+(provide take)
 
 (Fixpoint
  take #:implicit @A{Set} @n{nat} @xs{list A}

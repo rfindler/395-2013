@@ -136,8 +136,8 @@ each function call, variable lookup, and case-dispatch
 as counting a single unit of abstract time. Other cost functions
 are also possible to account for different cost semantics. Indeed,
 we could even adapt the machinery in a straight-forward way to count
-multiple aspects of the computation, e.g., the running time and
-the number of allocations.
+multiple aspects of the computation separately, e.g., the running time,
+memory accesses, or the number of allocations.
 
 Here is the definition of @tt{insert_result}:
 @(apply inline-code (extract insert_log.v "insert_result"))

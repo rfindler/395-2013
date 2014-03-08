@@ -1,5 +1,7 @@
 #lang scribble/base
-@(require scriblib/figure "util.rkt"
+@(require scriblib/figure
+          "util.rkt"
+          "cite.rkt"
           racket/list
           scribble/core)
 
@@ -119,9 +121,9 @@ translation function that accepts functions written in our
 monad without and @tt{+=} expressions and turns them into
 ones with @tt{+=} expressions in just the right places.
 
-We follow ...citation... and count function calls, variable
-lookups, and case-dispatches each as counting a single unit
-of abstract time. 
+We follow @citet[automatic-complexity-analysis] and count
+function calls, variable lookups, and case-dispatches each
+as counting a single unit of abstract time. 
 
 Our translation function then accepts a function written in the
 monad, but without the monadic type on its result and produces

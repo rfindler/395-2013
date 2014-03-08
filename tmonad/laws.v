@@ -81,7 +81,7 @@ Theorem associativity:
                  PB b anbn ->
                  PG g (anbn + gn)))
     helper1 helper2,
-    sig_eqv _ _ _
+    sig_eqv G _ _
             (bind B PB G PG
                   (bind A PA B PB
                         ma
@@ -90,57 +90,45 @@ Theorem associativity:
             (bind A PA G PG
                   ma
                   (fun (a:A) (pa:exists an, PA a an) => 
-                     let mb := (helper1 a pa (fb a pa)) in
-                     helper2 a pa mb (bind B PB G PG mb gg))).
+                     let (b, pbe) := (fb a pa) in
+                     let mb' := exist _ b (helper1 a pa b pbe) in
+                     let (g, pge) := bind B PB G PG mb' gg in
+                     let mg' := exist _ g (helper2 a pa b pbe g pge) in
+                     mg')).
 Proof.
   intros.
-  unfold sig_eqv, bind.
+
   destruct ma as [a [an pa]].
   remember (ex_intro (fun n : nat => PA a n) an pa) as pae.
-
-  simpl in *.
-
+  simpl.
   remember (helper1 a pae) as helper1'.
   remember (helper2 a pae) as helper2'.
-  clear Heqhelper1' helper1 Heqhelper2' helper2.
+  clear helper1 helper2 Heqhelper1' Heqhelper2'.
+  rename helper1' into helper1.
+  rename helper2' into helper2.
 
   remember (fb a pae) as mb.
+  rewrite Heqpae.
   destruct mb as [b [bn pb]].
-  simpl in *.
+  clear Heqpae pae Heqmb.
 
-  remember (ex_intro (PB b) (an + bn) (pb an pa)) as pbe1.
-  remember (exist
-              (fun a0 : B =>
-                 exists an0 : nat,
-                   forall an1 : nat, PA a an1 -> PB a0 (an1 + an0)) b
-              (ex_intro
-                 (fun an0 : nat =>
-                    forall an1 : nat, PA a an1 -> PB b (an1 + an0)) bn pb))
-    as pbe2.
-Admitted.
+  remember (ex_intro (fun an0 : nat => PB b an0) (an + bn) (pb an pa)) as pbe.
+  remember (ex_intro
+              (fun an0 : nat =>
+                 forall an1 : nat, PA a an1 -> PB b (an1 + an0)) bn
+              pb) as pbe'.
+  simpl.
+  remember (helper1 b pbe') as helper1'.
+  remember (helper2 b pbe') as helper2'.
+  clear helper1 helper2 Heqhelper1' Heqhelper2'.
+  simpl in helper1'. rename helper1' into pbe''.
 
-(*
-
-  replace (helper1' pbe2) with (b, pbe1).
-
-  remember (gg b pbe1) as mg.
+  replace pbe'' with pbe.
+  remember (gg b pbe) as mg.
+  rewrite Heqpbe.
   destruct mg as [g [gn pg]].
-  simpl in *.
 
-  remember (exist
-              (fun a0 : B =>
-                 exists an0 : nat,
-                   forall an1 : nat, PA a an1 -> PB a0 (an1 + an0)) b
-              (ex_intro
-                 (fun an0 : nat =>
-                    forall an1 : nat, PA a an1 -> PB b (an1 + an0)) bn
-                 pb))
-    as pbe2.
-  destruct (helper1' pbe2) as [b' [bn' pb']]. simpl in *.
-  remember (ex_intro (fun an0 : nat => PB b' an0) bn' pb')
-    as pbe3.
-  remember (gg b' pbe3) as mg'.
-  destruct mg' as [g' [gn' pg']].
-  simpl in *.
+  unfold sig_eqv. simpl. intuition.
 
-*)
+  apply proof_irrelevance.
+Qed.

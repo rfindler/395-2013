@@ -116,14 +116,19 @@ never does anything with that value; it just pipes it
 around in the function and lets it pollute 
 @tt{drop}'s interface.
 
-Even worse, however, is that these extra arguments are not just in
-@tt{drop}, but they are built into the list data structure too, for
-very similar reasons. Here's the definition of @tt{list_with_len}:
-@(apply inline-code (extract lwl.v "list_with_len")) The keyword
-@tt{Inductive} is Coq's version of ML's @tt{datatype} declaration and
-the corresponding ML datatype (but without the list length
-information) is @inline-code{ datatype 'a list = empty | cons of 'a *
-'a list }
+Even worse, however, is that these extra arguments are
+not just in @tt{drop}, but they are built into the 
+list data structure too, for very similar reasons. Here's the 
+definition of @tt{list_with_len}:
+@(apply inline-code (extract lwl.v "list_with_len"))
+The keyword @tt{Inductive} is Coq's version of ML's
+@tt{datatype} declaration and the corresponding ML
+datatype (but without the list length information) is
+@inline-code{
+  datatype 'a list = 
+    empty
+  | cons of 'a * 'a list
+}
 
 In keeping with Coq's dependency,
 an @tt{Inductive} can be parameterized over more than just types.

@@ -40,6 +40,7 @@ tmonad-gen: insert/insert_log_gen.v \
             make_array/make_array_nlogn1_gen.v \
             make_array/make_array_nlogn2_gen.v \
             make_array/unravel_gen.v \
+            make_array/take_gen.v \
             sub1/sub1_gen.v \
             fold/fold_gen.v
 
@@ -70,6 +71,9 @@ make_array/make_array_nlogn2_gen.v: rkt/make_array_nlogn2.rkt $(GEN_DEPS)
 	racket rkt/make_array_nlogn2.rkt > make_array/make_array_nlogn2_gen.v
 make_array/unravel_gen.v: rkt/unravel.rkt $(GEN_DEPS)
 	racket rkt/unravel.rkt > make_array/unravel_gen.v
+make_array/take_gen.v: rkt/take.rkt $(GEN_DEPS)
+	racket rkt/take.rkt > make_array/take_gen.v
+
 sub1/sub1_gen.v: rkt/sub1.rkt $(GEN_DEPS)
 	racket rkt/sub1.rkt > sub1/sub1_gen.v
 fold/fold_gen.v: rkt/fold.rkt $(GEN_DEPS)

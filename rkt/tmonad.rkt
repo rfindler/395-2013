@@ -34,16 +34,22 @@
 (define-syntax (module-begin stx)
   (syntax-case stx ()
     [(_ args ...)
-     #`(#%module-begin
-        (module+ main (require "emit.rkt") (out-prefix))
-        #,@(for/list ([arg (in-list (syntax->list #'(args ...)))])
-             (syntax-case arg ()
-               [(id . whatever)
-                (ormap (λ (x) (and (identifier? x)
-                                   (free-identifier=? x #'id)))
-                       (list #'Fixpoint #'provide #'require))
-                arg]
-               [_ #`(top-interaction . #,arg)])))]))
+     (with-syntax ([name (let ([src (syntax-source stx)])
+                           (cond
+                             [(path? src) 
+                              (define-values (base name dir?) (split-path src))
+                              (format "~a" name)]
+                             [else #'#f]))])
+       #`(#%module-begin
+          (module+ main (require "emit.rkt") (out-prefix name))
+          #,@(for/list ([arg (in-list (syntax->list #'(args ...)))])
+               (syntax-case arg ()
+                 [(id . whatever)
+                  (ormap (λ (x) (and (identifier? x)
+                                     (free-identifier=? x #'id)))
+                         (list #'Fixpoint #'provide #'require))
+                  arg]
+                 [_ #`(top-interaction . #,arg)]))))]))
 
 (define-for-syntax (nmid? x)
   (and (identifier? x)
@@ -102,7 +108,10 @@
                  measure))]
       [(kw . args)
        (keyword? (syntax-e #'kw))
-       (raise-syntax-error #f "unexpected keyword" stx #'kw)]
+       (raise-syntax-error 
+        #f 
+        "unexpected keyword, expected one of #:implicit, #:measure, or #:returns"
+        stx #'kw)]
       [(arg . args)
        (let ()
          (define-values (racket-arg coq-arg) (parse-Fixpoint-arg stx #'arg #f))
@@ -149,8 +158,22 @@
                          (for/list ([e (in-list (syntax->list #'(es ...)))])
                            (in-monad (+ k addl-k) e))])
            #`(match (t ...) [ps1 ps2 ... => mes] ...)))]
-      [(match . args)
-       (raise-syntax-error #f "malformed match" orig-stx stx)]
+      [(match x . args)
+       (identifier? #'x)
+       (raise-syntax-error #f "expected a sequence of identifiers" orig-stx #'x)]
+      [(match x . cases)
+       (let ()
+         (define lst (syntax->list #'cases))
+         (when lst
+           (for ([case (in-list lst)])
+             (syntax-case case ()
+               [(stuff ...)
+                (unless (for/or ([stuff (in-list #'(stuff ...))])
+                          (and (identifier? #'stuff)
+                               (free-identifier=? #'=> #'stuff)))
+                  (raise-syntax-error #f "expected => in match" orig-stx case))]
+               [_ (void)])))
+         (raise-syntax-error #f "malformed match" orig-stx stx))]
       [(if tst thn els)
        (let ()
          (define addl-k (+ 1 (count-expr #'tst)))

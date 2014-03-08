@@ -7,8 +7,13 @@
          out-Fp
          out-prefix)
 
-(define (out-prefix)
-  (out "(* this file was generated automatically *)")
+(define (out-prefix name)
+  (out "(* this file was generated automatically ")
+  (when name
+    (out "from ") 
+    (out name)
+    (out " "))
+  (out "*)")
   (out-nl))
 
 (struct Fp (name args measure result body))

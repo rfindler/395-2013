@@ -179,11 +179,8 @@ their types, the extraction of these operations have no interesting
 dynamic content. Specifically @tt{ret} is simply the identity function,
 @tt{inc} is a function that just returns its second argument and @tt{bind}
 simply applies its second argument to its first.
-
 Furthermore, we have proven that they obey variants of the monad
-laws that incorporate the proof obligations. The only oddity is that
-the proof of @tt{bind}'s associativity relies on the verifier proving
-the associativity of the correctness properties as well.
+laws that incorporate the proof obligations.
 
 In summary, the monad works by requiring the verifier to predict the
 running-time with the @tt{PA} property and then provide evidence that

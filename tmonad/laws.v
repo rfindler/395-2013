@@ -59,6 +59,48 @@ Qed.
 
 Require Import ProofIrrelevance.
 
+Lemma assoc_helper1:
+  forall (A B : Set) (PA : A -> nat -> Prop) (PB : B -> nat -> Prop),
+         (forall x : A,
+                (exists an : nat, PA x an) ->
+                forall x1 : B,
+                (exists an : nat,
+                   (fun (b : B) (bn : nat) =>
+                    forall an0 : nat, PA x an0 -> PB b (an0 + bn)) x1 an) ->
+                (fun a : B => exists an : nat, PB a an) x1).
+Proof.
+  intros A B PA PB a [an pa] b [an' PAB].
+  apply PAB in pa.
+  eauto.
+Defined.
+
+Lemma assoc_helper2:
+  forall (A B G : Set) (PA : A -> nat -> Prop) (PB : B -> nat -> Prop) (PG : G -> nat -> Prop),
+  forall x : A,
+            (exists an : nat, PA x an) ->
+            forall x1 : B,
+            (exists an : nat,
+               (fun (b : B) (bn : nat) =>
+                forall an0 : nat, PA x an0 -> PB b (an0 + bn)) x1 an) ->
+            (forall g gn anbn,
+               PB x1 anbn ->
+               PG g (anbn + gn)) ->
+            forall x3 : G,
+            (exists an : nat, PG x3 an) ->
+            (fun a : G =>
+             exists an : nat,
+               (fun (b : G) (bn : nat) =>
+                forall an0 : nat, PA x an0 -> PG b (an0 + bn)) a an) x3.
+Proof.
+  intros A B G PA PB PG a [an pa] b [bn pb] pbg g [gn pg].
+  exists (an + bn).
+  intros an' pa'.
+  apply pb in pa'.
+  replace (an' + (an + bn)) with ((an' + bn) + an); try omega.
+  eapply pbg.
+  apply pa'.
+Qed.
+
 Theorem associativity:
   forall 
     (A:Set)
@@ -73,14 +115,14 @@ Theorem associativity:
             (fun b bn =>
                 forall an : nat, 
                   PA a an -> 
-                  PB b (an + bn)))
+                  PB b (an + bn)))    
     (gg:forall (b:B) (pb:exists bn, PB b bn),
           C G
             (fun g gn =>
                forall anbn : nat,
                  PB b anbn ->
                  PG g (anbn + gn)))
-    helper1 helper2,
+    ggp,
     sig_eqv G _ _
             (bind B PB G PG
                   (bind A PA B PB
@@ -91,9 +133,10 @@ Theorem associativity:
                   ma
                   (fun (a:A) (pa:exists an, PA a an) => 
                      let (b, pbe) := (fb a pa) in
-                     let mb' := exist _ b (helper1 a pa b pbe) in
+                     let mb' := exist _ b (assoc_helper1 A B PA PB a pa b pbe) in
+                     let (_, pbe') := mb' in
                      let (g, pge) := bind B PB G PG mb' gg in
-                     let mg' := exist _ g (helper2 a pa b pbe g pge) in
+                     let mg' := exist _ g (assoc_helper2 A B G PA PB PG a pa b pbe (ggp b) g pge) in
                      mg')).
 Proof.
   intros.
@@ -101,9 +144,9 @@ Proof.
   destruct ma as [a [an pa]].
   remember (ex_intro (fun n : nat => PA a n) an pa) as pae.
   simpl.
-  remember (helper1 a pae) as helper1'.
-  remember (helper2 a pae) as helper2'.
-  clear helper1 helper2 Heqhelper1' Heqhelper2'.
+  remember (assoc_helper1 A B PA PB a pae) as helper1'.
+  remember (assoc_helper2 A B G PA PB PG a pae) as helper2'.
+  clear Heqhelper1' Heqhelper2'.
   rename helper1' into helper1.
   rename helper2' into helper2.
 

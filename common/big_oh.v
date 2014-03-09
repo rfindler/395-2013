@@ -92,3 +92,22 @@ Lemma big_oh_mult :
   apply le_mult_right.
   assumption.
 Qed.
+
+Lemma big_oh_plus : 
+  forall f g h,
+    big_oh f h -> big_oh g h -> big_oh (fun n => f n + g n) h.
+  intros f g h FG GH.
+  destruct FG as [FGn [FGm FG]].
+  destruct GH as [GHn [GHm GH]].
+  exists (FGn + GHn).
+  exists (FGm + GHm).
+  intros n LT.
+  apply (le_trans (f n + g n)
+                  ((FGm * h n) + g n)
+                  ((FGm + GHm) * h n)).
+  apply le_plus_left.
+  apply FG; omega.
+  rewrite mult_plus_distr_r.
+  apply le_plus_right.
+  apply GH; omega.
+Qed.

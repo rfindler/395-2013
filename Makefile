@@ -44,6 +44,7 @@ tmonad-gen: insert/insert_log_gen.v \
             make_array/drop_gen.v \
             make_array/rows_gen.v \
             make_array/rows1_gen.v \
+            make_array/split_gen.v \
             sub1/sub1_gen.v \
             fold/fold_gen.v
 
@@ -82,6 +83,8 @@ make_array/rows_gen.v: rkt/rows.rkt $(GEN_DEPS)
 	racket rkt/rows.rkt > make_array/rows_gen.v
 make_array/rows1_gen.v: rkt/rows1.rkt $(GEN_DEPS)
 	racket rkt/rows1.rkt > make_array/rows1_gen.v
+make_array/split_gen.v: rkt/split.rkt $(GEN_DEPS)
+	racket rkt/split.rkt > make_array/split_gen.v
 
 sub1/sub1_gen.v: rkt/sub1.rkt $(GEN_DEPS)
 	racket rkt/sub1.rkt > sub1/sub1_gen.v

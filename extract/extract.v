@@ -30,6 +30,7 @@ Extract Constant div2 => "fun a -> a / 2".
 Extract Constant even_odd_dec => "fun a -> (a mod 2) != 0".
 
 Extraction Inline ret bind inc.
+Extraction Inline projT1 projT2.
 
 Extraction "extract.ml" insert_log.insert
            size_linear.size_linear

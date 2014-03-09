@@ -92,6 +92,7 @@ Lemma big_oh_mult :
   apply le_mult_right.
   assumption.
 Qed.
+Hint Resolve big_oh_mult.
 
 Lemma big_oh_plus : 
   forall f g h,
@@ -111,3 +112,25 @@ Lemma big_oh_plus :
   apply le_plus_right.
   apply GH; omega.
 Qed.
+Hint Resolve big_oh_plus.
+
+Lemma big_oh_add_k_linear : forall k, big_oh (fun n => k) (fun n => n).
+  intros k.
+  exists k.
+  exists 1.
+  intros n LT.
+  unfold mult.
+  omega.
+Qed.
+Hint Resolve big_oh_add_k_linear.
+
+Lemma big_oh_mult_k_linear : forall k, big_oh (fun n => n*k) (fun n => n).
+  intros.
+  exists 1.
+  exists k.
+  intros n.
+  destruct n; intuition.
+  rewrite mult_comm.
+  omega.
+Qed.
+Hint Resolve big_oh_mult_k_linear.

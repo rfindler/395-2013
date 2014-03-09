@@ -176,3 +176,35 @@ Proof.
   exists 10.
   intros; omega.
 Qed.
+
+Definition pad_drop_time k := k* 11 + 3.
+Hint Unfold pad_drop_time.
+
+Definition pad_drop_result (A:Set) k (xs : list A) (x:A) (res : list A) c :=
+  c = pad_drop_time k /\ length res = k.
+Hint Unfold pad_drop_result.
+
+Load "pad_drop_gen.v".
+
+Next Obligation.
+  clear am H1.
+  rename H0 into PDRnil.
+
+  unfold pad_drop_result in *.
+  unfold pad_drop_time in *.
+  destruct PDRnil as [ANeq LReq].
+  split; simpl; omega.
+Qed.
+
+Next Obligation.
+  clear am H1.
+  rename H0 into PDRrst.
+  unfold pad_drop_result in *.
+  unfold pad_drop_time in *.
+  destruct PDRrst.
+  split; auto; simpl; omega.
+Qed.
+
+Lemma pad_drop_linear : big_oh pad_drop_time (fun n => n).
+  apply big_oh_plus; auto.
+Qed.

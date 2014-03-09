@@ -166,11 +166,12 @@
          (define lst (syntax->list #'cases))
          (when lst
            (for ([case (in-list lst)])
+             (printf "case ~s\n" case)
              (syntax-case case ()
                [(stuff ...)
-                (unless (for/or ([stuff (in-list #'(stuff ...))])
-                          (and (identifier? #'stuff)
-                               (free-identifier=? #'=> #'stuff)))
+                (unless (for/or ([stuff (in-list (syntax->list #'(stuff ...)))])
+                          (and (identifier? stuff)
+                               (free-identifier=? #'=> stuff)))
                   (raise-syntax-error #f "expected => in match" orig-stx case))]
                [_ (void)])))
          (raise-syntax-error #f "malformed match" orig-stx stx))]

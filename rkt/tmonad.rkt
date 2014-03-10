@@ -7,7 +7,7 @@
 (provide (rename-out [module-begin #%module-begin]
                      [top-interaction #%top-interaction])
          #%datum
-         #%app
+         (rename-out [app #%app])
          Fixpoint
          bt_mt
          bt_node
@@ -30,6 +30,43 @@
 (define-syntax (top-interaction stx)
   (syntax-case stx ()
     [(_ . e) #'e]))
+
+(define-syntax (app stx)
+  (define (drop-vars-with-leading-underscores args)
+    (define anything-changed? #f)
+    (let loop ([anything-changed? #f]
+               [args args]
+               [acc '()])
+      (cond
+        [(null? args)
+         (if anything-changed?
+             (reverse acc)
+             #f)]
+        [else
+         (define arg (car args))
+         (cond
+           [(and (identifier? arg)
+                 (regexp-match?
+                  #rx"^_" (symbol->string (syntax-e arg))))
+            (loop #t (cdr args) acc)]
+           [else
+            (loop anything-changed?
+                  (cdr args)
+                  (cons arg acc))])])))
+  (syntax-case stx ()
+    [(_ proc-expr . args)
+     (let ()
+       (define argsl (syntax->list #'args))
+       (define new-args 
+         (and argsl
+              (drop-vars-with-leading-underscores
+               argsl)))
+       (cond
+         [new-args
+          #`(#%app proc-expr #,@new-args)]
+         [else
+          #`(#%app proc-expr . args)]))]))
+       
 
 (define-syntax (module-begin stx)
   (syntax-case stx ()
@@ -199,7 +236,8 @@
       [(f x ...)
        (identifier? #'f)
        (raise-syntax-error #f "calls to functions must be bound in binds"
-                           orig-stx stx)]))
+                           orig-stx stx)]
+      [_ (raise-syntax-error #f "expected an expression in the monad" stx)]))
 
   (define (in-monad/!tail stx)
     (syntax-case stx (match if bind => <==)
@@ -224,8 +262,9 @@
          (define extra
            (for/sum ([e (in-list (syntax->list #'(x ...)))])
                     (count-expr e)))
-         (values (+ extra) stx))]))
-
+         (values (+ extra) stx))]
+      [_ (raise-syntax-error #f "expected an expression in the monad" stx)]))
+  
   (define (count-expr stx)
     (syntax-case stx (match if bind => <==)
       [(match . whatever)

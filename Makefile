@@ -47,6 +47,7 @@ tmonad-gen: insert/insert_log_gen.v \
             make_array/split_gen.v \
             make_array/pad_drop_gen.v \
             make_array/zip_with_3_bt_node_gen.v \
+            make_array/build_gen.v \
             sub1/sub1_gen.v \
             fold/fold_gen.v
 
@@ -91,6 +92,8 @@ make_array/pad_drop_gen.v: rkt/pad_drop.rkt $(GEN_DEPS)
 	racket rkt/pad_drop.rkt > make_array/pad_drop_gen.v
 make_array/zip_with_3_bt_node_gen.v: rkt/zip_with_3_bt_node.rkt $(GEN_DEPS)
 	racket rkt/zip_with_3_bt_node.rkt > make_array/zip_with_3_bt_node_gen.v
+make_array/build_gen.v: rkt/build.rkt $(GEN_DEPS)
+	racket rkt/build.rkt > make_array/build_gen.v
 
 sub1/sub1_gen.v: rkt/sub1.rkt $(GEN_DEPS)
 	racket rkt/sub1.rkt > sub1/sub1_gen.v

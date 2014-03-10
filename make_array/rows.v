@@ -1,7 +1,7 @@
 Require Import Braun.tmonad.monad Braun.common.util Braun.common.le_util.
 Require Import Braun.common.big_oh Braun.make_array.take_drop_split.
 Require Import Arith Arith.Le Arith.Lt Peano Arith.Min.
-Require Import Coq.Arith.Compare_dec.
+Require Import Coq.Arith.Compare_dec List.
 Require Import Program.Wf Init.Wf.
 
 Include WfExtensionality.
@@ -23,7 +23,8 @@ Next Obligation.
 Qed.
 
 Definition rows_result (A:Set) (k:nat) (xs:list A) (res:list (nat * list A)) c :=
-  c = rows_time k (length xs).
+  c = rows_time k (length xs) /\
+  forall n lst, In (n,lst) res -> length lst <= n.
 
 Load "rows_gen.v".
 
@@ -64,16 +65,22 @@ Qed.
 Next Obligation.
 Proof.
   unfold rows_result.
+  split.
   rewrite rows_time_0n.
   omega.
+  intros n lst IN.
+  destruct IN.
 Qed.
 
 Next Obligation.
 Proof.
   unfold rows_result.
+  split.
   simpl.
   rewrite rows_time_S0.
   reflexivity.
+  intros n0 lst IN.
+  destruct IN.
 Qed.
 
 Next Obligation.
@@ -109,6 +116,9 @@ Next Obligation.
   clear rows.
 
   unfold rows_result.
+
+  split.
+
   simpl.
   rewrite rows_time_SS.
   unfold rows_result in *.
@@ -132,6 +142,16 @@ Next Obligation.
   apply SHORT in THING;clear SHORT LONG.
   rewrite THING in ROWSR.
   omega.
+
+  intros n0 lst IN.
+  unfold rows_result in *.
+  inversion IN.
+  inversion H.
+  subst n0 lst.
+  clear IN H.
+  destruct TAKER as [AN1eq [SHORT LONG]].
+  destruct (le_lt_dec (S n) (length (wildcard' :: wildcard'0))); omega.
+  intuition.
 Qed.
 
 Program Fixpoint rows_time2 (k:nat) (len:nat) {measure len} :=

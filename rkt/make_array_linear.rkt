@@ -11,5 +11,7 @@
  (bind ((the_rows (rows1 xs)))
        (bind ((built (foldr build (list bt_mt) the_rows)))
              (match (built)
+               ;; this first case should never happen
                [(nil) => (<== bt_mt)]
+               ;; ts′ should always be nil
                [(cons t ts′) => (<== t)]))))

@@ -12,13 +12,16 @@ Definition take_time n len :=
   else 10 * n + 5.
 
 Definition take_result (A:Set) n (xs:list A) (res:list A) c := 
-  c = take_time n (length xs).
+  c = take_time n (length xs) /\
+  ((length xs) < n -> length res = (length xs)) /\
+  (n <= (length xs)  -> length res = n).
 
 Load "take_gen.v".
 
 Next Obligation.
   unfold take_result.
   simpl.
+  split; [|split;omega].
   unfold take_time.
   dispatch_if REL REL'.
   omega.
@@ -29,10 +32,12 @@ Qed.
 Next Obligation.
   unfold take_result.
   simpl.
+  split.
   unfold take_time.
   dispatch_if REL REL'.
   inversion REL.
   omega.
+  split; intros; omega.
 Qed.
 
 Next Obligation.
@@ -41,20 +46,22 @@ Next Obligation.
 
   unfold take_result in *.
   unfold take_time in *.
+  destruct RC as [ANeq [SHORT LONG]].
+
+  split.
+
   subst an.
-
   dispatch_if COND1 COND1'; dispatch_if COND2 COND2'.
-
   simpl; omega.
-
-  simpl in COND2'.
-  omega.
-
+  simpl in COND2'; omega.
   simpl in COND2.
   apply le_S_n in COND2.
   omega.
-
   omega.
+
+  simpl.
+
+  split; intros LT; omega.
 Qed.
 
 Lemma take_linear : forall len, big_oh (fun n => take_time n len) (fun n => n).
@@ -147,7 +154,11 @@ Definition split_time len k :=
   take_time k len + drop_time k len + 9.
 
 Definition split_result (A:Set) (k:nat) (xs:list A) (res:list A * list A) c :=
-  c = split_time (length xs) k.
+  c = split_time (length xs) k /\
+  ((length xs) < k -> length (fst res) = (length xs) /\ length (snd res) = 0) /\
+  (k <= (length xs) -> 
+   length (fst res) = k /\
+   length (snd res) = (length xs) - k).
 
 Load "split_gen.v".
 
@@ -161,7 +172,11 @@ Next Obligation.
   unfold split_result.
   unfold split_time.
 
+  split.
   omega.
+  simpl.
+  destruct TR. destruct DR.
+  split; intros; split; intuition.
 Qed.
 
 Lemma split_time_linear : forall len, big_oh (fun n => split_time len n) (fun n => n).

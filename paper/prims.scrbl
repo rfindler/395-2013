@@ -52,8 +52,8 @@ used by the function and their corresponding list operation:
 So while each iteration of the list runs in constant time, @tt{sub1} is recursive
 and we do not know an a priori bound on the number of iterations.
 
-The number of iterations is an interesting function of the magnitude of
-the number:
+We can use our implementation of @tt{sub1} above to graph its running
+time against the value of its input:
 
 @(c:element (c:style "noindent" '()) '())
 @(centered

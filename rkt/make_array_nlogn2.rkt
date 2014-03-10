@@ -1,6 +1,6 @@
 #lang at-exp s-exp "tmonad.rkt"
-
 (require "unravel.rkt")
+(provide make_array_td)
 
 (Fixpoint
  make_array_td #:implicit @A{Set} @xs{list A}

@@ -1,4 +1,5 @@
 #lang at-exp s-exp "tmonad.rkt"
+(provide foldr)
 
 (Fixpoint
  foldr @f{f_type} @base{base_type} @l{list A}

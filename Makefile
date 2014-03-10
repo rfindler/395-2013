@@ -46,6 +46,7 @@ tmonad-gen: insert/insert_log_gen.v \
             make_array/rows1_gen.v \
             make_array/split_gen.v \
             make_array/pad_drop_gen.v \
+            make_array/zip_with_3_bt_node_gen.v \
             sub1/sub1_gen.v \
             fold/fold_gen.v
 
@@ -70,8 +71,8 @@ copy/copy2_gen.v: rkt/copy2.rkt $(GEN_DEPS)
 copy/copy_log_gen.v: rkt/copy.rkt $(GEN_DEPS)
 	racket rkt/copy.rkt > copy/copy_log_gen.v
 
-make_array/make_array_nlogn1_gen.v: rkt/make_array_naive.rkt $(GEN_DEPS)
-	racket rkt/make_array_naive.rkt > make_array/make_array_nlogn1_gen.v
+make_array/make_array_nlogn1_gen.v: rkt/make_array_nlogn1.rkt $(GEN_DEPS)
+	racket rkt/make_array_nlogn1.rkt > make_array/make_array_nlogn1_gen.v
 make_array/make_array_nlogn2_gen.v: rkt/make_array_nlogn2.rkt $(GEN_DEPS)
 	racket rkt/make_array_nlogn2.rkt > make_array/make_array_nlogn2_gen.v
 make_array/unravel_gen.v: rkt/unravel.rkt $(GEN_DEPS)
@@ -88,6 +89,8 @@ make_array/split_gen.v: rkt/split.rkt $(GEN_DEPS)
 	racket rkt/split.rkt > make_array/split_gen.v
 make_array/pad_drop_gen.v: rkt/pad_drop.rkt $(GEN_DEPS)
 	racket rkt/pad_drop.rkt > make_array/pad_drop_gen.v
+make_array/zip_with_3_bt_node_gen.v: rkt/zip_with_3_bt_node.rkt $(GEN_DEPS)
+	racket rkt/zip_with_3_bt_node.rkt > make_array/zip_with_3_bt_node_gen.v
 
 sub1/sub1_gen.v: rkt/sub1.rkt $(GEN_DEPS)
 	racket rkt/sub1.rkt > sub1/sub1_gen.v

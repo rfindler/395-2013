@@ -1,6 +1,6 @@
 #lang at-exp s-exp "tmonad.rkt"
-
 (require "insert.rkt")
+(provide make_array_naive)
 
 (Fixpoint
  make_array_naive #:implicit @A{Set} @xs{list A}

@@ -1,7 +1,8 @@
 #lang scribble/base
 @(require "util.rkt" "cite.rkt"
           (prefix-in : "../rkt/sub1.rkt")
-          plot/pict pict 
+          (prefix-in p: plot/pict)
+          pict 
           (prefix-in c: scribble/core))
 
 @title[#:tag "sec:sub1"]{Accounting for Language Primitives}
@@ -55,16 +56,20 @@ The number of iterations is an interesting function of the magnitude of
 the number:
 
 @(c:element (c:style "noindent" '()) '())
-@(scale
-  (plot-pict
-   #:x-label "sub1's argument (0 to 255)"
-   #:y-label "number of abstract steps"
-   (discrete-histogram
-    #:add-ticks? #f
-    (for/list ([i (in-range 255)])
-      (define-values (ans time) (:sub1 i))
-      (vector i time))))
-  2/3)
+@(centered
+  (scale
+   (p:plot-pict
+    #:x-label "sub1's argument"
+    #:y-label "number of abstract steps"
+    (let ([the-points
+           (for/list ([i (in-range 1 255)])
+             (define-values (ans time) (:sub1 i))
+             (vector i time))])
+      (p:points
+       #:y-min 0
+       #:y-max (+ 2 (apply max (map (λ (x) (vector-ref x 1)) the-points)))
+       the-points)))
+   2/3))
 
 Roughly what is happening is that half of the time (on odd numbers) @tt{sub1}
 is cheap, terminating after only a single iteration. One quarter of the time

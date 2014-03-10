@@ -5,7 +5,7 @@
           scribble/core
           scribble/latex-properties)
 
-@title[#:style (style #f (list (tex-addition #"\\usepackage{inconsolata}\n")))]{
+@title[#:style (style #f (list (tex-addition extra-tex-code)))]{
   Putting Dependent Types to Work
   @subtitle{A Coq Library That Enforces Correct Running-Times via Type-Checking}}
 @doi{}

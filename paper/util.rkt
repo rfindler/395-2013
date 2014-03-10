@@ -1,6 +1,7 @@
 #lang racket/base
 (require racket/runtime-path
          scribble/base
+         scribble/core
          "extract.rkt")
 
 (define-runtime-path lwl.v "lwl.v")
@@ -18,4 +19,11 @@
          (all-defined-out))
 
 (define (inline-code . args)
-  (apply verbatim args))
+  (compound-paragraph
+   (style "InlineCode" '())
+   (list (apply verbatim args))))
+
+(define extra-tex-code
+  (bytes-append
+   #"\\usepackage{inconsolata}\n"
+   #"\\newenvironment{InlineCode}{\\begin{trivlist}\\item}{\\end{trivlist}}\n"))

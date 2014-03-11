@@ -18,13 +18,25 @@ Program Fixpoint rows_time (k:nat) (len:nat) {measure len} :=
                  20
       end
   end.
-Next Obligation.
-  omega.
-Qed.
+Next Obligation. omega. Qed.
+
+Program Fixpoint rows_sizes k len {measure len} :=
+  match k with
+    | 0 => nil
+    | S _ =>
+      match len with
+        | 0 => nil
+        | S _ => 
+          (cons (pair k (min k len)) (rows_sizes (2*k) (len - k)))
+      end
+  end.
+Next Obligation. omega. Qed.
 
 Definition rows_result (A:Set) (k:nat) (xs:list A) (res:list (nat * list A)) c :=
   c = rows_time k (length xs) /\
-  forall n lst, In (n,lst) res -> length lst <= n.
+  (forall n lst, In (n,lst) res -> length lst <= n) /\
+  (map (fun x : nat * list A => (fst x, length (snd x))) res) = 
+  rows_sizes k (length xs).
 
 Load "rows_gen.v".
 
@@ -62,14 +74,50 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma rows_sizes_0n : forall n, rows_sizes 0 n = nil.
+Proof.
+  intros n.
+  unfold rows_sizes.
+  unfold_sub rows_sizes_func (rows_sizes_func (existT (fun _ : nat => nat) 0 n)).
+  simpl.
+  reflexivity.
+Qed.
+
+Lemma rows_sizes_S0 : forall k, rows_sizes (S k) 0 = nil.
+Proof.
+  intros k.
+  unfold rows_sizes.
+  unfold_sub rows_sizes_func (rows_sizes_func (existT (fun _ : nat => nat) (S k) 0)).
+  simpl.
+  reflexivity.
+Qed.
+
+Lemma rows_sizes_SS : forall k len, 
+                        rows_sizes (S k) (S len) = 
+                        (cons (pair (S k) (min (S k) (S len)))
+                              (rows_sizes (2*(S k)) ((S len) - (S k)))).
+Proof.
+  intros k len.
+  unfold rows_sizes at 1.
+  unfold_sub rows_sizes_func (rows_sizes_func (existT (fun _ : nat => nat) (S k) (S len))).
+  simpl.
+  fold_sub rows_sizes_func.
+  unfold rows_sizes.
+  reflexivity.
+Qed.
+
 Next Obligation.
 Proof.
   unfold rows_result.
   split.
   rewrite rows_time_0n.
   omega.
+  split.
   intros n lst IN.
   destruct IN.
+  simpl.
+  rewrite rows_sizes_0n.
+  reflexivity.
 Qed.
 
 Next Obligation.
@@ -79,8 +127,12 @@ Proof.
   simpl.
   rewrite rows_time_S0.
   reflexivity.
+  split.
   intros n0 lst IN.
   destruct IN.
+  simpl.
+  rewrite rows_sizes_S0.
+  reflexivity.
 Qed.
 
 Next Obligation.
@@ -143,6 +195,8 @@ Next Obligation.
   rewrite THING in ROWSR.
   omega.
 
+  split.
+
   intros n0 lst IN.
   unfold rows_result in *.
   inversion IN.
@@ -152,6 +206,37 @@ Next Obligation.
   destruct TAKER as [AN1eq [SHORT LONG]].
   destruct (le_lt_dec (S n) (length (wildcard' :: wildcard'0))); omega.
   intuition.
+
+  simpl.
+  unfold rows_result in *.
+  destruct ROWSR as [ANeq [IN MAP]].
+  rewrite MAP.
+  rewrite rows_sizes_SS.
+  unfold mult.
+
+  unfold drop_result in *.
+  unfold take_result in *.
+  simpl in DROPR.
+  simpl in TAKER.
+
+  destruct DROPR as [AN0eq [SHORT1 LONG1]].
+  destruct TAKER as [AN1eq [SHORT2 LONG2]].
+
+  destruct (le_lt_dec (S n) (S (length wildcard'0))).
+
+  remember (LONG1 l) as L1.
+  remember (LONG2 l) as L2.
+  
+  rewrite L1. rewrite L2.
+  rewrite min_l; auto.
+
+  remember (SHORT1 l) as S1.
+  remember (SHORT2 l) as S2.
+  rewrite S1. rewrite S2.
+  rewrite min_r; try omega.
+  replace (S (length wildcard'0) - S n) with 0.
+  reflexivity.
+  omega.
 Qed.
 
 Program Fixpoint rows_time2 (k:nat) (len:nat) {measure len} :=
@@ -306,16 +391,23 @@ Qed.
 Definition rows1_time (len:nat) := rows_time 1 len + 4.
 
 Definition rows1_result (A:Set) (xs:list A) (res:list (nat * list A)) c :=
-  c = rows1_time (length xs).
+  c = rows1_time (length xs) /\
+  (forall n lst, In (n,lst) res -> length lst <= n) /\
+  (map (fun x : nat * list A => (fst x, length (snd x))) res) = 
+  rows_sizes 1 (length xs).
 
 Load "rows1_gen.v".
 
 Next Obligation.
   clear am H1.
+  rename H0 into RR.
   unfold rows1_result.
   unfold rows_result in *.
   unfold rows1_time.
+  split.
   omega.
+  destruct RR as [ANeq [INSTUFF MAPEQ]].
+  split; assumption.
 Qed.
 
 Theorem rows1_time_linear : big_oh rows1_time (fun n => n).

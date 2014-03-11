@@ -14,10 +14,10 @@
  (match (pr)
    [(pair k xs)
     =>
-    (bind ((padded (pad_drop (* 2 k) ts bt_mt)))
-          (bind ((ts1ts2 (split k padded)))
+    (bind ([padded (pad_drop (* 2 k) ts bt_mt)])
+          (bind ([ts1ts2 (split k padded)])
                 (match (ts1ts2)
                   [(pair ts1 ts2)
                    =>
-                   (bind ((zipped (zip_with_3_bt_node xs ts1 ts2)))
+                   (bind ([zipped (zip_with_3_bt_node xs ts1 ts2)])
                          (<== zipped))])))]))

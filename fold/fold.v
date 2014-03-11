@@ -12,7 +12,7 @@ Section foldr.
                     {! acc' !:! B !<! c !>!
                        forall xs accC,
                          P acc         xs       accC -> 
-                         P acc' (x :: xs) (c + accC + 10) !}.
+                         P acc'  (x :: xs) (c + accC + 10) !}.
 
   Definition base_type := {bv : B | (P bv nil 4)}.
 

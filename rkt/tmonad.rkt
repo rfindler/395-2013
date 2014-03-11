@@ -330,7 +330,7 @@
 (define-syntax (match stx)
   (syntax-case stx (=>)
     [(_ (expr ...) [test1 test2 ... => body] ...)
-     #'(r:match* (expr ...) [(test1 test2 ...) body] ...)]))
+     #`(r:match*/derived (expr ...) #,stx [(test1 test2 ...) body] ...)]))
 
 (struct bt_mt-struct () #:transparent
         #:methods gen:custom-write

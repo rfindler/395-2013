@@ -192,7 +192,7 @@ Proof.
   intros; omega.
 Qed.
 
-Definition pad_drop_time k := k* 11 + 3.
+Definition pad_drop_time k := k * 11 + 3.
 Hint Unfold pad_drop_time.
 
 Definition pad_drop_result (A:Set) k (xs : list A) (x:A) (res : list A) c :=

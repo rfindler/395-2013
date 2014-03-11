@@ -4,6 +4,9 @@ Require Import Braun.make_array.rows Braun.make_array.take_drop_split.
 Require Import Braun.make_array.build.
 Require Import Arith Arith.Le Arith.Lt Peano Arith.Min.
 Require Import Coq.Arith.Compare_dec List.
+Require Import Program.Wf Init.Wf.
+
+Include WfExtensionality.
 
 Fixpoint foldr_build_time (l : list (nat * nat)) := 
   match l with
@@ -102,9 +105,226 @@ Next Obligation.
   apply (make_array_linear_time_helper A xs the_rows an FBR an0 RR).
 Qed.
 
+Program Fixpoint fbt_rs_1 k len {measure len} :=
+  match k with 
+    | 0 => 3
+    | S _ => 
+      match len with
+        | 0 => 3
+        | S _ =>
+          build_time k (min k len) +
+          9 +
+          fbt_rs_1 (2*k) (len-k)
+      end
+  end.
+Next Obligation. omega. Qed.
+
+Lemma fbt_rs_1_0n : 
+  forall n,
+    fbt_rs_1 0 n = 3.
+Proof.
+  intros n.
+  unfold fbt_rs_1.
+  unfold_sub fbt_rs_1_func
+             (fbt_rs_1_func
+                (existT (fun _ : nat => nat) 0 n)).
+  simpl.
+  reflexivity.
+Qed.
+
+Lemma fbt_rs_1_S0 :
+  forall k',
+    fbt_rs_1 (S k') 0 = 3.
+  intros k'.
+  unfold fbt_rs_1.
+  unfold_sub fbt_rs_1_func
+             (fbt_rs_1_func
+                (existT (fun _ : nat => nat) (S k') 0) = 3).
+  simpl.
+  reflexivity.
+Qed.
+
+Lemma fbt_rs_1_SS :
+  forall k' len',
+    fbt_rs_1 (S k') (S len') = 
+    build_time (S k') (min (S k') (S len')) +
+    9 +
+    fbt_rs_1 (2*(S k')) ((S len')-(S k')).
+Proof.
+  intros k' len'.
+  unfold fbt_rs_1 at 1.
+  unfold_sub fbt_rs_1_func
+             (fbt_rs_1_func
+                (existT (fun _ : nat => nat) (S k') (S len'))).
+  simpl.
+  fold_sub fbt_rs_1_func.
+  reflexivity.
+Qed.
+
+Lemma fbt_rs_01 : 
+  forall k,
+    big_oh (fun n => foldr_build_time (rows_sizes k n))
+           (fun n => fbt_rs_1 k n).
+Proof.
+  intros k.
+  exists 0.
+  exists 1.
+  intros n LT; clear LT.
+  unfold mult; rewrite plus_0_r.
+  replace (foldr_build_time (rows_sizes k n)) 
+  with (fbt_rs_1 k n).
+  omega.
+  generalize dependent k.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => 
+              forall k,
+                fbt_rs_1 k n =
+                foldr_build_time (rows_sizes k n))).
+  clear n; intros n IND.
+
+  intros k.
+  destruct k.
+  rewrite fbt_rs_1_0n.
+  simpl.
+  reflexivity.
+
+  destruct n.
+  rewrite fbt_rs_1_S0.
+  simpl.
+  reflexivity.
+
+  rewrite fbt_rs_1_SS.
+  rewrite IND; try omega.
+  rewrite rows_sizes_SS.
+  simpl.
+  omega.
+Qed.
+
+Program Fixpoint fbt_rs_2 k len {measure len} :=
+  match k with 
+    | 0 => 3
+    | S _ => 
+      match len with
+        | 0 => 3
+        | S _ =>
+          build_time k k +
+          9 +
+          fbt_rs_2 (2*k) (len-k)
+      end
+  end.
+Next Obligation. omega. Qed.
+
+Lemma fbt_rs_2_0n : 
+  forall n,
+    fbt_rs_2 0 n = 3.
+Proof.
+  intros n.
+  unfold fbt_rs_2.
+  unfold_sub fbt_rs_2_func
+             (fbt_rs_2_func
+                (existT (fun _ : nat => nat) 0 n)).
+  simpl.
+  reflexivity.
+Qed.
+
+Lemma fbt_rs_2_S0 :
+  forall k',
+    fbt_rs_2 (S k') 0 = 3.
+  intros k'.
+  unfold fbt_rs_2.
+  unfold_sub fbt_rs_2_func
+             (fbt_rs_2_func
+                (existT (fun _ : nat => nat) (S k') 0) = 3).
+  simpl.
+  reflexivity.
+Qed.
+
+Lemma fbt_rs_2_SS :
+  forall k' len',
+    fbt_rs_2 (S k') (S len') = 
+    build_time (S k') (S k') +
+    9 +
+    fbt_rs_2 (2*(S k')) ((S len')-(S k')).
+Proof.
+  intros k' len'.
+  unfold fbt_rs_2 at 1.
+  unfold_sub fbt_rs_2_func
+             (fbt_rs_2_func
+                (existT (fun _ : nat => nat) (S k') (S len'))).
+  simpl.
+  fold_sub fbt_rs_2_func.
+  reflexivity.
+Qed.
+
+Lemma fbt_rs_12 : 
+  forall k,
+    big_oh (fun n => fbt_rs_1 k n)
+           (fun n => fbt_rs_2 k n).
+Proof.
+  intros k.
+  exists 0.
+  exists 2.
+  intros n LT.
+  clear LT.
+  generalize dependent k.
+  apply (well_founded_induction
+           lt_wf
+           (fun n => 
+              forall k,
+                fbt_rs_1 k n <= 2 * fbt_rs_2 k n)).
+  clear n; intros n IND k.
+
+  destruct k.
+  rewrite fbt_rs_1_0n.
+  rewrite fbt_rs_2_0n.
+  omega.
+
+  destruct n.
+  rewrite fbt_rs_1_S0.
+  rewrite fbt_rs_2_S0.
+  omega.
+
+  rewrite fbt_rs_1_SS.
+  rewrite fbt_rs_2_SS.
+
+  apply (le_trans (build_time (S k) (min (S k) (S n)) + 9 + fbt_rs_1 (2 * S k) (S n - S k))
+                  (build_time (S k) (min (S k) (S n)) + 9 + 2* (fbt_rs_2 (2 * S k) (S n - S k)))
+                  (2 * (build_time (S k) (S k) + 9 + fbt_rs_2 (2 * S k) (S n - S k)))).
+  apply le_plus_right.
+  apply IND.
+  omega.
+  rewrite mult_plus_distr_l.
+  apply le_plus_left.
+  rewrite mult_plus_distr_l.
+  replace (2*9) with (9+9);[|omega].
+  rewrite plus_assoc.
+  apply le_plus_left.
+  unfold mult.
+  rewrite plus_0_r.
+  unfold build_time.
+  repeat (rewrite <- plus_assoc).
+  repeat (apply le_plus_right).
+  unfold zip_with_3_bt_node_time.
+  destruct (le_lt_dec k n).
+  rewrite min_l.
+  omega.
+  omega.
+  rewrite min_r; try omega.
+Qed.  
+
 Lemma foldr_build_linear : 
   big_oh (fun n : nat => foldr_build_time (rows_sizes 1 n))
          (fun n : nat => n).
+Proof.
+  apply (big_oh_trans (fun n : nat => foldr_build_time (rows_sizes 1 n))
+                      (fun n => fbt_rs_1 1 n)
+                      (fun n : nat => n)).
+  apply fbt_rs_01.
+  apply (big_oh_trans (fun n => fbt_rs_1 1 n)
+                      (fun n => fbt_rs_2 1 n)
+                      (fun n : nat => n)).
+  apply fbt_rs_12.
   admit.
 Qed.
 
@@ -115,3 +335,4 @@ Theorem make_array_linear_linear : big_oh make_array_linear_time (fun n => n).
   apply rows1_time_linear.
   apply foldr_build_linear.
 Qed.
+

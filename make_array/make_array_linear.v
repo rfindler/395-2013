@@ -313,6 +313,159 @@ Proof.
   rewrite min_r; try omega.
 Qed.  
 
+Program Fixpoint fbt_rs_3 k len {measure len} :=
+  match k with 
+    | 0 => 1
+    | S _ => 
+      match len with
+        | 0 => 1
+        | S _ => k + fbt_rs_3 (2*k) (len-k)
+      end
+  end.
+Next Obligation. omega. Qed.
+
+Lemma fbt_rs_3_S0 : 
+  forall k',
+    fbt_rs_3 (S k') 0 = 1.
+Proof.
+  intros.
+  unfold fbt_rs_3.
+  unfold_sub fbt_rs_3_func
+             (fbt_rs_3_func (existT (fun _ : nat => nat) (S k') 0)).
+  simpl.
+  reflexivity.
+Qed.
+
+Lemma fbt_rs_3_SS :
+  forall k' len',
+    fbt_rs_3 (S k') (S len') = 
+    (S k') + fbt_rs_3 (2*(S k')) ((S len')-(S k')).
+Proof.
+  intros k' len'.
+  unfold fbt_rs_3 at 1.
+  unfold_sub fbt_rs_3_func
+             (fbt_rs_3_func
+                (existT (fun _ : nat => nat) (S k') (S len'))).
+  simpl.
+  fold_sub fbt_rs_3_func.
+  reflexivity.
+Qed.
+
+Lemma fbt_rs_23 : 
+  forall k,
+    big_oh (fun n => fbt_rs_2 k n)
+           (fun n => fbt_rs_3 k n).
+Proof.
+  intros k.
+  exists 0.
+  exists 104.
+  intros n LT. clear LT.
+  generalize dependent k.
+  apply (well_founded_induction
+           lt_wf 
+           (fun n =>
+              forall k,
+                fbt_rs_2 k n <= 104 * fbt_rs_3 k n)).
+  clear n; intros n IND k.
+
+  destruct k.
+  rewrite fbt_rs_2_0n.
+  simpl.
+  omega.
+
+  destruct n.
+  rewrite fbt_rs_2_S0.
+  simpl.
+  omega.
+
+  rewrite fbt_rs_2_SS.
+  apply (le_trans (build_time (S k) (S k) + 9 + fbt_rs_2 (2 * S k) (S n - S k))
+                  (build_time (S k) (S k) + 9 + 104 * fbt_rs_3 (2 * S k) (S n - S k))
+                  (104 * fbt_rs_3 (S k) (S n))).
+  apply le_plus_right.
+  apply IND.
+  omega.
+
+  rewrite fbt_rs_3_SS.
+  rewrite mult_plus_distr_l.
+  apply le_plus_left.
+  unfold build_time.
+  unfold pad_drop_time.
+  unfold split_time.
+  unfold take_time.
+  dispatch_if COND COND'; intuition.
+  unfold drop_time.
+  dispatch_if COND2 COND2'; intuition.
+  unfold zip_with_3_bt_node_time.
+  omega.
+Qed.
+
+Definition f (x:nat) := x.
+
+Lemma fbt_rs_3_n_lt_k : forall k n,  k <> 0 -> n <= k -> fbt_rs_3 k n <= k + 1.
+  intros k n K0 LT.
+  destruct k.
+  assert False;intuition.
+  clear K0.
+  destruct n.
+  rewrite fbt_rs_3_S0.
+  omega.
+  rewrite fbt_rs_3_SS.
+  replace (S n - S k) with 0;[|omega].
+  replace (2 * S k) with (S (S (2 * k)));[|omega].
+  rewrite fbt_rs_3_S0.
+  omega.
+Qed.
+
+Lemma fbt_rs_3_lt_n2_plus_k_plus_1 : 
+  forall k n, k <> 0 -> fbt_rs_3 k n <= n * 2 + k + 1.
+Proof.
+  intros k n K0.
+  generalize dependent k.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n =>
+              forall k,
+                k <> 0 ->
+                fbt_rs_3 k n <= n * 2 + k + 1)).
+  clear n; intros n IND k K0.
+  destruct k.
+  assert False ; intuition.
+  clear K0.
+
+  destruct n.
+  rewrite fbt_rs_3_S0.
+  omega.
+
+  destruct (le_lt_dec n k).
+  apply (le_trans (fbt_rs_3 (S k) (S n))
+                  (S k + 1)
+                  (S n * 2 + S k + 1)).
+  apply fbt_rs_3_n_lt_k;omega.
+  omega.
+
+  rewrite fbt_rs_3_SS.
+
+  apply (le_trans (S k + fbt_rs_3 (2 * S k) (S n - S k))
+                  (S k + ((S n - S k) * 2 + (2 * S k) + 1))
+                  (S n * 2 + S k + 1)).
+  apply le_plus_right.
+  apply IND; omega.
+  omega.
+Qed.
+
+Lemma fbt_rs_3_linear : big_oh (fun n => fbt_rs_3 1 n) (fun n => n).
+  exists 1.
+  exists 4.
+  intros n LT.
+  apply (le_trans (fbt_rs_3 1 n)
+                  (n * 2 + 1 + 1)
+                  (4 * n)).
+  apply fbt_rs_3_lt_n2_plus_k_plus_1.
+  omega.
+  destruct n; intuition.
+Qed.
+
 Lemma foldr_build_linear : 
   big_oh (fun n : nat => foldr_build_time (rows_sizes 1 n))
          (fun n : nat => n).
@@ -325,7 +478,11 @@ Proof.
                       (fun n => fbt_rs_2 1 n)
                       (fun n : nat => n)).
   apply fbt_rs_12.
-  admit.
+  apply (big_oh_trans (fun n => fbt_rs_2 1 n)
+                      (fun n => fbt_rs_3 1 n)
+                      (fun n : nat => n)).
+  apply fbt_rs_23.
+  apply fbt_rs_3_linear.
 Qed.
 
 Theorem make_array_linear_linear : big_oh make_array_linear_time (fun n => n).
@@ -335,4 +492,3 @@ Theorem make_array_linear_linear : big_oh make_array_linear_time (fun n => n).
   apply rows1_time_linear.
   apply foldr_build_linear.
 Qed.
-

@@ -18,5 +18,29 @@
              t1
              t2))))
 
-(check-against-naive make_array_td)
-(check-against-naive make_array_linear)
+;(check-against-naive make_array_td)
+;(check-against-naive make_array_linear)
+
+(require racket/contract)
+(define/contract (fbt_rs_3 k len)
+  (-> (and/c natural-number/c
+             (>=/c 1))
+      natural-number/c
+      natural-number/c)
+  (cond
+    [(zero? len) 1]
+    [else (+ k (fbt_rs_3 (* 2 k) (n- len k)))]))
+
+(define (n- a b) (max 0 (- a b)))
+
+(time (for ([n (in-range 1000)])
+        (for ([k (in-range 1 1000)])
+          (define ans (fbt_rs_3 k n))
+          (define bound (+ (* 2 n) k))
+          (unless (<=  ans bound)
+            (eprintf "no! n=~a k=~a; ~s vs ~s\n"
+                     n
+                     ans bound)))))
+
+
+             

@@ -100,11 +100,3 @@ Volume 7 Issue 6, November 1997, 661 - 666
 
  and it will parse the Coq-style notation and turn it into the
  language described above (for "tmonad.rkt").
-
-
-TODO: 
- - make_array_bu (time, correctness, extraction, big_oh) [robby]
- - to_list_naive (exact time [vs bound], big_oh) 
- - to_list_bu (time, correctness, extraction, big_oh) 
-
-

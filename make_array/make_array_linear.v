@@ -101,3 +101,17 @@ Next Obligation.
   rename H1 into RR.
   apply (make_array_linear_time_helper A xs the_rows an FBR an0 RR).
 Qed.
+
+Lemma foldr_build_linear : 
+  big_oh (fun n : nat => foldr_build_time (rows_sizes 1 n))
+         (fun n : nat => n).
+  admit.
+Qed.
+
+Theorem make_array_linear_linear : big_oh make_array_linear_time (fun n => n).
+  unfold make_array_linear_time.
+  apply big_oh_plus;auto.
+  apply big_oh_plus.
+  apply rows1_time_linear.
+  apply foldr_build_linear.
+Qed.

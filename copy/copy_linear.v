@@ -53,17 +53,7 @@ Section copy_linear.
 
   Theorem copy_linear_linear : big_oh copy_linear_time (fun n => n).
   Proof.
-    apply (big_oh_trans copy_linear_time
-                        (fun n => n + 3)
-                        (fun n => n)).
-    exists 0. exists 17.
-    intros.
-    unfold copy_linear_time.
-    omega.
-    
-    exists 1. exists 4.
-    intros.
-    destruct n; intuition.
+    unfold copy_linear_time; auto.
   Qed.
   
 End copy_linear.

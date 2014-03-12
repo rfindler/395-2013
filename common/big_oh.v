@@ -114,23 +114,52 @@ Lemma big_oh_plus :
 Qed.
 Hint Resolve big_oh_plus.
 
-Lemma big_oh_add_k_linear : forall k, big_oh (fun n => k) (fun n => n).
+Lemma big_oh_k_linear : forall k, big_oh (fun n => k) (fun n => n).
   intros k.
   exists k.
   exists 1.
-  intros n LT.
-  unfold mult.
+  intros; omega.
+Qed.
+Hint Resolve big_oh_k_linear.
+
+Lemma big_oh_add_k_linear : forall k, big_oh (fun n => n + k) (fun n => n).
+  intros k.
+  exists 1.
+  exists (S k).
+  intros. 
+  destruct n; intuition.
+  replace (S k) with (k + 1); [|omega].
+  rewrite mult_plus_distr_r.
+  replace (k * S n) with (k * (n + 1)).
+  rewrite mult_plus_distr_l.
+  replace (k*1) with k;[|omega].
+  replace (1*S n) with (S n);[|omega].
+  apply (le_trans (S n + k)
+                  (0 + k + S n)
+                  (k*n + k + S n)).
+  omega.
+  apply le_plus_left.
+  apply le_plus_left.
+  apply le_0_n.
+  replace (n + 1) with (S n); [|omega].
   omega.
 Qed.
 Hint Resolve big_oh_add_k_linear.
 
-Lemma big_oh_mult_k_linear : forall k, big_oh (fun n => n*k) (fun n => n).
+Lemma big_oh_mult_k_right_linear : forall k, big_oh (fun n => n*k) (fun n => n).
   intros.
-  exists 1.
+  exists 0.
   exists k.
-  intros n.
-  destruct n; intuition.
+  intros.
   rewrite mult_comm.
   omega.
 Qed.
-Hint Resolve big_oh_mult_k_linear.
+Hint Resolve big_oh_mult_k_right_linear.
+
+Lemma big_oh_mult_k_left_linear : forall k, big_oh (fun n => k*n) (fun n => n).
+  intros.
+  exists 1.
+  exists k.
+  intros; omega.
+Qed.
+Hint Resolve big_oh_mult_k_left_linear.

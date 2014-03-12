@@ -29,7 +29,6 @@ Section size_linear.
     destruct SLRr as [XNeq Br].
     destruct SLRl as [XN0eq Bl].
     subst an an0.
-    unfold size_linear_result.
 
     split.
     unfold size_linear_rt.
@@ -42,11 +41,7 @@ Section size_linear.
 
   Theorem size_linear_rt_is_linear : big_oh size_linear_rt (fun n => n).
   Proof.
-    exists 1.
-    exists 16.
-    intros n LE.
-    unfold size_linear_rt.
-    omega.
+    apply big_oh_plus; auto.
   Qed.
 
 End size_linear.

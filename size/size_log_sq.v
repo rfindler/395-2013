@@ -366,7 +366,6 @@ Proof.
   apply (big_oh_trans size_time2 size_time3
                       (fun n => fl_log n * fl_log n)).
   apply size_time23.
-  unfold size_time3.
   apply big_oh_mult.
   apply size_big_oh_fl_log.
 Qed.

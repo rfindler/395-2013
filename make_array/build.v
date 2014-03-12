@@ -48,8 +48,7 @@ Qed.
 
 Lemma zip_with_3_bt_node_linear : big_oh zip_with_3_bt_node_time (fun n => n).
   unfold zip_with_3_bt_node_time.
-  apply big_oh_plus; auto.
-  exists 0. exists 16. intros; omega.
+  auto.
 Qed.
 
 Definition build_time k len := 
@@ -99,4 +98,3 @@ Next Obligation.
   subst an1 an0 an.
   omega.
 Qed.
-

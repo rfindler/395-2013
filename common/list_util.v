@@ -1,4 +1,4 @@
-Require Import Braun.common.braun Braun.common.util Braun.logical.index.
+Require Import Braun.common.braun Braun.common.util Braun.common.index.
 Require Import Arith Arith.Even Arith.Div2 List.
 Require Import Program.
 Require Import Omega.
@@ -10,6 +10,7 @@ Program Fixpoint interleave {A:Set} (evens : list A) (odds : list A)
     | (x :: xs) => x :: (interleave odds xs)
   end.
 Next Obligation.
+Proof.
   simpl.
   rewrite app_length.
   rewrite app_length.

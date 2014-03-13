@@ -1,7 +1,7 @@
 Require Import Braun.tmonad.monad.
 
-Require Import Braun.logical.sequence.
-Require Import Braun.logical.list_util.
+Require Import Braun.common.sequence.
+Require Import Braun.common.list_util.
 
 Require Import Braun.common.braun.
 Require Import Braun.common.array.

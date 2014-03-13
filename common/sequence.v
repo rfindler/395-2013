@@ -1,4 +1,4 @@
-Require Import Braun.common.braun Braun.common.util Braun.logical.index Braun.logical.list_util List.
+Require Import Braun.common.braun Braun.common.util Braun.common.index Braun.common.list_util List.
 Require Import Omega.
 
 Inductive SequenceR {A:Set} : @bin_tree A -> list A -> Prop :=
@@ -110,6 +110,7 @@ Fixpoint mk_list {A:Set} (x:A) (n:nat) :=
 Lemma interleave_mk_list_same_size : 
   forall (A:Set) (x:A) n,
     interleave (mk_list x n) (mk_list x n) = mk_list x (n+n).
+Proof.
   induction n; auto.
   simpl.
   rewrite <- interleave_case2.
@@ -124,6 +125,7 @@ Lemma interleave_constant_lists :
     interleave ss tt = mk_list x n ->
     exists n1 n2,
       ss = mk_list x n1 /\ tt = mk_list x n2.
+Proof.
   induction ss; induction tt.
 
   (* nil nil *)
@@ -184,6 +186,7 @@ Lemma sequence_constant_list_index_is_constant :
     SequenceR t (mk_list x n)
     -> IndexR t i y
     -> x = y.
+Proof.
   intros A n x y i t SR IR.
   generalize dependent n.
   induction IR; intros n SR.

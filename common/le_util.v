@@ -32,6 +32,7 @@ Proof.
 Qed.
 
 Lemma fl_log_monotone : forall n m, n <= m -> fl_log n <= fl_log m.
+Proof.
   intros n m.
   induction 1; auto.
   apply (le_trans (fl_log n) (fl_log m) (fl_log (S m))); auto.
@@ -59,6 +60,7 @@ Proof.
 Qed.
 
 Lemma cl_log_monotone : forall n m, n <= m -> cl_log n <= cl_log m.
+Proof.
   intros n m.
   induction 1; auto.
   apply (le_trans (cl_log n) (cl_log m) (cl_log (S m))); auto.

@@ -1,8 +1,8 @@
 Require Import Braun.common.log Braun.common.le_util.
 Require Import Arith.
 
-(* definition taken from Wikipedia, except that
-   Wikipedia has n0 < n, not n0 <= n *)
+(* definition taken from Wikipedia, except *)
+(* that Wikipedia has n0 < n, not n0 <= n  *)
 Definition big_oh f g := 
   exists n0 m, 
     forall n, 
@@ -81,6 +81,7 @@ Lemma big_oh_mult :
   forall f g h,
     big_oh f g ->
     big_oh (fun x => (h x) * (f x)) (fun x => (h x) * (g x)).
+Proof.
   intros f g n [n0 [m FG]].
   exists n0.
   exists m.
@@ -97,6 +98,7 @@ Hint Resolve big_oh_mult.
 Lemma big_oh_plus : 
   forall f g h,
     big_oh f h -> big_oh g h -> big_oh (fun n => f n + g n) h.
+Proof.
   intros f g h FG GH.
   destruct FG as [FGn [FGm FG]].
   destruct GH as [GHn [GHm GH]].
@@ -115,6 +117,7 @@ Qed.
 Hint Resolve big_oh_plus.
 
 Lemma big_oh_k_linear : forall k, big_oh (fun n => k) (fun n => n).
+Proof.
   intros k.
   exists k.
   exists 1.
@@ -123,6 +126,7 @@ Qed.
 Hint Resolve big_oh_k_linear.
 
 Lemma big_oh_add_k_linear : forall k, big_oh (fun n => n + k) (fun n => n).
+Proof.
   intros k.
   exists 1.
   exists (S k).
@@ -147,6 +151,7 @@ Qed.
 Hint Resolve big_oh_add_k_linear.
 
 Lemma big_oh_mult_k_right_linear : forall k, big_oh (fun n => n*k) (fun n => n).
+Proof.
   intros.
   exists 0.
   exists k.
@@ -157,6 +162,7 @@ Qed.
 Hint Resolve big_oh_mult_k_right_linear.
 
 Lemma big_oh_mult_k_left_linear : forall k, big_oh (fun n => k*n) (fun n => n).
+Proof.
   intros.
   exists 1.
   exists k.

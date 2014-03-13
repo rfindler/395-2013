@@ -21,6 +21,7 @@ Qed.
 Hint Resolve div2_monotone_Sn.
 
 Lemma div2_monotone : forall n m, n <= m -> div2 n <= div2 m.
+Proof.
   intros n m.
   induction 1; auto.
   apply (le_trans (div2 n) (div2 m) (div2 (S m))); auto.
@@ -60,6 +61,7 @@ Qed.
 Hint Resolve lt_div2'''.
 
 Lemma lt_div2'''' : forall n, S (div2 n) < S (S (S n)).
+Proof.
   intros n.
   apply lt_n_S.
   apply (lt_trans (div2 n) (S n) (S (S n))); auto.
@@ -90,8 +92,8 @@ Proof.
 Qed.
 Hint Rewrite double_div2.
 
-Lemma div2_with_odd_argument : 
-  (forall n, div2 (S (n + n)) = n).
+Lemma div2_with_odd_argument: 
+  forall n, div2 (S (n + n)) = n.
 Proof.
   induction n.
   compute; reflexivity.
@@ -107,6 +109,7 @@ Hint Rewrite div2_with_odd_argument.
 Lemma div2_doubled_le_n :
   forall n,
     div2 n + div2 n <= n.
+Proof.
   intros n.
   assert (even n \/ odd n) as H;[apply even_or_odd|destruct H].
 
@@ -179,6 +182,7 @@ Qed.
 Hint Rewrite minus_0r.
 
 Lemma div_ceil_floor_sum : forall n, n = div2 n + div2 (n + 1).
+Proof.
   apply (ind_0_1_SS (fun n => n = div2 n + div2 (n + 1)));auto.
   intros.
   simpl.
@@ -259,6 +263,7 @@ Hint Resolve pow_le_S.
 
 Lemma braun_invariant_even_size : 
   forall s_size t_size, even (s_size+t_size+1) -> (t_size <= s_size <= t_size+1) -> s_size = t_size+1.
+Proof.
   intros.
   assert (t_size = s_size \/ s_size = t_size + 1) as TWOCASES;[omega|destruct TWOCASES].
   subst.
@@ -269,6 +274,7 @@ Qed.
 
 Lemma braun_invariant_odd_size : 
   forall s_size t_size, odd (s_size+t_size+1) -> (t_size <= s_size <= t_size+1) -> s_size = t_size.
+Proof.
   intros.
   assert (t_size = s_size \/ s_size = t_size + 1) as TWOCASES;[omega|destruct TWOCASES].
   subst; reflexivity.

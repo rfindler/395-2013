@@ -1,5 +1,5 @@
 Require Import Braun.common.braun Braun.common.util Braun.common.same_structure.
-Require Import Braun.common.log Braun.logical.sequence Braun.logical.list_util.
+Require Import Braun.common.log Braun.common.sequence Braun.common.list_util.
 Require Import Braun.tmonad.monad.
 Require Import Program List.
 Require Import Omega.

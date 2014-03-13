@@ -138,6 +138,7 @@ Qed.
 
 
 Lemma mat_time_nlogn : big_oh mat_time (fun n => n * cl_log n).
+Proof.
   exists 0.
   exists 1.
   intros n LT.

@@ -2,7 +2,7 @@ Require Import Braun.tmonad.monad.
 Require Import Braun.insert.insert_log.
 Require Import Braun.fold.fold.
 
-Require Import Braun.logical.sequence.
+Require Import Braun.common.sequence.
 
 Require Import Braun.common.braun.
 Require Import Braun.common.array.

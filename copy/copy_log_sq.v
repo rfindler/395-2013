@@ -7,18 +7,29 @@ Require Import Program.Wf Init.Wf.
 
 Include WfExtensionality.
 
-Program Fixpoint copy_insert_time (n:nat) {measure n} :=
+(* START: copy_insert_time *)
+Program Fixpoint copy_insert_time (n:nat) 
+        {measure n} :=
   match n with
     | 0 => 3
-    | S n' => if (even_odd_dec n')
-              then 13 + copy_insert_time (div2 n')
-              else 16 + copy_insert_time (div2 n') + insert_time (div2 n')
+    | S n' =>
+      if (even_odd_dec n')
+      then 13 + copy_insert_time (div2 n')
+      else 16 + 
+           copy_insert_time (div2 n') +
+           insert_time (div2 n')
   end.
+(* STOP: copy_insert_time *)
 
-Definition copy_insert_result (A:Set) (x:A) (n:nat) (b:@bin_tree A) (c:nat):=
+(* START: copy_insert_result *)
+Definition copy_insert_result
+           (A:Set) (x:A) (n:nat)
+           (b:@bin_tree A) (c:nat):=
   Braun b n /\ 
   SequenceR b (mk_list x n) /\
   c = copy_insert_time (n).
+(* STOP: copy_insert_result *)
+
 (* this correctness condition is different than the other  *)
 (* copy algorithm's correctness conditions, but it implies *)
 (* the other; see sequence_constant_list_index_is_constant *)

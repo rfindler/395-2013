@@ -30,14 +30,43 @@
       "zip_with_3_bt_node_gen.v"
       "build.v" "build_gen.v"))))
 
+(define (count-a-dir dir)
+  (compute-subtotal
+   (for/list ([fn (in-list (directory-list (build-path above dir)))]
+              #:when (regexp-match #rx"[.]v$" (path->string fn)))
+     (cons fn (parse-file (build-path dir fn))))))
+
 (struct line-info (proofs obligations total) #:transparent)
 
+(require racket/pretty)
 (define (build-table)
   (define info (collect-info))
   (define one-line-per-file
     (apply append
            (add-between (apply append info) (list #f))))
   (define blank-row (list "" 'cont 'cont 'cont))
+  (define (make-a-row label info)
+    (list @bold{@label} 
+          (format "~a" (line-info-total info))
+          (format "~a" (line-info-obligations info))
+          (format "~a" (line-info-proofs info))))
+  (define common-lines 
+    (list (cons 'Monad (count-a-dir "tmonad"))
+          (cons 'Common (count-a-dir "common"))))
+  (define all-rows 
+    (append one-line-per-file common-lines))
+  (define (build-table-row row)
+    (cond
+      [row
+       (define label (car row))
+       (define inf (cdr row))
+       (list (if (symbol? label)
+                 @bold{@(format "~a" label)}
+                 @tt{@(car row)})
+             (format "~a" (line-info-total inf))
+             (format "~a" (line-info-obligations inf))
+             (format "~a" (line-info-proofs inf)))]
+      [else blank-row]))
   (tabular
    #:sep @hspace[1]
    (append
@@ -53,25 +82,18 @@
      (list @bold{} 
            @bold{}
            @bold{}
-           @bold{Lines})
-     blank-row)
+           @bold{Lines}))
     (for/list ([row (in-list one-line-per-file)])
-      (cond
-        [row
-         (define label (car row))
-         (define inf (cdr row))
-         (list (if (symbol? label)
-                   @bold{@(format "~a" label)}
-                   @tt{@(car row)})
-               (format "~a" (line-info-total inf))
-               (format "~a" (line-info-obligations inf))
-               (format "~a" (line-info-proofs inf)))]
-        [else blank-row]))
-    (list blank-row
-          (list @bold{Total} 
-                (format "~a" (get-total one-line-per-file line-info-total))
-                (format "~a" (get-total one-line-per-file line-info-obligations))
-                (format "~a" (get-total one-line-per-file line-info-proofs)))))))
+      (build-table-row row))
+    (list blank-row)
+    (for/list ([row (in-list common-lines)])
+      (build-table-row row))
+    (list blank-row)
+    (list
+     (list @bold{Total} 
+           (format "~a" (get-total all-rows line-info-total))
+           (format "~a" (get-total all-rows line-info-obligations))
+           (format "~a" (get-total all-rows line-info-proofs)))))))
 
 (define/contract (get-total one-line-per-file sel)
   (-> (listof (or/c (cons/c any/c line-info?) #f)) any/c any/c)
@@ -163,4 +185,4 @@
       
       (line-info proof-line-count obligation-line-count total-line-count))))
 
-(module+ main (void (collect-info)))
+(module+ main (void (build-table)))

@@ -159,6 +159,7 @@ Proof.
 Qed.
 
 Next Obligation.
+Proof.
   clear am1 H3.
   clear am H5.
   clear am0 H4.
@@ -249,6 +250,7 @@ Program Fixpoint rows_time2 (k:nat) (len:nat) {measure len} :=
       end
   end.
 Next Obligation.
+Proof.
   omega.
 Qed.
 
@@ -276,13 +278,15 @@ Lemma rows_time2_SS :
 Proof.
   intros k' len'.
   unfold rows_time2.
-  unfold_sub rows_time2_func (rows_time2_func (existT (fun _ : nat => nat) (S k') (S len'))).
+  unfold_sub rows_time2_func
+             (rows_time2_func (existT (fun _ : nat => nat) (S k') (S len'))).
   simpl.
   fold_sub rows_time2_func.
   reflexivity.
 Qed.
 
 Lemma rows_time12 : forall k, big_oh (fun n => rows_time k n) (fun n => rows_time2 k n).
+Proof.
   exists 0.
   exists 48.
   intros n LT; clear LT.
@@ -337,6 +341,7 @@ Lemma rows_time12 : forall k, big_oh (fun n => rows_time k n) (fun n => rows_tim
 Qed.
 
 Lemma rows_time2_linear : forall k, (big_oh (fun n => rows_time2 k n) (fun n => n+1)).
+Proof.
   exists 0.
   exists 1.
   intros n.
@@ -373,6 +378,7 @@ Lemma rows_time2_linear : forall k, (big_oh (fun n => rows_time2 k n) (fun n => 
 Qed.
 
 Lemma rows_time_linear : forall k, big_oh (fun n => rows_time k n) (fun n => n).
+Proof.
   intros k.
   apply (big_oh_trans (fun n => rows_time k n)
                       (fun n => rows_time2 k n)
@@ -399,6 +405,7 @@ Definition rows1_result (A:Set) (xs:list A) (res:list (nat * list A)) c :=
 Load "rows1_gen.v".
 
 Next Obligation.
+Proof.
   clear am H1.
   rename H0 into RR.
   unfold rows1_result.

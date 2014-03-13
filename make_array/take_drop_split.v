@@ -19,6 +19,7 @@ Definition take_result (A:Set) n (xs:list A) (res:list A) c :=
 Load "take_gen.v".
 
 Next Obligation.
+Proof.
   unfold take_result.
   simpl.
   split; [|split;omega].
@@ -30,6 +31,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold take_result.
   simpl.
   split.
@@ -41,6 +43,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear am H1.
   rename H0 into RC.
 
@@ -89,6 +92,7 @@ Definition drop_result (A:Set) n (xs:list A) (res:list A) c :=
 Load "drop_gen.v".
 
 Next Obligation.
+Proof.
   unfold drop_result.
   split.
   unfold drop_time.
@@ -100,6 +104,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold drop_result.
   split.
   simpl.
@@ -114,6 +119,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear am H1.
   rename H0 into RC.
 
@@ -163,6 +169,7 @@ Definition split_result (A:Set) (k:nat) (xs:list A) (res:list A * list A) c :=
 Load "split_gen.v".
 
 Next Obligation.
+Proof.
   clear H3 am H2 am0.
   rename H0 into DR.
   rename H1 into TR.
@@ -202,6 +209,7 @@ Hint Unfold pad_drop_result.
 Load "pad_drop_gen.v".
 
 Next Obligation.
+Proof.
   clear am H1.
   rename H0 into PDRnil.
 
@@ -212,6 +220,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear am H1.
   rename H0 into PDRrst.
   unfold pad_drop_result in *.
@@ -221,5 +230,6 @@ Next Obligation.
 Qed.
 
 Lemma pad_drop_linear : big_oh pad_drop_time (fun n => n).
+Proof.
   apply big_oh_plus; auto.
 Qed.

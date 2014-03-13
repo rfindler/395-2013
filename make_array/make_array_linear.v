@@ -33,6 +33,7 @@ Hint Unfold foldr_build_result.
 Load "foldr_build_gen.v".
 
 Next Obligation.
+Proof.
   clear am H3 am0 H2.
   rename H0 into BR.
   rename H1 into FBR.
@@ -78,6 +79,7 @@ Lemma make_array_linear_time_helper :
          (an0 : nat)
          (RR : rows1_result A xs the_rows an0),
     make_array_linear_result A xs bt_mt (an0 + (an + 10)).
+Proof.
   intros.
   
   unfold foldr_build_result in *.
@@ -92,6 +94,7 @@ Lemma make_array_linear_time_helper :
 Qed.
 
 Next Obligation. 
+Proof.
   clear am0 am H2 H3.
   rename H0 into FBR.
   rename H1 into RR.
@@ -99,6 +102,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear am0 am H2 H3.
   rename H0 into FBR.
   rename H1 into RR.
@@ -117,7 +121,10 @@ Program Fixpoint fbt_rs_1 k len {measure len} :=
           fbt_rs_1 (2*k) (len-k)
       end
   end.
-Next Obligation. omega. Qed.
+Next Obligation. 
+Proof.
+  omega.
+Qed.
 
 Lemma fbt_rs_1_0n : 
   forall n,
@@ -135,6 +142,7 @@ Qed.
 Lemma fbt_rs_1_S0 :
   forall k',
     fbt_rs_1 (S k') 0 = 3.
+Proof.
   intros k'.
   unfold fbt_rs_1.
   unfold_sub fbt_rs_1_func
@@ -231,6 +239,7 @@ Qed.
 Lemma fbt_rs_2_S0 :
   forall k',
     fbt_rs_2 (S k') 0 = 3.
+Proof.
   intros k'.
   unfold fbt_rs_2.
   unfold_sub fbt_rs_2_func
@@ -322,7 +331,10 @@ Program Fixpoint fbt_rs_3 k len {measure len} :=
         | S _ => k + fbt_rs_3 (2*k) (len-k)
       end
   end.
-Next Obligation. omega. Qed.
+Next Obligation. 
+Proof.
+  omega. 
+Qed.
 
 Lemma fbt_rs_3_S0 : 
   forall k',
@@ -400,9 +412,8 @@ Proof.
   omega.
 Qed.
 
-Definition f (x:nat) := x.
-
 Lemma fbt_rs_3_n_lt_k : forall k n,  k <> 0 -> n <= k -> fbt_rs_3 k n <= k + 1.
+Proof.
   intros k n K0 LT.
   destruct k.
   assert False;intuition.
@@ -455,6 +466,7 @@ Proof.
 Qed.
 
 Lemma fbt_rs_3_linear : big_oh (fun n => fbt_rs_3 1 n) (fun n => n).
+Proof.
   exists 1.
   exists 4.
   intros n LT.
@@ -486,6 +498,7 @@ Proof.
 Qed.
 
 Theorem make_array_linear_linear : big_oh make_array_linear_time (fun n => n).
+Proof.
   unfold make_array_linear_time.
   apply big_oh_plus;auto.
   apply big_oh_plus.

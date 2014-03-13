@@ -41,7 +41,7 @@ Section size_linear.
 
   Theorem size_linear_rt_is_linear : big_oh size_linear_rt (fun n => n).
   Proof.
-    apply big_oh_plus; auto.
+    unfold size_linear_rt; auto.
   Qed.
 
 End size_linear.

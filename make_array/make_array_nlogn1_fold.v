@@ -26,9 +26,9 @@ Section make_array_naive.
     /\ c = man_time n
     /\ SequenceR b xs.
   
-  (* technically, we should count 4 more for the call to foldr,
-     but that means that we cannot use make_array_naive_result
-     as the loop invariant argument to foldr so we just skip it *)
+  (* technically, we should count 4 more for the call to foldr, *)
+  (* but that means that we cannot use make_array_naive_result  *)
+  (* as the loop invariant argument to foldr so we just skip it *)
   Program Definition make_array_naive l : 
     {! b !:! @bin_tree A !<! c !>!
        make_array_naive_result b l c !} :=

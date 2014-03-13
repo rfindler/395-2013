@@ -140,6 +140,7 @@ Program Fixpoint make_array_td_time2 n {measure n} :=
   end.
 
 Lemma make_array_td_time12 : big_oh make_array_td_time make_array_td_time2.
+Proof.
   exists 0.
   exists 28.
   intros n LT;clear LT.
@@ -169,6 +170,7 @@ Lemma make_array_td_time12 : big_oh make_array_td_time make_array_td_time2.
 Qed.
 
 Lemma make_array_td_time2_mat_time : big_oh make_array_td_time2 mat_time.
+Proof.
   exists 1.
   exists 2.
   intros n LT.

@@ -7,7 +7,7 @@ all: coq paper/paper.pdf extract/a.out
 	@echo ""
 	@ ! grep -i admit $(VS)
 
-paper/paper.pdf: paper/paper.scrbl paper/background.scrbl paper/util.rkt paper/l.v paper/lwl.v paper/running-time.scrbl paper/insert.scrbl tmonad/*.v
+paper/paper.pdf: paper/paper.scrbl paper/background.scrbl paper/util.rkt paper/l.v paper/lwl.v paper/running-time.scrbl paper/insert.scrbl */*.v
 	(cd paper; scribble --pdf paper.scrbl; cd ..)
 
 .PHONY: coq clean clean-ml

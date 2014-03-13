@@ -21,6 +21,7 @@ Definition diff_result (A:Set) (b : @bin_tree A) m n c :=
 Load "diff_gen.v".
 
 Next Obligation.
+Proof.
   unfold diff_result in *.
   replace (m+1) with (S m); try omega.
   split; intros B; invclr B.
@@ -28,6 +29,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold diff_result in *.
   simpl.
   unfold_sub diff_time (diff_time 0).
@@ -36,6 +38,7 @@ Qed.
 
 Lemma diff_time_nz_even : 
   forall m', even (S m') -> diff_time (S m') = 13+diff_time (div2 (m'-1)).
+Proof.
   intros m' EV.
   unfold_sub diff_time (diff_time (S m')).
   fold diff_time.
@@ -45,6 +48,7 @@ Lemma diff_time_nz_even :
 Qed.
 
 Next Obligation.
+Proof.
   clear am H2 diff.
   rename H1 into BTxn.
   rename H into E.
@@ -89,6 +93,7 @@ Qed.
 
 Lemma diff_time_nz_odd : 
   forall m', odd (S m') -> diff_time (S m') = 11+diff_time (div2 m').
+Proof.
   intros m' EV.
   unfold_sub diff_time (diff_time (S m')).
   fold diff_time.
@@ -98,6 +103,7 @@ Lemma diff_time_nz_odd :
 Qed.
 
 Next Obligation.
+Proof.
   clear am H2 diff.
   rename H1 into BT.
   rename H into O.
@@ -206,6 +212,7 @@ Proof.
 Qed.
 
 Theorem size_big_oh_fl_log : big_oh diff_time fl_log.
+Proof.
   apply (big_oh_trans diff_time diff_time2 fl_log).
   apply diff_time12.
   apply diff_time2_big_oh_fl_log.
@@ -276,6 +283,7 @@ Program Fixpoint size_time2 n {measure n} :=
   end.
 
 Lemma size_time12 : big_oh size_time size_time2.
+Proof.
   exists 1.
   exists 17.
   apply (well_founded_ind
@@ -305,6 +313,7 @@ Qed.
 Definition size_time3 n := fl_log n * diff_time n.
 
 Lemma size_time23 : big_oh size_time2 size_time3.
+Proof.
   exists 0.
   exists 1.
   intros n LT.

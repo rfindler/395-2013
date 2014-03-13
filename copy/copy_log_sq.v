@@ -19,13 +19,14 @@ Definition copy_insert_result (A:Set) (x:A) (n:nat) (b:@bin_tree A) (c:nat):=
   Braun b n /\ 
   SequenceR b (mk_list x n) /\
   c = copy_insert_time (n).
-(* this correctness condition is different than the other
-   copy algorithm's correctness conditions, but it implies
-   the other; see sequence_constant_list_index_is_constant *)
+(* this correctness condition is different than the other  *)
+(* copy algorithm's correctness conditions, but it implies *)
+(* the other; see sequence_constant_list_index_is_constant *)
 
 Load "copy_log_sq_gen.v".
 
 Next Obligation.
+Proof.
   unfold copy_insert_result.
   repeat constructor; auto.
 Qed.
@@ -34,6 +35,7 @@ Lemma copy_insert_time_even :
   forall n',
     even n' ->
     copy_insert_time (S n') = copy_insert_time (div2 n') + 13.
+Proof.
   intros n EVEN.
   unfold_sub copy_insert_time (copy_insert_time (S n)).
   destruct (even_odd_dec n).
@@ -45,6 +47,7 @@ Lemma copy_insert_time_even :
 Qed.
 
 Next Obligation.
+Proof.
   clear copy_insert.
   clear am H2.
   rename H1 into CIR.
@@ -80,6 +83,7 @@ Lemma copy_insert_time_odd :
     odd n' ->
     copy_insert_time (S n') =
     copy_insert_time (div2 n') + (insert_time (div2 n') + 16).
+Proof.
   intros n EVEN.
   unfold_sub copy_insert_time (copy_insert_time (S n)).
   destruct (even_odd_dec n).
@@ -91,6 +95,7 @@ Lemma copy_insert_time_odd :
 Qed.  
 
 Next Obligation.
+Proof.
   clear am0 H3.
   clear am H4.
   clear copy_insert.
@@ -143,6 +148,7 @@ Program Fixpoint copy_insert_time2 (n:nat) {measure n} :=
   end.
 
 Lemma copy_insert_time12 : big_oh copy_insert_time copy_insert_time2.
+Proof.
   exists 0.
   exists 1.
   intros n LT. clear LT.
@@ -179,6 +185,7 @@ Program Fixpoint copy_insert_time3 (n:nat) {measure n} :=
   end.
 
 Lemma copy_insert_time23 : big_oh copy_insert_time2 copy_insert_time3.
+Proof.
   exists 1.
   exists 16.
   intros n LT.
@@ -233,6 +240,7 @@ Definition copy_insert_time4 (n:nat) := fl_log n * insert_time n.
 
 Lemma random_fl_log_le : forall n,
                            fl_log (S (div2 n)) <= fl_log (S (S (S n))).
+Proof.
   intros.
   apply fl_log_monotone.
   apply (well_founded_induction 
@@ -257,6 +265,7 @@ Lemma random_fl_log_le : forall n,
 Qed.
 
 Lemma copy_insert_time34 : big_oh copy_insert_time3 copy_insert_time4.
+Proof.
   exists 1.
   exists 1.
   intros n LT.  
@@ -319,6 +328,7 @@ Qed.
 
 Theorem copy_insert_log_sq : big_oh copy_insert_time
                                     (fun n => fl_log n * fl_log n).
+Proof.
   apply (big_oh_trans copy_insert_time
                       copy_insert_time4
                       (fun n => fl_log n * fl_log n)).

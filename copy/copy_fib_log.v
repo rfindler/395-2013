@@ -8,7 +8,6 @@ Include WfExtensionality.
 
 Set Implicit Arguments.
 
-
 Section copy_fib.
 
   Variable A : Set.
@@ -46,11 +45,13 @@ Section copy_fib.
   Qed.
 
   Next Obligation.
+  Proof.
     apply lt_div2. 
     induction n; [unfold not in H; assert (0 = 0)|]; omega.
   Qed.
 
   Next Obligation.
+  Proof.
     destruct n;  [unfold not in H; assert (0 = 0)|]; try omega.
     apply lt_trans with (m := div2 (S n)).
     replace (div2 (S n) - 1) with (pred (div2 (S n))); try omega.
@@ -60,6 +61,7 @@ Section copy_fib.
   Qed.
 
   Next Obligation.
+  Proof.
     (* even case *)
     rename H0 into E.
     clear H5 H4 am0 am.
@@ -118,10 +120,12 @@ Section copy_fib.
   Qed.    
 
   Next Obligation.
+  Proof.
     apply lt_div2. destruct n. inversion H0. omega.
   Qed.
 
   Next Obligation.
+  Proof.
     (* odd case *)
     clear H3.
     rename H0 into On.
@@ -240,6 +244,7 @@ Section copy_fib.
   Qed.
 
   Next Obligation.
+  Proof.
     apply lt_trans with (m := (div2 n)).
     apply lt_div2. 
     destruct n as [|n]; [unfold not in H0; intuition|].
@@ -248,8 +253,8 @@ Section copy_fib.
     apply lt_div2; intuition.
   Qed.
     
-  (* This ugliness is because Program doesn't allow
-     mutual recursion on well-founded arguments. *)
+  (* This ugliness is because Program doesn't allow *)
+  (* mutual recursion on well-founded arguments. *)
 
   Inductive fg_arg : Type :=
   | g_arg (a:nat)
@@ -411,6 +416,7 @@ Section copy_fib.
   Qed.
 
   Lemma even_pred : forall n, n <> 0 -> even n -> odd (n - 1).
+  Proof.
     intros n NE.
     destruct n.
     unfold not in NE; intuition.
@@ -421,6 +427,7 @@ Section copy_fib.
   Qed.
 
   Lemma odd_pred : forall n, odd n -> even (n - 1).
+  Proof.
     intros n E.
     destruct n; inversion E.
     simpl.
@@ -456,14 +463,6 @@ Section copy_fib.
     replace (div2 n - 0) with (div2 n) in E; [auto|omega].
     simpl; omega.
   Qed.
-
-(*
-  Lemma fg_lt_fiblog : forall n, n > 0 ->
-                                 (f n < ?? * fib_log n /\  g n < ?? * fib_log n).
-  Proof.
-   
-  Nope....
-*)
 
   Lemma rtcf_f_g : forall n,
                      n > 1 ->
@@ -586,6 +585,7 @@ Section copy_fib.
   Qed.
 
   Lemma g_le_f : forall (n : nat), g n <= f n.
+  Proof.
     intros n.
     destruct n; [compute; omega|].
     destruct n; [compute; omega|].
@@ -596,6 +596,7 @@ Section copy_fib.
   Qed.
   
   Lemma rtcf_big_oh_f : big_oh rt_copy_fib f.
+  Proof.
     exists 2.
     exists 1.
     intros n LT.
@@ -616,6 +617,7 @@ Section copy_fib.
   Qed.  
 
   Lemma f_big_oh_p : big_oh f p.
+  Proof.
     exists 1.
     exists 32.
     unfold f.
@@ -647,11 +649,13 @@ Section copy_fib.
   Lemma l1 : forall (a b c d : nat),
                a < 4 * b -> c < 4 * d
                -> 1 + a + c < 4 * (b + d).
+  Proof.
     intros; omega.
   Qed.  
 
   Lemma p_lt_fl : forall (n : nat), n <> 0
                                     -> p n < 4 * (fib (cl_log n)).
+  Proof.
     apply (well_founded_induction 
              lt_wf
              (fun n => n <> 0
@@ -678,6 +682,7 @@ Section copy_fib.
   Qed.
 
   Lemma p_big_oh_fl : big_oh p fib_log.
+  Proof.
     exists 1.
     exists 4.
     intros n LE.
@@ -688,6 +693,7 @@ Section copy_fib.
   Qed.
 
   Lemma rtcf_big_oh_fib_log : big_oh rt_copy_fib fib_log.
+  Proof.
     apply big_oh_trans with (g := f).
     apply rtcf_big_oh_f.
     apply big_oh_trans with (g := p).

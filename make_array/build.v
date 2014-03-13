@@ -21,6 +21,7 @@ Hint Unfold zip_with_3_bt_node_result.
 Load "zip_with_3_bt_node_gen.v".
 
 Next Obligation.
+Proof.
   unfold zip_with_3_bt_node_result.
   intros LENS.
   destruct LENS as [L1 L2].
@@ -29,6 +30,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold zip_with_3_bt_node_result.
   intros LENS.
   destruct LENS as [L1 L2].
@@ -37,6 +39,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear am H1.
   rename H0 into ZWRES.
 
@@ -47,6 +50,7 @@ Next Obligation.
 Qed.
 
 Lemma zip_with_3_bt_node_linear : big_oh zip_with_3_bt_node_time (fun n => n).
+Proof.
   unfold zip_with_3_bt_node_time.
   auto.
 Qed.
@@ -66,12 +70,12 @@ Definition build_result
            c := 
   (length (snd pr) <= fst pr) -> 
   c = build_time (fst pr) (length (snd pr)).
-
 Hint Unfold build_result.
 
 Load "build_gen.v".
 
 Next Obligation.
+Proof.
   clear am am0 am1 H3 H4 H5.
   rename H0 into ZWres.
   rename H2 into PDres.

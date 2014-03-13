@@ -49,7 +49,7 @@ The monadic result type is
 which says that the result is a Braun whose size matches the
 input natural number, that linearizing the result Braun tree
 produces the input list, and that the running time is given by
-the function @tt{copy_insert_time}.
+the function @tt{copy_log_sq_time}.
 
 The running time function, however, is defined in parallel to
 @tt{log_sq} itself, not as the product of the logs:
@@ -59,17 +59,24 @@ matches that function, but then leaves as a separate issue
 the proof that this function is Big Oh of the square of the log.
 That is, there are 56 lines of proof to guarantee the result 
 type of the function is correct and an additional 179 lines
-to prove that that @tt{copy_insert_result}
+to prove that that @tt{copy_log_sq_time}
 is Big Oh of the product of the log.
 
-This breakdown is typical and can be read off of the columns in @figure["fig:line-count"].
+For the simpler functions with (the linear ones 
+except @tt{make_array_linear}), the running can
+be expressed directly in the monadic result (with
+precise constants), but for most of the functions,
+the running time is expressed first in a manner
+that matches the structure of the function and
+a breakdown similar to @tt{copy_log_sq} is typical and
+the precise numbers can be read off of the 
+columns in @figure-ref["fig:line-counts"].
 
 The @tt{Monad} and @tt{Common} lines count the number of lines of
 code in our monad's implementation (including the proofs of the monad laws)
 and some libraries used in multiple algorithms, including
 a Big Oh library, a Log library, the Braun tree definition, and
-some common facts about Braun trees.
-
+some common facts and definitions about Braun trees.
 
 @section{Extraction}
 

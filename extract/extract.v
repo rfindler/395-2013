@@ -38,7 +38,7 @@ Extraction "extract.ml" insert_log.insert
 
            copy_linear.copy_linear
            copy_fib_log.copy_fib
-           copy_log_sq.copy_insert
+           copy_log_sq.copy_log_sq
            copy_log.copy
 
            make_array_nlogn1.make_array_naive

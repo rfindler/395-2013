@@ -8,26 +8,26 @@ Require Import Program.Wf Init.Wf.
 Include WfExtensionality.
 
 (* START: copy_insert_time *)
-Program Fixpoint copy_insert_time (n:nat) 
+Program Fixpoint copy_log_sq_time (n:nat) 
         {measure n} :=
   match n with
     | 0 => 3
     | S n' =>
       if (even_odd_dec n')
-      then 13 + copy_insert_time (div2 n')
+      then 13 + copy_log_sq_time (div2 n')
       else 16 + 
-           copy_insert_time (div2 n') +
+           copy_log_sq_time (div2 n') +
            insert_time (div2 n')
   end.
 (* STOP: copy_insert_time *)
 
 (* START: copy_insert_result *)
-Definition copy_insert_result
+Definition copy_log_sq_result
            (A:Set) (x:A) (n:nat)
            (b:@bin_tree A) (c:nat):=
   Braun b n /\ 
   SequenceR b (mk_list x n) /\
-  c = copy_insert_time (n).
+  c = copy_log_sq_time (n).
 (* STOP: copy_insert_result *)
 
 (* this correctness condition is different than the other  *)
@@ -38,19 +38,19 @@ Load "copy_log_sq_gen.v".
 
 Next Obligation.
 Proof.
-  unfold copy_insert_result.
+  unfold copy_log_sq_result.
   repeat constructor; auto.
 Qed.
 
-Lemma copy_insert_time_even : 
+Lemma copy_log_sq_time_even : 
   forall n',
     even n' ->
-    copy_insert_time (S n') = copy_insert_time (div2 n') + 13.
+    copy_log_sq_time (S n') = copy_log_sq_time (div2 n') + 13.
 Proof.
   intros n EVEN.
-  unfold_sub copy_insert_time (copy_insert_time (S n)).
+  unfold_sub copy_log_sq_time (copy_log_sq_time (S n)).
   destruct (even_odd_dec n).
-  fold_sub copy_insert_time.
+  fold_sub copy_log_sq_time.
   omega.
   assert False.
   apply (not_even_and_odd n); auto.
@@ -59,7 +59,7 @@ Qed.
 
 Next Obligation.
 Proof.
-  clear copy_insert.
+  clear copy_log_sq.
   clear am H2.
   rename H1 into CIR.
   rename H into EVENNPRIME.
@@ -67,7 +67,7 @@ Proof.
   inversion CIR as [BRAUNT [HIR TIME]].
   clear CIR.
 
-  unfold copy_insert_result.
+  unfold copy_log_sq_result.
   repeat split.
 
   (* braun *)
@@ -86,22 +86,22 @@ Proof.
   rewrite -> (even_double n') at 3; auto.
 
   (* running time *)
-  rewrite copy_insert_time_even; auto; omega.
+  rewrite copy_log_sq_time_even; auto; omega.
 Qed. 
 
-Lemma copy_insert_time_odd : 
+Lemma copy_log_sq_time_odd : 
   forall n',
     odd n' ->
-    copy_insert_time (S n') =
-    copy_insert_time (div2 n') + (insert_time (div2 n') + 16).
+    copy_log_sq_time (S n') =
+    copy_log_sq_time (div2 n') + (insert_time (div2 n') + 16).
 Proof.
   intros n EVEN.
-  unfold_sub copy_insert_time (copy_insert_time (S n)).
+  unfold_sub copy_log_sq_time (copy_log_sq_time (S n)).
   destruct (even_odd_dec n).
   assert False.
   apply (not_even_and_odd n); auto.
   intuition.
-  fold_sub copy_insert_time.
+  fold_sub copy_log_sq_time.
   omega.
 Qed.  
 
@@ -109,7 +109,7 @@ Next Obligation.
 Proof.
   clear am0 H3.
   clear am H4.
-  clear copy_insert.
+  clear copy_log_sq.
   rename H1 into IR.
   rename H2 into CIR.
 
@@ -149,16 +149,16 @@ Proof.
   reflexivity.
 
   (* running time *)
-  rewrite copy_insert_time_odd; auto; try omega.
+  rewrite copy_log_sq_time_odd; auto; try omega.
 Qed.
 
-Program Fixpoint copy_insert_time2 (n:nat) {measure n} :=
+Program Fixpoint copy_log_sq_time2 (n:nat) {measure n} :=
   match n with
     | 0 => 3
-    | S n' => 16 + copy_insert_time2 (div2 n') + insert_time (div2 n')
+    | S n' => 16 + copy_log_sq_time2 (div2 n') + insert_time (div2 n')
   end.
 
-Lemma copy_insert_time12 : big_oh copy_insert_time copy_insert_time2.
+Lemma copy_log_sq_time12 : big_oh copy_log_sq_time copy_log_sq_time2.
 Proof.
   exists 0.
   exists 1.
@@ -167,43 +167,43 @@ Proof.
   rewrite plus_0_r.
   apply (well_founded_induction 
            lt_wf 
-           (fun n => copy_insert_time n <= copy_insert_time2 n)).
+           (fun n => copy_log_sq_time n <= copy_log_sq_time2 n)).
   clear n.
   intros n IND.
   destruct n.
-  unfold_sub copy_insert_time (copy_insert_time 0).
-  unfold_sub copy_insert_time2 (copy_insert_time2 0).
+  unfold_sub copy_log_sq_time (copy_log_sq_time 0).
+  unfold_sub copy_log_sq_time2 (copy_log_sq_time2 0).
   omega.
 
-  unfold_sub copy_insert_time2 (copy_insert_time2 (S n)).
+  unfold_sub copy_log_sq_time2 (copy_log_sq_time2 (S n)).
   remember (even_or_odd n) as EO.
   clear HeqEO.
   destruct EO as [EVEN|ODD].
 
-  rewrite copy_insert_time_even; auto.
+  rewrite copy_log_sq_time_even; auto.
   remember (IND (div2 n) (lt_div2' n)).
   omega.
 
-  rewrite copy_insert_time_odd; auto.
+  rewrite copy_log_sq_time_odd; auto.
   remember (IND (div2 n) (lt_div2' n)).
   omega.
 Qed.
 
-Program Fixpoint copy_insert_time3 (n:nat) {measure n} :=
+Program Fixpoint copy_log_sq_time3 (n:nat) {measure n} :=
   match n with
     | 0 => 1
-    | S n' => copy_insert_time3 (div2 n') + insert_time (div2 n')
+    | S n' => copy_log_sq_time3 (div2 n') + insert_time (div2 n')
   end.
 
-Lemma copy_insert_time23 : big_oh copy_insert_time2 copy_insert_time3.
+Lemma copy_log_sq_time23 : big_oh copy_log_sq_time2 copy_log_sq_time3.
 Proof.
   exists 1.
   exists 16.
   intros n LT.
   destruct n; intuition.
   clear LT.
-  unfold_sub copy_insert_time2 (copy_insert_time2 (S n)).
-  unfold_sub copy_insert_time3 (copy_insert_time3 (S n)).
+  unfold_sub copy_log_sq_time2 (copy_log_sq_time2 (S n)).
+  unfold_sub copy_log_sq_time3 (copy_log_sq_time3 (S n)).
   rewrite mult_plus_distr_l.
   replace (16*insert_time (div2 n)) with ((15+1)*insert_time (div2 n)); try omega.
   rewrite mult_plus_distr_r.
@@ -211,24 +211,24 @@ Proof.
   replace (1*insert_time (div2 n)) with (insert_time (div2 n)); try omega.
   apply le_plus_left.
   remember (div2 n) as m; clear Heqm n; rename m into n.
-  apply (le_trans (16 + copy_insert_time2 n)
-                  (16 * copy_insert_time3 n + 15 * 1)
-                  (16 * copy_insert_time3 n + 15 * insert_time n)).
+  apply (le_trans (16 + copy_log_sq_time2 n)
+                  (16 * copy_log_sq_time3 n + 15 * 1)
+                  (16 * copy_log_sq_time3 n + 15 * insert_time n)).
   replace (15*1) with 15; try omega.
   apply (well_founded_induction 
            lt_wf 
-           (fun n => 16 + copy_insert_time2 n <=
-                     16 * copy_insert_time3 n + 15)).
+           (fun n => 16 + copy_log_sq_time2 n <=
+                     16 * copy_log_sq_time3 n + 15)).
   clear n. intros n IND.
   destruct n.
-  unfold_sub copy_insert_time2 (copy_insert_time2 0).
-  unfold_sub copy_insert_time3 (copy_insert_time3 0).
+  unfold_sub copy_log_sq_time2 (copy_log_sq_time2 0).
+  unfold_sub copy_log_sq_time3 (copy_log_sq_time3 0).
   omega.
-  unfold_sub copy_insert_time2 (copy_insert_time2 (S n)).
-  unfold_sub copy_insert_time3 (copy_insert_time3 (S n)).
-  apply (le_trans (16 + (16 + copy_insert_time2 (div2 n) + insert_time (div2 n)))
-                  (16 + (16 * copy_insert_time3 (div2 n) + 15 + insert_time (div2 n)))
-                  (16 * (copy_insert_time3 (div2 n) + insert_time (div2 n)) + 15)).
+  unfold_sub copy_log_sq_time2 (copy_log_sq_time2 (S n)).
+  unfold_sub copy_log_sq_time3 (copy_log_sq_time3 (S n)).
+  apply (le_trans (16 + (16 + copy_log_sq_time2 (div2 n) + insert_time (div2 n)))
+                  (16 + (16 * copy_log_sq_time3 (div2 n) + 15 + insert_time (div2 n)))
+                  (16 * (copy_log_sq_time3 (div2 n) + insert_time (div2 n)) + 15)).
   apply le_plus_right.
   apply le_plus_left.
   apply (IND (div2 n)); auto.
@@ -247,7 +247,7 @@ Proof.
   omega.
 Qed.  
 
-Definition copy_insert_time4 (n:nat) := fl_log n * insert_time n.
+Definition copy_log_sq_time4 (n:nat) := fl_log n * insert_time n.
 
 Lemma random_fl_log_le : forall n,
                            fl_log (S (div2 n)) <= fl_log (S (S (S n))).
@@ -275,7 +275,7 @@ Proof.
   omega.
 Qed.
 
-Lemma copy_insert_time34 : big_oh copy_insert_time3 copy_insert_time4.
+Lemma copy_log_sq_time34 : big_oh copy_log_sq_time3 copy_log_sq_time4.
 Proof.
   exists 1.
   exists 1.
@@ -284,11 +284,11 @@ Proof.
   clear LT.
   unfold mult.
   rewrite plus_0_r.
-  unfold copy_insert_time4.
-  unfold_sub copy_insert_time3 (copy_insert_time3 (S n)).
+  unfold copy_log_sq_time4.
+  unfold_sub copy_log_sq_time3 (copy_log_sq_time3 (S n)).
   apply (well_founded_induction 
            lt_wf 
-           (fun n => copy_insert_time3 (div2 n) + insert_time (div2 n) <=
+           (fun n => copy_log_sq_time3 (div2 n) + insert_time (div2 n) <=
                      fl_log (S n) * insert_time (S n))).
   clear n; intros n IND.
   destruct n.
@@ -301,8 +301,8 @@ Proof.
   omega.
   unfold div2.
   fold div2.
-  unfold_sub copy_insert_time3 (copy_insert_time3 (S (div2 n))).
-  apply (le_trans (copy_insert_time3 (div2 (div2 n)) + 
+  unfold_sub copy_log_sq_time3 (copy_log_sq_time3 (S (div2 n))).
+  apply (le_trans (copy_log_sq_time3 (div2 (div2 n)) + 
                    insert_time (div2 (div2 n)) +
                    insert_time (S (div2 n)))
                   (fl_log (S (div2 n)) * insert_time (S (div2 n))
@@ -337,22 +337,22 @@ Proof.
   apply random_fl_log_le.
 Qed.
 
-Theorem copy_insert_log_sq : big_oh copy_insert_time
+Theorem copy_log_sq_log_sq : big_oh copy_log_sq_time
                                     (fun n => fl_log n * fl_log n).
 Proof.
-  apply (big_oh_trans copy_insert_time
-                      copy_insert_time4
+  apply (big_oh_trans copy_log_sq_time
+                      copy_log_sq_time4
                       (fun n => fl_log n * fl_log n)).
-  apply (big_oh_trans copy_insert_time
-                      copy_insert_time3
-                      copy_insert_time4).
-  apply (big_oh_trans copy_insert_time
-                      copy_insert_time2
-                      copy_insert_time3).
-  apply copy_insert_time12.
-  apply copy_insert_time23.
-  apply copy_insert_time34.
-  unfold copy_insert_time4.
+  apply (big_oh_trans copy_log_sq_time
+                      copy_log_sq_time3
+                      copy_log_sq_time4).
+  apply (big_oh_trans copy_log_sq_time
+                      copy_log_sq_time2
+                      copy_log_sq_time3).
+  apply copy_log_sq_time12.
+  apply copy_log_sq_time23.
+  apply copy_log_sq_time34.
+  unfold copy_log_sq_time4.
   apply big_oh_mult.
   apply insert_time_log.
 Qed.

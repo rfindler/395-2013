@@ -16,6 +16,24 @@
 (define-runtime-path sub1_gen.v "../sub1/sub1_gen.v")
 (define-runtime-path copy_log_sq_gen.v "../copy/copy_log_sq_gen.v")
 (define-runtime-path copy_log_sq.v "../copy/copy_log_sq.v")
+(define-runtime-path extract.ml "../extract/extract.ml")
+
+(define (keep-range reg lines)
+
+  (define (drop-up-to reg lines)
+    (let loop ([lines lines])
+      (cond
+        [(null? lines) lines]
+        [else
+         (cond
+           [(regexp-match reg (car lines))
+            lines]
+           [else (loop (cdr lines))])])))  
+  
+  (reverse
+   (drop-up-to 
+    reg
+    (reverse (drop-up-to reg lines)))))
 
 (provide extract
          (all-defined-out))

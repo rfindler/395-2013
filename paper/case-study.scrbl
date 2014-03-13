@@ -5,7 +5,7 @@
 
 @title[#:tag "sec:case-study"]{Case Study}
 
-@figure*["fig:line-counts" "Line Counts"]{@build-table[]}
+@figure["fig:line-counts" "Line Counts"]{@build-table[]}
 
 in the Braun tree functions @tt{copy_linear}, @tt{copy_fib},
 @tt{copy2}, and @tt{make_array_td} because they split a natural or a

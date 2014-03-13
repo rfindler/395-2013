@@ -1,7 +1,8 @@
 #lang at-exp racket/base
 (require racket/runtime-path
          racket/list
-         scribble/base)
+         scribble/base
+          racket/contract)
 (define-runtime-path above "..")
 (provide build-table)
 
@@ -29,42 +30,56 @@
       "zip_with_3_bt_node_gen.v"
       "build.v" "build_gen.v"))))
 
+(struct line-info (proofs obligations total) #:transparent)
+
 (define (build-table)
   (define info (collect-info))
   (define one-line-per-file
     (apply append
            (add-between (apply append info) (list #f))))
-  
-  (define (get-total sel)
-    (format "~a"
-            (for/sum ([x (in-list one-line-per-file)])
-              (cond
-                [(pair? x)
-                 (sel (cdr x))]
-                [else 0]))))
   (define blank-row (list "" 'cont 'cont 'cont))
   (tabular
    #:sep @hspace[1]
    (append
     (list
      (list @bold{File} 
-           @bold{Non-whitespace Lines}
-           @bold{Obligation Lines}
-           @bold{Other Proof Lines})
+           @bold{Non-blank}
+           @bold{Obligation}
+           @bold{Other})
+     (list @bold{} 
+           @bold{Lines}
+           @bold{Lines}
+           @bold{Proof})
+     (list @bold{} 
+           @bold{}
+           @bold{}
+           @bold{Lines})
      blank-row)
     (for/list ([row (in-list one-line-per-file)])
       (cond
         [row
+         (define label (car row))
          (define inf (cdr row))
-         (list @tt{@(car row)}
+         (list (if (symbol? label)
+                   @bold{@(format "~a" label)}
+                   @tt{@(car row)})
                (format "~a" (line-info-total inf))
                (format "~a" (line-info-obligations inf))
                (format "~a" (line-info-proofs inf)))]
         [else blank-row]))
-    (list (list @bold{Total} 
-                (get-total line-info-total)
-                (get-total line-info-obligations)
-                (get-total line-info-proofs))))))
+    (list blank-row
+          (list @bold{Total} 
+                (format "~a" (get-total one-line-per-file line-info-total))
+                (format "~a" (get-total one-line-per-file line-info-obligations))
+                (format "~a" (get-total one-line-per-file line-info-proofs)))))))
+
+(define/contract (get-total one-line-per-file sel)
+  (-> (listof (or/c (cons/c any/c line-info?) #f)) any/c any/c)
+  (for/sum ([x (in-list one-line-per-file)])
+    (cond
+      [(pair? x)
+       (sel (cdr x))]
+      [else 0])))
       
 (define (collect-info)
   (for/list ([dir-list (in-list classification)])
@@ -74,15 +89,22 @@
               (map path->string (directory-list (build-path above dir)))))
     (define line-infos
       (for/list ([problem (in-list (cdr dir-list))])
-        (for/list ([file (in-list problem)])
-          (set! all-files (remove file all-files))
-          (cons file (parse-file (build-path dir file))))))
+        (define problem-lines
+          (for/list ([file (in-list problem)])
+            (set! all-files (remove file all-files))
+            (cons file (parse-file (build-path dir file)))))
+        (define subtotal-line (compute-subtotal problem-lines))
+        (append problem-lines
+                (list (cons 'Subtotal subtotal-line)))))
     (unless (null? all-files)
       (eprintf "~a has ~a, not mentioned\n\n"
                dir all-files))
     line-infos))
 
-(struct line-info (proofs obligations total) #:transparent)
+(define (compute-subtotal line-infos)
+  (line-info (get-total line-infos line-info-proofs)
+             (get-total line-infos line-info-obligations)
+             (get-total line-infos line-info-total)))
 
 (define (parse-file fn)
   (call-with-input-file (build-path above fn)

@@ -4,21 +4,25 @@
 
 @title[#:tag "sec:background"]{Warming up to Dependent Typing in Coq}
 
-One way to think about Coq's dependent type system is
-to just start with type system much like
-ML's or OCaml's type system, and then layer in the 
-ability for types to refer not just to types in the surrounding
-context, but also to ordinary program values.
-
 This section works through an example with the goal of bringing
 across just enough Coq to be able to read the code fragments
 in the rest of the paper.
 
+One way to think about Coq's dependent type system is
+to just start with type system much like
+ML's or OCaml's type system, and then layer in the 
+ability for types to refer not just to types in the surrounding
+context, but also to ordinary program values. This ability
+brings great power of specification (the conventional example
+being that array operations' types can insist on in-bound
+access), but also makes the type checking problem much more complex
+than it is in non-dependently typed programming languages.
+
 @section[#:tag "sec:drop1"]{A First Dependently-Typed Function: @tt{drop}}
 
 To get started, consider
-the definition of a @tt{drop} function that removes
-the first @tt{n} elements from a list.
+the definition of a @tt{drop} function. It accepts a natural number @tt{n} and 
+a list and it returns the list, but without its first @tt{n} elements.
 @(apply inline-code (extract lwl.v "drop"))
 Ignore the types and the @tt{len} argument for a moment
 (@tt{len} is there only in support of the types).
@@ -43,7 +47,7 @@ Using Coq's dependent types, however, we can
 establish a relationship between the length of the input
 list, the length of the output list, and the number
 @tt{n}. This is what the type annotations do. Specifically,
-the type of the @tt{l} argument is @tt{list len},
+the type of the @tt{l} argument is @tt{list_with_len len},
 promising that @tt{l}'s length is @tt{len}. Using
 dependency we can then promise that the result list's
 length is the @tt{if} expression:
@@ -151,7 +155,7 @@ is sound to do so. In our example, Coq can tell that the @tt{tl_len}
 argument to @tt{cons} is sound to eliminate, but not the @tt{len} argument
 to @tt{drop}. 
 
-@section{Dependently-typed Datastructures: Proofs as Values}
+@section[#:tag "sec:conventional"]{Dependently-typed Datastructures: Proofs as Values}
 
 The conventional work-around to avoid the extra arguments in the extracted
 code is to define two @tt{Inductive}s. 

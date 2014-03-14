@@ -25,10 +25,10 @@
 
 @abstract{
  This paper presents a Coq library that lifts
- a notion of running-time into the type of a
+ an abstract yet precise notion of running-time into the type of a
  function and uses it to prove all nine of the algorithms
  in Okasaki's paper @italic{Three Algorithms on Braun 
-  Trees} are correct and have the claimed running times.
+  Trees} have the claimed running times.
   
  A secondary goal of this paper is to be an introduction to
  Coq. While Coq is never going to
@@ -43,9 +43,7 @@
  such functions. No familiarity with Coq itself is assumed.
 }
 
-@section{Introduction}
-
-Running times! Whoo hoo!
+@;@section{Introduction}
 
 @include-section["background.scrbl"]
 
@@ -61,26 +59,8 @@ Running times! Whoo hoo!
 
 @include-section["prims.scrbl"]
 
-@section{Related Work}
-
-@citet[a-machine-checked-proof-of-the-average-case-complexity-of-quicksort-in-coq]
-
-@citet[automatic-complexity-analysis]
-
-@citet[characteristic-formulae-for-mechanized-program-verification]
-
-@citet[correct-by-construction-model-transformations]
-
-@citet[dependently-typed-datastructures]
-
-@citet[functors-for-proofs-and-programs]
-
-@citet[hoare-logic-state-monad]
-
-@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]
-
-@citet[three-algorithms-on-braun-trees]
-
-@section{Conclusion}
+@include-section["related-work.scrbl"]
+	
+@;@section{Conclusion}
 
 @generate-bibliography[]

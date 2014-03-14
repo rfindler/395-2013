@@ -10,10 +10,14 @@
 
 To better understand how well our monad works, we 
 implemented all of the algorithms in @citet[three-algorithms-on-braun-trees]'s
-paper, @italic{Three Algorithms on Braun Trees}. The paper contains 
+paper, @italic{Three Algorithms on Braun Trees}. The
+source code for our case study is on github: 
+@centered{@url{https://github.com/rfindler/395-2013}.}
+
+Okasaki's paper contains 
 several versions of each of the three functions, each with different
-running times, culminating in efficient versions. The three
-algorithms are 
+running times, in case case culminating with efficient versions. 
+The three algorithms are 
 @itemlist[@item{@tt{size}: computes the size of a Braun tree 
                  (a linear and a log squared version)}
           @item{@tt{copy}: builds a Braun tree a given size

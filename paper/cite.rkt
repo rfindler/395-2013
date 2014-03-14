@@ -76,6 +76,20 @@
    #:location (proceedings-location waaapl)
    #:date 1999))
 
+(define dependent-types-in-practical-programming-diss
+  (make-bib
+   #:title "Dependently Types in Practical Programming"
+   #:author "Hongwei Xi"
+   #:location (dissertation-location #:institution "Carnegie Mellon University")
+   #:date 1999))
+
+(define dependent-types-in-practical-programming-popl
+  (make-bib
+   #:title "Dependently Types in Practical Programming"
+   #:author (authors "Hongwei Xi" "Frank Pfenning")
+   #:location (proceedings-location popl)
+   #:date 1999))
+
 (define functors-for-proofs-and-programs
   (make-bib
    #:title "Functors for Proofs and Programs"
@@ -97,3 +111,11 @@
    #:author "Nils Anders Danielsson"
    #:location (proceedings-location popl)
    #:date 2008))
+
+
+(define Program-cite
+  (make-bib
+   #:title "Subset Coercions in Coq"
+   #:author "Matthieu Sozeau"
+   #:location (proceedings-location types)
+   #:date 2006))

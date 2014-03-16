@@ -45,7 +45,7 @@ extraction. They use the technique described in @secref["sec:conventional"].
 monad in that it exploits monadic structure to 
 make proof obligations visible at just the right moments. However,
 the state used in their monad has computational content and thus
-should not be erased in extraction.
+is not intended to be erased during extraction.
 
 @citet[characteristic-formulae-for-mechanized-program-verification]'s
 characteristic formula generator seems to produce Coq

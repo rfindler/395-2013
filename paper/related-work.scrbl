@@ -41,12 +41,11 @@ balanced binary tree implementations in Coq with proofs of
 correctness (but not running time), with the goal of high-quality 
 extraction. They use the technique described in @secref["sec:conventional"].
 
-@;{
-   @citet[hoare-logic-state-monad]'s Hoare state monad is like our
+@citet[hoare-logic-state-monad]'s Hoare state monad is like our
 monad in that it exploits monadic structure to 
-make proof obligations visible at just the right moments. 
-... what is the comparison!?
-}
+make proof obligations visible at just the right moments. However,
+the state used in their monad has computational content and thus
+should not be erased in extraction.
 
 @citet[characteristic-formulae-for-mechanized-program-verification]'s
 characteristic formula generator seems to produce Coq

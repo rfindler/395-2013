@@ -3,12 +3,13 @@
 @(require "util.rkt" "cite.rkt" 
           scriblib/footnote
           scribble/core
-          scribble/latex-properties)
+          scribble/latex-properties
+          racket/date)
 
 @title[#:style (style #f (list (tex-addition extra-tex-code)))]{
   Putting Dependent Types to Work
   @subtitle{A Coq Library That Enforces Correct Running-Times via Type-Checking}}
-@doi{}
+@doi{@hspace[4] @bold{Draft as of @(date->string (seconds->date (current-seconds)))}}
 
 @authorinfo["Jay McCarthy"
             "Brigham Young University"

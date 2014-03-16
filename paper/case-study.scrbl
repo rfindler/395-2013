@@ -57,7 +57,7 @@ the function @tt{copy_log_sq_time}.
 
 The running time function, however, is defined in parallel to
 @tt{log_sq} itself, not as the product of the logs:
-@(apply inline-code (extract copy_log_sq.v "copy_insert_result"))
+@(apply inline-code (extract copy_log_sq.v "copy_insert_time"))
 This makes it straightforward to prove that the running-time
 matches that function, but then leaves as a separate issue
 the proof that this function is Big Oh of the square of the log.
@@ -66,7 +66,7 @@ type of the function is correct and an additional 179 lines
 to prove that that @tt{copy_log_sq_time}
 is Big Oh of the product of the log.
 
-For the simpler functions with (the ones with linear running time 
+For the simpler functions (the ones with linear running time 
 except @tt{make_array_linear}), the running can
 be expressed directly in the monadic result (with
 precise constants), but for most of the functions,

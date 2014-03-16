@@ -3,24 +3,16 @@
 
 @title{The Monad}
 
-Running-time proofs rely on an accurate static accounting
-of the costs of all operations in the algorithm. However,
-Coq does not provide an innate way of observing the
-structure of computations, dynamically or statically.
-Consider a single function application, @tt{f a} that
-returns some value @tt{b}: statically, Coq will only give
-us access to the type of @tt{b}, @tt{B}, and an assurance
-that the @tt{b} came from @tt{f a} and dynamically, we will
-only have access to the actual @tt{b}. Where comes the
-cost?
-
-One way to account for cost is to lift all actual values @tt{b} into a
-pair of a @tt{B} and a natural number representing cost, then ensure
-that this number is incremented appropriately at each stage of the
-computation. Unfortunately, this cost would be part of the dynamic
-behavior of the algorithm. In other words, @tt{insert x bt} would,
-return a new tree and a number. This violates our goal of having
-no complexity residue in extracted programs.
+One way to account for cost is to use
+the monad to pair an actual values with
+a natural number representing the computations current
+cost, and then ensure that this number is incremented
+appropriately at each stage of the computation.
+Unfortunately, this cost would be part of the dynamic
+behavior of the algorithm. In other words,
+@tt{insert x bt} would, return a new tree and a number.
+Unfortunately, this violates our goal of having no complexity
+residue in extracted programs.
 
 In Coq parlance, the problem is that we have a pair of two @tt{Set}
 values---the @tt{B} and the @tt{nat}---and @tt{Set}s are, by
@@ -87,7 +79,7 @@ asking the user to provide proofs if necessary, as we saw in
 
 This specifies that @tt{ret} will only construct a @tt{C A P} when
 given a proof, @tt{Pa0}, that the correct/runtime property holds
-between the actual value return @tt{a} and the natural @tt{0}.
+between the actual value return @tt{a} and the natural number @tt{0}.
 
 There are two other operations in our monad: @tt{bind} that combines
 two computations in the monad, summing their running times, and
@@ -117,7 +109,7 @@ We enapsulate this logic into a simple extra-monadic operator,
 @tt{inc}, that introduces @tt{k} units of cost:
 @(apply inline-code (extract monad.v "inc"))
 In programs using our monad, we write @tt{+= k e}, a
-shorthand for @tt{inc _ k _ c}.
+shorthand for @tt{inc _ k _ e}.
 
 In principle, the logic for @tt{bind} is very similar. A @tt{bind}
 represents a composition of two computations: an @tt{A}-producing one

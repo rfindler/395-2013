@@ -121,7 +121,7 @@ translation function that accepts functions written in our
 monad without any @tt{+=} expressions and turns them into
 ones with @tt{+=} expressions in just the right places.
 
-Our translation function then accepts a function written in the
+Our translation function accepts a function written in the
 monad, but without the monadic type on its result and produces
 one with it. For example, the @tt{insert} function shown on the
 left in @figure-ref["fig:translation"] is translated into the one
@@ -133,7 +133,7 @@ context.
 
 We follow @citet[automatic-complexity-analysis] and treat
 each function call, variable lookup, and case-dispatch
-as counting a single unit of abstract time. Other cost functions
+as counting as a single unit of abstract time. Other cost functions
 are also possible to account for different cost semantics. Indeed,
 we could even adapt the machinery in a straight-forward way to count
 multiple aspects of the computation separately, e.g., the running time,

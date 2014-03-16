@@ -101,7 +101,7 @@ The other three correspond to the @tt{then} branch of the
 that the arguments
 to the recursive call match up, and
 the result of the
-@tt{cons} case at the end of @tt{bind}. 
+@tt{cons} case at the end of @tt{drop}.
 The most complex of these is the last one. Here's what
 Coq asks you to prove, and it holds by very similar 
 reasoning to the case above, just with a few more situations

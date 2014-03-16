@@ -12,7 +12,7 @@ values to give it a very precise specification, but the
 type also has access to an abstract step count describing
 how many primitive operations the function executes.
 
-To give a sense of how this works,
+To see how this works,
 we start with a definition of Braun trees@~cite[Braun]
 and the insertion function where the running time
 for the function is declared as part of the body of the function.
@@ -21,7 +21,7 @@ In the next section, we make the running times implicit.
 Braun trees are a form of balanced binary trees 
 where the balance condition allows only a single shape of
 trees for a given size. Specifically, for each interior
-node, either the two children are exactly the same size of
+node, either the two children are exactly the same size or
 the left child's size is one larger than the right child's
 size.
 
@@ -133,8 +133,8 @@ of size @tt{1} and the running time is correct when the input is empty.
 For the second case, we are asked to prove:
 @inline-code{
 forall i j s t bt an n, 
-  forall n : nat, Braun t n -> 
-     Braun bt (n + 1) /\ an = fl_log n + 1
+  (forall m : nat, Braun t m -> 
+     Braun bt (m + 1) /\ an = fl_log m + 1)
   Braun (bt_node j s t) n
   ->
   Braun (bt_node i bt s) (n + 1) /\ 
@@ -152,16 +152,17 @@ the running time is right.
 Because the size information is not present in the actual
 insertion function, Coq does not know to specialize the
 inductive hypothesis to the size of @tt{t}. To clarify that
-we can replace @tt{n} with @tt{s_size+t_size+1} and specialize
+we can replace @tt{m} with @tt{t_size} and specialize
 the first assumption to arrive at this theorem to prove
 @inline-code{
  forall i j s t bt n t_size, 
   Braun bt (t_size + 1)
+  an = fl_log t_size + 1
   Braun (bt_node j s t) (s_size + t_size + 1)
   ->
   Braun (bt_node i bt s) 
         (s_size + t_size + 1 + 1) /\ 
-  (fl_log t_size + 1) + 1 =
+  an + 1 =
   fl_log (s_size + t_size + 1) + 1
 }
 which we can prove by using facts about logarithms

@@ -16,7 +16,7 @@ source code for our case study is on github:
 
 Okasaki's paper contains 
 several versions of each of the three functions, each with different
-running times, in case case culminating with efficient versions. 
+running times, in each case culminating with efficient versions. 
 The three algorithms are 
 @itemlist[@item{@tt{size}: computes the size of a Braun tree 
                  (a linear and a log squared version)}
@@ -50,8 +50,8 @@ basically mirroring Okasaki's definition, but in Coq's notation:
 
 The monadic result type is
 @(apply inline-code (extract copy_log_sq.v "copy_insert_result"))
-which says that the result is a Braun whose size matches the
-input natural number, that linearizing the result Braun tree
+which says that the result is a Braun tree whose size matches the
+input natural number, that linearizing the resulting tree
 produces the input list, and that the running time is given by
 the function @tt{copy_log_sq_time}.
 
@@ -114,7 +114,7 @@ The function @tt{copy_log_sq} is one such. Here is its output:
            (keep-range #rx"copy_log_sq" all-lines))))
 All of the extra pieces beyond what was written in the original
 function are useless. In particular, the argument to @tt{copy_log_sq_func}
-is a three-deep nested pair containing an integer (a real argument)
+is a three-deep nested pair containing an integer (a real argument),
 the value in the tree (also a real argument), 
 and @tt{__} a constant that is defined at the top of the
 extraction file that is never used for anything.

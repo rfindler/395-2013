@@ -8,7 +8,7 @@
  #:returns @{list (nat * (list A))}
  (match (k)
    [0 => (<== nil)]
-   [(S n) 
+   [(S _) 
     =>
     (match (xs)
       [(nil) => (<== nil)]

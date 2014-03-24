@@ -141,13 +141,13 @@ Proof.
 
   unfold drop_result in DROP_RES.
 
-  replace (length (wildcard' :: wildcard'0)) with (S (length wildcard'0)) in *;
+  replace (length (wildcard'0 :: wildcard'1)) with (S (length wildcard'1)) in *;
     [|simpl;omega].
   remember (length dropped) as l1.
-  remember (length wildcard'0) as l2.
+  remember (length wildcard'1) as l2.
   destruct DROP_RES as [AMEQ [L2SMALL L2BIG]].
 
-  destruct (le_lt_dec (S n) (S l2)); rename l into LT.
+  destruct (le_lt_dec (S wildcard') (S l2)); rename l into LT.
   
   apply L2BIG in LT.
   rewrite LT.
@@ -166,6 +166,9 @@ Proof.
   rename H0 into ROWSR.
   rename H1 into DROPR.
   rename H2 into TAKER.
+  rename wildcard' into n.
+  rename wildcard'0 into x.
+  rename wildcard'1 into xs.
   clear rows.
 
   unfold rows_result.
@@ -183,15 +186,15 @@ Proof.
 
   replace (2 * (S n)) with (S n + (S n + 0));[|omega].
 
-  destruct (le_lt_dec (S n) (S (length wildcard'0)));
+  destruct (le_lt_dec (S n) (S (length xs)));
     rename l into THING.
   apply LONG in THING; clear SHORT LONG.
   
-  replace (S (length wildcard'0) - S n) with ((length wildcard'0) - n);[|omega].
+  replace (S (length xs) - S n) with ((length xs) - n);[|omega].
   rewrite <- THING.
   omega.
 
-  replace (S (length wildcard'0) - S n) with 0; [|omega].
+  replace (S (length xs) - S n) with 0; [|omega].
   apply SHORT in THING;clear SHORT LONG.
   rewrite THING in ROWSR.
   omega.
@@ -205,7 +208,7 @@ Proof.
   subst n0 lst.
   clear IN H.
   destruct TAKER as [AN1eq [SHORT LONG]].
-  destruct (le_lt_dec (S n) (length (wildcard' :: wildcard'0))); omega.
+  destruct (le_lt_dec (S n) (length (x :: xs))); omega.
   intuition.
 
   simpl.
@@ -223,7 +226,7 @@ Proof.
   destruct DROPR as [AN0eq [SHORT1 LONG1]].
   destruct TAKER as [AN1eq [SHORT2 LONG2]].
 
-  destruct (le_lt_dec (S n) (S (length wildcard'0))).
+  destruct (le_lt_dec (S n) (S (length xs))).
 
   remember (LONG1 l) as L1.
   remember (LONG2 l) as L2.
@@ -235,7 +238,7 @@ Proof.
   remember (SHORT2 l) as S2.
   rewrite S1. rewrite S2.
   rewrite min_r; try omega.
-  replace (S (length wildcard'0) - S n) with 0.
+  replace (S (length xs) - S n) with 0.
   reflexivity.
   omega.
 Qed.

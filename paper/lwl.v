@@ -64,7 +64,7 @@ End sl.
 (*
 (* START: obligation4 *)
    forall tl len n, 
-     (length tl)+1 = len ->
+     (length tl) + 1 = len ->
      (if le_dec (n - 1) (len - 1) 
       then len - 1 - (n - 1) 
       else 0) 

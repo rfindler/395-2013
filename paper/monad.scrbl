@@ -74,7 +74,11 @@ all places where a computation ends. To do this, we define @tt{<== x}
 to be @tt{ret _ _ x _}, a use of the monad operator @tt{ret}. The 
 underscores ask Coq to fill in well-typed arguments (resorting to
 asking the user to provide proofs if necessary, as we saw in 
-@secref["sec:insert"]). This is the type of @tt{ret}:
+@secref["sec:insert"]).
+
+@raw-latex{\newpage}
+
+This is the type of @tt{ret}:
 @(apply inline-code (extract monad.v "ret"))
 
 This specifies that @tt{ret} will only construct a @tt{C A P} when
@@ -129,6 +133,7 @@ b bn => PB b (bn+7)}. Unfortunately, we cannot ``look inside'' the @tt{A}
 computation to know that it cost 7 units. Instead, we have to show that
 @emph{whatever} the cost for @tt{A} was, the cost of @tt{B} is still as 
 expected. This suggests a second attempt at a definition of @tt{bind}:
+@raw-latex{\newpage}
 @(apply inline-code (extract binds.v "bind2"))
 
 Unfortunately, this is far too strong of a statement because there are

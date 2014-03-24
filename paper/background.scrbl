@@ -71,7 +71,7 @@ As you might expect, being able to mix values and types like
 this can lead to thorny type-checking problems
 where even decidability seems unattainable. And, indeed,
 Coq is not able to type-check this program without help.
-Instead what it does is establish some basic properties of
+Instead it establishes some basic properties of
 the function (e.g. that @tt{drop} is called with the
 right number of arguments) and then drops you into a
 theorem proving system with particular theorems to

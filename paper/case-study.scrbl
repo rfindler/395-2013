@@ -48,6 +48,8 @@ For example, this is the definition of the @tt{copy_log_sq} function,
 basically mirroring Okasaki's definition, but in Coq's notation:
 @(apply inline-code (extract copy_log_sq_gen.v cdr))
 
+@raw-latex{\newpage}
+
 The monadic result type is
 @(apply inline-code (extract copy_log_sq.v "copy_insert_result"))
 which says that the result is a Braun tree whose size matches the

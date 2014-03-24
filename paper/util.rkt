@@ -1,7 +1,10 @@
 #lang racket/base
 (require racket/runtime-path
+         racket/string
+         racket/match
          scribble/base
          scribble/core
+         scribble/manual
          "extract.rkt")
 
 (define-runtime-path lwl.v "lwl.v")
@@ -38,10 +41,24 @@
 (provide extract
          (all-defined-out))
 
+(define (raw-latex . args)
+  (element (style "relax" '(exact-chars))
+           args))
+
+(define (snoc l x)
+  (append l (list x)))
+
+(define (trim-blank-from-end l)
+  (match-define (list before ... last (regexp #px"^[:space:]*$" (list _)) ...) l)
+  (snoc before (string-trim last #:left? #f)))
+
 (define (inline-code . args)
   (compound-paragraph
    (style "InlineCode" '())
-   (list (apply verbatim args))))
+   (list 
+    (apply
+     verbatim
+     (trim-blank-from-end args)))))
 
 (define extra-tex-code
   (bytes-append

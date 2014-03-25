@@ -17,7 +17,7 @@ source code for our case study is on github:
 Okasaki's paper contains 
 several versions of each of the three functions, each with different
 running times, in each case culminating with efficient versions. 
-The three algorithms are 
+The three functions are
 @itemlist[@item{@tt{size}: computes the size of a Braun tree 
                  (a linear and a log squared version)}
           @item{@tt{copy}: builds a Braun tree a given size
@@ -123,7 +123,7 @@ extraction file that is never used for anything.
 Similarly, the body of the function has the anonymous function that begins
 @tt{fun f0 fS n ->} that is simply an extra wrapper around a conditional.
 Simplifying these two away and inlining @tt{copy_log_sq_func} and
-@tt{copy_log_sq0} this program:
+@tt{copy_log_sq0} results in this program:
 @inline-code{
 let rec copy_log_sq x0 n =
   if n=0 

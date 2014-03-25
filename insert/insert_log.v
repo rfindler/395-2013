@@ -9,7 +9,7 @@ Require Import Omega.
 Definition insert_time n := 9 * fl_log n + 6.
 Definition insert_result (A : Set) (i : A) 
                          (b:@bin_tree A)
-           (res:@bin_tree A) c :=
+                         (res:@bin_tree A) c :=
      (forall n,
         Braun b n ->
         (Braun res (S n) /\

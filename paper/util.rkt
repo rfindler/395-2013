@@ -62,5 +62,6 @@
 
 (define extra-tex-code
   (bytes-append
+   #"\\usepackage{pslatex}\n"
    #"\\usepackage{inconsolata}\n"
    #"\\newenvironment{InlineCode}{\\begin{trivlist}\\item}{\\end{trivlist}}\n"))

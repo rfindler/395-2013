@@ -8,7 +8,7 @@
          "diff_sub1.rkt"
          "log.rkt")
 
-(define n 10000)
+(define n 1000)
 (define logn 
   ((log n) . / . (log 2)))
 (define (assert<=-linear n fn bound-fn)

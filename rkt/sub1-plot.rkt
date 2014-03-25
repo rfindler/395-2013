@@ -35,10 +35,10 @@
 (define (plot-with-bound n mk-points bound-fn)
   (plot-pict
    (list
-    (mk-points n)
-    (lines #:color 'green
+    (lines #:color 'darkgray
      (for/list ([i (in-range n)])
-      (vector i (bound-fn i)))))))
+      (vector i (bound-fn i))))
+    (mk-points n))))
 
 (define (get-time fn x)
   (define-values (_ time) (fn x))

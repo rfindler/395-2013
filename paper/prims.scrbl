@@ -123,12 +123,13 @@ calls itself on @tt{n/2} and @tt{(n-1)/2}. This has been observed to be a linear
 @tt{copy_linear}.
 
 @(require "../rkt/sub1-plot.rkt" plot/pict)
-@(parameterize ([plot-width 300]
-                [plot-height 300]
-                [plot-x-label ""]
-                [plot-y-label ""])
-   (plot-with-bound 1000
-                    copy_linear_sub1_points
+@(parameterize ([plot-width 275]
+                [plot-height 275]
+                [plot-x-label "Copy_linear's Input"]
+                [plot-y-label "Sub1 Calls' Running Time"])
+   ;; this plot takes a long time, but I like that last steep jump...
+   (plot-with-bound 10000
+                    (memoize copy_linear_sub1_points)
                     copy_linear_sub1_bound))
 
 Accordingly, we believe that the overhead of using

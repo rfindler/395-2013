@@ -1,0 +1,14 @@
+1. sub1, div2 (log I think); hypothesis: log overhead (3 + 6logn)
+   1. copy2
+   2. copy_insert
+2. weird thing
+   1. copy_linear
+3. weirder thing
+   1. diff
+4. completely linear
+   1. drop/take
+   2. pad_drop
+5. bad (actually not bad) addition (2m or 2m+1)
+   1. size_linear
+6. ? addition (2m+1 or 2m+2)
+   1. size_log_sq

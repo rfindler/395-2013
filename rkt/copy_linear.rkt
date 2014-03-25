@@ -12,4 +12,3 @@
     (bind ((l (copy_linear x (div2 n))))
           (bind ((r (copy_linear x (div2 n′))))
                 (<== (bt_node x l r))))]))
-          

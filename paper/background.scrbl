@@ -8,15 +8,14 @@ This section works through an example with the goal of bringing
 across just enough Coq to be able to read the code fragments
 in the rest of the paper.
 
-One way to think about Coq's dependent type system is
-to just start with type system much like
-ML's or OCaml's type system, and then layer in the 
+One way to think about Coq's dependent type system is to start with a
+type system much like that of ML or OCaml, and then layer in the
 ability for types to refer not just to types in the surrounding
-context, but also to ordinary program values. This ability
-brings great power of specification (the conventional example
-being that array operations' types can insist on in-bound
-access), but also makes the type checking problem much more complex
-than it is in non-dependently typed programming languages.
+context, but also to ordinary program values. This ability brings
+great power of specification (the conventional example being that
+array operations' types can insist on in-bound access), but at the
+cost of making the type checking problem much more complex than it is
+in non-dependently typed programming languages.
 
 @section[#:tag "sec:drop1"]{A First Dependently-Typed Function: @tt{drop}}
 

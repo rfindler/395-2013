@@ -27,7 +27,7 @@ Definition copy_log_sq_result
            (b:@bin_tree A) (c:nat):=
   Braun b n /\ 
   SequenceR b (mk_list x n) /\
-  c = copy_log_sq_time (n).
+  c = copy_log_sq_time n.
 (* STOP: copy_insert_result *)
 
 (* this correctness condition is different than the other  *)

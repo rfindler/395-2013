@@ -53,8 +53,8 @@ It is fairly complex, so let us look carefully at each piece.
 It accepts an object @tt{i} (of type @tt{A}) to insert into
 the Braun tree @tt{b}. Its result type uses a new notation:
 @inline-code|{
-  {! «result variable» |:| «simple result type»
-    |<| «running time variable» |>|
+  {! «result variable» !:! «simple result type»
+    !<! «running time variable» !>!
     «property of the function» !}
   }|
 where the braces, exclamation marks, colons, less than, and

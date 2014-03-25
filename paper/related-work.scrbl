@@ -68,7 +68,7 @@ thanks to
 Benjamin English, 
 Michael Hueschen,
 Daniel Lieberman,
-Yuchen Liu
+Yuchen Liu,
 Kevin Schwarz,
 Zach Smith, and
 Lei Wang

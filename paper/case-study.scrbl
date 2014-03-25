@@ -68,15 +68,15 @@ type of the function is correct and an additional 179 lines
 to prove that that @tt{copy_log_sq_time}
 is Big Oh of the product of the log.
 
-For the simpler functions (the ones with linear running time 
-except @tt{make_array_linear}), the running can
+For the simpler functions (every one with linear running time
+except @tt{make_array_linear}), the running time can
 be expressed directly in the monadic result (with
-precise constants), but for most of the functions,
-the running time is expressed first in a manner
-that matches the structure of the function and
-a breakdown similar to @tt{copy_log_sq} is typical and
-the precise numbers can be read off of the 
-columns in @figure-ref["fig:line-counts"].
+precise constants). However, for most of the functions
+the running time is expressed first precisely in a manner
+that matches the structure of the function and then that
+running time is proven to correspond to some asymptotic
+complexity, as with @tt{copy_log_sq}. The precise line counts
+can be read off of the columns in @figure-ref["fig:line-counts"].
 
 The @tt{Monad} and @tt{Common} lines count the number of lines of
 code in our monad's implementation (including the proofs of the monad laws)

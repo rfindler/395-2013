@@ -29,17 +29,30 @@ operations are generally not all constant time.
 
 Assuming that the base is a power of 2, division by 2,
 evenness testing, and checking to see if a number is equal
-to 0 are all constant time operations. The algorithms
+to 0 are all constant-time operations. The algorithms
 discussed in @secref["sec:case-study"] use two
 operations on numbers besides those: @tt{+} and @tt{sub1}.
 
 In general, addition of bignums is not constant time. However, certain
-uses of addition can be replaced by constant time bit operations. For
+uses of addition can be replaced by constant-time bit operations. For
 instance, doubling and adding 1 can be replaced by a specialized
-operation that conses a @{1} on the front of the
+operation that conses a @tt{1} on the front of the
 bitstring. Fortunately, every time we use addition in one of the
 functions in our Braun library, the operation can be replaced by one
-of these efficient operations.
+of these efficient operations. 
+
+One of the more interesting uses is in the linear version of 
+@tt{size}, which has the sum @tt{lsize+rsize+1} where 
+@tt{lsize} and @tt{rsize} are the sizes of two subtrees
+of a Braun tree. This operation, at first glance, doesn't
+seem to be a constant-time. But the Braun invariant tells
+us that @tt{lsize} and @tt{rsize} are either equal, or
+that @tt{lsize} is @tt{rsize+1}. Accordingly, this operation
+can be replaced with either @tt{lsize*2+1} or @tt{lsize*2},
+both of which are constant-time operations. Also, checking
+to see which case applies is a constant time operation:
+if the numbers are the same the leading digits will be the same
+and if they differ by @tt{1}, the leading digits will be different.
 
 In general, @tt{sub1} is not constant time. It some situations,
 it may need to traverse the entire number to compute its predecessor.

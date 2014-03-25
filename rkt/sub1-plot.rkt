@@ -1,12 +1,14 @@
 #lang racket
 
-(require plot
+(require plot/pict
          (prefix-in : "sub1.rkt")
          "sub1_linear.rkt"
          "sub1_div2.rkt"
          "copy_linear_sub1.rkt"
          "diff_sub1.rkt"
          "log.rkt")
+
+(provide plot-with-bound copy_linear_sub1_points copy_linear_sub1_bound)
 
 (define n 1000)
 (define logn 
@@ -26,12 +28,12 @@
     (define higher (bound-fn cur))
     (unless (lower . <= . higher)
       (error "should be less but it ain't" cur lower higher))
-    (cond [(i . >= . n) 0]
-          [else (loop (+ i 1)
-                      (+ (random 100)(* 2 cur)))])))
+    (unless (i . >= . n)
+      (loop (+ i 1)
+            (+ (random 100)(* 2 cur))))))
 
 (define (plot-with-bound n mk-points bound-fn)
-  (plot
+  (plot-pict
    (list
     (mk-points n)
     (lines #:color 'green
@@ -50,10 +52,11 @@
    (for/list ([i (in-range n)])
      (vector i (get-time sub1_linear i)))))
 (define (sub1_linear_bound n)
-  (10 . + . (30 . * . n)))
-
-(plot-with-bound n sub1_linear_points           sub1_linear_bound)
-(assert<=-linear n (curry get-time sub1_linear) sub1_linear_bound)
+  (10 . + . (40 . * . n)))
+(module+ main
+  (plot-with-bound n sub1_linear_points           sub1_linear_bound))
+(module+ test
+  (assert<=-linear n (curry get-time sub1_linear) sub1_linear_bound))
 
 ;;;;;;;; sub1_div2
 ;; Bounded by a log
@@ -66,8 +69,10 @@
 (define (sub1_div2_bound n)
   (+ 20 (* 30 (fl_log n))))
 
-(plot-with-bound n sub1_div2_points sub1_div2_bound)
-(assert<=-log logn (curry get-time sub1_div2) sub1_div2_bound)
+(module+ main
+  (plot-with-bound n sub1_div2_points sub1_div2_bound))
+(module+ test
+  (assert<=-log logn (curry get-time sub1_div2) sub1_div2_bound))
 
 ;;;;;;;; diff
 ;; Bounded by log
@@ -88,9 +93,11 @@
   t)
 (define (diff_sub1_bound n)
   (+ 3 (* 45 (fl_log n))))
-(plot-with-bound n diff_sub1_points diff_sub1_bound)
-(assert<=-log logn diff_sub1_same diff_sub1_bound)
-(assert<=-log logn diff_sub1_different diff_sub1_bound)
+(module+ main
+  (plot-with-bound n diff_sub1_points diff_sub1_bound))
+(module+ test
+  (assert<=-log logn diff_sub1_same diff_sub1_bound)
+  (assert<=-log logn diff_sub1_different diff_sub1_bound))
 
 ;; Bounded by linear
 (define (copy_linear_sub1_points n)
@@ -100,6 +107,8 @@
      (vector i time))))
 
 (define (copy_linear_sub1_bound n)
-  (+ 3 (n . * . 40)))
-(plot-with-bound n copy_linear_sub1_points copy_linear_sub1_bound)
-(assert<=-linear n (curry get-time copy_linear_sub1) copy_linear_sub1_bound)
+  (+ 29 (n . * . 31)))
+(module+ main
+  (plot-with-bound n copy_linear_sub1_points copy_linear_sub1_bound))
+(module+ test
+  (assert<=-linear n (curry get-time copy_linear_sub1) copy_linear_sub1_bound))

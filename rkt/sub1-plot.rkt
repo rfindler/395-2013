@@ -8,8 +8,17 @@
          "diff_sub1.rkt"
          "log.rkt")
 
-(define n 1000)
-(define (assert<= fn bound-fn n)
+(define n 10000)
+(define logn 
+  ((log n) . / . (log 2)))
+(define (assert<=-linear n fn bound-fn)
+  (for ([i (in-range n)])
+    (define lower (fn i))
+    (define higher (bound-fn i))
+    (unless (lower . <= . higher)
+      (error "should be less but it ain't" i lower higher))))
+
+(define (assert<=-log n fn bound-fn)
   (let loop
     ([i 0]
      [cur 1])
@@ -43,7 +52,8 @@
 (define (sub1_linear_bound n)
   (10 . + . (30 . * . n)))
 
-(plot-with-bound n sub1_linear_points sub1_linear_bound)
+(plot-with-bound n sub1_linear_points           sub1_linear_bound)
+(assert<=-linear n (curry get-time sub1_linear) sub1_linear_bound)
 
 ;;;;;;;; sub1_div2
 ;; Bounded by a log
@@ -57,7 +67,7 @@
   (+ 20 (* 30 (fl_log n))))
 
 (plot-with-bound n sub1_div2_points sub1_div2_bound)
-#;(assert<= (curry get-time sub1_div2) sub1_div2_bound 1000)
+(assert<=-log logn (curry get-time sub1_div2) sub1_div2_bound)
 
 ;;;;;;;; diff
 ;; Bounded by log
@@ -70,9 +80,17 @@
     (for/list ([i (in-range n)])
       (define-values (ans time) (diff_sub1 (+ 1 i) i))
       (vector i time)))))
+(define (diff_sub1_different n)
+  (define-values (_ t) (diff_sub1 (+ n 1) n))
+  t)
+(define (diff_sub1_same n)
+  (define-values (_ t) (diff_sub1 n n))
+  t)
 (define (diff_sub1_bound n)
   (+ 3 (* 45 (fl_log n))))
 (plot-with-bound n diff_sub1_points diff_sub1_bound)
+(assert<=-log logn diff_sub1_same diff_sub1_bound)
+(assert<=-log logn diff_sub1_different diff_sub1_bound)
 
 ;; Bounded by linear
 (define (copy_linear_sub1_points n)
@@ -80,6 +98,8 @@
    (for/list ([i (in-range n)])
      (define-values (ans time) (copy_linear_sub1 i))
      (vector i time))))
+
 (define (copy_linear_sub1_bound n)
-  (n . * . 40))
+  (+ 3 (n . * . 40)))
 (plot-with-bound n copy_linear_sub1_points copy_linear_sub1_bound)
+(assert<=-linear n (curry get-time copy_linear_sub1) copy_linear_sub1_bound)

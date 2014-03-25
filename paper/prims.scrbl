@@ -122,6 +122,15 @@ Finally, the most complicated is the pattern used by @tt{copy_linear}, which rec
 calls itself on @tt{n/2} and @tt{(n-1)/2}. This has been observed to be a linear overhead to
 @tt{copy_linear}.
 
+@(require "../rkt/sub1-plot.rkt" plot/pict)
+@(parameterize ([plot-width 300]
+                [plot-height 300]
+                [plot-x-label ""]
+                [plot-y-label ""])
+   (plot-with-bound 1000
+                    copy_linear_sub1_points
+                    copy_linear_sub1_bound))
+
 Accordingly, we believe that the overhead of using
 @tt{sub1} in these functions does not change their
 asymptotic complexity, but we have verified this only by

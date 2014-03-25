@@ -101,26 +101,29 @@ chance that @tt{sub1} terminates after
 @(c:element (c:style "relax" '(exact-chars)) '("\\(n\\)"))
 iterations. 
 
-We have identitified four different recursion patterns using sub1 in our library and
-we believe that the overhead of using @tt{sub1} does not change the asymptotic complexity
-of these functions, and have verified this up to a finite depth. Thus, the asymptotic 
-complexity of these functions is no different whether @tt{sub1} is treated as a constant 
-time operation or using the complicated implementation above.
-
-The first and simplest is a function with a loop counting down from @tt{n} to @tt{0}.
-This pattern is found in the functions @tt{take}, @tt{drop} and @tt{pad-drop} in the library.
-In this case, @tt{sub1} will be called once for each different number in that range and
-those times sum to a fixed number, proportional to the number of iterations.
+There are four different recursion patterns using @tt{sub1}
+in our library. The first and simplest is a function with a
+loop counting down from @tt{n} to @tt{0}. This pattern is
+found in the functions @tt{take}, @tt{drop} and
+@tt{pad-drop} in the library. In this case, @tt{sub1} will
+be called once for each different number in that range and
+those times sum to a fixed number, proportional to the
+number of iterations.
 
 Second is a function that loops by subtracting @tt{1} and then dividing by @tt{2}.
-This pattern is found in our functions copy2 and copy_insert, and has a logarithmic overhead.
+This pattern is found in our functions @tt{copy2} and @tt{copy_insert}, and has a logarithmic 
+overhead.
 
 Third is the pattern used by @tt{diff}, which loops by division by @tt{2} of either @tt{n-1} 
 or @tt{n-2} depending on the parity of the index. This is again a logarithmic overhead to
-@tt{diff} which has logarithmic complexity.
+@tt{diff}, which has logarithmic complexity.
 
 Finally, the most complicated is the pattern used by @tt{copy_linear}, which recursively
 calls itself on @tt{n/2} and @tt{(n-1)/2}. This has been observed to be a linear overhead to
 @tt{copy_linear}.
 
-Accordingly, for this paper we treat @tt{sub1} as constant-time primitive.
+Accordingly, we believe that the overhead of using
+@tt{sub1} in these functions does not change their
+asymptotic complexity, but we have verified this only by
+testing (and, in the first case, by a pencil-and-paper
+proof).

@@ -129,7 +129,7 @@ calls itself on @tt{n/2} and @tt{(n-1)/2}. This has been observed to be a linear
                 [plot-y-label "Sub1 Calls' Running Time"])
    ;; this plot takes a long time, but I like that last steep jump...
    (plot-with-bound 10000
-                    (memoize copy_linear_sub1_points)
+                    copy_linear_sub1_points
                     copy_linear_sub1_bound))
 
 Accordingly, we believe that the overhead of using

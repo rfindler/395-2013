@@ -81,7 +81,7 @@ time against the value of its input:
 @(centered
   (p:plot-pict
    #:width 300
-   #:height 180
+   #:height 140
    #:x-label "Sub1's Argument"
    #:y-label "Number of Abstract Steps"
    (let ([the-points
@@ -93,9 +93,9 @@ time against the value of its input:
       #:y-max (+ 2 (apply max (map (λ (x) (vector-ref x 1)) the-points)))
       the-points))))
 
-Roughly what is happening is that half of the time (on odd numbers) @tt{sub1}
-is cheap, terminating after only a single iteration. One quarter of the time
-(when the number is 3 mod 4), @tt{sub1} terminates after two iterations. In general,
+Half of the time (on odd numbers) @tt{sub1}
+is cheap, terminating after only a single iteration. One quarter of the time, 
+@tt{sub1} terminates after two iterations. In general,
 there is a 
 @(c:element (c:style "relax" '(exact-chars)) '("\\(\\frac{1}{2^n}\\)"))
 chance that @tt{sub1} terminates after 
@@ -121,13 +121,13 @@ index. This is again a logarithmic overhead to @tt{diff}, which has
 logarithmic complexity.
 
 Finally, the most complicated is the pattern used by @tt{copy_linear},
-which recursively calls itself on @tt{n/2} and @tt{(n-1)/2}. Below in
-red is a plot of the running time of the calls to @tt{sub1} in a call
-to @tt{copy_linear}. In gray is a plot of the line
+which recursively calls itself on @tt{n/2} and @tt{(n-1)/2}. Below 
+is a plot of the running time of the @tt{sub1} calls that
+@tt{copy_linear} makes. In gray is a plot of
 @raw-latex{$\lambda x. 31x + 29$}, which we believe is an upper bound for the function.
 
 @(c:element (c:style "noindent" '()) '())
-@(centered
+@(centered 
   (parameterize ([p:plot-width 275]
                  [p:plot-height 275]
                  [p:plot-x-label "Copy_linear's Input"]

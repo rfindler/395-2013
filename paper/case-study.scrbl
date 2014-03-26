@@ -48,8 +48,6 @@ For example, this is the definition of the @tt{copy_log_sq} function,
 basically mirroring Okasaki's definition, but in Coq's notation:
 @(apply inline-code (extract copy_log_sq_gen.v cdr))
 
-@raw-latex{\newpage}
-
 The monadic result type is
 @(apply inline-code (extract copy_log_sq.v "copy_insert_result"))
 which says that the result is a Braun tree whose size matches the
@@ -113,7 +111,21 @@ The function @tt{copy_log_sq} is one such. Here is its output:
         (extract 
          extract.ml 
          (λ (all-lines)
-           (keep-range #rx"copy_log_sq" all-lines))))
+           
+           (define (chop-some-lines ls)
+             (apply
+              append
+              (for/list ([l (in-list ls)])
+                (cond
+                  [(regexp-match #rx"n0[)][)][)] in copy_log_" l)
+                   (define ls (regexp-split #rx" in " l))
+                   (list (list-ref ls 0)
+                         (string-append "      in " (list-ref ls 1)))]
+                  [else
+                   (list l)]))))
+           
+           (chop-some-lines
+            (keep-range #rx"copy_log_sq" all-lines)))))
 All of the extra pieces beyond what was written in the original
 function are useless. In particular, the argument to @tt{copy_log_sq_func}
 is a three-deep nested pair containing an integer (a real argument),

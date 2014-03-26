@@ -1,4 +1,4 @@
-#lang scribble/sigplan
+#lang scribble/sigplan @10pt
 
 @(require "util.rkt" "cite.rkt" 
           scriblib/footnote

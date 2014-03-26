@@ -43,7 +43,7 @@
   (define info (collect-info))
   (define one-line-per-file
     (apply append
-           (add-between (apply append info) (list #f))))
+           (apply append info)))
   (define blank-row (list "" 'cont 'cont 'cont))
   (define (make-a-row label info)
     (list @bold{@label} 

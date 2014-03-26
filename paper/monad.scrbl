@@ -76,8 +76,6 @@ underscores ask Coq to fill in well-typed arguments (resorting to
 asking the user to provide proofs if necessary, as we saw in 
 @secref["sec:insert"]).
 
-@raw-latex{\newpage}
-
 This is the type of @tt{ret}:
 @(apply inline-code (extract monad.v "ret"))
 
@@ -111,6 +109,7 @@ transformed into whatever the actual cost along that path was.
 
 We enapsulate this logic into a simple extra-monadic operator,
 @tt{inc}, that introduces @tt{k} units of cost:
+@raw-latex{\newpage}
 @(apply inline-code (extract monad.v "inc"))
 In programs using our monad, we write @tt{+= k e}, a
 shorthand for @tt{inc _ k _ e}.
@@ -133,7 +132,6 @@ b bn => PB b (bn+7)}. Unfortunately, we cannot ``look inside'' the @tt{A}
 computation to know that it cost 7 units. Instead, we have to show that
 @emph{whatever} the cost for @tt{A} was, the cost of @tt{B} is still as 
 expected. This suggests a second attempt at a definition of @tt{bind}:
-@raw-latex{\newpage}
 @(apply inline-code (extract binds.v "bind2"))
 
 Unfortunately, this is far too strong of a statement because there are

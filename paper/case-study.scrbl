@@ -44,9 +44,13 @@ correct) and other lines of proofs. With the exception of the
 establish the correctness of the functions and establish a basic
 running time result, but not one in terms of Big Oh. 
 
-For example, this is the definition of the @tt{copy_log_sq} function,
-basically mirroring Okasaki's definition, but in Coq's notation:
-@(apply inline-code (extract copy_log_sq_gen.v cdr))
+For example, @Figure-ref["fig:copy_log_sq"] is the definition of the
+@tt{copy_log_sq} function, basically mirroring Okasaki's definition,
+but in Coq's notation.
+
+@figure["fig:copy_log_sq"
+        @list{@tt{copy_log_sq}}
+        @(apply inline-code (extract copy_log_sq_gen.v cdr))]
 
 The monadic result type is
 @(apply inline-code (extract copy_log_sq.v "copy_insert_result"))

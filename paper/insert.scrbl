@@ -1,5 +1,7 @@
 #lang scribble/base
-@(require "util.rkt" "cite.rkt")
+@(require "util.rkt"
+          "cite.rkt" 
+          scriblib/figure)
 
 @title[#:tag "sec:insert"]{Introducing Our Library: Braun Tree Insert}
 
@@ -46,9 +48,12 @@ are the sizes of two Braun trees @tt{s} @tt{t}, and if
 the @tt{s} and @tt{t} into a single tree produces
 a braun tree of size @tt{s_size+t_size+1}.
 
-Here is the insertion function:
-@(apply inline-code (extract insert_no_gen.v "insert"))
+@figure["fig:insert"
+        @list{Braun tree insertion}
+        @(apply inline-code (extract insert_no_gen.v "insert"))]
 
+
+@Figure-ref["fig:insert"] shows the insertion function.
 It is fairly complex, so let us look carefully at each piece.
 It accepts an object @tt{i} (of type @tt{A}) to insert into
 the Braun tree @tt{b}. Its result type uses a new notation:

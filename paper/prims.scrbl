@@ -3,6 +3,7 @@
           "../rkt/sub1-plot.rkt"
           (prefix-in : "../rkt/sub1.rkt")
           (prefix-in p: plot/pict)
+          scriblib/figure
           pict 
           (prefix-in c: scribble/core))
 
@@ -75,23 +76,24 @@ So while each iteration of the list runs in constant time, @tt{sub1} is recursiv
 and we do not know an a priori bound on the number of iterations.
 
 We can use our implementation of @tt{sub1} above to graph its running
-time against the value of its input:
+time against the value of its input as shown in
+@Figure-ref["fig:sub1-argument"].
 
-@(c:element (c:style "noindent" '()) '())
-@(centered
-  (p:plot-pict
-   #:width 300
-   #:height 140
-   #:x-label "Sub1's Argument"
-   #:y-label "Number of Abstract Steps"
-   (let ([the-points
-          (for/list ([i (in-range 1 255)])
-            (define-values (ans time) (:sub1 i))
-            (vector i time))])
-     (p:points
-      #:y-min 0
-      #:y-max (+ 2 (apply max (map (λ (x) (vector-ref x 1)) the-points)))
-      the-points))))
+@figure["fig:sub1-argument"
+        @list{Running time of @tt{sub1}}
+        (p:plot-pict
+         #:width 300
+         #:height 140
+         #:x-label "Sub1's Argument"
+         #:y-label "Number of Abstract Steps"
+         (let ([the-points
+                (for/list ([i (in-range 1 255)])
+                  (define-values (ans time) (:sub1 i))
+                  (vector i time))])
+           (p:points
+            #:y-min 0
+            #:y-max (+ 2 (apply max (map (λ (x) (vector-ref x 1)) the-points)))
+            the-points)))]
 
 Half of the time (on odd numbers) @tt{sub1}
 is cheap, terminating after only a single iteration. One quarter of the time, 
@@ -121,21 +123,22 @@ index. This is again a logarithmic overhead to @tt{diff}, which has
 logarithmic complexity.
 
 Finally, the most complicated is the pattern used by @tt{copy_linear},
-which recursively calls itself on @tt{n/2} and @tt{(n-1)/2}. Below 
-is a plot of the running time of the @tt{sub1} calls that
-@tt{copy_linear} makes. In gray is a plot of
-@raw-latex{$\lambda x. 31x + 29$}, which we believe is an upper bound for the function.
+which recursively calls itself on @tt{n/2} and
+@tt{(n-1)/2}. @Figure-ref["fig:copy_linear-input"] is a plot of the
+running time of the @tt{sub1} calls that @tt{copy_linear} makes. In
+gray is a plot of @raw-latex{$\lambda x. 31x + 29$}, which we believe
+is an upper bound for the function.
 
-@(c:element (c:style "noindent" '()) '())
-@(centered 
-  (parameterize ([p:plot-width 275]
-                 [p:plot-height 275]
-                 [p:plot-x-label "Copy_linear's Input"]
-                 [p:plot-y-label "Sub1 Calls' Running Time"])
-    ;; this plot takes a long time, but I like that last steep jump...
-    (plot-with-bound 10000
-                     copy_linear_sub1_points
-                     copy_linear_sub1_bound)))
+@figure["fig:copy_linear-input"
+        @list{Running time of @tt{copy_linear}}
+        (parameterize ([p:plot-width 275]
+                       [p:plot-height 275]
+                       [p:plot-x-label "Copy_linear's Input"]
+                       [p:plot-y-label "Sub1 Calls' Running Time"])
+          ;; this plot takes a long time, but I like that last steep jump...
+          (plot-with-bound 10000
+                           copy_linear_sub1_points
+                           copy_linear_sub1_bound))]
 
 Accordingly, we believe that the overhead of using
 @tt{sub1} in these functions does not change their

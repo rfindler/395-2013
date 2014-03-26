@@ -138,9 +138,12 @@ Unfortunately, this is far too strong of a statement because there are
 some costs @tt{an} that are too much. The only @tt{an} costs that our
 proof about an application of @tt{bind} must be concerned with are
 those that respect the @tt{PA} property given the @emph{actual} value
-of @tt{a} that the @tt{A} computation produced. We can use a dependent
-type on @tt{bf} to capture the connection between the costs in a third
-attempt at the type for @tt{bind}:
+of @tt{a} that the @tt{A} computation produced. 
+We can use a dependent type on @tt{bf} to capture the connection
+between the costs in a third attempt at the type for @tt{bind}.
+
+@raw-latex{\newpage}
+
 @(apply inline-code (extract binds.v "bind3"))
 
 This version of @tt{bind} is complete from a cost perspective but has

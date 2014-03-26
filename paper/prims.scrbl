@@ -110,17 +110,21 @@ be called once for each different number in that range and
 those times sum to a fixed number, proportional to the
 number of iterations.
 
-Second is a function that loops by subtracting @tt{1} and then dividing by @tt{2}.
-This pattern is found in our functions @tt{copy2} and @tt{copy_insert}, and has a logarithmic 
-overhead.
+Second is a function that loops by subtracting @tt{1} and then
+dividing by @tt{2}.  This pattern is found in our functions @tt{copy2}
+and @tt{copy_insert}, and has a logarithmic overhead.
 
-Third is the pattern used by @tt{diff}, which loops by division by @tt{2} of either @tt{n-1} 
-or @tt{n-2} depending on the parity of the index. This is again a logarithmic overhead to
-@tt{diff}, which has logarithmic complexity.
+Third is the pattern used by @tt{diff}, which loops by division by
+@tt{2} of either @tt{n-1} or @tt{n-2} depending on the parity of the
+index. This is again a logarithmic overhead to @tt{diff}, which has
+logarithmic complexity.
 
-Finally, the most complicated is the pattern used by @tt{copy_linear}, which recursively
-calls itself on @tt{n/2} and @tt{(n-1)/2}. This has been observed to be a linear overhead to
-@tt{copy_linear}.
+Finally, the most complicated is the pattern used by @tt{copy_linear},
+which recursively calls itself on @tt{n/2} and @tt{(n-1)/2}. This has
+been observed to be a linear overhead to @tt{copy_linear}. Below in
+red is a plot of the running time of the calls to @tt{sub1} in a call
+to @tt{copy_linear}. In gray is a plot of the line
+@raw-latex{$y=31x + 29$}, which we believe is an upper bound for the function.
 
 @(require "../rkt/sub1-plot.rkt" plot/pict)
 @(parameterize ([plot-width 275]

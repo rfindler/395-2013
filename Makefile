@@ -51,6 +51,7 @@ tmonad-gen: insert/insert_log_gen.v \
             make_array/foldr_build_gen.v \
             make_array/make_array_linear_gen.v \
             sub1/sub1_gen.v \
+            sub1/sub1_linear_loop_gen.v \
             fold/fold_gen.v
 
 insert/insert_log_gen.v: rkt/insert.rkt $(GEN_DEPS)
@@ -103,6 +104,8 @@ make_array/make_array_linear_gen.v: rkt/make_array_linear.rkt $(GEN_DEPS)
 
 sub1/sub1_gen.v: rkt/sub1.rkt $(GEN_DEPS)
 	racket rkt/sub1.rkt > sub1/sub1_gen.v
+sub1/sub1_linear_loop_gen.v: rkt/sub1_linear_loop.rkt $(GEN_DEPS)
+	racket rkt/sub1_linear_loop.rkt > sub1/sub1_linear_loop_gen.v
 fold/fold_gen.v: rkt/fold.rkt $(GEN_DEPS)
 	racket rkt/fold.rkt > fold/fold_gen.v
 

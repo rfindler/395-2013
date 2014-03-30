@@ -83,7 +83,7 @@
      [`(bind ([,xs ,es] ...) ,b)
       (for ([x (in-list xs)]
             [e (in-list es)])
-        (out x)
+        (out-id x)
         (out " <- ")
         (indent (+ 4 (string-length (symbol->string x)))
                 (out-exp e #:already-delimited? #t))

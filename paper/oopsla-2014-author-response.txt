@@ -52,8 +52,10 @@ reviewer D suggests.
 
 Reviewer B also asks "is it a monad?" .... 
 
-Reviewer C gives us some good feedback about section 1. We'll take
-that under consideration and try to rewrite things in a more
-acceptable style. If the reviewer wishes to help us with more feedback
-on later drafts, we'd love to have a more in-depth discussion
-(regardless of the outcome of the OOPSLA decision!).
+Reviewer C gives us some alternate code for section 1. Believe it or
+not, we considered versions of drop much like those. The main reason
+we went away from them was to avoid having to explain that subtraction
+on nats was total (this is, in our opinion, a kludge just like how
+(car '()) = '() was a kludge in some old Lisp systems). We see how we
+missed the mark for experts, tho, so we'll try to adjust the
+exposition to appear less naive to the experts.

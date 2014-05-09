@@ -1,0 +1,59 @@
+Thanks to all the reviewers for their helpful feedback. We plan to
+incorporate all of it in any future version of this paper; things we
+don't mention specifically below, we plan to simply follow the
+suggestions given (especially with respect to related work).
+
+As for the claims about a tutorial, we realize now that that's the
+wrong description. What we really should be saying is that we've
+written this paper to be accessible to people who have some experience
+working with languages like OCaml, Haskell, or Typed Racket, but not
+necessarily with a dependently typed programming language. We'll
+certainly adjust the paper to make this clear. We will also change the
+title to be some more like the submission's subtitle. (We know we're
+not the first to "put dependent types to work"! We were trying to
+convey the writing style but that obviously doesn't work so we'll drop
+it.)
+
+We will also clarify the essential contribution of the paper. We do
+not think that the design of the monad ("adding the P argument", as
+reviewer B puts it) is trivial. It was not obvious to us how to do
+this when we started (we went through many different versions of these
+functions and their proofs) and its clear benefits (extraction and the
+ability to even do the Braun tree proofs) suggest to us that if it had
+been discovered elsewhere it would be more widely known. As far as we
+can tell Danielsson's approach can neither handle the Braun tree
+proofs nor does it extract well.
+
+We will also discuss why high-quality extraction is important. In
+short, most compilers (MLton, Stalin, and other whole-program
+compilers aside) are not good at eliminating extra, superflous
+data-structures from code and allocation is one of the primary sources
+of runtime overhead in modern function language implementations. In
+addition, extraction that adds such "gunk" will interfere with the
+optimizations that compilers are already trying to do, something that
+is especially difficult to accept when focusing on time- and
+memory-efficient datastructures like Braun trees.
+
+We will also include some more discussion of the fib_log proof; it is
+indeed the trickiest one and the one most deserving of an explanation.
+As a rule, however, the proofs that establish that the functions have
+running times that are functions on nats not involving any data
+structures are easy. The hard part (when there is a hard part) is
+proving that some complex recursive function on nats is really bounded
+by some simple function. In other words, the monad always does its job
+to get you quickly to the parts of the proofs that are hard for good
+reason.
+
+Reviewer B asks for a precise description of the translation function.
+It's the same as Rosendahl's but we agree that the paper does suffer
+for not explaining it clearly enough. We'll try to improve this. We'll
+also add some empirical validation of the predicted running times, as
+reviewer D suggests.
+
+Reviewer B also asks "is it a monad?" .... 
+
+Reviewer C gives us some good feedback about section 1. We'll take
+that under consideration and try to rewrite things in a more
+acceptable style. If the reviewer wishes to help us with more feedback
+on later drafts, we'd love to have a more in-depth discussion
+(regardless of the outcome of the OOPSLA decision!).

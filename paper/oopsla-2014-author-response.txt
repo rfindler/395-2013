@@ -25,7 +25,7 @@ proofs nor does it extract well.
 
 We will also discuss why high-quality extraction is important. In
 short, most compilers (MLton, Stalin, and other whole-program
-compilers aside) are not good at eliminating extra, superflous
+compilers aside) are not good at eliminating superflous
 data-structures from code and allocation is one of the primary sources
 of runtime overhead in modern function language implementations. In
 addition, extraction that adds such "gunk" will interfere with the
@@ -48,10 +48,12 @@ for not explaining it clearly enough. We'll try to improve this. We'll
 also add some empirical validation of the predicted running times, as
 reviewer D suggests.
 
-Reviewer B also asks if it really is a monad. We agree that it is some
-kind of enriched monad, but it doesn't seem to be exactly Atkey's (or
-Swistera's or ..someone else's) and we don't understand yet it's
-precise foundational structure. We'll explicate this in the related work.
+Reviewer B also asks if it really is a monad. We agree that it is
+really an enriched monad, but we don't know exactly what it is. We
+know it isn't Swierstra's or McBride's; and we are not sure about
+Atkey's.  It would be Atkey's if we combined our propositions in
+'bind' with conjuction, but we use implication and so we are not
+sure. We'll explicate this in the related work.
 
 Reviewer C gives us some alternate code for section 1. Believe it or
 not, we considered versions of drop much like those. The main reason

@@ -5,7 +5,7 @@ suggestions given (especially with respect to related work).
 
 As for our claims about a tutorial, we realize now that that's the
 wrong description. What we really should be saying is that we've
-written this paper to be *accessible* to people who have some
+merely written this paper to be *accessible* to people who have some
 experience working with languages like OCaml, Haskell, or Typed
 Racket. We'll adjust the paper to make this clear. We also plan to
 change the title to be like the submission's subtitle. (We know we're

@@ -9,9 +9,8 @@ written this paper to be *accessible* to people who have some
 experience working with languages like OCaml, Haskell, or Typed
 Racket. We'll adjust the paper to make this clear. We also plan to
 change the title to be like the submission's subtitle. (We know we're
-not the first to "put dependent types to work"! We were trying to
-convey the writing style but that obviously didn't work so we'll drop
-it.)
+not the first to "put dependent types to work"! We were trying to hint
+at the writing style but that obviously didn't work so we'll drop it.)
 
 We will also clarify the essential contribution of the paper. We do
 not think that the design of the monad ("adding the P argument", as
@@ -25,8 +24,8 @@ proofs nor does it extract well.
 
 We will also discuss why high-quality extraction is important. In
 short, most compilers (MLton, Stalin, and other whole-program
-compilers aside) are not good at eliminating superflous
-data-structures from code and allocation is one of the primary sources
+compilers aside) are not good at eliminating superfluous
+data structures from code and allocation is one of the primary sources
 of runtime overhead in modern function language implementations. In
 addition, extraction that adds such "gunk" will interfere with the
 optimizations that compilers are already trying to do, something that
@@ -44,21 +43,22 @@ you quickly to the parts of the proofs that are hard for good reason.
 
 Reviewer B asks for a precise description of the translation function.
 It's the same as Rosendahl's but we agree that the paper does suffer
-for not explaining it clearly enough. We'll try to improve this. We'll
-also add some empirical validation of the predicted running times, as
-reviewer D suggests.
+for not explaining it clearly enough. We'll try to improve this. 
+
+We'll also add some empirical validation of the predicted running
+times, as reviewer D suggests.
 
 Reviewer B also asks if it really is a monad. We agree that it is
-really an enriched monad, but we don't know exactly what it is. We
-know it isn't Swierstra's or McBride's; and we are not sure about
-Atkey's.  It would be Atkey's if we combined our propositions in
-'bind' with conjuction, but we use implication and so we are not
-sure. We'll explicate this in the related work.
+really an enriched monad, but we don't know exactly how to
+characterize it. We know it isn't Swierstra's or McBride's, but we are
+not sure about Atkey's.  It would be Atkey's if we combined our
+propositions in 'bind' with conjuction, but we use implication. We'll
+explicate this in the related work.
 
 Reviewer C gives us some alternate code for section 1. Believe it or
 not, we considered versions of drop much like those. The main reason
 we went away from them was to avoid having to explain that subtraction
 on nats was total (this is, in our opinion, a kludge just like how
-(car '()) = '() was a kludge in some old Lisp systems). We see how we
+(car '()) = '() is a kludge in some old Lisp systems). We see how we
 missed the mark for experts, tho, so we'll try to adjust the
 exposition to appear less naive to the experts.

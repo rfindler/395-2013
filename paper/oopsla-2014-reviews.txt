@@ -1,0 +1,636 @@
+===========================================================================
+                           oopsla14 Review #46A
+                     Updated 3 May 2014 2:34:52pm EDT
+---------------------------------------------------------------------------
+   Paper #46: Putting Dependent Types to Work: A Coq Library That Enforces
+              Correct Running-Times via Type-Checking
+---------------------------------------------------------------------------
+
+                      Overall merit: 4. Accept
+                 Reviewer expertise: 3. Knowledgeable
+
+                         ===== Paper summary =====
+
+This paper describes a monad that allows a type in Coq to track
+properties and resources (sizes) in a way that allows a program to be
+automatically extracted without extraneous arguments.
+
+              ===== Evaluation and comments for authors =====
+
+This paper makes two main claims:
+
+1. That it "presents a Coq library that lifts an abstract yet precise
+notion of running-time into the type of a function and uses it to
+prove all nine of the algorithms in Okasaki's paper [']Three Algorithms
+on Braun Trees['] have the claimed running times." (abstract)
+
+2. That the paper is an introduction to Coq (abstract).
+
+The first of these claims is well supported in the paper. However,
+contrary to the second claim, the paper doesn't seem to be tutorial
+enough to be a good introduction to Coq, even for graduate students in
+formal methods. (My own such student did not think this was a good
+enough introduction for her.)
+
+Points in favor:
+
++ This is an advance over related work, in that it allows the
+  specification of running times for Braun functions without having a
+  residue of natural number arguments in the extracted code. It also
+  avoids having to use two separate monads (one for proofs and one for
+  extraction of code).
++ The paper is well-written.
+
+Points against:
+
+- The paper is not a clear introduction to Coq, as it seems to assume
+  too much background knowledge (contrary to the second claim).
+- The generality claimed by the subtitle ("A Coq Library ...") does
+  not seem evident, or is at least not explained well.
+- The framework does not properly model garbage collection as part of
+  allocation (section 7, p. 10).
+
+Overall I am mildly in favor of the paper being in the conference, as it
+makes a contribution compared with related work.  
+
+The following are some specific comments.
+
+P. 1, section 1.1, "It accepts a natural number n and a list..." but
+there is no mention yet of the len argument.
+
+P. 1, right, bottom, the last two sentences of the last full paragraph
+seem a bit awkward with the use of "we" for what the code does: "so we
+just return... then we recur with...".
+
+P. 2, left, last paragraph, "The other three correspond to the then
+branch of the if in the body of drop,..."  This is wrong, the last 3
+cases correspond to the *else* branch!
+
+P. 3, left, "lets see" -> "let us see"
+
+P. 3, right, "you'd expect" -> "you would expect"
+
+P. 7, left, "we treat types... and built a set of operations..."
+-> "we treat types... and build a set of operations..."
+
+P. 11, left, "leading digits" I think might be clearer if rephrased as
+"least significant digits".
+
+===========================================================================
+                           oopsla14 Review #46B
+                     Updated 3 May 2014 11:21:35pm EDT
+---------------------------------------------------------------------------
+   Paper #46: Putting Dependent Types to Work: A Coq Library That Enforces
+              Correct Running-Times via Type-Checking
+---------------------------------------------------------------------------
+
+                      Overall merit: 2. Weak reject
+                 Reviewer expertise: 3. Knowledgeable
+
+                         ===== Paper summary =====
+
+This paper presents a Coq library that, together with a code generator, 
+takes a program and certifies that that code satisfies 
+a particular running time. A user of this library/tool can write a standard 
+Coq program, and the tool processes that program to introduce annotations 
+about the costs of the operations. The resulting generated program has a monadic 
+form and it also has a call to a function called insert_result that has to be later 
+defined by the user. The authors have applied their technique to 9 algorithms 
+on Braun trees and have verified that those algorithms are correct with respect 
+to the claimed running times.
+
+              ===== Evaluation and comments for authors =====
+
+Pros:
+
++ Nice and easy to read. 
+
++ I like the fact that their technique works well with extraction. That is 
+when a program is extracted, no irrelevant computation remains in the 
+program.
+
++ Its nice to have formalized proofs for the nine algorithms in Okasaki's 
+paper.
+
+Cons:
+
+- I am not sure if this paper can be considered as a research paper, 
+or at least whether OOPSLA/SPLASH is the appropriate venue for this 
+work.
+
+- There are some technical results, but they seem like relatively simple 
+extensions of existing work. The authors could have done more work 
+as well as better describing why their extensions are challenging. 
+
+- I think the authors present a somewhat simplified story in Section 5. 
+More research may be required there.
+
+- Unclear whether the technique easily generalizes to other algorithms. 
+
+It is hard to be negative about a paper that is actually quite pleasent and nice 
+to read. But that's my feeling about this paper. The key problem is that, as a research paper, 
+I think there are several flaws, which I try to detail later.
+
+- Detailed comments:
+
+* Tutorial on Coq/Writing style
+
+I certainly like the idea of having tutorials on Coq and I'd love to see 
+more of these. Moreover I actually quite enjoyed reading this paper and 
+I think it would be useful to have this paper published somewhere.
+While I certainly enjoyed reading this paper, this does not mean I think 
+it is a good research paper. Mixing a tutorial with research results has the 
+effect of distracting us from the main purpose of a research paper, which 
+is to report new technical results. 
+
+I think this paper suffers from this. While it is certainly a very pleasent paper 
+to read, not much is devoted to technical contributions. I feel that in terms 
+of contributions, the authors could have done alot more. 
+
+One particular issue is that the research problem and the reason why it is 
+challenging is not introduced very well. Although I was vaguely  familiar with 
+some of the previous research (example Danielsson's paper),
+it was not clear enough to me how much of this research overlapped with his 
+research and especially whether adding the P argument to the monad is 
+something relatively trivial or not. I think it would have been useful to 
+motivate the research problem better and to pinpoint more 
+clearly the challenges and limitations of previous approaches. 
+
+* Title:
+
+The title is not very descriptive and it makes it look like if people do not 
+know yet that dependent types can be useful. As the authors probably 
+are aware of there is a lot of work in the PL community promoting dependent 
+types and saying why they can be useful to solve practical problems, 
+as well as to ensure program correctness. There are several examples 
+of such papers:
+
+@unpublished{Altenkirch05whydependent,
+    author = {Thorsten Altenkirch and Conor Mcbride and James Mckinna},
+    title = {Why dependent types matter},
+    booktitle = {In preparation, http://www.e-pig.org/downloads/ydtm.pdf},
+    year = {2005}
+}
+
+@article{McBride:2004:VL:967492.967496,
+ author = {McBride, Conor and McKinna, James},
+ title = {The View from the Left},
+ journal = {J. Funct. Program.},
+ issue_date = {January 2004},
+ volume = {14},
+ number = {1},
+ month = jan,
+ year = {2004},
+ issn = {0956-7968},
+ pages = {69--111},
+ numpages = {43},
+ url = {http://dx.doi.org/10.1017/S0956796803004829},
+ doi = {10.1017/S0956796803004829},
+ acmid = {967496},
+ publisher = {Cambridge University Press},
+ address = {New York, NY, USA},
+} 
+
+@inproceedings{Oury:2008:PP:1411204.1411213,
+ author = {Oury, Nicolas and Swierstra, Wouter},
+ title = {The Power of Pi},
+ booktitle = {Proceedings of the 13th ACM SIGPLAN International Conference on Functional Programming},
+ series = {ICFP '08},
+ year = {2008},
+ isbn = {978-1-59593-919-7},
+ location = {Victoria, BC, Canada},
+ pages = {39--50},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/1411204.1411213},
+ doi = {10.1145/1411204.1411213},
+ acmid = {1411213},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {dependent types, domain-specific embedded languages},
+} 
+
+to name a few. So, I think the title is inappropriate (for a research paper) as well 
+as uninformative (it really doesn't say much about the research problem being solved).
+Despite more boring the subtitle is a lot more descriptive!
+
+* Section 1.2:
+
+Would some of the Coq proof obligations disappear in Agda, which has more 
+powerful pattern matching mechanisms that can deal with program that Coq 
+cannot?
+
+* Translation Function:
+
+The translation function is only informally mentioned in the paper. But I think 
+this is a crutial element of the technique. This work relies on this translation 
+function to correctly insert the times required by some computation. I think
+it would be worthwhile to formalize this translation, so that at least it becomes 
+clear exactly what programs can be used as input.
+
+Also, the translation approach makes me think that the approach may not be very 
+practical. It requires this external tool to insert the times and it requires the user to
+later define a "insert_result" function.
+
+* Section 5:
+
+I think the paper presents a simplified story in Section 5. The paper claims that 
+they have a monad (btw no references to monads). However, although the types 
+of the operations do resemble the types of operations for monads, they are not 
+quite the same. The types for monad operations are (for some monad M):
+
+return : forall A. A -> M A
+bind : M A -> (A -> M B) -> M B
+
+However, the types presented here have additional assumptions. They may be 
+well known generalizations of monads such as:
+
+@InProceedings{atkey2006,
+  author    = {Robert Atkey},
+  booktitle = {MSFP 2006},
+  journal   = {Proceedings of Workshop on Mathematically Structured Functional Programming},
+  keywords  = {functionalprogramming, monad},
+  month     = jul,
+  posted-at = {2008-12-08 04:14:38},
+  priority  = {2},
+  title     = {{Parameterized Notions of Computation}},
+  url       = {http://homepages.inf.ed.ac.uk/ratkey/param-notions.pdf},
+  year      = {2006}
+}
+
+or other notions that have been proposed in the past. However I think the authors 
+should be more careful at investigating exactly what the structure is.
+
+
+- Typos, and minor comments:
+
+page 2, In the definition of list_with_len, the "hd" argument has type "A", 
+but you do not explain where the "A" is bound or what it means. For readers 
+that do not know Coq this may be confusing.
+(There are more free "A"'s later in the paper)
+
+page 5, "tell us tha*t* n" 
+
+page 5, "Coq does not know *how* to"
+
+===========================================================================
+                           oopsla14 Review #46C
+                     Updated 19 May 2014 1:08:50pm EDT
+---------------------------------------------------------------------------
+   Paper #46: Putting Dependent Types to Work: A Coq Library That Enforces
+              Correct Running-Times via Type-Checking
+---------------------------------------------------------------------------
+
+                      Overall merit: 1. Reject
+                 Reviewer expertise: 4. Expert
+
+                         ===== Paper summary =====
+
+This paper presents a simple Coq library that implements a monad that
+counts the number of steps taken by a suitably instrumented function.
+The authors use this library to verify the complexity of several
+functions on Braun trees (which are a form of balanced binary tree).
+The algorithms are mostly very short, but their complexities are
+somewhat interesting (running in O(log^2 n), etc.).  
+
+The paper also aims to be an introduction to programming in Coq.
+
+              ===== Evaluation and comments for authors =====
+
+Review:
+
+I'm sympathetic with the authors' goal of creating a Coq library for
+reasoning about the complexity of algorithms.  In general, that seems
+like a worthy goal.  However, it's not clear that the techniques in
+this paper are really scalable, and the "Coq introduction" parts of
+the paper seem to be a bit misleading, or at least, aren't the "usual"
+way of doing things in Coq.  For these reasons, I recommend that the
+paper be rejected, but I would encourage the authors to continue this
+work. 
+
+Comments:
+
+Section 1:
+- The introduction reads as though it is a contribution of this paper
+  that Coq extraction works best with 'extrinsic' specifications
+  (i.e. using lemmas rather than dependent types to specify
+  properties), but this is well known, and "standard practice" in the
+  Coq community. 
+
+- Many dependent type tutorials work with vectors
+  (i.e. list_with_len).  However, the version presented here is a
+  little strange.  The paper claims that "Separating the theorems from
+  the function, however, typically requires longer and more complex
+  proofs because the proof essentially has to mimic the structure of
+  the function."  That's not necessarily true I've shown some more
+  idiomatic ways of writing the 'drop' function using Coq's built-in
+  lists (below).  Also, separating the proofs from the functions tends
+  to be more modular (you don't have to decide in advance what
+  property of the data structure or function that you care about).  It
+  also means you don't have to rely on JMeq (which is needed for your
+  development, but never mentioned anywhere).
+
+- Why does the drop function have such a complicated return type?  If
+  n is greater or equal to len then the returned list will be empty.
+  Note that because of the way that natural number subtraction is
+  defined, (len - n) = 0 if n >= len, which is exactly what you want.
+  Giving the simpler (but equivalent!) specification makes the proofs
+  easier.  
+
+- Although this is intended to be a Coq introduction, it uses
+  non-standard operations (like "zerop").  Why? 
+
+- In general, it is better to write (1 + foo) rather than (foo + 1) in
+  Coq because + is defined inductively on the first argument and so
+  the first form will simplify to (S foo) while the second will
+  involve a lemma application before it will compute.  
+
+- Why would you define list_len as an inductive proposition rather
+  than as a function?  This isn't a particularly compelling example of
+  an inductively defined proposition, since it's a function, not a
+  relation.  It also doesn't have any particularly interesting
+  dependency.  You note that "The corresponding proof for this version
+  of the function is 20 non-trivial lines." 
+
+Section 2:
+- The use of "bt_mt" is perhaps gratuitously cute (?)
+
+- The examples with the Braun trees are fine, but this paper never
+  really explains the limitations of this approach.  It seems that the
+  monad really just gives you a relatively easy way of adding a way to
+  count steps of computation, but it's not clear to me how far this
+  approach can generalize.  It's also not clear how difficult the
+  proofs that relate such "running time abstractions" to their Big O
+  complexity bounds are -- indeed, most of the work seems to be in
+  doing that.  (After looking at Okasaki's paper, I'm more impressed
+  with the fact that you managed to give the Big O bound relative to
+  \phi, the golden ratio for copy_fib_log, than I was with many of the
+  other parts of the paper.  That example seems to be one of the most
+  complex ones that you had to prove -- it would have been
+  interesting to read about that.
+
+Section 5:
+- I worry about the accessibility of this section for those not
+already familiar with Coq.  In particular, the Set vs. Prop (vs. Type)
+distinction is important. 
+
+- I found the explanation about how the monad works, and in
+  particular, the way 'inc' is implemented, to be very confusing.
+  There seem to be a lot of 'worse' (some should be 'worst')
+  possibilities.  I think that some of the confusion could have been
+  averted by explaining or giving intituition about C A P.  The
+  sentence "We use a new function C that consumes a type and a
+  proposition ..." doesn't add any explanation beyond the definition.
+  *Why* is this the right definition?  
+
+Section 6:
+
+- Why are the *_gen.v files shorter than the corresponding regular
+  files?  The text (6.1) says that they contain the complete
+  definitions of the various functions -- does the table only list the
+  difference?
+
+- Throughout the paper: I was bugged by the use of "Big Oh" for "Big
+  O"
+
+- I wasn't sure what the point of 6.2 was in the context of this
+  paper.  Is the point that the OCaml compiler *doesn't* do the
+  expected optimizations (thus necessitating that you do them by
+  hand)?  
+
+- Similarly, the discussion of bignums seems to come out of thin air
+  -- without more detail about how Coq represents extracted numbers,
+  this discussion seems out of place. 
+
+-------
+
+I wonder how your monad relates to Morrisett et al's Hoare Type
+Theory?  
+
+
+
+
+------------------------------------------------------------
+
+Several of my versions of your initial tutorial development:
+
+Require Import List.
+Require Import Arith.
+Require Import Coq.Logic.JMeq.  (* Only needed for drop2 *)
+
+Fixpoint drop {A : Type} (n:nat) (l : list A) : (list A) :=
+  match n with
+    | 0 => l
+    | S m => match l with
+               | nil => nil
+               | hd :: tl => drop m tl
+             end
+  end.
+
+Lemma drop_len : forall {A : Type} (n len : nat) (l : list A),
+                   length l = len -> (length (drop n l) = len - n).
+Proof.
+  induction n; intros. 
+  subst. simpl. rewrite <- minus_n_O. reflexivity.
+
+  destruct l.
+  subst; reflexivity.
+
+  simpl in H. rewrite <- H.
+  simpl. apply IHn. reflexivity.
+Qed.
+
+Inductive list_with_len (A : Type) : nat -> Type :=
+| empty : list_with_len A 0
+| cons (tl_len : nat) (hd : A) (tl : list_with_len A tl_len) : (list_with_len A (1+tl_len))
+.
+
+Program Fixpoint drop2 (A:Type) (n:nat) (len:nat) (l:list_with_len A len) : 
+  (list_with_len A (len - n)) :=
+if eq_nat_dec 0 n then l else
+match l with
+| empty => (empty A)
+| cons _ hd tl => drop2 A (n-1) (len-1) tl
+end.
+Obligation 1.
+rewrite <- minus_n_O. reflexivity.
+
+Obligation 2.
+simpl.
+rewrite <- minus_n_O. reflexivity.
+
+Obligation 3.
+simpl. destruct n.
+contradiction H. reflexivity.
+simpl. rewrite <- minus_n_O. rewrite <- minus_n_O. reflexivity.
+Qed.
+
+
+Fixpoint drop3 {A : Type} (n:nat) (l : list A) : (list A) :=
+  if eq_nat_dec 0 n then l else
+    match l with
+      | nil => nil
+      | hd :: tl => drop3 (n-1) tl
+    end
+.
+
+Lemma drop3_len : forall {A : Type} (n len : nat) (l : list A),
+                    length l = len -> (length (drop3 n l) = len - n).
+Proof.
+  intros A n len l.
+  generalize dependent n. generalize dependent len.
+  induction l; intros; simpl.
+  destruct n; subst; simpl; auto.
+  
+  destruct n; subst; simpl; auto.
+  rewrite <- minus_n_O. apply IHl. reflexivity.
+Qed.
+
+
+---------------------------------------------------
+Comments from the PC discussion:
+
+I think that this paper would have been much better if the introductory 'tutorial' material was dropped and it was focused on the more technical contributions. Braun trees are only a mildly interesting case study -- I'm not sure that they're actually used for anything in practice; I would have been much more interested in seeing how this work applies to more complex invariants like red-black trees, for example. In particular, because much of the work even for these Braun tree algorithms seems to be in relating the step counts supplied by the monad to the asymptotic complexity, it's really not clear (to me anyway) how much the monad helps. 
+
+Since the alleged motivation of the paper is the performance of the extracted code, it would have been good to see some kind of performance analysis that demonstrates that their approach is actually useful. Section 6.2 shows the source extracted OCaml, but it's not 100% clear how good a job the OCaml compiler does at optimizing the code.
+
+===========================================================================
+                           oopsla14 Review #46D
+                     Updated 8 May 2014 1:53:42am EDT
+---------------------------------------------------------------------------
+   Paper #46: Putting Dependent Types to Work: A Coq Library That Enforces
+              Correct Running-Times via Type-Checking
+---------------------------------------------------------------------------
+
+                      Overall merit: 3. Weak accept
+                 Reviewer expertise: 4. Expert
+
+                         ===== Paper summary =====
+
+The paper presents an introduction to Coq as well as a technique and
+accompanying library for proving running-time bounds in Coq. Programs
+are written in a monad that counts abstract steps. The technique is
+evaluated by implementing a suite of functional tree-processing
+algorithms, and the library is designed to interact well with Coq's
+extraction. The paper introduces all the relevant Coq concepts from
+the ground up, which makes the paper substantially more accessible
+than similar papers.
+
+              ===== Evaluation and comments for authors =====
+
+The paper is interesting and well written, and it contains several
+nice insights and war stories. It addresses the important and often
+neglected problem of verifying performance properties of programs. The
+library developed in the paper is elegant, practical, and
+theoretically interesting. The paper's discipline of keeping the
+required Coq background to a minimum makes the paper quite readable to
+the general functional programming audience.
+
+I have reservations about claiming an introduction to Coq as part of a
+contribution in a research paper.  There are several textbooks and
+online tutorials that serve the same purpose.  That said, this paper
+could help demystify an increasingly important tool for a large
+audience.
+
+Unfortunately, the paper lacks motivation. It presents an artifact
+without discussing its necessity, significance, or general
+applicability. It does not summarize or discuss its contributions.
+For example, what is the real cost of "proof residue" in extracted
+code?
+
+The claim "the corresponding proofs can be only as complex as they
+need to be in order to actually establish the specified properties."
+seems misleading.  Many of us have written unnecessarily complex Ltac
+scripts only realize later a much simpler strategy will prove the same
+result.
+
+The authors should augment the intro with a more traditional
+motivation for reasoning about running time of programs and summarize
+the contributions of the paper and add a conclusion that discusses the
+contributions.  The authors should also discuss the general
+applicability of abstract step-count reasoning to real-world
+performance, including benchmarks showing that, e.g., programs that
+have logarithmic step counts look logarithmic in real running time.
+
+Some discussion of proof engineering effort would further stengthen
+the paper's excellent discussions.  Were any of the bounds proofs
+particularly tricky?  How does proof difficulty relate to the design
+of the author's monad?
+
+The authors failed to discuss the related work of Gulwani et al.'s
+SPEED system, which takes a rather different approach:
+    http://research.microsoft.com/en-us/um/people/sumitg/pubs/speed.html
+
+Nitpicks:
+
+p6: "pair an actual values" => "pair an actual value"
+
+===========================================================================
+          Response by Robby Findler <robby@eecs.northwestern.edu>
+   Paper #46: Putting Dependent Types to Work: A Coq Library That Enforces
+              Correct Running-Times via Type-Checking
+---------------------------------------------------------------------------
+Thanks to all the reviewers for their helpful feedback. We plan to
+incorporate all of it in any future version of this paper; things we
+don't mention specifically below, we plan to simply follow the
+suggestions given (especially with respect to related work).
+
+As for our claims about a tutorial, we realize now that that's the
+wrong description. What we really should be saying is that we've
+merely written this paper to be *accessible* to people who have some
+experience working with languages like OCaml, Haskell, or Typed
+Racket. We'll adjust the paper to make this clear. We also plan to
+change the title to be like the submission's subtitle. (We know we're
+not the first to "put dependent types to work"! We were trying to hint
+at the writing style but that obviously didn't work so we'll drop it.)
+
+We will also clarify the essential contribution of the paper. We do
+not think that the design of the monad ("adding the P argument", as
+reviewer B puts it) is trivial. It was not obvious to us how to do
+this when we started (we went through many different versions of these
+functions and their proofs) and its clear benefits (extraction and the
+ability to even do the Braun tree proofs) suggest to us that if it had
+been discovered elsewhere it would be more widely known. As far as we
+can tell Danielsson's approach can neither handle the Braun tree
+proofs nor does it extract well.
+
+We will also discuss why high-quality extraction is important. In
+short, most compilers (MLton, Stalin, and other whole-program
+compilers aside) are not good at eliminating superfluous
+data structures from code and allocation is one of the primary sources
+of runtime overhead in modern function language implementations. In
+addition, extraction that adds such "gunk" will interfere with the
+optimizations that compilers are already trying to do, something that
+is especially difficult to accept when focusing on time- and
+memory-efficient data structures like Braun trees.
+
+We will also include some more discussion of the fib_log proof; it is
+indeed the trickiest one and the one most deserving of an explanation.
+As a rule, however, the proofs that establish that the functions have
+running times that are functions operating only on nats (not on trees)
+are easy. The hard part (when there is a hard part) is proving that
+some complex recursive function on nats is really bounded by some
+simple function. In other words, the monad always does its job to get
+you quickly to the parts of the proofs that are hard for good reason.
+
+Reviewer B asks for a precise description of the translation function.
+It's the same as Rosendahl's but we agree that the paper does suffer
+for not explaining it clearly enough. We'll try to improve this. 
+
+We'll also add some empirical validation of the predicted running
+times, as reviewer D suggests.
+
+Reviewer B also asks if it really is a monad. We agree that it is
+really an enriched monad, but we don't know exactly how to
+characterize it. We know it isn't Swierstra's or McBride's, but we are
+not sure about Atkey's.  It would be Atkey's if we combined our
+propositions in 'bind' with conjuction, but we use implication. We'll
+explicate this in the related work.
+
+Reviewer C gives us some alternate code for section 1. Believe it or
+not, we considered versions of drop much like those. The main reason
+we went away from them was to avoid having to explain that subtraction
+on nats was total (this is, in our opinion, a kludge just like how
+(car '()) = '() is a kludge in some old Lisp systems). We see how we
+missed the mark for experts, tho, so we'll try to adjust the
+exposition to appear less naive to the experts.
+

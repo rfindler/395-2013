@@ -30,7 +30,6 @@ Definition run_s {A : Set} : S A -> (A * ST) :=
              | (v,st) => (v,st)
            end.
 
-
 Definition enq : nat -> S () := 
   fun n => 
     bind get
@@ -44,15 +43,15 @@ Program Definition deq : S (option nat) :=
        (fun q => 
           match q with
             | (nil,nil) => ret None (* deq an empty queue; failure *)
-            | (front,cons tl back) => 
-              bind (set (front,back))
-                   (fun _ => ret (Some tl))
-            | (cons hd front, nil) =>
-              match rev' (cons hd front) with
+            | (front,cons back more) => 
+              bind (set (front,more))
+                   (fun _ => ret (Some back))
+            | (cons front more, nil) =>
+              match rev' (cons front more) with
                 | nil => _
-                | (cons tl back) =>
-                  bind (set (nil,back))
-                       (fun _ => ret (Some tl))
+                | (cons back more') =>
+                  bind (set (nil,more'))
+                       (fun _ => ret (Some back))
                            end 
           end).
 
@@ -62,7 +61,7 @@ Proof.
   assert False;[|intuition].
   unfold rev' in BAD.
   rewrite <- rev_alt in BAD.
-  assert (length (nil:list nat) = length (rev (hd :: front))) as BAD_LEN;
+  assert (length (nil:list nat) = length (rev (front :: more))) as BAD_LEN;
     [rewrite BAD;reflexivity|clear BAD].
   rewrite rev_length in BAD_LEN.
   simpl in BAD_LEN.

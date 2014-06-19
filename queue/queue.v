@@ -1,5 +1,6 @@
 Require Import Program.
 Require Import Omega.
+Require Import List.
 
 (* this is the state monad, fixed to just a single
    store element that is a pair of two lists of integers *)
@@ -38,32 +39,39 @@ Definition enq : nat -> S () :=
              | (front,back) => set (cons n front,back)
            end).
 
-Fixpoint rev_acc (l:list nat) acc :=
-  match l with
-    | nil => acc
-    | (cons x ls) => rev_acc ls (cons x acc)
-  end.
-
-Definition rev l := rev_acc l nil.
-
-Definition deq : S nat :=
+Program Definition deq : S (option nat) :=
   bind get
        (fun q => 
           match q with
-            | (nil,nil) => ret 123 (* deq an empty queue; failure *)
+            | (nil,nil) => ret None (* deq an empty queue; failure *)
             | (front,cons tl back) => 
               bind (set (front,back))
-                   (fun _ => ret tl)
+                   (fun _ => ret (Some tl))
             | (cons hd front, nil) =>
-              match rev (cons hd front) with
-                | nil => ret 456  (* this can't happen .... *)
+              match rev' (cons hd front) with
+                | nil => _
                 | (cons tl back) =>
                   bind (set (nil,back))
-                       (fun _ => ret tl)
+                       (fun _ => ret (Some tl))
                            end 
           end).
 
-Example ex1 : run (bind (enq 1) (fun _ => deq)) = run (ret 1).
+Obligation 1.
+Proof.
+  rename Heq_anonymous into BAD.
+  assert False;[|intuition].
+  unfold rev' in BAD.
+  rewrite <- rev_alt in BAD.
+  assert (length (nil:list nat) = length (rev (hd :: front))) as BAD_LEN;
+    [rewrite BAD;reflexivity|clear BAD].
+  rewrite rev_length in BAD_LEN.
+  simpl in BAD_LEN.
+  intuition.
+Qed.
+
+Recursive Extraction deq.
+
+Example ex1 : run (bind (enq 1) (fun _ => deq)) = run (ret (Some 1)).
 Proof.
   compute.
   reflexivity.
@@ -75,7 +83,7 @@ Example ex2 : run (bind (enq 1)
                                 (fun _ =>
                                    bind deq 
                                         (fun _ => deq))))
-              = run (ret 2).
+              = run (ret (Some 2)).
 Proof.
   compute.
   reflexivity.

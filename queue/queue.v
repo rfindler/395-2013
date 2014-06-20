@@ -4,7 +4,8 @@ Require Import List.
 Require Import Braun.common.util.
 
 (* this is the state monad, fixed to just a single
-   store element that is a pair of two lists of integers *)
+   store element that is a pair of two lists of 
+   integers, ie our queue's internal state *)
 Definition ST := (list nat * list nat)%type.
 
 Definition S (A:Set) := ST -> (A * ST).
@@ -90,15 +91,11 @@ Proof.
   unfold ret.
   unfold run_s.
   intros l1 l2 n.
-  replace (rev' (n::l1)) with (rev (n::l1)).
+  replace (rev' (n::l1)) with (rev (n::l1));
+    [| unfold rev' ; rewrite rev_alt; auto].
   simpl.
-  replace (rev l1) with (rev' l1).
-  reflexivity.
-  unfold rev'.
-  rewrite rev_alt.
-  auto.
-  unfold rev'.
-  rewrite rev_alt.
+  replace (rev l1) with (rev' l1);
+    [| unfold rev' ; rewrite rev_alt; auto].
   auto.
 Qed.
 
@@ -136,8 +133,7 @@ Proof.
   reflexivity.
   assert False;[|intuition]. 
   apply (nonempty_rev_nonempty n l2).
-  symmetry.
-  assumption.
+  auto.
   subst l2.
   compute.
   reflexivity.

@@ -118,8 +118,8 @@ Proof.
   unfold run_s.
   intros l1 l2 n addr.
   simpl.
-  dispatch_if X1 X1';[|intuition].
-  dispatch_if X2 X2';[|intuition].
+  dispatch_if X X';[clear X|intuition].
+  dispatch_if X X';[clear X|intuition].
   replace (rev' (n::l1)) with (rev (n::l1));
     [| unfold rev' ; rewrite rev_alt; auto].
   simpl.
@@ -166,8 +166,9 @@ Proof.
   auto.
   subst l2.
   compute.
-  dispatch_if X X';intuition.
-  dispatch_if Y Y';intuition.
+  dispatch_if X X';[clear X | intuition].
+  dispatch_if X X';[clear X | intuition].
+  auto.
 
   (* queue nonempty *)
 
@@ -176,8 +177,9 @@ Proof.
   destruct l1.
   simpl.
   compute.
-  dispatch_if X X';intuition.
-  dispatch_if Y Y';intuition.
+  dispatch_if X X';[clear X | intuition].
+  dispatch_if X X';[clear X | intuition].
+  auto.
 
   (* back of queue is empty *)
   unfold deq.

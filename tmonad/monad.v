@@ -23,70 +23,34 @@ Defined.
 
 Definition ret A := Tret (fun x => x) A (fun x => x).
 
-Lemma Tbind_quasiresonable:
-forall (M:Set -> Set)
-(bind : forall (A B:Set) (W: M B -> Prop),
-             M A ->
-             (A -> {mb : (M B) | W mb}) -> 
-             {mb : (M B) | W mb}),
-(forall (A B:Set),
-             M A ->
-             (A -> M B) -> (M B)).
-Proof.
-  intros M bind.
-  intros A B ma f.
-  
-  edestruct (bind A B (fun _ => True) ma).
-  intros a. apply f in a.
-  exists a. auto.
-
-  apply x.
-Qed.
-
 (* START: bind *)
 Definition Tbind 
-
            (M:Set -> Set)
-           (bind : forall (A B:Set) (W: M B -> Prop),
-             M A ->
-             (A -> {mb : (M B) | W mb}) -> 
-             {mb : (M B) | W mb})
-           
            (A:Set) (PA:M A -> nat -> Prop)
            (B:Set) (PB:M B -> nat -> Prop)
+           (bind : M A -> (A -> M B) -> M B)
            (am:TC M A PA) 
-           (bf:forall (a:A)
-                      (pa:exists an, PA (proj1_sig am) an),
+           (bf:forall (a:M A)
+                      (pa:exists an, PA a an),
                  TC M B 
                     (fun b bn => 
                        forall an, 
-                         PA (proj1_sig am) an ->
+                         PA a an ->
                          PB b (an+bn)))
 : TC M B PB.
 (* STOP: bind *)
 Proof.
-  destruct am as [ma Pma].
-  simpl in bf.
-
-  refine 
-    (_ (bind A B
-      (fun mb => exists an : nat, forall an0 : nat, PA ma an0 -> PB mb (an0 + an)) ma _)).
-
-  intros [mb Pmb].
-  exists mb.
-  destruct Pma as [an Pma].
-  destruct Pmb as [bn Pmb].
+  destruct am as [a Pa].
+  edestruct (bf a Pa) as [b Pb].
+  exists b.
+  destruct Pa as [an Pa].
+  destruct Pb as [bn Pb].
   exists (an + bn).
-  eapply Pmb.
-  apply Pma.
-
-  intros a.
-  edestruct (bf a Pma) as [mb Pmb].
-  exists mb.
-  apply Pmb.
+  eapply Pb.
+  apply Pa.
 Defined.
 
-Definition bind A PA B PB := Tbind (fun x => x) (fun A B W x f => f x) A PA B PB.
+Definition bind A PA B PB := Tbind (fun x => x) A PA B PB (fun x f => f x).
 
 (* START: inc *)
 Definition Tinc (M: Set -> Set) (A:Set) 

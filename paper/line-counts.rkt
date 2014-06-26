@@ -51,7 +51,7 @@
           (format "~a" (line-info-obligations info))
           (format "~a" (line-info-proofs info))))
   (define common-lines 
-    (list (cons 'Monad (count-a-dir "tmonad"))
+    (list (cons 'Monad (count-a-dir "monad"))
           (cons 'Common (count-a-dir "common"))))
   (define all-rows 
     (append one-line-per-file common-lines))

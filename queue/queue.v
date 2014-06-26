@@ -4,22 +4,44 @@ Require Import Braun.common.util Braun.monad.smonad.
 (* this is the working definition of enq; *)
 (*   commented out because it doesn't work yet *)
 
-(* Program Definition enq (addr : nat) (n : nat) :  *)
-(*   (CS () *)
-(*       (fun st => True) *)
-(*       (fun _ st st' k =>  *)
-(*          k = 11 /\ *)
-(*          ((fst st') addr)  *)
-(*          = *)
-(*          (cons n (fst ((fst st) addr)), *)
-(*           (snd ((fst st) addr))))) := *)
+Program Definition enq (addr : nat) (n : nat) :
+  (CS ()
+      (fun st => True)
+      (fun _ st st' k =>
+         k = 11 /\
+         ((fst st') addr)
+         =
+         (cons n (fst ((fst st) addr)),
+          (snd ((fst st) addr))))) :=
                           
-(*   q <- get addr; *)
-(*   addr ::== (cons n (fst q), snd q); *)
-(*   (* += 11; *) *)
-(*   <== (). *)
+  q <- get addr;
+  addr ::== (cons n (fst q), snd q);
+  (* += 11; *)
+  <== ().
 
-(* Next Obligation. *)
+Next Obligation.
+ rename x into st0.
+ rename x0 into PRE.
+ unfold proj1_sig. 
+ remember  (q <- !addr; addr ::== (n :: fst q, snd q); (<== ())) as P. 
+ unfold CS in *.
+ edestruct (P st0 PRE) as [ [t st1] Q ].
+ clear P HeqP PRE.
+ destruct Q as [an [a [st2 [bn [cn [[EQ1 [EQ2 EQ3]] Q]]]]]].
+ subst a bn st2.
+ destruct Q as [[_ [st2 [dn [en Q]]]] EQ1].
+ destruct Q as [Q [P EQ2]].
+ destruct P as [EQ3 [EQ4 EQ5]].
+ subst en cn an t st2.
+ destruct Q as [EQ1 [EQ2 [EQ3 Q]]].
+ subst dn.
+ destruct st0 as [st0_m st0_n].
+ destruct st1 as [st1_m st1_n].
+ simpl in *. subst st1_n.
+ exists 11.
+ split. auto.
+ rewrite EQ3. auto.
+Qed.
 
 (* old definitions:
 

@@ -11,6 +11,10 @@ Definition Q := (list nat * list nat)%type.
 (* integers, ie our queue's internal state   *)
 Definition ST := ((nat -> Q) * nat)%type.
 
+Definition STeq (st st':ST) :=
+  (snd st) = (snd st') /\
+  forall n, ((fst st) n) = ((fst st') n).
+
 Definition CS
            (A:Set)
            (Pre : ST -> Prop)
@@ -39,21 +43,26 @@ Definition bind
            (A_Post:A -> ST -> ST -> nat -> Prop)
            (B_Pre:A -> ST -> Prop)
            (B_Post:A -> B -> ST -> ST -> nat -> Prop)
+           (A_impl_B_Pre:
+             forall st0, 
+               A_Pre st0 -> 
+               forall a st1 an, 
+                 A_Post a st0 st1 an -> 
+                 B_Pre a st1)
            (am:CS A A_Pre A_Post)
            (bf:forall (a:A), CS B (B_Pre a) (B_Post a))
-: CS B 
-     (fun st => A_Pre st /\ forall a st' an, A_Post a st st' an -> B_Pre a st')
+: CS B A_Pre
      (fun b st0 st2 n => exists a st1 an bn,
                            A_Post a st0 st1 an /\
                            B_Post a b st1 st2 bn /\
                            n = an+bn).
 (* STOP: bind *)
 Proof.
-  intros st0 [APRE A_POST_TO_B_PRE].
+  intros st0 APRE.
   destruct (am st0 APRE) as [[a st1] A_PROP]; clear am.
   destruct (bf a st1) as [[b st2] B_PROP].
   destruct A_PROP as [an A_POST].
-  apply (A_POST_TO_B_PRE a st1 an A_POST).
+  apply (A_impl_B_Pre st0 APRE a st1 an A_POST).
   exists (b,st2).
   destruct A_PROP as [an A_POST].
   destruct B_PROP as [bn B_POST].
@@ -145,8 +154,8 @@ Defined.
 
 Notation "<== x" := (ret _ x) (at level 55).
 Notation "+= k ; c" := (inc _ k _ _ c) (at level 30, right associativity).
-Notation "x <- y ; z" := (bind _ _ _ _ _ _ y (fun (x : _) => z) )
+Notation "x <- y ; z" := (bind _ _ _ _ _ _ _ y (fun (x : _) => z) )
                            (at level 30, right associativity).
 Notation "! x" := (get x) (at level 55).
-Notation "x ::== y ; z" := (bind _ _ _ _ _ _ (set x y) (fun _ => z)) 
+Notation "x ::== y ; z" := (bind _ _ _ _ _ _ _ (set x y) (fun _ => z)) 
                              (at level 30, right associativity).

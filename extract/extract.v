@@ -12,7 +12,7 @@ Require Import Braun.make_array.make_array_nlogn1_fold.
 Require Import Braun.make_array.make_array_nlogn2.
 Require Import Braun.to_list.to_list_naive.
 
-Require Import Braun.tmonad.monad.
+Require Import Braun.monad.monad.
 Require Import Braun.sub1.sub1.
 
 Extract Inductive bool => "bool" [ "false" "true" ].

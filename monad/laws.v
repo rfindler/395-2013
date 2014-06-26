@@ -1,4 +1,4 @@
-Require Import Braun.tmonad.monad.
+Require Import Braun.monad.monad.
 
 Definition sig_eqv A (P1:A -> Prop) (P2:A -> Prop) (s1:sig P1) (s2:sig P2) : Prop :=
   let v1 := (proj1_sig s1) in

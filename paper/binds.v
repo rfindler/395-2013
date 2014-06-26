@@ -1,4 +1,4 @@
-Require Import Braun.tmonad.monad.
+Require Import Braun.monad.monad.
 
 (* START: bind1 *)
 Definition bind1

@@ -9,7 +9,7 @@ paper.
 
 Require Import Braun.common.braun Braun.common.util.
 Require Import Braun.common.log Braun.common.big_oh.
-Require Import Braun.tmonad.monad.
+Require Import Braun.monad.monad.
 Require Import Program.
 Require Import Omega.
 

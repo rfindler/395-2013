@@ -22,18 +22,14 @@ Definition CS
                             Post a st st' (pren + an)}.
 Hint Unfold CS.
 
-Definition ret (A:Set)
-               (Pre:ST -> nat -> Prop)
-               (Post:A -> ST -> ST -> nat -> Prop)
-               (a:A)
-               (nosteps:forall st n, Pre st n -> Post a st st n)
-: CS A Pre Post.
+Definition ret (A:Set) (a:A)
+: CS A (fun st time => True)
+     (fun a' st st' time => st=st' /\ a=a').
 Proof.
   intros st.
   exists (a,st).
   intros pren pre_st0.
   exists 0.
-  rewrite plus_0_r.
   auto.
 Defined.
 
@@ -145,7 +141,7 @@ Proof.
   apply a.
 Defined.
 
-Notation "<== x" := (ret _ _ _ x _) (at level 55).
+Notation "<== x" := (ret _ x) (at level 55).
 Notation "+= k ; c" := (inc _ k _ _ c) (at level 30, right associativity).
 Notation "x <- y ; z" := (bind _ _ _ _ _ _ y (fun (x : _) => z) )
                            (at level 30, right associativity).

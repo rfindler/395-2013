@@ -69,7 +69,9 @@ Definition inc
            (Post:A -> ST -> ST -> nat -> Prop)
            (C : CS A Pre 
                    (fun a st st' time =>
-                      Post a st st' (time+k)))
+                      forall time',
+                        time' = time + k ->
+                        Post a st st' time'))
 : CS A Pre Post.
 Proof.
   intros st.
@@ -78,8 +80,9 @@ Proof.
   intros pren PRE.
   destruct (P pren PRE) as [postn POST].
   exists (postn+k).
+  apply POST.
   rewrite plus_assoc.
-  assumption.
+  reflexivity.
 Defined.
 
 Definition get : 

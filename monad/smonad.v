@@ -146,6 +146,9 @@ Proof.
 Defined.
 
 Notation "<== x" := (ret _ _ _ x _) (at level 55).
-Notation "+= k ; c" := (inc _ k _ c) (at level 30, right associativity).
+Notation "+= k ; c" := (inc _ k _ _ c) (at level 30, right associativity).
 Notation "x <- y ; z" := (bind _ _ _ _ _ _ y (fun (x : _) => z) )
                            (at level 30, right associativity).
+Notation "! x" := (get x) (at level 55).
+Notation "x ::== y ; z" := (bind _ _ _ _ _ _ (set x y) (fun _ => z)) 
+                             (at level 30, right associativity).

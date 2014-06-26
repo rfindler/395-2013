@@ -1,60 +1,27 @@
-Require Import Program.
-Require Import Omega.
-Require Import List.
-Require Import Braun.common.util.
+Require Import Program Omega List.
+Require Import Braun.common.util Braun.monad.smonad.
 
-(* this is the type of things in the store *)
-Definition Q := (list nat * list nat)%type.
+(* this is the working definition of enq; *)
+(*   commented out because it doesn't work yet *)
 
-(* this is the state type, a finite map from
-   addresses to pairs of two lists of 
-   integers, ie our queue's internal state *)
-Definition ST := ((nat -> Q) * nat)%type.
+(* Program Definition enq (addr : nat) (n : nat) :  *)
+(*   (CS () *)
+(*       (fun st => True) *)
+(*       (fun _ st st' k =>  *)
+(*          k = 11 /\ *)
+(*          ((fst st') addr)  *)
+(*          = *)
+(*          (cons n (fst ((fst st) addr)), *)
+(*           (snd ((fst st) addr))))) := *)
+                          
+(*   q <- get addr; *)
+(*   addr ::== (cons n (fst q), snd q); *)
+(*   (* += 11; *) *)
+(*   <== (). *)
 
-Definition S (A:Set) := ST -> (A * ST).
+(* Next Obligation. *)
 
-Definition ret {A: Set} (a:A) : S A := (fun st => (a,st)).
-
-Definition bind {A : Set} {B : Set} : (S A) -> (A -> S B) -> S B :=
-  fun ov f =>
-    fun st => 
-      match (ov st) with
-        | (a, st') => ((f a) st') 
-      end.
-
-Definition get : nat -> S Q := 
-  fun addr st => ((fst st) addr,st).
-Definition set : nat -> Q -> S () := 
-  fun addr new_q => 
-    fun old_st => 
-      ((),
-       (fun addr' => if eq_nat_dec addr addr' 
-                     then new_q 
-                     else (fst old_st) addr',
-        snd old_st)).
-Definition alloc : S nat :=
-  fun st =>
-    (snd st,(fst st,snd st+1)).
-
-(* all allocated values are initialized as a pair of empty lists *)
-Definition init_st : ST := (fun n => (nil,nil),0).
-
-Definition run {A : Set} : S A -> A := 
-  fun v => match v init_st with
-             | (v,st) => v
-           end.
-
-(* given a computation and some interesting addresses, 
-   runs the computation and extracts the interesting store values,
-   returning them as lists in the order the queue would return them. *)
-Definition run_s {A : Set} : S A -> (list nat) -> (A * list (list nat)) := 
-  fun v addrs => match v init_st with
-                   | (v,(st,addr)) => 
-                     (v, map (fun addr => match st addr with
-                                            | (l1,l2) => l2 ++ rev' l1
-                                          end)
-                             addrs)
-                 end.
+(* old definitions:
 
 Definition enq : nat -> nat -> S () := 
   fun addr n => 
@@ -217,3 +184,5 @@ Proof.
 
   destruct l1; (dispatch_if X X';[clear X|intuition]); auto.
 Qed.
+
+*)

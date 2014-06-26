@@ -16,8 +16,8 @@ Definition CS
            (Pre : ST -> Prop)
            (Post: A -> ST -> ST -> nat -> Prop) : Set :=
   forall st:ST,
-    {(a,st') : A * ST | Pre st ->
-                        exists an,
+    Pre st ->
+    {(a,st') : A * ST | exists an,
                           Post a st st' an}.
 Hint Unfold CS.
 
@@ -26,9 +26,8 @@ Definition ret (A:Set) (a:A)
      (fun st => True)
      (fun a' st st' time => st=st' /\ a=a' /\ time = 0).
 Proof.
-  intros st.
+  intros st _.
   exists (a,st).
-  intros pren.
   exists 0.
   auto.
 Defined.
@@ -50,20 +49,17 @@ Definition bind
                            n = an+bn).
 (* STOP: bind *)
 Proof.
-  intros st0.
-
-  (* computation part *)
-  destruct (am st0) as [[a st1] A_PROP]; clear am.
-  destruct (bf a st1) as [[b st2] B_PROP]; clear bf.
+  intros st0 [APRE A_POST_TO_B_PRE].
+  destruct (am st0 APRE) as [[a st1] A_PROP]; clear am.
+  destruct (bf a st1) as [[b st2] B_PROP].
+  destruct A_PROP as [an A_POST].
+  apply (A_POST_TO_B_PRE a st1 an A_POST).
   exists (b,st2).
-
-  (* proof obligations part *)
-  intros [A_PRE A_POST_TO_B_PRE].
-  destruct (A_PROP A_PRE) as [an INT]; clear A_PROP A_PRE.
-  destruct (B_PROP (A_POST_TO_B_PRE a st1 an INT)) as [bn POST].
+  destruct A_PROP as [an A_POST].
+  destruct B_PROP as [bn B_POST].
   exists (an+bn) a st1.
   exists an bn.
-  repeat split; try assumption.
+  repeat split; assumption.
 Defined.
 
 Definition inc 
@@ -78,13 +74,12 @@ Definition inc
                         Post a st st' time'))
 : CS A Pre Post.
 Proof.
-  intros st.
-  destruct (C st) as [[a st'] P].
+  intros st PRE.
+  destruct (C st PRE) as [[a st'] P].
   exists (a,st').
-  intros PRE.
-  destruct (P PRE) as [postn POST].
-  exists (postn+k).
-  apply POST.
+  destruct P as [an IMPL_POST].
+  exists (an+k).
+  apply IMPL_POST.
   reflexivity.
 Defined.
 
@@ -95,9 +90,8 @@ Definition get :
        (fun q st_pre st_post time =>
           time = 0 /\ ((fst st_post) addr) = q /\ st_pre = st_post).
 Proof.
-  intros addr [fm high_addr].
+  intros addr [fm high_addr] _.
   exists (fm addr,(fm,high_addr)).
-  intros _.
   exists 0.
   repeat split; reflexivity.
 Defined.
@@ -114,9 +108,8 @@ Definition set:
             (addr <> addr') -> 
             ((fst st_post) addr') = ((fst st_pre) addr')).
 Proof.
-  intros addr nv [fm high_addr].
+  intros addr nv [fm high_addr] _.
   exists (tt,(fun addr' => if (eq_nat_dec addr addr') then nv else (fm addr'),high_addr)).
-  intros _.
   exists 0.
   simpl.
   repeat split.
@@ -133,9 +126,8 @@ Definition alloc :
         res = (snd st_pre) /\
         (snd st_post) = (snd st_pre)+1).
 Proof.
-  intros [fm high_addr].
+  intros [fm high_addr] _.
   exists (high_addr,(fm,high_addr+1)).
-  intros _.
   exists 0.
   repeat split; reflexivity.
 Defined.
@@ -143,10 +135,11 @@ Defined.
 (* all allocated values are initialized as a pair of empty lists *)
 Definition init_st : ST := (fun n => (nil,nil),0).
 
-Definition run {A : Set} Pre Post : CS A Pre Post -> A.
+Definition run {A : Set} (Pre : ST -> Prop) Post : (Pre init_st) -> CS A Pre Post -> A.
 Proof.
-  intros Computation.
+  intros PRE Computation.
   destruct (Computation init_st) as [[a _] _].
+  apply PRE.
   apply a.
 Defined.
 

@@ -6,9 +6,9 @@ Require Import Braun.common.util.
 (* this is the type of things in the store *)
 Definition Q := (list nat * list nat)%type.
 
-(* this is the state type, a finite map from
-   addresses to pairs of two lists of 
-   integers, ie our queue's internal state *)
+(* this is the state type, a finite map from *)
+(* addresses to pairs of two lists of        *)
+(* integers, ie our queue's internal state   *)
 Definition ST := ((nat -> Q) * nat)%type.
 
 Definition CS 
@@ -67,19 +67,24 @@ Proof.
 Defined.
 
 Definition inc 
+           (A:Set)
            k
            (Pre:ST -> nat -> Prop)
-           (Post:() -> ST -> ST -> nat -> Prop)
-           (ksteps:forall st n, Pre st n -> Post () st st (n+k))
-: CS () Pre Post.
+           (Post:A -> ST -> ST -> nat -> Prop)
+           (C : CS A Pre 
+                   (fun a st st' time =>
+                      Post a st st' (time+k)))
+: CS A Pre Post.
 Proof.
   intros st.
-  exists ((),st).
+  destruct (C st) as [[a st'] P].
+  exists (a,st').
   intros pren PRE.
-  exists k.
-  apply ksteps.
+  destruct (P pren PRE) as [postn POST].
+  exists (postn+k).
+  rewrite plus_assoc.
   assumption.
-Qed.
+Defined.
 
 Definition get : 
   forall addr, 
@@ -139,3 +144,8 @@ Proof.
   destruct (Computation init_st) as [[a _] _].
   apply a.
 Defined.
+
+Notation "<== x" := (ret _ _ _ x _) (at level 55).
+Notation "+= k ; c" := (inc _ k _ c) (at level 30, right associativity).
+Notation "x <- y ; z" := (bind _ _ _ _ _ _ y (fun (x : _) => z) )
+                           (at level 30, right associativity).

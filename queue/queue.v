@@ -4,6 +4,63 @@ Require Import Braun.common.util Braun.monad.smonad.
 (* this is the working definition of enq; *)
 (*   commented out because it doesn't work yet *)
 
+Definition Post_enq (addr : nat) (n:nat) :=
+  (fun (i2:()) (st0:ST) (st3:ST) (n_i2:nat) =>
+    n_i2 = 11 /\
+    ((fst st3) addr)
+    =
+    (cons n (fst ((fst st0) addr)),
+      (snd ((fst st0) addr)))).
+
+Program Definition renq (addr : nat) (n : nat) :
+  (CS ()
+      (fun st0 => True)
+      (Post_enq addr n)) :=
+  (bind Q () 
+    (fun st0 => True) 
+    (fun q st0 st1 n_q =>
+      n_q = 0 /\ ((fst st1) addr) = q /\ st0 = st1)
+    (fun q st1 => True) 
+    (fun q i2 st0 st3 n_i2 => Post_enq addr n i2 st0 st3 n_i2)
+    _
+    (get addr)
+    (fun (q : Q) => 
+      let nv := (cons n (fst q), snd q) in
+      (bind () () 
+        (fun st1 => True)
+        (* This is A_Post *)
+        (fun i1 st1 st2 n_i1 =>
+          n_i1 = 0 /\
+          (snd st1) = (snd st2) /\
+          ((fst st2) addr) = nv /\ 
+          forall addr', 
+            (addr <> addr') -> 
+            ((fst st2) addr') = ((fst st1) addr'))
+        (fun i1 st2 => _)
+       
+        (* This is B_Post and it isn't obvious that the thing that
+        matters about the inc/ret is that it doesn't invalid A_Post:
+        *)
+
+        (fun i1 i2 st1 st3 n_i2 =>          
+          n_i2 = 11 /\
+          (snd st1) = (snd st3) /\
+          ((fst st3) addr) = nv /\ 
+          forall addr', 
+            (addr <> addr') -> 
+            ((fst st3) addr') = ((fst st1) addr'))
+        _ 
+        (set addr nv) 
+        (fun (i1 : ()) =>       
+          (inc () 11 
+            (fun st2 => _) 
+            (fun i2 st2 st3 n_i2 => _)
+            (ret () ())))))).
+
+Obligations.
+
+Admit Obligations.
+
 Program Definition enq (addr : nat) (n : nat) :
   (CS ()
       (fun st => True)
@@ -16,9 +73,8 @@ Program Definition enq (addr : nat) (n : nat) :
                           
   q <- get addr;
   addr ::== (cons n (fst q), snd q);
-  (* += 11; *)
   <== ().
-
+  
 Next Obligation.
  rename x into st0.
  rename x0 into PRE.

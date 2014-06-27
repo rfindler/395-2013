@@ -77,10 +77,10 @@ Definition inc
            (Pre:ST -> Prop)
            (Post:A -> ST -> ST -> nat -> Prop)
            (C : CS A Pre 
-                   (fun a st st' time =>
-                      forall time',
-                        time' = time + k ->
-                        Post a st st' time'))
+             (fun a st0 st1 an =>
+               forall am,
+                 an + k = am ->
+                 Post a st0 st1 am))
 : CS A Pre Post.
 Proof.
   intros st PRE.
@@ -88,8 +88,7 @@ Proof.
   exists (a,st').
   destruct P as [an IMPL_POST].
   exists (an+k).
-  apply IMPL_POST.
-  reflexivity.
+  auto.
 Defined.
 
 Definition get : 
@@ -109,7 +108,7 @@ Definition set:
   forall addr nv,
     CS ()
        (fun st => True)
-       (fun q st_pre st_post time =>
+       (fun i st_pre st_post time =>
           time = 0 /\
           (snd st_pre) = (snd st_post) /\
           ((fst st_post) addr) = nv /\ 
@@ -153,7 +152,7 @@ Proof.
 Defined.
 
 Notation "<== x" := (ret _ x) (at level 55).
-Notation "+= k ; c" := (inc _ k _ _ c) (at level 30, right associativity).
+Notation "+= k ; c" := (inc _ k _ _ _ _ c) (at level 30, right associativity).
 Notation "x <- y ; z" := (bind _ _ _ _ _ _ _ y (fun (x : _) => z) )
                            (at level 30, right associativity).
 Notation "! x" := (get x) (at level 55).

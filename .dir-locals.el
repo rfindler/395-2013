@@ -1,2 +1,2 @@
 ((coq-mode . ((coq-prog-args .
-  ("-emacs-U" "-R" ".." "Braun")))))
+  ("-emacs" "-R" "/Users/jay/Dev/dist/rfindler/395-2013" "Braun")))))

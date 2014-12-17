@@ -5,6 +5,7 @@ Variable ST : Set.
 
 Definition ST_Pre : Type
   := ST -> Prop.
+(* xxx why bother with separate ST_Post? *)
 Definition ST_Post (A:Set) : Type :=
   ST -> A -> ST -> Prop.
 Definition C_Post (A:Set) : Type :=
@@ -120,33 +121,115 @@ End monad.
 (* xxx example inline for testing *)
 Section dumb_list.
 
+  Require Import Omega.
+  
 Definition ST := list nat.
 
-Program Fixpoint list_insert x (l:ST) : ST :=
+Definition ST_Pre_None : ST_Pre ST := (fun st => True).
+Hint Unfold ST_Pre_None.
+Definition ST_Post_Unchanged {A:Set} : ST_Post ST A := (fun st _ st' => st = st').
+Hint Unfold ST_Post_Unchanged.
+
+Program Fixpoint bare_list_insert x (l:list nat) : list nat :=
   match l with
     | nil =>
-      cons x nil
-    | cons y l =>
-      cons y (list_insert x l)
+      (cons x nil)
+    | cons y sl =>
+      (cons y (bare_list_insert x sl))
   end.
 
+(* XXX add that it equals bare_list_insert *)
+Program Fixpoint list_insert x (l:list nat) :
+  (@CS ST ST_Pre_None (list nat) ST_Post_Unchanged
+   (fun _ _ ln _ => ln = length l))
+  :=
+  match l with
+    | nil =>
+      (@ret ST (list nat) (fun _ _ ln _ => ln = length l) 
+        (cons x nil) _)
+    | cons y sl =>
+      (@bind ST (list nat) (list nat) ST_Pre_None (fun _ => ST_Pre_None)
+        ST_Post_Unchanged (fun _ => ST_Post_Unchanged)
+        (fun _ _ ln _ => ln = length sl)
+        (fun _ _ ln _ => ln = length l)
+        (list_insert x sl)
+        (fun sl' =>
+          (@inc ST 1 ST_Pre_None (list nat) ST_Post_Unchanged
+            (fun _ _ ln _ => ln = length l)
+            (@ret ST (list nat) (fun _ _ ln _ => ln + 1 + length sl = length l)
+              (cons y sl') _))))
+  end.
+
+Next Obligation.
+  simpl.
+  rename x0 into st.
+  rename H into Pre_st.
+  split. auto. eauto.
+Defined.
+
+Next Obligation.
+  simpl.
+  rename x0 into st.
+  rename H into Pre_st.
+  split. auto.
+  exists (length sl). intros.
+  omega.
+Defined.
+
+Next Obligation.
+  simpl.
+  rename x0 into st.
+  rename H into Pre_st.
+  split. auto.
+  exists 1.
+  intros. omega.
+Defined.
+
+Next Obligation.
+  simpl.
+  rename x0 into st.
+  rename H into ST_Pre_st.
+  destruct (list_insert x sl (exist ST_Pre_None st ST_Pre_st)) as [[sl' st'] IH].
+  destruct IH as [ST_Post_st' C_Post].
+  simpl in *.
+  split. auto.
+  destruct C_Post as [IHn C_Post].
+  exists (S IHn).
+  auto.
+Defined.
+ 
 Program Definition insert (x:nat) :
   @CS ST
-  (fun st => True)
+  ST_Pre_None
   ()
-  (fun st _ st' => st' = list_insert x st)
-  (fun st _ n st' => n = length st)
+  (fun st _ st' => st' = bare_list_insert x st)
+  (fun st _ n _ => n = length st)
   :=
   @bind ST ST ()
-  (fun st => True)
+  ST_Pre_None
   (fun st0v st0 => st0v = st0)
+  
   (fun st0 st1 st2 => st0 = st1 /\ st1 = st2)
-  (fun st0v st0 _ st2 => st2 = list_insert x st0)
+  (fun st0v st0 _ st2 => st2 = bare_list_insert x st0)
+  
   (fun st0 st0v getn st1 => getn = 0)
   (fun st0 _ putn st2 => putn = length st0)
+  
   (@get ST)
   (fun l =>
-    (@put ST (list_insert x l))).
+    (@bind ST ST ()
+      (fun st => st = l)
+      (fun _ st => st = l)
+      
+      ST_Post_Unchanged
+      (fun l' st _ st' => st' = l')
+      
+      (fun _ _ ln _ => ln = length l)
+      (fun st _ ln _ => ln = length st)
+      
+      (list_insert x l)
+      (fun l' =>
+        (@put ST l')))).
 
 Next Obligation.
   unfold top. auto.

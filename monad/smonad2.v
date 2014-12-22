@@ -1,56 +1,64 @@
 Require Import Program.
 
-Section monad.
-Variable ST : Set.
-
-Definition CS_Pre : Type
+Definition CS_Pre (ST:Set) : Type
   := ST -> Prop.
 Hint Unfold CS_Pre.
 
-Definition CS_Post (A:Set) : Type :=
+Definition CS_Post (ST:Set) (A:Set) : Type :=
   ST -> A -> nat -> ST -> Prop.
 Hint Unfold CS_Post.
 
-Definition CS_Arg (pre : CS_Pre) := { st : ST | pre st }.
+Definition CS_Arg (ST:Set) (pre : CS_Pre ST) := { st : ST | pre st }.
 Hint Unfold CS_Arg.
 
-Program Definition
-  CS (pre : CS_Pre) (A : Set) (post : CS_Post A) : Set :=
-  forall st : (CS_Arg pre),
-    { (a, st') : A * ST | exists an, post st a an st' }.
+Definition
+  CS (ST:Set) (pre : CS_Pre ST) (A : Set) (post : CS_Post ST A) : Set :=
+  forall st : (CS_Arg ST pre),
+    { (a, st') : A * ST |
+      (* cs final *)
+      exists an, post (proj1_sig st) a an st' }.
 Hint Unfold CS.
 
-Definition top : CS_Pre := fun st => True.
+Definition top (ST:Set) : CS_Pre ST := fun st => True.
 Hint Unfold top.
 
-Program Definition ret (A : Set) (post : CS_Post A) 
+Program Definition ret (ST:Set) (A : Set) (post : CS_Post ST A) 
   : forall av,
     (forall st, post st av 0 st) ->
-    CS top A (fun st ap an st' => st = st' /\ ap = av /\ post st ap an st').
+    CS ST (top ST) A (fun st ap an st' => st = st' /\ ap = av /\ post st ap an st').
 Proof.
-  intros A post av CPav0.
+  intros ST A post av CPav0.
   unfold CS.
   intros [st pre_st].
   exists (av, st).
   eauto.
 Defined.
+Hint Unfold ret.
 
 Program Definition bind:
-  forall (A:Set)
-    (preA : CS_Pre) (postA : CS_Post A) (am:(CS preA A postA))
-    (B:Set) (preB : A -> nat -> CS_Pre) (postB : A -> CS_Post B)
+  forall (ST:Set) (A:Set)
+    (preA : CS_Pre ST) (postA : CS_Post ST A) (am:(CS ST preA A postA))
+    (B:Set) (preB : A -> nat -> CS_Pre ST) (postB : A -> CS_Post ST B)
     (bf:(forall (a : A),
       (CS
+        ST
+        (* bf pre *)
         (fun stA =>
+          (* forall an,
+            (exists st, postA st a an stA) ->
+            preB a an stA) *)
           exists st an,
             postA st a an stA /\
             preB a an stA)
         B
+        (* bf post *)
         (fun stA bv bn stB =>
           forall an,
             preB a an stA ->
             postB a stA bv (an+bn) stB)))),
-    CS (fun st0 =>
+    CS ST
+    (* bind pre *)
+    (fun st0 =>
       preA st0 /\
       (forall a an stA,
         postA st0 a an stA ->
@@ -86,31 +94,35 @@ Proof.
   eapply postB_stB.
   eauto.
 Defined.
+Hint Unfold bind.
 
-Program Definition get:
-  CS top ST (fun st0 st1 gn st2 => st0 = st1 /\ gn = 0 /\ st2 = st0).
+Program Definition get (ST:Set):
+  CS ST (top ST) ST (fun st0 st1 gn st2 => st0 = st1 /\ gn = 0 /\ st2 = st0).
 Proof.
+  intros ST.
   intros [st0 pre_st0].
   exists (st0, st0). simpl.
   eauto.
 Defined.
+Hint Unfold get.
 
-Program Definition put (st2:ST) :
-  CS top () (fun _ _ pn st2' => pn = 0 /\ st2 = st2').
+Program Definition put (ST:Set) (st2:ST) :
+  CS ST (top ST) () (fun _ _ pn st2' => pn = 0 /\ st2 = st2').
 Proof.
-  intros st2 [st0 pre_st0].
+  intros ST st2 [st0 pre_st0].
   exists ((), st2).
   eauto.
 Defined.
+Hint Unfold put.
 
-Program Definition inc (k:nat) :
-  forall (pre : CS_Pre) (A:Set) (post : CS_Post A),
-    CS pre A 
+Program Definition inc (ST:Set) (k:nat) :
+  forall (pre : CS_Pre ST) (A:Set) (post : CS_Post ST A),
+    CS ST pre A 
     (fun st a an st' =>
       forall am,
         an + k = am ->
         post st a am st') ->
-    CS pre A post.
+    CS ST pre A post.
 Proof.
   intros. rename H into am.
   intros [st0 pre_st0]. simpl.
@@ -121,13 +133,11 @@ Proof.
   destruct post_stA as [an post_stA].
   exists (an + k). eauto.
 Defined.
-
-End monad.
+Hint Unfold inc.
     
 (* xxx example inline for testing *)
-Section dumb_list.
 
-  Require Import Omega.
+Require Import Omega.
   
 Definition ST := list nat.
 
@@ -140,7 +150,7 @@ Program Fixpoint bare_list_insert x (l:list nat) : list nat :=
   end.
 
 Program Fixpoint list_insert x (l:list nat) :
-  (@CS ST (fun st => True) (list nat)
+  (CS ST (fun st => True) (list nat)
     (fun st r ln st' => r = bare_list_insert x l /\ ln = length l /\ st' = st))
   :=
   match l with
@@ -166,13 +176,13 @@ Program Fixpoint list_insert x (l:list nat) :
               (cons y sl') _))))
   end.
 
-Next Obligation.
+Next Obligation. (* 1st return proof *)
   rename x0 into st.
   destruct st as [st Pre_st].
   simpl. eauto.
 Defined.
 
-Next Obligation.
+Next Obligation. (* 2nd return proof *)
   simpl.
   rename x0 into st.
   destruct st as [st Pre_st].
@@ -183,25 +193,19 @@ Next Obligation.
   auto.
 Defined.
 
-Next Obligation.
+Next Obligation. (* bf post *)  
   rename x0 into st.
-  destruct st as [st Pre_st].
-  simpl in *.
-  destruct Pre_st as [st' [sl'n [[EQ1 [EQ2 EQ3]] [EQ4 EQ5]]]].
-  subst sl'. subst st'. subst sl'n.
-  exists 1.
-  intros an.
-  intros [EQ1 EQ2].
-  subst an.
+  exists 1. intros an [EQ1 EQ2]. subst an.
+  simpl. subst sl'.
   repeat split; auto.
   omega.
 Defined.
 
-Next Obligation.
+Next Obligation. (* bind pre *)
   intuition.
 Defined.
 
-Next Obligation.
+Next Obligation. (* cs final *)
   exists (S (length sl)).
   auto.
 Defined.
@@ -262,10 +266,6 @@ Next Obligation.
 Defined.
 
 Next Obligation.
-  unfold top. auto.
-Defined.
-
-Next Obligation.
   rename x0 into st.
   destruct st as [st [st' [an [[EQl' [EQan EQst']] [EQan2 EQl'2]]]]].
   subst l' an st'.
@@ -319,8 +319,6 @@ Next Obligation.
 
   (* 1277 lines! *)
 Admitted.
-
-End dumb_list.
 
 Extract Inductive unit => "unit" [ "tt" ].
 Extract Inductive bool => "bool" [ "false" "true" ].

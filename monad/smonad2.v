@@ -8,16 +8,35 @@ Definition CS_Post (ST:Set) (A:Set) : Type :=
   ST -> A -> nat -> ST -> Prop.
 Hint Unfold CS_Post.
 
-Definition CS_Arg (ST:Set) (pre : CS_Pre ST) := { st : ST | pre st }.
-Hint Unfold CS_Arg.
-
 Definition
   CS (ST:Set) (pre : CS_Pre ST) (A : Set) (post : CS_Post ST A) : Set :=
-  forall st : (CS_Arg ST pre),
+  forall st : ST,
+    pre st ->
     { (a, st') : A * ST |
       (* cs final *)
-      exists an, post (proj1_sig st) a an st' }.
+      exists an, post st a an st' }.
 Hint Unfold CS.
+
+Program Definition weaken (ST:Set)
+  (pre : CS_Pre ST) (pre' : CS_Pre ST)
+  (A:Set)  
+  (post : CS_Post ST A) (post' : CS_Post ST A)
+  (am:CS ST pre A post)
+  (pre_stronger : (forall st, pre' st -> pre st))
+  (post_weaker :
+    (forall st a an st',
+      post st a an st' ->
+      post' st a an st')) :
+  (CS ST pre' A post').
+Proof.
+  intros.
+  intros st pre_st.
+  edestruct (am st) as [[a st'] post_st'].
+  auto.
+  exists (a, st').
+  destruct post_st' as [an post_st'].
+  eauto.
+Defined.
 
 Definition top (ST:Set) : CS_Pre ST := fun st => True.
 Hint Unfold top.
@@ -29,7 +48,7 @@ Program Definition ret (ST:Set) (A : Set) (post : CS_Post ST A)
 Proof.
   intros ST A post av CPav0.
   unfold CS.
-  intros [st pre_st].
+  intros st pre_st.
   exists (av, st).
   eauto.
 Defined.
@@ -70,29 +89,24 @@ Program Definition bind:
         postB a stA b (an+bn) stB).
 Proof.
   intros.
-  intros [st0 [preA_st0 postApreB]].
-  edestruct (am (exist preA st0 preA_st0))
+  intros st0 [preA_st0 postApreB].
+  edestruct (am st0 preA_st0)
    as [[av stA] postA_stA].
   simpl in *.
 
-  assert ((fun stA : ST =>
-    exists (st : ST) (an : nat), postA st av an stA /\ preB av an stA)
-  stA) as preB_stA.
-  destruct postA_stA as [an postA_stA]. eauto. 
-  
   edestruct
-  (bf av (exist (fun stA : ST =>
-    exists (st : ST) (an : nat), postA st av an stA /\ preB av an stA) stA preB_stA))
+  (bf av stA)
   as [[bv stB] postApostB_stB].
+
+  destruct postA_stA. eauto.
+  
   exists (bv, stB).
   destruct postA_stA as [an postA_stA].
   destruct postApostB_stB as [bn postB_stB].
   simpl in *.
   exists bn. exists av.
   exists an. exists stA.
-  split. auto.
-  eapply postB_stB.
-  eauto.
+  auto.
 Defined.
 Hint Unfold bind.
 
@@ -100,7 +114,7 @@ Program Definition get (ST:Set):
   CS ST (top ST) ST (fun st0 st1 gn st2 => st0 = st1 /\ gn = 0 /\ st2 = st0).
 Proof.
   intros ST.
-  intros [st0 pre_st0].
+  intros st0 pre_st0.
   exists (st0, st0). simpl.
   eauto.
 Defined.
@@ -109,7 +123,7 @@ Hint Unfold get.
 Program Definition put (ST:Set) (st2:ST) :
   CS ST (top ST) () (fun _ _ pn st2' => pn = 0 /\ st2 = st2').
 Proof.
-  intros ST st2 [st0 pre_st0].
+  intros ST st2 st0 pre_st0.
   exists ((), st2).
   eauto.
 Defined.
@@ -125,8 +139,8 @@ Program Definition inc (ST:Set) (k:nat) :
     CS ST pre A post.
 Proof.
   intros. rename H into am.
-  intros [st0 pre_st0]. simpl.
-  edestruct (am (exist pre st0 pre_st0))
+  intros st0 pre_st0. simpl.
+  edestruct (am st0 pre_st0)
    as [[av stA] post_stA].
   simpl in *.
   exists (av, stA).
@@ -159,56 +173,61 @@ Program Fixpoint list_insert x (l:list nat) :
         (fun st r ln st' => r = bare_list_insert x l /\ ln = length l /\ st' = st)
         (cons x nil) _)
     | cons y sl =>
-      (@bind ST
-        (list nat)
-        (fun st => True)
-        (fun st r ln st' => r = bare_list_insert x sl /\ ln = length sl /\ st' = st)
-        (list_insert x sl)
-        
-        (list nat)
-        (fun sl' sl'n st => sl'n = length sl /\ sl' = bare_list_insert x sl)
-        (fun sl' st r ln st' => r = bare_list_insert x l /\ ln = length l /\ st' = st)
-        (fun sl' =>
-          (@inc ST 1 (fun st => True) (list nat)
-            (fun st r ln st' => r = (cons y sl') /\ ln = 1 /\ st' = st)
-            (@ret ST (list nat)
-              (fun st r ln st' => r = (cons y sl') /\ ln = 0 /\ st' = st)
-              (cons y sl') _))))
+      (@weaken _ _ _ _ _ _
+        (@bind ST
+          (list nat)
+          (fun st => True)
+          (fun st r ln st' => r = bare_list_insert x sl /\ ln = length sl /\ st' = st)
+          (list_insert x sl)
+          
+          (list nat)
+          (fun sl' sl'n st => sl'n = length sl /\ sl' = bare_list_insert x sl)
+          (fun sl' st r bn st' =>
+            r = bare_list_insert x l /\ bn = length l /\ st' = st)
+          (fun sl' =>
+            (@weaken _ _ _ _ _ _
+              (@inc ST 1 (fun st => sl' = bare_list_insert x sl)
+                (list nat)
+                (fun st r bn st' =>
+                  sl' = bare_list_insert x sl ->
+                  r = bare_list_insert x l /\ bn = 1 /\ st' = st)
+                (@weaken _ _ _ _ _ _
+                  (@ret ST (list nat)
+                    (fun st r bn st' =>
+                      sl' = bare_list_insert x sl ->
+                      r = bare_list_insert x l /\ bn = 0 /\ st' = st)
+                    (cons y sl') _)
+                  _ _))
+              _ _)))
+        _ _)
   end.
 
-Next Obligation. (* 1st return proof *)
-  rename x0 into st.
-  destruct st as [st Pre_st].
-  simpl. eauto.
+Next Obligation.
+  eauto.
 Defined.
 
-Next Obligation. (* 2nd return proof *)
-  simpl.
-  rename x0 into st.
-  destruct st as [st Pre_st].
-  simpl.
-  exists 0.
-  intros am. simpl.
-  intros EQ. subst am.
-  auto.
-Defined.
-
-Next Obligation. (* bf post *)  
-  rename x0 into st.
-  exists 1. intros an [EQ1 EQ2]. subst an.
-  simpl. subst sl'.
+Next Obligation.
+  rename H3 into post.
+  simpl in *.
+  edestruct post as [EQl [EQan EQst']].
+  auto. subst an.
   repeat split; auto.
-  omega.
 Defined.
 
-Next Obligation. (* bind pre *)
+Next Obligation.
+  rename H into post.
+  simpl in *.
+  edestruct post as [EQl [EQan EQst']].
+  auto. subst st' a. simpl in EQan. subst an.
   intuition.
 Defined.
 
-Next Obligation. (* cs final *)
-  exists (S (length sl)).
-  auto.
+Next Obligation.
+  intuition.
 Defined.
+
+Next Obligation.
+Admitted.
 
 Program Definition insert (x:nat) :
   @CS ST
@@ -216,37 +235,39 @@ Program Definition insert (x:nat) :
   ()
   (fun st _ n st' => n = length st /\ st' = bare_list_insert x st)
   :=
-  @bind ST
-
-  ST
-  (fun st => True)
-  (fun st v vn st' => v = st /\ vn = 0 /\ st' = st)
-  (@get ST)
-
-  ()
-  (fun av an st => an = 0 /\ st = av)
-  (fun av st _ bn st' =>
-    st = av /\ bn = length st /\ st' = bare_list_insert x st)
-  (fun l =>
+  (@weaken _ _ _ _ _ _
     (@bind ST
 
-      ST 
-      (fun st => st = l)
-      (fun st l' l'n st' =>
-        l' = bare_list_insert x st /\ l'n = length st /\ st' = st)
-      (list_insert x l)
-      
+      ST
+      (fun st => True)
+      (fun st v vn st' => v = st /\ vn = 0 /\ st' = st)
+      (@get ST)
+
       ()
-      (fun l' l'n st =>  l'n = length st /\ l' = bare_list_insert x st)
-      (fun l' st _ bn st' =>
-        l' = bare_list_insert x st /\ bn = length st /\ st' = l')
-      (fun l' =>
-        (@put ST l')))).
+      (fun av an st => an = 0 /\ st = av)
+      (fun av st _ bn st' =>
+        st = av /\ bn = length st /\ st' = bare_list_insert x st)
+      (fun l =>
+        (@weaken _ _ _ _ _ _
+          (@bind ST
+
+            ST 
+            (fun st => st = l)
+            (fun st l' l'n st' =>
+              l' = bare_list_insert x st /\ l'n = length st /\ st' = st)
+            (@weaken _ _ _ _ _ _ (list_insert x l) _ _)
+            
+            ()
+            (fun l' l'n st =>  l'n = length st /\ l' = bare_list_insert x st)
+            (fun l' st _ bn st' =>
+              l' = bare_list_insert x st /\ bn = length st /\ st' = l')
+            (fun l' =>
+              (@weaken _ _ _ _ _ _ (@put ST l') _ _)))
+          _ _)))
+    _ _).
 
 Next Obligation.
-  rename x0 into st.
-  destruct st as [st Pre_st].
-  simpl. eauto.
+  eauto.
 Defined.
 
 Next Obligation.

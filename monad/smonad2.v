@@ -245,6 +245,7 @@ Program Definition store_snoc (x:nat) :
           _ _)))
     _ _).
 
+(* Coq's default tactic doesn't do the "occurs" check when rewriting *)
 Obligation Tactic := idtac.
 
 Next Obligation.
@@ -254,9 +255,8 @@ Next Obligation.
   intros st0 _.
   intros an st'.
   intros [l [ln [stA [pn [EQan [[SO [EQln EQstA]] post]]]]]].
-  subst an ln stA.
   destruct post as [EQ EQst'].
-  subst l.
+  subst an ln stA l.
   replace pn with 0 in *. clear EQ.
   intros an [EQan EQst0].
   subst an st0.

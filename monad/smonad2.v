@@ -176,24 +176,21 @@ Program Fixpoint snoc (ST:Set) x (l:list nat) :
     | cons y sl =>
       (@weaken _ _ _ _ _ _
         (@bind ST
-          (list nat)
-          (fun st => True)
-          (fun st r ln st' => SnocOf x sl r /\ ln = length sl /\ st' = st)
-          (snoc ST x sl)
+          _ _ _ (snoc ST x sl)
           
-          (list nat)
+          _
           (fun sl' sl'n st => SnocOf x sl sl' /\ sl'n = length sl)
           (fun sl' st r bn st' =>
             SnocOf x l r /\ bn = length l /\ st' = st)
           (fun sl' psl' =>
             (@weaken _ _ _ _ _ _
               (@inc ST 1 (fun st => SnocOf x sl sl')
-                (list nat)
+                _
                 (fun st r bn st' =>
                   SnocOf x sl sl' ->
                   SnocOf x l r /\ bn = 1 /\ st' = st)
                 (@weaken _ _ _ _ _ _
-                  (@ret ST (list nat)
+                  (@ret ST _
                     (fun st r bn st' =>
                       SnocOf x sl sl' ->
                       SnocOf x l r /\ bn = 0 /\ st' = st)
@@ -232,18 +229,18 @@ Definition ST := list nat.
 Program Definition store_snoc (x:nat) :
   @CS ST
   (fun st => True)
-  ()
+  _
   (fun st _ n st' => n = length st /\ SnocOf x st st')
   :=
   (@weaken _ _ _ _ _ _
     (@bind ST
 
-      ST
+      _
       (fun st => True)
       (fun st v vn st' => v = st /\ vn = 0 /\ st' = st)
       (@get ST)
 
-      ()
+      _
       (fun av an st => an = 0 /\ st = av)
       (fun av st _ bn st' =>
         st = av /\ bn = length st /\ SnocOf x st st')
@@ -251,13 +248,13 @@ Program Definition store_snoc (x:nat) :
         (@weaken _ _ _ _ _ _
           (@bind ST
 
-            ST 
+            _ 
             (fun st => st = l)
             (fun st l' l'n st' =>
               SnocOf x l l' /\ l'n = length l /\ st' = st)
             (@weaken _ _ _ _ _ _ (snoc ST x l) _ _)
             
-            ()
+            _
             (fun l' l'n st =>
               SnocOf x l l' /\ l'n = length l /\ st = l)
             (fun l' st _ bn st' =>

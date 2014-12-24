@@ -166,12 +166,14 @@ Hint Constructors SnocOf.
 
 Program Fixpoint snoc (ST:Set) x (l:list nat) :
   (CS ST (fun st => True) _
-    (fun st r ln st' => SnocOf x l r /\ ln = length l /\ st' = st))
+    (fun st r ln st' =>
+      SnocOf x l r /\ ln = length l /\ st' = st))
   :=
   match l with
     | nil =>
       (@ret ST _
-        (fun st r ln st' => SnocOf x l r /\ ln = 0 /\ st' = st)
+        (fun st r ln st' =>
+          SnocOf x l r /\ ln = 0 /\ st' = st)
         (cons x nil) _)
     | cons y sl =>
       (@weaken _ _ _ _ _ _
@@ -179,7 +181,8 @@ Program Fixpoint snoc (ST:Set) x (l:list nat) :
           _ _ _ (snoc ST x sl)
           
           _
-          (fun sl' sl'n st => SnocOf x sl sl' /\ sl'n = length sl)
+          (fun sl' sl'n st =>
+            SnocOf x sl sl' /\ sl'n = length sl)
           (fun sl' st r bn st' =>
             SnocOf x l r /\ bn = length l /\ st' = st)
           (fun sl' psl' =>
@@ -222,10 +225,7 @@ Program Definition store_snoc (x:nat) :
   (@weaken _ _ _ _ _ _
     (@bind ST
 
-      _
-      (fun st => True)
-      (fun st v vn st' => v = st /\ vn = 0 /\ st' = st)
-      (@get ST)
+      _ _ _ (@get ST)
 
       _
       (fun av an st => an = 0 /\ st = av)
@@ -250,10 +250,6 @@ Program Definition store_snoc (x:nat) :
               (@weaken _ _ _ _ _ _ (@put ST l') _ _)))
           _ _)))
     _ _).
-
-Next Obligation.
-  eauto.
-Defined.
 
 Obligation Tactic := idtac.
 

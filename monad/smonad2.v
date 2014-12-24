@@ -187,12 +187,10 @@ Program Fixpoint snoc (ST:Set) x (l:list nat) :
               (@inc ST 1 (fun st => SnocOf x sl sl')
                 _
                 (fun st r bn st' =>
-                  SnocOf x sl sl' ->
                   SnocOf x l r /\ bn = 1 /\ st' = st)
                 (@weaken _ _ _ _ _ _
                   (@ret ST _
                     (fun st r bn st' =>
-                      SnocOf x sl sl' ->
                       SnocOf x l r /\ bn = 0 /\ st' = st)
                     (cons y sl') _)
                   _ _))
@@ -205,19 +203,8 @@ Next Obligation.
 Defined.
 
 Next Obligation.
-  rename H3 into post.
-  simpl in *.
-  edestruct post as [EQl [EQan EQst']].
-  auto. subst an.
-  repeat split; auto.
-Defined.
-
-Next Obligation.
-  rename H into post.
-  simpl in *.
-  edestruct post as [EQl [EQan EQst']].
-  auto. subst st' an.
-  intuition.
+  simpl. repeat split; auto.
+  omega.
 Defined.
 
 Next Obligation.

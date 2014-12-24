@@ -171,10 +171,12 @@ Program Fixpoint snoc (ST:Set) x (l:list nat) :
   :=
   match l with
     | nil =>
-      (@ret ST _
-        (fun st r ln st' =>
-          SnocOf x l r /\ ln = 0 /\ st' = st)
-        (cons x nil) _)
+      (@weaken _ _ _ _ _ _
+        (@ret ST _
+          (fun st r ln st' =>
+            SnocOf x l r /\ ln = 0 /\ st' = st)
+          (cons x nil) _)
+        _ _)
     | cons y sl =>
       (@weaken _ _ _ _ _ _
         (@bind ST
@@ -200,10 +202,6 @@ Program Fixpoint snoc (ST:Set) x (l:list nat) :
               _ _)))
         _ _)
   end.
-
-Next Obligation.
-  eauto.
-Defined.
 
 Next Obligation.
   simpl. repeat split; auto.
@@ -235,11 +233,7 @@ Program Definition store_snoc (x:nat) :
         (@weaken _ _ _ _ _ _
           (@bind ST
 
-            _ 
-            (fun st => st = l)
-            (fun st l' l'n st' =>
-              SnocOf x l l' /\ l'n = length l /\ st' = st)
-            (@weaken _ _ _ _ _ _ (snoc ST x l) _ _)
+            _ _ _ (snoc ST x l)            
             
             _
             (fun l' l'n st =>

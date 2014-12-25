@@ -150,7 +150,10 @@ Proof.
   exists (an + k). eauto.
 Defined.
 Hint Unfold inc.
-    
+
+(* Wrap everything in weaken unless it is the first argument to
+   bind. *)
+
 (* xxx example inline for testing *)
 
 Require Import Omega.

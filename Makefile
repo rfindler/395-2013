@@ -2,10 +2,14 @@ VS := $(shell find . -type f -name '*v' | grep -v _gen.v | grep -v /extract.v $)
 VERSIONS := tmonad
 GEN_DEPS := rkt/emit.rkt rkt/tmonad.rkt rkt/tmonad-coq.rkt
 
-all: coq paper/paper.pdf extract/a.out
+all: code paper
 	@echo ""
 	@echo ""
 	@ ! grep -i admit $(VS)
+
+paper: paper/paper.pdf
+
+code: coq extract/extract extract/sextract
 
 paper/paper.pdf: paper/paper.scrbl paper/background.scrbl paper/util.rkt paper/l.v paper/lwl.v paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl */*.v
 	(cd paper; scribble --pdf paper.scrbl; cd ..)
@@ -26,8 +30,15 @@ extract/extract.ml: coq
 	coqc -q -R . Braun extract/extract.v
 	mv extract.ml extract/
 
-extract/a.out: extract/extract.ml
-	(cd extract; ocamlc -I ml extract.ml)
+extract/sextract.ml: coq
+	coqc -q -R . Braun smonad/extract.v
+	mv sextract.ml extract/
+
+extract/extract: extract/extract.ml
+	ocamlc -I ml -o $@ $^
+
+extract/sextract: extract/sextract.ml
+	ocamlc -I ml -o $@ $^
 
 tmonad-gen: insert/insert_log_gen.v \
             size/size_linear_gen.v \

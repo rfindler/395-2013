@@ -1,5 +1,6 @@
 Require Import Braun.smonad.smonad.
 Require Import Braun.smonad.snoc.
+Require Import Braun.smonad.reverse.
 
 Extract Inductive unit => "unit" [ "()" ].
 Extract Inductive bool => "bool" [ "false" "true" ].
@@ -16,4 +17,4 @@ Extract Constant minus => "fun x y -> x - y".
 Extraction Inline ret bind inc get put weaken.
 Extraction Inline projT1 projT2.
 
-Extraction "sextract.ml" store_snoc.
+Extraction "sextract.ml" store_snoc memory_reverse.

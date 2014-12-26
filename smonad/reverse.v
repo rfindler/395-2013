@@ -1,4 +1,5 @@
 Require Import Braun.smonad.smonad.
+Require Import Omega.
 
 Definition Addr := nat.
 Hint Unfold Addr.
@@ -106,61 +107,17 @@ Definition Memory_Modifies (C:Set) (mem:Memory C) (a:Addr) (av':C) (mem':Memory 
     mem_map C mem' a' = mem_map C mem a'
     \/ a = a'.
 
-Program Definition alloc (C:Set) (init:C) :
+Program Definition malloc (C:Set) (init:C) :
   (CS (Memory C) (fun mem => Memory_Valid C mem) Addr
     (fun mem next allocn mem' =>
       next = (mem_next C mem) /\
       allocn = 0 /\
-      Memory_Extends C mem next init mem'))
-  :=
-  (@weaken _ _ _ _ _ _
-    (@bind _ _ _ _ (@get _)
-      _
-      (fun memv memn mem =>
-        Memory_Valid C mem /\
-        memv = mem /\
-        memn = 0)
-      (fun memv mem next allocn mem' =>
-        memv = mem /\
-        next = mem_next C mem /\
-        allocn = 0 /\
-        Memory_Extends C mem next init mem')
-      (fun mem pmem =>
-        match mem with
-          (next, map) =>
-          (@weaken _ _ _ _ _ _
-            (@bind _ _ _ _ (@put _ (addr_inc next, map_ext C map next init))
-              _
-              (fun _ putn mem' =>
-                putn = 0)
-              (fun _ mem retv retn mem' =>
-                retv = next /\
-                retn = 0 /\
-                mem' = mem)
-              (fun _ p_ =>
-                (@weaken _ _ _ _ _ _
-                  (@ret _ _
-                    (fun mem r rn mem' =>
-                      r = next /\
-                      rn = 0 /\
-                      mem' = mem)
-                    next _) _ _))) _ _)
-        end)) _ _).
-
-Solve Obligations using auto.
-Solve Obligations using intuition.
-
-Next Obligation.
-  intros.
-  subst mem.
-  rename H0 into P.
-  destruct P as [MV [EQst EQan0]].
-  subst st an0.
-  clear pmem.
-  destruct H as [tt [an0 [stA [bn [EQan [[EQan0 EQstA] [EQa [EQan' EQst']]]]]]]].
-  subst an an0 stA a st'.
-  clear tt.
-  replace bn with 0 in *. clear EQan' bn.
+      Memory_Extends C mem next init mem')).
+Proof.
+  intros C init mem MV.
+  destruct mem as [next map].
+  exists (next, (addr_inc next, map_ext C map next init)).
+  exists 0.
   unfold Memory_Extends.
   unfold Memory_Valid in *.
   simpl in *.
@@ -172,90 +129,28 @@ Next Obligation.
   eapply MV. omega. omega.
 Defined.
 
-(* XXX There is clearly a tactic here. *)
-Next Obligation.
-  intros. split; auto.
-  intros.
-  rename H0 into P.
-  destruct P as [EQ1 [EQ2 EQ3]].
-  subst st an stA.
-  auto.
-Defined.
-
-Next Obligation.
-  intros. repeat destruct H.
-  repeat destruct H0.
-  repeat destruct H.
-  destruct H0. destruct H1.
-  destruct H2.
-  subst. auto.
-Defined.
-
-Program Definition ref (C:Set) (a:Addr) :
+Program Definition mref (C:Set) (a:Addr) :
   (CS (Memory C) (fun mem => True) (option C)
     (fun mem av refn mem' =>
       av = mem_map C mem a /\
       refn = 0 /\
-      mem' = mem))
-  :=
-  (@weaken _ _ _ _ _ _
-    (@bind _ _ _ _ (@get _)
-      _
-      (fun gv gn mem =>
-        gv = mem /\
-        gn = 0)
-      (fun gv mem av refn mem' =>
-        gv = mem /\
-        av = mem_map C mem a /\
-        refn = 0 /\
-        mem' = mem)
-      (fun memv pmem =>
-        (@weaken _ _ _ _ _ _
-          (@ret _ _
-            (fun mem r rn mem' =>
-              r = mem_map C memv a /\
-              rn = 0 /\
-              mem' = mem)
-            (mem_map C memv a) _) _ _))) _ _).
-
-Solve Obligations using auto.
-
-Next Obligation.
-  intros.
-  destruct H as [EQst [EQa0 [EQa02 [EQan EQst']]]].
-  subst st' a0 an.
-  clear EQst' EQa02.
-  destruct H0 as [EQst EQan0].
-  subst st an0.
-  auto.
+      mem' = mem)).
+Proof.
+  intros C a mem P.
+  destruct mem as [next map].
+  exists (map a, (next, map)).
+  simpl. eauto.
 Defined.
 
-Next Obligation.
-  intros.
-  split; auto.
-  intros.
-  destruct H0. destruct H1.
-  subst.
-  auto.
-Defined.
-
-Next Obligation.
-  intros.
-  destruct H as [a1 [an0 [stA [bn [EQan [[EQst [EQan0 EQstA]] [EQa1 [EQa0 [EQan2 EQst']]]]]]]]].
-  subst an a1 an0 stA st'.
-  auto.
-Defined.
-
-(* The other two can be done this simply too... *)
-Program Definition setmem (C:Set) (a:Addr) (av':C) :
-  (CS (Memory C) (fun mem => True) ()
+Program Definition mset (C:Set) (a:Addr) (av':C) :
+  (CS (Memory C) (fun mem => True) unit
     (fun mem _ setn mem' =>
       setn = 0 /\
       Memory_Modifies C mem a av' mem')).
 Proof.
   intros C a av' mem P.
   destruct mem as [next map].
-  exists ((), (next, map_ext C map a av')).
+  exists (tt, (next, map_ext C map a av')).
   exists 0. split. auto.
   unfold Memory_Modifies.
   simpl.
@@ -264,4 +159,101 @@ Proof.
   destruct (addr_eq_dec a a'); eauto.
 Defined.
 
-Program Fixpoint memory_reverse : nat.
+(* example *)
+
+Inductive SLL : Set :=
+| NULL : SLL
+| NODE :
+  nat -> Addr -> SLL.
+Hint Constructors SLL.
+
+Inductive SLL_is_List : (Memory SLL) -> Addr -> nat -> Prop :=
+| SiL_nil :
+  forall mem a,
+    mem_map SLL mem a = Some NULL ->
+    SLL_is_List mem a 0
+| SiL_cons :
+  forall mem a n a',
+    SLL_is_List mem a' n ->
+    mem_map SLL mem a = Some (NODE n a') ->
+    SLL_is_List mem a (S n).
+Hint Constructors SLL_is_List.
+
+Lemma memory_extends_SLL:
+  forall mem a' n,
+    SLL_is_List mem a' n ->
+    forall a v mem',
+      Memory_Extends SLL mem a v mem' ->
+      SLL_is_List mem' a' n.
+Proof.
+  intros mem a' n SiL.
+  induction SiL as [mem a' MS|mem a' n a'' SiL MS];
+    intros a v mem' ME.
+
+  unfold Memory_Extends in ME.
+  eapply SiL_nil. intuition.
+
+  eapply (SiL_cons _ _ _ a'').
+  eapply MS. apply ME.
+  unfold Memory_Extends in ME.
+  intuition.
+Qed.
+
+Program Fixpoint memory_list_of_len (n:nat) :
+  CS (Memory SLL) (fun mem => Memory_Valid _ mem) Addr
+  (fun mem a an mem' =>
+    an = (S n) /\
+    Memory_Valid _ mem' /\
+    SLL_is_List mem' a n)
+  :=
+  (@inc _ 1 _ _ _
+    (match n with
+       | O =>
+         (@weaken _ _ _ _ _ _ (@malloc SLL NULL) _ _)
+       | S m =>
+         (@weaken _ _ _ _ _ _
+           (@bind _ _ _ _
+             (@memory_list_of_len m)
+             _
+             (fun a' a'n mema' =>
+               a'n = (S m) /\
+               Memory_Valid _ mema' /\
+               SLL_is_List mema' a' m)
+             (fun a' mema' a an mema =>
+               an = n /\
+               Memory_Valid _ mema /\
+               SLL_is_List mema a n)
+             (fun a' pa' =>
+               (@weaken _ _ _ _ _ _ (@malloc SLL (NODE m a')) _ _)))
+           _ _)
+     end)).
+
+Solve Obligations using auto.
+
+Next Obligation.
+  rename H2 into ME.
+  unfold Memory_Extends in ME.
+  repeat split; auto.
+  intuition.
+  eapply SiL_nil.
+  intuition.
+Defined.
+
+Next Obligation.
+  rename H4 into ME.
+  rename H2 into SiLst.
+  repeat split; auto.
+  unfold Memory_Extends in ME. intuition.
+  eapply (SiL_cons st' (mem_next SLL st) m a');
+    try (intuition; fail).
+  eapply memory_extends_SLL.
+  apply SiLst. apply ME.
+  unfold Memory_Extends in ME. intuition.
+Defined.
+
+Next Obligation.
+  rename H1 into EQm.
+  rewrite EQm.
+  repeat split; auto.
+  omega.
+Defined.

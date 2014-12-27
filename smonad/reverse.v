@@ -161,55 +161,64 @@ Defined.
 
 (* example *)
 
-Inductive SLL : Set :=
-| NULL : SLL
-| NODE :
-  nat -> Addr -> SLL.
+Inductive SLL (A:Set) : Set :=
+| NULL : SLL A
+| NODE : A -> Addr -> SLL A.
 Hint Constructors SLL.
 
-Inductive SLL_is_List : (Memory SLL) -> Addr -> nat -> Prop :=
+Inductive SLL_is_List (A:Set) : (Memory (SLL A)) -> Addr -> (list A) -> Prop :=
 | SiL_nil :
   forall mem a,
-    mem_map SLL mem a = Some NULL ->
-    SLL_is_List mem a 0
+    mem_map (SLL A) mem a = Some (NULL A) ->
+    SLL_is_List A mem a nil
 | SiL_cons :
-  forall mem a n a',
-    SLL_is_List mem a' n ->
-    mem_map SLL mem a = Some (NODE n a') ->
-    SLL_is_List mem a (S n).
+  forall mem a v l' a',
+    SLL_is_List A mem a' l' ->
+    mem_map (SLL A) mem a = Some (NODE A v a') ->
+    SLL_is_List A mem a (cons v l').
 Hint Constructors SLL_is_List.
 
 Lemma memory_extends_SLL:
-  forall mem a' n,
-    SLL_is_List mem a' n ->
+  forall A mem a' l,
+    SLL_is_List A mem a' l ->
     forall a v mem',
-      Memory_Extends SLL mem a v mem' ->
-      SLL_is_List mem' a' n.
+      Memory_Extends (SLL A) mem a v mem' ->
+      SLL_is_List A mem' a' l.
 Proof.
-  intros mem a' n SiL.
-  induction SiL as [mem a' MS|mem a' n a'' SiL MS];
+  intros A mem a' n SiL.
+  induction SiL as [mem a' MS|mem a' v' l' a'' SiL MS];
     intros a v mem' ME.
 
   unfold Memory_Extends in ME.
   eapply SiL_nil. intuition.
 
-  eapply (SiL_cons _ _ _ a'').
+  eapply (SiL_cons _ _ _ _ _ a'').
   eapply MS. apply ME.
   unfold Memory_Extends in ME.
   intuition.
 Qed.
 
+Fixpoint list_of_len (n:nat) : list nat :=
+  match n with
+    | O =>
+      nil
+    | S n =>
+      cons n (list_of_len n)
+  end.
+
 Program Fixpoint memory_list_of_len (n:nat) :
-  CS (Memory SLL) (fun mem => Memory_Valid _ mem) Addr
+  CS (Memory (SLL nat))
+  (fun mem => Memory_Valid _ mem)
+  Addr
   (fun mem a an mem' =>
     an = (S n) /\
     Memory_Valid _ mem' /\
-    SLL_is_List mem' a n)
+    SLL_is_List _ mem' a (list_of_len n))
   :=
   (@inc _ 1 _ _ _
     (match n with
        | O =>
-         (@weaken _ _ _ _ _ _ (@malloc SLL NULL) _ _)
+         (@weaken _ _ _ _ _ _ (@malloc (SLL nat) (NULL nat)) _ _)
        | S m =>
          (@weaken _ _ _ _ _ _
            (@bind _ _ _ _
@@ -218,17 +227,15 @@ Program Fixpoint memory_list_of_len (n:nat) :
              (fun a' a'n mema' =>
                a'n = (S m) /\
                Memory_Valid _ mema' /\
-               SLL_is_List mema' a' m)
+               SLL_is_List _ mema' a' (list_of_len m))
              (fun a' mema' a an mema =>
                an = n /\
                Memory_Valid _ mema /\
-               SLL_is_List mema a n)
+               SLL_is_List _ mema a (list_of_len n))
              (fun a' pa' =>
-               (@weaken _ _ _ _ _ _ (@malloc SLL (NODE m a')) _ _)))
+               (@weaken _ _ _ _ _ _ (@malloc (SLL _) (NODE _ m a')) _ _)))
            _ _)
      end)).
-
-Solve Obligations using auto.
 
 Next Obligation.
   rename H2 into ME.
@@ -244,7 +251,7 @@ Next Obligation.
   rename H2 into SiLst.
   repeat split; auto.
   unfold Memory_Extends in ME. intuition.
-  eapply (SiL_cons st' (mem_next SLL st) m a');
+  eapply (SiL_cons _ st' (mem_next (SLL _) st) m _ a');
     try (intuition; fail).
   eapply memory_extends_SLL.
   apply SiLst. apply ME.

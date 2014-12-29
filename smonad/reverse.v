@@ -291,27 +291,244 @@ Defined.
 (* XXX I have not tried to write these in the monad, but it seems
 scary to do it that way first *)
 
-(* XXX Try to push l_after_len into the proof part *)
-
-Program Definition memory_reverse_loop (A:Set)
-  (l_after_len : nat) (a_before:Addr) (a_after:Addr) :
-  CS (Memory (SLL A))
+Definition MRL_Pre (A:Set) (a_before:Addr) (a_after:Addr)
+  : CS_Pre (Memory (SLL A)) :=
   (fun mem =>
     Memory_Valid _ mem /\
     (exists l_before,
       SLL_is_List A mem a_before l_before) /\
     (exists l_after,
-      SLL_is_List A mem a_after l_after /\
-      length l_after = l_after_len))
-  Addr
+      SLL_is_List A mem a_after l_after)).
+  
+Definition MRL_Post (A:Set) (a_before:Addr) (a_after:Addr)
+  : CS_Post (Memory (SLL A)) Addr :=
   (fun mem a_done mrln mem' =>
     Memory_Valid _ mem' /\
     forall l_before l_after,
       SLL_is_List A mem a_before l_before ->
-      (SLL_is_List A mem a_after l_after /\ length l_after = l_after_len) ->
+      SLL_is_List A mem a_after l_after ->
       mrln = length l_after /\
       SLL_is_List A mem' a_done ((rev l_after) ++ l_before)).
+
+(* XXX change this to (Mem,Addr) x (Mem,Addr) so that the TO mem can be changing during the induction and integrate back up the memory_extends, perhaps via Mem_lt *)
+Inductive SLL_lt (A:Set) (mem:(Memory (SLL A))) : Addr -> Addr -> Prop :=
+| Slt_NULL :
+  forall to from v,
+    mem_map (SLL A) mem to = Some (NULL A) ->
+    mem_map (SLL A) mem from = Some (NODE A v to) ->
+    SLL_lt A mem to from
+| Slt_NODE :
+  forall to next from v v',
+    SLL_lt A mem next to ->
+    mem_map (SLL A) mem to = Some (NODE A v' next) ->
+    mem_map (SLL A) mem from = Some (NODE A v to) ->
+    SLL_lt A mem to from.
+Hint Constructors SLL_lt.
+
+Theorem SLL_lt_wf:
+  forall A mem,
+    well_founded (SLL_lt A mem).
 Proof.
+  intros A mem from1.
+  eapply Acc_intro.
+  intros to1 Slt1.
+
+  induction Slt1.
+
+  rename H into MS_to.
+  rename H0 into MS_from.
+  eapply Acc_intro.
+  intros to2 Slt2.
+  inversion Slt2; clear Slt2.
+  congruence.
+  subst from0 to0.
+  congruence.
+
+  rename H into MS_to.
+  rename H0 into MS_from.
+  eapply Acc_intro.
+  intros to2 Slt2.
+  inversion Slt2; clear Slt2.
+  subst to0 from0.
+  congruence.
+
+  subst to0 from0.
+  congruence.
+Qed.
+
+Lemma SLL_is_List_impl_SLL_lt:
+  forall (A:Set) mem a_after v_after a'_after,
+    (exists l_after : list A, SLL_is_List A mem a_after l_after) ->
+    mem_map (SLL A) mem a_after = Some (NODE A v_after a'_after) ->
+    SLL_lt A mem a'_after a_after.
+Proof.
+  intros.
+  rename H0 into MS.
+  destruct H as [l_after SiL].
+  generalize a'_after v_after MS. clear MS a'_after v_after.
+  induction SiL; intros a'_after v_after MS.
+  congruence.
+  rename H into MS'.
+  replace v with v_after in *; try congruence; clear v.
+  replace a' with a'_after in *; try congruence; clear a'.
+  clear MS'.
+  inversion SiL; eauto.
+Qed.
+
+Definition memory_reverse_loop_unfold_P (A:Set)
+  (mem:(Memory (SLL A))) (a_after:Addr) :=
+  forall (a_before:Addr)
+    (PRE:(MRL_Pre A a_before a_after mem)),
+    CS_Result (Memory (SLL A)) Addr mem (MRL_Post A a_before a_after).
+
+Program Definition memory_reverse_loop_unfold (A:Set)
+  (mem:(Memory (SLL A))) (a_after:Addr)  :
+  (memory_reverse_loop_unfold_P A mem a_after).
+Proof.
+  intros A mem.
+  eapply well_founded_induction.
+  apply (SLL_lt_wf A mem).
+  intros a_after IH.
+  unfold memory_reverse_loop_unfold_P, MRL_Pre, MRL_Post, CS_Result in *.
+
+  intros a_before [MV [LB LA]].
+  remember (mem_map _ mem a_after) as v_after.
+  destruct v_after as [v_after|].
+
+  Focus 2.
+   cut False. intuition.
+   destruct LA as [l_after LA].
+   inversion LA; congruence.
+  
+  destruct v_after as [|v_after a'_after].
+
+  exists (a_before, mem).
+  exists 0.
+  split. auto.
+  clear LB LA.
+  intros l_before l_after LB LA.
+  replace l_after with (@nil A) in *.
+  simpl in *. split. auto. auto.
+  inversion LA. auto.
+  congruence.
+
+  destruct (@malloc _ (NODE A v_after a_before) mem)
+    as [[a'_before mem'] Post_malloc].
+  auto.
+
+  assert (exists l'_before : list A,
+    SLL_is_List A mem' a'_before l'_before) as LB'. 
+  destruct LB as [l_before LB].
+  destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
+  exists (cons v_after l_before).
+  eapply SiL_cons.
+  eapply memory_extends_SLL.
+  apply LB. apply ME.
+  unfold Memory_Extends in ME. intuition.
+
+  assert (exists l'_after : list A,
+    SLL_is_List A mem' a'_after l'_after) as LA'.
+  destruct LA as [l_after LA].
+  destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
+  destruct l_after as [|v'_after l_after].
+  inversion LA. congruence.
+  exists l_after.
+  eapply memory_extends_SLL.
+  inversion LA.
+  subst mem0 a v l'.
+  rename H3 into LA'.
+  rename H4 into MS.
+  replace a' with a'_after in *.
+  apply LA'.
+  congruence.
+  apply ME.
+
+  assert (SLL_lt A mem a'_after a_after) as Slt.
+  eapply SLL_is_List_impl_SLL_lt.
+  apply LA. symmetry. apply Heqv_after.
+  
+  (* XXX want to use mem' *)
+  destruct (IH a'_after Slt a'_before).
+
+  destruct (IHl_after_len a'_before a'_after mem');
+    clear IHl_after_len.
+  destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
+  unfold Memory_Extends in ME. intuition.
+
+  destruct x as [IHa IHmem].
+  exists (IHa, IHmem).
+  destruct y as [IHn [MV' Post_IH]].
+  exists (S IHn).
+  split. auto.
+  intros l_before l_after LB2 [LA2 EQLA2].
+  destruct LB' as [l'_before LB'].
+  destruct LA' as [l'_after [LA' EQLA']].
+  edestruct (Post_IH l'_before l'_after LB') as [EQIHn Post_IH'].
+  auto.
+  subst IHn. split.
+  omega.
+  destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
+  replace l'_before with (cons v_after l_before) in *.
+  replace l_after with (cons v_after l'_after) in *.
+  simpl.
+  replace ((rev l'_after ++ v_after :: nil) ++ l_before)
+    with (rev l'_after ++ v_after :: l_before).
+  apply Post_IH'.
+  rewrite <- app_assoc.
+  simpl. auto.
+
+  clear Post_IH' Post_IH EQmn LB LA.
+  inversion LA2. congruence.
+  subst mem0 a l_after.
+  rename H0 into MS.
+  rewrite <- Heqv_after in MS.
+  replace v with v_after in *; try congruence.
+  replace l' with l'_after in *; auto.
+  replace a' with a'_after in *; try congruence.
+  rename H into LA'2.
+
+  eapply SLL_is_List_fun.
+  apply LA'.
+  eapply memory_extends_SLL.
+  apply LA'2.
+  apply ME.
+
+  remember ME as ME2.
+  unfold Memory_Extends in ME.
+  destruct ME as [MV2 [MV'2 [MNxt [Same [Diff [MS MN]]]]]].
+  inversion LB'. congruence.
+  subst mem0 a l'_before.
+  rename H into LB'2.
+  rename H0 into MS2.
+  replace v with v_after in *; try congruence.
+  replace l' with l_before in *; auto.
+  replace a' with a_before in *; try congruence.
+  symmetry.
+  eapply SLL_is_List_fun.
+  apply LB'2.
+  eapply memory_extends_SLL.
+  apply LB2.
+  apply ME2.
+  
+Defined.
+
+Program Definition memory_reverse_loop (A:Set)
+  (a_before:Addr) (a_after:Addr) :
+  CS (Memory (SLL A))
+  (MRL_Pre A a_before a_after)
+  Addr
+  (MRL_Post A a_before a_after).
+Proof.
+  intros A a_before a_after mem PRE.
+  assert (SLL_is_Some_List A mem a_after) as SiSL.
+  apply SiL_iff_SiSL. intuition.
+  generalize PRE. clear PRE.
+  generalize a_before. clear a_before.
+
+  induction SiSL.
+
+  SiL_iff_SiSL
+  
   intros A l_after_len .
   induction l_after_len as [|l_after_len];
     intros a_before a_after mem [MV [LB LA]];

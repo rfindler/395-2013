@@ -8,13 +8,17 @@ Definition CS_Post (ST:Set) (A:Set) : Type :=
   ST -> A -> nat -> ST -> Prop.
 Hint Unfold CS_Post.
 
+Definition CS_Result (ST:Set) (A : Set) (st:ST) (post : CS_Post ST A) :=
+  { (a, st') : A * ST |
+    (* cs final *)
+    exists an, post st a an st' }.
+Hint Unfold CS_Result.
+
 Definition
   CS (ST:Set) (pre : CS_Pre ST) (A : Set) (post : CS_Post ST A) : Set :=
   forall st : ST,
     pre st ->
-    { (a, st') : A * ST |
-      (* cs final *)
-      exists an, post st a an st' }.
+    CS_Result ST A st post.
 Hint Unfold CS.
 
 Program Definition weaken (ST:Set)

@@ -17,4 +17,4 @@ Extract Constant minus => "fun x y -> x - y".
 Extraction Inline ret bind inc get put weaken.
 Extraction Inline projT1 projT2.
 
-Extraction "sextract.ml" store_snoc memory_list_of_len memory_reverse_loop.
+Extraction "sextract.ml" store_snoc memory_list_of_len memory_reverse.

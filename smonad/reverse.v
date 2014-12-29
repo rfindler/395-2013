@@ -376,21 +376,27 @@ Proof.
 Qed.
 
 (* XXX change this to (Mem,Addr) x (Mem,Addr) so that the TO mem can be changing during the induction and integrate back up the memory_extends, perhaps via Mem_lt *)
-Inductive SLL_lt (A:Set) : (Memory (SLL A))*Addr -> (Memory (SLL A))*Addr -> Prop :=
-| Slt_NULL :
-  forall mem mem' to from v,
-    Memory_le (SLL A) mem mem' ->
+Inductive SLL_lt_core (A:Set) (mem:Memory (SLL A)) : Addr -> Addr -> Prop :=
+| Sltc_NULL :
+  forall to from v,
     mem_map (SLL A) mem to = Some (NULL A) ->
     mem_map (SLL A) mem from = Some (NODE A v to) ->
-    SLL_lt A (mem',to) (mem,from)
-| Slt_NODE :
-  forall mem mem' to next from v v',
-    Memory_le (SLL A) mem mem' ->
-    SLL_lt A (mem,next) (mem,to) ->
+    SLL_lt_core A mem to from
+| Sltc_NODE :
+  forall to next from v v',
+    SLL_lt_core A mem next to ->
     mem_map (SLL A) mem to = Some (NODE A v' next) ->
     mem_map (SLL A) mem from = Some (NODE A v to) ->
-    SLL_lt A (mem',to) (mem,from).
-Hint Constructors SLL_lt.
+    SLL_lt_core A mem to from.
+Hint Constructors SLL_lt_core.
+
+Definition SLL_lt (A:Set) (mem_to:((Memory (SLL A))*Addr))
+  (mem_from:((Memory (SLL A))*Addr)) :=
+  let (mem', to) := mem_to in
+    let (mem, from) := mem_from in
+      Memory_le (SLL A) mem mem' /\
+      SLL_lt_core A mem to from.
+Hint Unfold SLL_lt.
 
 Theorem SLL_lt_wf:
   forall A,
@@ -400,33 +406,59 @@ Proof.
   eapply Acc_intro.
   intros [mem' to1] Slt1.
 
-  induction Slt1.
+  unfold SLL_lt in *; simpl in *.
 
-  rename H into MS_to.
-  rename H0 into MS_from.
+  destruct Slt1 as [MLE1 Sltc1].
+  generalize mem' MLE1.
+  clear mem' MLE1.
+  induction Sltc1; intros mem' MLE1.
+
+  rename to into to1.
+  rename from into from1.
+  rename H into MS_to1.
+  rename H0 into MS_from1.
   eapply Acc_intro.
   intros [mem2 to2] Slt2.
-  inversion Slt2; clear Slt2.
-  subst mem'1 to0 mem1 from0.
-  eapply (Memory_le_Same _ mem0 mem'0) in MS_from.
-  congruence. auto.
-  subst mem'1 to0 mem1 from0.
-  eapply (Memory_le_Same _ mem0 mem'0) in MS_from.
-  congruence. auto.
+  destruct Slt2 as [MLE2 Sltc2].
+  inversion Sltc2; clear Sltc2.
+  subst to from.
+  rename H into MS_to2.
+  rename H0 into MS_to1'.
+  eapply (Memory_le_Same _ mem mem') in MS_to1; auto.
+  congruence.
+  subst to from.
+  rename H into Sltc3.
+  rename H0 into MS_to2.
+  rename H1 into MS_to1'. 
+  eapply (Memory_le_Same _ mem mem') in MS_to1; auto.
+  congruence.
 
-  rename H into MLE.
-  rename H0 into MS_to.
-  rename H1 into MS_from.
+  rename to into to1.
+  rename from into from1.
+  rename H into MS_to1.
+  rename H0 into MS_from1.
   eapply Acc_intro.
   intros [mem2 to2] Slt2.
-  
-  inversion Slt2; clear Slt2.
-  subst mem'1 to0 mem1 from0.
-  eapply (Memory_le_Same _ mem0 mem'0) in MS_to; auto.
-  eapply (Memory_le_Same _ mem0 mem'0) in MS_from; auto.
-  replace v0 with v' in *; try congruence.
-  replace to2 with next in *; try congruence.
-Admitted.
+  destruct Slt2 as [MLE2 Sltc2].
+  inversion Sltc2; clear Sltc2.
+  subst to from.
+  rename H into MS_to2.
+  rename H0 into MS_to1'.
+  eapply (Memory_le_Same _ mem mem') in MS_to1; auto.
+  replace v0 with v' in *; try congruence; clear v0.
+  replace to2 with next in *; try congruence; clear to2.
+  eapply IHSltc1. eauto.
+
+  subst to from.
+  rename H into Sltc3.
+  rename H0 into MS_to2.
+  rename H1 into MS_to1'.
+  eapply (Memory_le_Same _ mem mem') in MS_to1; auto.
+  replace v0 with v' in *; try congruence; clear v0.
+  replace to2 with next in *; try congruence; clear to2.
+  clear MS_to1'.
+  eapply IHSltc1. eauto.
+Qed.  
 
 Lemma SLL_is_List_impl_SLL_lt:
   forall (A:Set) mem mem' a_after v_after a'_after,
@@ -444,14 +476,24 @@ Proof.
   replace v with v_after in *; try congruence; clear v.
   replace a' with a'_after in *; try congruence; clear a'.
   clear MS'.
+  unfold SLL_lt.
   inversion SiL; eauto.
+  subst mem0 a0 l'.
+  rename H0 into MS'.
+  split; auto.
+  eapply Sltc_NODE.
+  eapply IHSiL.
+  apply MLE.
+  apply MS'.
+  apply MS'.
+  apply MS.
 Qed.
 
 Definition memory_reverse_loop_unfold_P (A:Set)
-  (mem__a_after:((Memory (SLL A))*Addr)) :=
-  forall (mem'__a_before:((Memory (SLL A))*Addr)),
-    let (mem, a_after) := mem__a_after in
-      let (mem', a_before) := mem'__a_before in
+  (mem_a_after:((Memory (SLL A))*Addr)) :=
+  forall (mem'_a_before:((Memory (SLL A))*Addr)),
+    let (mem, a_after) := mem_a_after in
+      let (mem', a_before) := mem'_a_before in
         Memory_le (SLL A) mem mem' ->
         forall (PRE:(MRL_Pre A a_before a_after mem)),
           CS_Result (Memory (SLL A)) Addr mem (MRL_Post A a_before a_after).
@@ -601,4 +643,62 @@ Proof.
   auto. auto.
 Defined.
 
-(* XXX Call and start it off *)
+Program Definition memory_reverse (A:Set) (a:Addr) :
+  CS (Memory (SLL A))
+  (fun mem =>
+    Memory_Valid _ mem /\
+    (exists l, SLL_is_List A mem a l))
+  Addr
+  (fun mem a_done mrln mem' =>
+    Memory_Valid _ mem' /\
+    forall l,
+      SLL_is_List A mem a l ->
+      mrln = length l /\
+      SLL_is_List A mem' a_done (rev l)).
+Proof.
+  intros. intros mem [MV LA].
+  rename a into a_after.
+  
+  destruct (@malloc _ (@NULL A) mem)
+    as [[a_before mem'] Post_malloc].
+  auto.
+
+  assert (Memory_le (SLL A) mem mem') as MLE.
+  destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
+  eauto.
+
+  assert (SLL_is_List A mem' a_before (@nil A)) as LB.
+  destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
+  unfold Memory_Extends in ME.
+  intuition.
+
+  edestruct (@memory_reverse_loop A a_before a_after mem').
+  unfold MRL_Pre.
+  destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
+  split. eapply Memory_le_Valid. apply MV. apply MLE.
+  split. exists nil. auto.
+  destruct LA as [l_after LA].
+  exists l_after.
+  eapply Memory_le_SiL. apply LA. apply MLE.
+
+  destruct x as [a_done mem''].
+  exists (a_done, mem'').
+  destruct y as [an POST].
+  unfold MRL_Post in *.
+  exists an.
+  destruct POST as [MV'' POST].
+  destruct LA as [l_after LA].
+  
+  edestruct (POST nil l_after) as [EQan LR].
+  auto.
+  eapply Memory_le_SiL. apply LA. apply MLE.
+  split. auto.
+  intros l_after' LA'.
+  replace l_after' with l_after in *.
+  clear l_after' LA'.
+  split. auto.
+  rewrite app_nil_r in LR. auto.
+  eapply SLL_is_List_fun.
+  apply LA.
+  apply LA'.
+Defined.

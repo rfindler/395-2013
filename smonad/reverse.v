@@ -375,7 +375,6 @@ Proof.
   apply (Memory_le_Same (SLL A) mem mem' MLE a _ MS).
 Qed.
 
-(* XXX change this to (Mem,Addr) x (Mem,Addr) so that the TO mem can be changing during the induction and integrate back up the memory_extends, perhaps via Mem_lt *)
 Inductive SLL_lt_core (A:Set) (mem:Memory (SLL A)) : Addr -> Addr -> Prop :=
 | Sltc_NULL :
   forall to from v,

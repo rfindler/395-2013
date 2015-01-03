@@ -103,8 +103,8 @@ Program Fixpoint memory_list_of_len (n:nat) :
 Next Obligation.
   rename H2 into ME.
   unfold Memory_Extends in ME.
-  repeat split; auto.
-  intuition.
+  split. auto.
+  split. intuition.
   eapply SiL_nil.
   intuition.
 Defined.
@@ -112,8 +112,8 @@ Defined.
 Next Obligation.
   rename H4 into ME.
   rename H2 into SiLst.
-  repeat split; auto.
-  unfold Memory_Extends in ME. intuition.
+  split. auto.
+  split. unfold Memory_Extends in ME. intuition.
   eapply (SiL_cons _ st' (mem_next (SLL _) st) m _ a');
     try (intuition; fail).
   eapply memory_extends_SLL.
@@ -124,8 +124,8 @@ Defined.
 Next Obligation.
   rename H1 into EQm.
   rewrite EQm.
-  repeat split; auto.
-  omega.
+  split. omega.
+  auto.
 Defined.
 
 Lemma Memory_le_SiL:

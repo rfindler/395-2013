@@ -70,7 +70,7 @@ Proof.
 
   destruct (@malloc _ (NODE A v_after a_before) mem)
     as [[a'_before mem'] Post_malloc].
-  eapply Memory_le_Valid; auto.
+  eapply Memory_le_Valid. apply MV. apply MLE.
 
   assert (Memory_le (SLL A) mem0 mem') as MLE'.
    destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].

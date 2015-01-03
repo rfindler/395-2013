@@ -5,6 +5,8 @@ Require Import Omega.
 Definition Addr := nat.
 Hint Unfold Addr.
 
+Definition NULLptr : Addr := 0.
+
 Definition addr_inc (a:Addr) : Addr := S a.
 
 Theorem addr_eq_dec:
@@ -82,10 +84,34 @@ Definition mem_map (C:Set) (mem:Memory C) := snd mem.
 Hint Unfold mem_map.
 
 Definition Memory_Valid (C:Set) (mem:Memory C) :=
+  ((mem_map C mem) NULLptr) = None /\
+  NULLptr < (mem_next C mem) /\
   forall a,
     (mem_next C mem) <= a ->
     ((mem_map C mem) a) = None.
 Hint Unfold Memory_Valid.
+
+Lemma Memory_Valid_ext:
+  forall C next map init,
+    Memory_Valid C (next, map) ->
+    Memory_Valid C (addr_inc next, map_ext C map next init).
+Proof.
+  intros C next map init.
+  intros [EQnp [LTnp MV]].
+  repeat split; simpl in *.
+
+  unfold map_ext.
+  destruct (addr_eq_dec next NULLptr) as [EQ|NEQ].
+  subst next. omega.
+  auto.
+
+  unfold addr_inc. omega.
+
+  intros a LE.
+  unfold addr_inc in *.
+  eapply map_ext_none.
+  eapply MV. omega. omega.
+Qed.
 
 Definition Memory_Extends (C:Set) (mem:Memory C) (last:Addr) (init:C) (mem':Memory C) :=
   Memory_Valid C mem /\
@@ -121,14 +147,13 @@ Proof.
   exists (next, (addr_inc next, map_ext C map next init)).
   exists 0.
   unfold Memory_Extends.
+  simpl. split. auto.
+  split. auto.
+  split. auto.
+  split. apply Memory_Valid_ext. auto.
   unfold Memory_Valid in *.
-  simpl in *.
+  destruct MV as [EQnp [LTnp MV]].
   repeat split; eauto.
-
-  intros a LE.
-  unfold addr_inc in *.
-  eapply map_ext_none.
-  eapply MV. omega. omega.
 Defined.
 
 Program Definition mref (C:Set) (a:Addr) :
@@ -210,5 +235,5 @@ Definition meminit (C:Set) : { mem : (Memory C) | Memory_Valid C mem }.
 Proof.
  unfold Memory_Valid.
  exists (1, (fun a => None)).
- intros a. simpl. auto.
+ simpl. auto.
 Defined.

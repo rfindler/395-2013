@@ -100,12 +100,14 @@ Next Obligation.
   subst l an stA.
   intros st0 _.
   intros an st'.
-  intros [l [ln [stA [pn [EQan [[SO [EQln EQstA]] post]]]]]].
+  intros [PRE [l [ln [stA [pn [EQan [[SO [EQln EQstA]] post]]]]]]].
+  destruct PRE as [st1 [an0 [[EQst1 [EQan0 EQst0]] [EQan0' EQst0']]]].
   destruct post as [EQ EQst'].
   subst an ln stA l.
+  subst st1 an0 st0. clear EQan0' EQst0.
   replace pn with 0 in *. clear EQ.
   intros an [EQan EQst0].
-  subst an st0.
+  subst an. clear EQst0.
   repeat split; auto.
   omega.
   omega.

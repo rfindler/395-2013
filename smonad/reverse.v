@@ -50,23 +50,7 @@ Proof.
   (* xxx use memref *)
   remember (mem_map _ mem0 a_after) as v_after.
   destruct v_after as [v_after|].
-
-  Focus 2.
-   cut False. intuition.
-   destruct LA as [l_after LA].
-   inversion LA; congruence.
-  
-  destruct v_after as [|v_after a'_after].
-
-  exists (a_before, mem0).
-  exists 0.
-  split. auto.
-  clear LB LA.
-  intros l_before l_after LB LA.
-  replace l_after with (@nil A) in *.
-  simpl in *. split. auto. auto.
-  inversion LA. auto.
-  congruence.
+  destruct v_after as [v_after a'_after].
 
   destruct (@malloc _ (NODE A v_after a_before) mem)
     as [[a'_before mem'] Post_malloc].
@@ -91,7 +75,12 @@ Proof.
   destruct LA as [l_after LA].
   destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
   destruct l_after as [|v'_after l_after].
-  inversion LA. congruence.
+  inversion LA.
+   subst mem1 a_after.
+   replace (mem_map (SLL A) mem0 NULLptr) with (@None (SLL A)) in *.
+   congruence.
+   destruct MV as [EQnp [LTnp MV]].
+   auto.
   exists l_after.
   eapply Memory_le_SiL.
   inversion LA.
@@ -105,6 +94,7 @@ Proof.
 
   assert (SLL_lt A (mem',a'_after) (mem0,a_after)) as Slt.
    eapply SLL_is_List_impl_SLL_lt.
+   auto.
    eauto.
    auto. symmetry in Heqv_after. apply Heqv_after.
     
@@ -139,7 +129,11 @@ Proof.
   remember ME as ME2.
   unfold Memory_Extends in ME.
   destruct ME as [MV2 [MV'2 [MNxt [Same [Diff [MS MN]]]]]].
-  inversion LB'. congruence.
+  inversion LB'.
+   subst mem1 a'_before l'_before.
+   rename H0 into EQnp'.
+   destruct MV2 as [EQnp [LTnp MV2]].
+   omega.
   subst mem1 a l'_before.
   rename H into LB'2.
   rename H0 into MS2.
@@ -148,13 +142,18 @@ Proof.
   replace a' with a_before in *; try congruence.
   symmetry.
   eapply SLL_is_List_fun.
+  apply MV'2.
   apply LB'2.
   eapply Memory_le_SiL.
   apply LB2.
   auto.
 
   clear Post_IH' EQmn LB LA.
-  inversion LA2. congruence.
+  inversion LA2.
+   subst mem1 a_after l_after.
+   replace (mem_map (SLL A) mem0 NULLptr) with (@None (SLL A)) in *.
+   congruence.
+   destruct MV as [EQnp MV]. auto.
   subst mem1 a l_after.
   rename H0 into MS.
   rewrite <- Heqv_after in MS.
@@ -164,10 +163,23 @@ Proof.
   rename H into LA'2.
 
   eapply SLL_is_List_fun.
+  eapply Memory_le_Valid.
+  apply MV.
+  apply MLE'.
   apply LA'.
   eapply Memory_le_SiL.
   apply LA'2.
   auto.
+
+  exists (a_before, mem0).
+  exists 0.
+  split. auto.
+  clear LB LA.
+  intros l_before l_after LB LA.
+  replace l_after with (@nil A) in *.
+  simpl in *. split. auto. auto.
+  inversion LA. auto.
+  congruence.
 Defined.
 
 Program Definition memory_reverse_loop (A:Set)
@@ -197,28 +209,17 @@ Program Definition memory_reverse (A:Set) (a:Addr) :
 Proof.
   intros. intros mem [MV LA].
   rename a into a_after.
-  
-  destruct (@malloc _ (@NULL A) mem)
-    as [[a_before mem'] Post_malloc].
-  auto.
+  remember NULLptr as a_before.
 
-  assert (Memory_le (SLL A) mem mem') as MLE.
-  destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
-  eauto.
+  assert (SLL_is_List A mem a_before (@nil A)) as LB.
+  subst a_before. auto.
 
-  assert (SLL_is_List A mem' a_before (@nil A)) as LB.
-  destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
-  unfold Memory_Extends in ME.
-  intuition.
-
-  edestruct (@memory_reverse_loop A a_before a_after mem').
+  edestruct (@memory_reverse_loop A a_before a_after mem).
   unfold MRL_Pre.
-  destruct Post_malloc as [mn [EQa'_before [EQmn ME]]].
-  split. eapply Memory_le_Valid. apply MV. apply MLE.
+  split. auto.
   split. exists nil. auto.
   destruct LA as [l_after LA].
-  exists l_after.
-  eapply Memory_le_SiL. apply LA. apply MLE.
+  exists l_after. auto.
 
   destruct x as [a_done mem''].
   exists (a_done, mem'').
@@ -230,7 +231,7 @@ Proof.
   
   edestruct (POST nil l_after) as [EQan LR].
   auto.
-  eapply Memory_le_SiL. apply LA. apply MLE.
+  auto.
   split. auto.
   intros l_after' LA'.
   replace l_after' with l_after in *.
@@ -238,6 +239,7 @@ Proof.
   split. auto.
   rewrite app_nil_r in LR. auto.
   eapply SLL_is_List_fun.
+  apply MV.
   apply LA.
   apply LA'.
 Defined.

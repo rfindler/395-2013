@@ -29,7 +29,7 @@ Program Definition weaken (ST:Set)
   (pre_stronger : (forall st, pre' st -> pre st))
   (post_weaker :
     (forall st a an st',
-      post st a an st' ->
+      pre' st /\ post st a an st' ->
       post' st a an st')) :
   (CS ST pre' A post').
 Proof.

@@ -205,3 +205,10 @@ Proof.
 
   eauto.
 Qed.
+
+Definition meminit (C:Set) : { mem : (Memory C) | Memory_Valid C mem }.
+Proof.
+ unfold Memory_Valid.
+ exists (1, (fun a => None)).
+ intros a. simpl. auto.
+Defined.

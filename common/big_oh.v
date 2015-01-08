@@ -169,3 +169,12 @@ Proof.
   intros; omega.
 Qed.
 Hint Resolve big_oh_mult_k_left_linear.
+
+Definition big_omega f g := 
+  exists n0 m, 
+    forall n, 
+      n0 <= n -> 
+      m * g(n) <= f(n).
+
+Definition big_theta f g :=
+  big_oh f g /\ big_omega f g.

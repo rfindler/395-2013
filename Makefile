@@ -2,7 +2,9 @@ VS := $(shell find . -type f -name '*v' | grep -v _gen.v | grep -v /extract.v $)
 VERSIONS := tmonad
 GEN_DEPS := rkt/emit.rkt rkt/tmonad.rkt rkt/tmonad-coq.rkt
 
-all: code paper
+all: code paper admit
+
+admit:
 	@echo ""
 	@echo ""
 	@ ! grep -i admit $(VS)
@@ -45,9 +47,9 @@ tmonad-gen: insert/insert_log_gen.v \
             size/diff_gen.v \
             size/size_log_sq_gen.v \
             copy/copy_linear_gen.v \
-	    copy/copy_fib_log_gen.v \
+		    copy/copy_fib_log_gen.v \
             copy/copy_log_sq_gen.v \
-	    copy/copy2_gen.v copy/copy_log_gen.v \
+		    copy/copy2_gen.v copy/copy_log_gen.v \
             make_array/make_array_nlogn1_gen.v \
             make_array/make_array_nlogn2_gen.v \
             make_array/unravel_gen.v \

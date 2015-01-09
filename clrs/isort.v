@@ -6,22 +6,7 @@ Require Import Program.
 Require Import Omega.
 Require Import List Relations_1.
 Require Import Sorting.Sorted Sorting.Permutation.
-
-Definition IsSorted {A:Set} (A_cmp:A -> A -> Prop) (l:list A) :=
-  (@StronglySorted A A_cmp l).
-
-Definition SortedOf {A:Set} (A_cmp:A -> A -> Prop) (l l':list A) :=
-  (@Permutation A l l') /\
-  (@IsSorted A A_cmp l').
-
-Definition DecCmp {A:Set} (A_cmp:A -> A -> Prop) :=
-  forall x y,
-    {A_cmp x y} + {~ A_cmp x y}.
-
-Definition Total {A:Set} (A_cmp:A -> A -> Prop) :=
-  forall x y,
-    (~ A_cmp x y) ->
-    A_cmp y x.
+Require Import Braun.clrs.sorting.
 
 Program Fixpoint insert
   {A:Set} {A_cmp:A -> A -> Prop}
@@ -84,18 +69,6 @@ Next Obligation.
   exists 2. omega.
   exists 2. omega.
 Defined.
-
-Lemma Permutation_cons_step:
-  forall A (a a':A) x y,
-    Permutation (a :: x) y ->
-    Permutation (a :: a' :: x) (a' :: y).
-Proof.
-  intros. rename H into PM.
-  eapply Permutation_trans.
-  apply perm_swap.
-  apply perm_skip.
-  auto.
-Qed.
 
 Next Obligation.
   rename wildcard' into CMP.
@@ -184,16 +157,6 @@ Next Obligation.
  exists 1. omega.
  exists 1. omega.
 Defined.
-
-Lemma le_add:
-  forall x x' y y',
-    x <= x' ->
-    y <= y' ->
-    x + y <= x' + y'.
-Proof.
-  intros.
-  omega.
-Qed.
 
 Next Obligation.
  clear am H15 H13.

@@ -55,6 +55,15 @@ Proof.
 Qed.
 Hint Resolve fl_log_div2''.
 
+Lemma cl_log_zero :
+  cl_log 0 = 0.
+Proof.
+  apply (Fix_eq _ lt lt_wf (fun _ => nat)).
+  intuition.
+  destruct x; [ reflexivity | repeat f_equal].
+Qed.
+Hint Rewrite cl_log_zero.
+
 Lemma cl_log_div2' : 
   forall n, 
     cl_log (S n) = S (cl_log (div2 (S n))).

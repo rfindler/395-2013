@@ -16,6 +16,7 @@ Require Import Braun.monad.monad.
 Require Import Braun.sub1.sub1.
 
 Require Import Braun.clrs.isort.
+Require Import Braun.clrs.mergesort.
 
 Extract Inductive bool => "bool" [ "false" "true" ].
 Extract Inductive sumbool => "bool" [ "false" "true" ].
@@ -49,4 +50,5 @@ Extraction "extract.ml" insert_log.insert
            to_list_naive.to_list_naive
            sub1.sub1.sub1
 
-           clrs.isort.isort.
+           clrs.isort.isort
+           clrs.mergesort.mergesort.

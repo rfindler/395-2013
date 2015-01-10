@@ -99,6 +99,9 @@ Proof.
   omega.
 Qed.
 
+(* xxx I think we know more for the way merge is called by merge sort
+(with equal input) *)
+
 Definition merge_best_time (n:nat) := 1.
 Definition merge_worst_time (n:nat) := 3 * n + 1.
 Hint Unfold merge_best_time merge_worst_time.
@@ -354,16 +357,103 @@ Proof.
   omega.
 Qed.
 
-Definition mergesortc_best_time (n:nat) :=
-  n * (cl_log n) + 1.
-Definition mergesortc_worst_time (n:nat) :=
+Program Fixpoint mergesortc_best_time (n:nat) {measure n} :=
   match n with
     | O =>
       1
-    | S _ =>
-      n * (cl_log n) + 3 * n + 2
+    | S n' =>
+      match even_odd_dec n with
+        | left _ =>
+          split_at_best_time (div2 n) +
+          mergesortc_best_time (div2 n) +
+          mergesortc_best_time (div2 n) +
+          merge_best_time n + 2
+        | right _ =>
+          mergesortc_best_time n' +
+          insert_best_time n' + 2
+      end
   end.
-Hint Unfold mergesortc_best_time mergesortc_worst_time.
+
+Solve Obligations using program_simpl.
+
+Lemma mergesortc_best_time_O:
+  mergesortc_best_time 0 = 1.
+Proof.
+  program_simpl.
+Qed.
+
+Require Import Coq.Program.Program.
+
+Lemma mergesortc_best_time_Sn_even:
+  forall n,
+    even n ->
+    (exists m, n = S m) ->
+    mergesortc_best_time n = (split_at_best_time (div2 n) +
+          mergesortc_best_time (div2 n) +
+          mergesortc_best_time (div2 n) +
+          merge_best_time n + 2).
+Proof.
+  intros n E [m EQn]. subst n.
+  apply Fix_eq.
+
+Admitted.
+
+Lemma mergesortc_best_time_Sn_odd:
+  forall n n',
+    odd n ->
+    n = S n' ->
+    mergesortc_best_time n = (mergesortc_best_time n' +
+          insert_best_time n' + 2).
+Proof.
+  intros n E n' EQn. subst n.
+Admitted.
+
+Program Fixpoint mergesortc_worst_time (n:nat) {measure n} :=
+  match n with
+    | O =>
+      1
+    | S n' =>
+      match even_odd_dec n with
+        | left _ =>
+          split_at_worst_time (div2 n) +
+          mergesortc_worst_time (div2 n) +
+          mergesortc_worst_time (div2 n) +
+          merge_worst_time n + 2
+        | right _ =>
+          mergesortc_worst_time n' +
+          insert_worst_time n' + 2
+      end
+  end.
+
+Solve Obligations using program_simpl.
+
+Lemma mergesortc_worst_time_O:
+  mergesortc_worst_time 0 = 1.
+Proof.
+  program_simpl.
+Qed.
+
+Lemma mergesortc_worst_time_Sn_even:
+  forall n,
+    even n ->
+    (exists m, n = S m) ->
+    mergesortc_worst_time n = (split_at_worst_time (div2 n) +
+          mergesortc_worst_time (div2 n) +
+          mergesortc_worst_time (div2 n) +
+          merge_worst_time n + 2).
+Proof.
+  intros n E [m EQn]. subst n.
+Admitted.
+
+Lemma mergesortc_worst_time_Sn_odd:
+  forall n n',
+    odd n ->
+    n = S n' ->
+    mergesortc_worst_time n = (mergesortc_worst_time n' +
+          insert_worst_time n' + 2).
+Proof.
+  intros n E n' EQn. subst n.
+Admitted.
 
 Program Fixpoint mergesortc
   {A:Set} {A_cmp:A -> A -> Prop}
@@ -406,9 +496,9 @@ Next Obligation.
   
   unfold SortedOf. unfold IsSorted.
   split. split. auto. apply SSorted_nil.
-  
+
   unfold mergesortc_best_time, mergesortc_worst_time.
-  omega.
+  program_simpl.
 Qed.
 
 Next Obligation.
@@ -505,58 +595,35 @@ Next Obligation.
   clear A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   clear HeqEQlen_xs2.
   rewrite EQlapp.
+  remember EQlen as EQlen'. clear HeqEQlen'.
   rewrite app_length.
-  rewrite EQlen_xs2 in *.
   rewrite <- EQlen in EQlen_xs1.
+  rewrite EQlapp in EQlen.
+  rewrite app_length in EQlen.
+  rewrite EQlen_xs2 in *.
   rewrite min_div2 in EQlen_xs1.
-  rewrite EQlen_xs1 in *.  
-  clear EQlen_xs2 xs2 EQlen_xs1 xs1 EQlapp.
+  rewrite EQlen_xs1 in *.
+  clear EQlen_xs2 EQlen_xs1 EQlapp xs1 xs2.
   remember (div2 len) as D.
 
   destruct D as [|D].
   destruct l as [|x' l].
   congruence.
-  simpl in EQlen.
-  rewrite EQlen in HeqD, E.
+  simpl in EQlen'.
+  rewrite EQlen' in HeqD, E.
   inversion E. clear n H.
   rename H0 into O.
   simpl in HeqD.
   destruct (length l) as [|LEN].
   inversion O. congruence.
 
-  unfold mergesortc_best_time, mergesortc_worst_time in *.
-  unfold split_at_best_time, split_at_worst_time in *.
-  unfold merge_best_time, merge_worst_time in *.
-
-  replace (cl_log (S D + S D)) with (S (cl_log (S D))).
-Focus 2.
-  replace (S D) with (D + 1); try omega.
-  replace (D + 1 + (D + 1)) with (D + 1 + D + 1); try omega.
-  rewrite <- cl_log_even. omega.
-
-  rewrite mult_succ_r.
-  rewrite mult_plus_distr_r.
-  replace (2 * S D) with (S D + S D) in SPLIT_P; try omega.
-  rename len into L.
-  clear A l EQlen x l' EQl.
-
-  split; try omega.
-  replace (0 + 2) with 2; try omega.
-  remember (S D + S D) as SDSD.
-  destruct SDSD as [|t].
+  subst len.
+  rewrite mergesortc_best_time_Sn_even; eauto.
+  rewrite mergesortc_worst_time_Sn_even; eauto.
+  replace (div2 (S D + S D)) with (div2 (2 * S D)).
+  rewrite div2_double.
   omega.
-  rewrite HeqSDSD in *.
-  clear t HeqSDSD.
-  
-  replace (S D * cl_log (S D) + S D * cl_log (S D) + (S D + S D) + 3 * (S D + S D) +
-    2)
-    with
-      ((S D + S D + 2) + (S D * cl_log (S D) + S D * cl_log (S D) + 3 * (S D + S D))); try omega.
-  apply le_add.
-  omega.
-
-  (* xxx need to fiddle with the function *)
-  admit.
+  replace (2 * S D) with (S D + S D); try omega.
 Qed.
 
 Next Obligation.
@@ -603,66 +670,28 @@ Next Obligation.
   rewrite <- (Permutation_length PMres') in *.
   clear res' PMres'.
 
-  unfold mergesortc_best_time, mergesortc_worst_time in *.
-  unfold insert_best_time, insert_worst_time in *.
-
-  destruct len as [|len].
-  inversion O.
-  rewrite EQl.
-  rewrite <- EQlen in *.
-  rewrite <- EQl in EQlen.
-  simpl in EQlen.
-  replace (length l') with len in *; try congruence.
-  clear A l x l' EQlen EQl.
-  apply odd_S2n in O.
-  destruct O as [p EQp].
-  unfold double in EQp.
-  rewrite EQp.
-  replace (S (p + p)) with (p + p + 1); try omega.
-  rewrite cl_log_odd.
-  replace (p + p + 1) with (S (p + p)); try omega.
-  replace len with (p + p) in *; try omega.
-  clear len EQp.
-
-  destruct p as [|p].
-  (* p = zero *)
-  simpl in *.
+  rewrite (mergesortc_best_time_Sn_odd (length (x :: l')) (length l')).
+  rewrite (mergesortc_worst_time_Sn_odd (length (x :: l')) (length l')).
   omega.
-
-  (* p = S n *)
-  replace (S p + S p) with (p + 1 + p + 1) in *; try omega.  
-  rewrite <- cl_log_even in *.
-  replace (p + 1 + p + 1) with (S p + S p) in *; try omega.
-  replace (p + 1) with (S p) in *; try omega.
-
-  remember (S p + S p) as SpSp.
-  destruct SpSp as [|t].
-  omega.
-  rewrite HeqSpSp in *.
-  clear t HeqSpSp.
-
-  rewrite mult_succ_l.
-
-  split.
-  cut ((cl_log (S p) + 1) <= Ninsert + 2). intros LE.
-  omega.
-  clear REC_P.
-
-  (* xxx false! *)
-  admit.
-
-  rewrite mult_succ_r.
-  cut (Ninsert + 2 <= (cl_log (S p) + 1) + 3). intros LE.
-  omega.
-  clear REC_P.
-
-  (* xxx false! *)
-  admit.
+  subst. auto.
+  auto.
+  subst. auto.
+  auto.
 Qed.
 
 Next Obligation.
   program_simpl.
 Defined.
+
+Theorem mergesortc_best:
+  big_omega mergesortc_best_time (fun n => n * cl_log n).
+Proof.
+Admitted.
+
+Theorem mergesortc_worst:
+  big_oh mergesortc_worst_time (fun n => n * cl_log n).
+Proof.
+Admitted.
 
 Definition mergesort_best_time (n:nat) :=
   clength_time n + mergesortc_best_time n.
@@ -697,28 +726,23 @@ Next Obligation.
   omega.
 Qed.
 
-Theorem mergesort_best:
-  big_omega mergesort_best_time (fun n => n * cl_log n).
+Lemma big_oh_n_nlogn:
+  big_oh (fun n : nat => n) (fun n : nat => n * cl_log n).
 Proof.
-  unfold big_omega, mergesort_best_time.
-  unfold clength_time, mergesortc_best_time.
+Admitted.
 
-  exists 0. exists 1.
-  intros n LE.
-  omega.
-Qed.
-
-Theorem mergesort_worst:
+Corollary mergesort_worst:
   big_oh mergesort_worst_time (fun n => n * cl_log n).
 Proof.
-  unfold big_oh, mergesort_worst_time.
-  unfold clength_time, mergesortc_worst_time.
-
-  exists 1. exists 1.
-  intros n LE.
-  destruct n as [|n].
-  omega.
-
-  (* xxx it's not worth figuring this out until the numbers above are right *)
-  admit.
+  unfold mergesort_worst_time.
+  apply big_oh_plus; try apply mergesortc_worst.
+  unfold clength_time.
+  eapply big_oh_trans.
+  apply big_oh_add_k_linear.
+  apply big_oh_n_nlogn.
 Qed.
+
+Corollary mergesort_best:
+  big_omega mergesort_best_time (fun n => n * cl_log n).
+Proof.
+Admitted.

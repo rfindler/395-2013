@@ -10,7 +10,6 @@ Require Import Braun.clrs.sorting.
 
 Definition insert_best_time (n:nat) := 1.
 Definition insert_worst_time (n:nat) := 2 * n + 1.
-Hint Unfold insert_best_time insert_worst_time.
 
 Program Fixpoint insert
   {A:Set} {A_cmp:A -> A -> Prop}
@@ -124,7 +123,6 @@ Qed.
 
 Definition isort_best_time (n:nat) := n * (insert_best_time n) + 1.
 Definition isort_worst_time (n:nat) := n * (insert_worst_time n) + 1.
-Hint Unfold isort_best_time isort_worst_time.
 
 Program Fixpoint isort {A:Set} {A_cmp:A -> A -> Prop}
   (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
@@ -156,7 +154,7 @@ Defined.
 Local Obligation Tactic := idtac.
 
 Next Obligation.
- unfold isort_best_time, isort_worst_time in *.
+  unfold isort_best_time, isort_worst_time in *.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros l a d EQl d' _ r' _ xm EQxm.
   simpl in EQxm.
@@ -186,12 +184,14 @@ Next Obligation.
   remember (length d) as L.
   clear A A_cmp A_cmp_trans A_cmp_total A_cmp_dec a d d' r' HeqL l EQl.
 
-  unfold insert_best_time, insert_worst_time in *.
-  simpl in *.
   rewrite plus_0_r in *.
   rewrite mult_1_r in *.
   split. omega.
   clear OM.  
+
+  unfold insert_best_time, insert_worst_time in *.
+  simpl in *.
+  rewrite plus_0_r in *.
   destruct REC_P as [_ REC_OH].
   replace (L + L + 1) with (S (L + L)) in *; try omega.
   replace (L + S L + 1) with (S (S (L + L))) in *; try omega.

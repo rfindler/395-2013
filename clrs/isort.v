@@ -8,6 +8,10 @@ Require Import List Relations_1.
 Require Import Sorting.Sorted Sorting.Permutation.
 Require Import Braun.clrs.sorting.
 
+Definition insert_best_time (n:nat) := 1.
+Definition insert_worst_time (n:nat) := 2 * n + 1.
+Hint Unfold insert_best_time insert_worst_time.
+
 Program Fixpoint insert
   {A:Set} {A_cmp:A -> A -> Prop}
   (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
@@ -15,8 +19,8 @@ Program Fixpoint insert
   : {! res !:! list A !<! c !>!
     (IsSorted A_cmp l) ->
     (SortedOf A_cmp (cons a l) res) /\
-    (exists k_0, k_0 > 0 /\ k_0 <= c) /\
-    (exists k_2, k_2 > 0 /\ c <= (length l) + k_2) !} :=
+    insert_best_time (length l) <= c /\
+    c <= insert_worst_time (length l) !} :=
   match l with
     | nil =>
       += 1;
@@ -41,10 +45,9 @@ Next Obligation.
   eapply SSorted_cons.
   auto. apply Forall_forall.
   intros x. simpl. intuition.
-  split.
-  exists 1. omega.
-  exists 1. omega.
-Defined.
+  unfold insert_best_time, insert_worst_time.
+  omega.
+Qed.
 
 Next Obligation.
   rename wildcard' into CMP.
@@ -64,11 +67,9 @@ Next Obligation.
   rewrite Forall_forall in IS.
   apply IS. auto.
 
-  split.
-
-  exists 2. omega.
-  exists 2. omega.
-Defined.
+  unfold insert_best_time, insert_worst_time.
+  omega.
+Qed.
 
 Next Obligation.
   rename wildcard' into CMP.
@@ -85,8 +86,6 @@ Next Obligation.
 
   destruct (IH IS') as [SO [OM OH]].
   clear IH.
-  destruct OM as [n_0 OM].
-  destruct OH as [n_1 OH].
   split.
 
   unfold SortedOf. split.
@@ -119,25 +118,22 @@ Next Obligation.
   apply A_cmp_total. apply CMP.
   auto.
 
-  destruct OM as [OM_n OM_k].
-  rename n_0 into k_0.
-  rename n_1 into k_1.
-  destruct OH as [OH_k1 OH_k].
-  split.
-  exists k_0. omega.
+  unfold insert_best_time, insert_worst_time in *.
+  omega.
+Qed.
 
-  exists (k_1 + 2).
-  repeat split; try omega.
-Defined.
-  
+Definition isort_best_time (n:nat) := n * (insert_best_time n) + 1.
+Definition isort_worst_time (n:nat) := n * (insert_worst_time n) + 1.
+Hint Unfold isort_best_time isort_worst_time.
+
 Program Fixpoint isort {A:Set} {A_cmp:A -> A -> Prop}
   (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
   (A_cmp_dec:DecCmp A_cmp)
   (l:list A)
   : {! res !:! list A !<! c !>!
     (SortedOf A_cmp l res) /\
-    (exists k_1, k_1 > 0 /\ (length l) + k_1 <= c) /\
-    (exists k_4, k_4 > 0 /\ c <= (length l) * (length l) + k_4) !} :=
+    (isort_best_time (length l)) <= c /\
+    c <= (isort_worst_time (length l)) !} :=
   match l with
     | nil =>
       += 1;
@@ -149,59 +145,58 @@ Program Fixpoint isort {A:Set} {A_cmp:A -> A -> Prop}
       <== r'
   end.
 
-Next Obligation.
+Next Obligation.  
  split. 
  split. auto. 
  apply SSorted_nil.
- split.
- exists 1. omega.
- exists 1. omega.
-Defined.
-
-Next Obligation.
- clear am H15 H13.
- clear am0 H8.
- clear H9.
- clear H10 H14.
- clear H11 H12.
- rename an0 into am.
- rename H1 into SOd'.
- rename H0 into INSERT_P.
- rename H7 into GEam.
- rename H5 into LEam.
- rename H2 into k_1.
- rename H3 into k_4.
- rename H6 into NZk_1.
- rename H4 into NZk_4.
-
- unfold SortedOf in *.
- destruct SOd' as [PMdd' ISd'].
- edestruct INSERT_P as [SO [OM OH]]; clear INSERT_P.
- auto.
- destruct SO as [PMad'r' ISr']. 
- split. split; auto.
- apply Permutation_sym.
- eapply Permutation_trans.
- apply Permutation_sym.
- apply PMad'r'.
- apply perm_skip.
- apply Permutation_sym.
- apply PMdd'.
-
- apply Permutation_length in PMdd'.
- rewrite <- PMdd' in *.
- destruct OM as [k_5 [NZk_5 GEan]].
- destruct OH as [k_7 [NZk_7 LEan]].
- clear PMdd' ISd' PMad'r' ISr'.
- remember (length d) as LEN.
- clear A A_cmp A_cmp_trans A_cmp_total A_cmp_dec a d d' r' HeqLEN.
- split.
-
- exists (k_1 + k_5).
- repeat split; try omega.
-
- exists (k_4 + k_7).
- repeat split; try omega.
- rewrite mult_succ_r.
+ unfold isort_best_time, isort_worst_time in *.
  omega.
 Defined.
+
+Local Obligation Tactic := idtac.
+
+Next Obligation.
+ unfold isort_best_time, isort_worst_time in *.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
+  intros l a d EQl d' _ r' _ xm EQxm.
+  simpl in EQxm.
+  subst xm.
+  intros an INSERT_P.
+  intros am REC_P.
+
+  destruct REC_P as [SOd' REC_P].
+  unfold SortedOf in *.
+  destruct SOd' as [PMdd' ISd'].
+  edestruct INSERT_P as [SO [OM OH]]; clear INSERT_P.
+  auto.
+  destruct SO as [PMad'r' ISr']. 
+  split. split; auto.
+  apply Permutation_sym.
+  eapply Permutation_trans.
+  apply Permutation_sym.
+  apply PMad'r'.
+  apply perm_skip.
+  apply Permutation_sym.
+  apply PMdd'.
+
+  apply Permutation_length in PMdd'.
+  rewrite <- PMdd' in *.
+  clear PMdd' ISd' PMad'r' ISr'.
+  simpl.
+  remember (length d) as L.
+  clear A A_cmp A_cmp_trans A_cmp_total A_cmp_dec a d d' r' HeqL l EQl.
+
+  unfold insert_best_time, insert_worst_time in *.
+  simpl in *.
+  rewrite plus_0_r in *.
+  rewrite mult_1_r in *.
+  split. omega.
+  clear OM.  
+  destruct REC_P as [_ REC_OH].
+  replace (L + L + 1) with (S (L + L)) in *; try omega.
+  replace (L + S L + 1) with (S (S (L + L))) in *; try omega.
+  rewrite plus_succ_r in *.
+  rewrite plus_succ_r.
+  repeat rewrite mult_succ_r in *.
+  omega.
+Qed.

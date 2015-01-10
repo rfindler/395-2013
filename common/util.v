@@ -284,3 +284,10 @@ Proof.
   apply even_not_odd in H.
   intuition.
 Qed.
+
+Lemma plus_succ_r:
+  forall n,
+    n + 1 = S n.
+Proof.
+  intros. omega.
+Qed.

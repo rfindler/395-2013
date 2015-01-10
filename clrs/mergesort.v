@@ -12,10 +12,13 @@ Require Import Div2.
 Require Import Even.
 Require Import Braun.clrs.isort.
 
+Definition clength_time (n:nat) := n + 1.
+Hint Unfold clength_time.
+
 Program Fixpoint clength {A:Set} (l:list A)
   : {! res !:! nat !<! c !>!
     res = length l /\
-    c = length l + 1 !}
+    c = clength_time (length l) !}
   :=
   match l with
     | nil =>
@@ -28,15 +31,20 @@ Program Fixpoint clength {A:Set} (l:list A)
   end.
 
 Next Obligation.
+  unfold clength_time.
   omega.
 Qed.
+
+Definition split_at_best_time (n:nat) := 2 * n + 1.
+Definition split_at_worst_time (n:nat) := 2 * n + 2.
+Hint Unfold split_at_best_time split_at_worst_time.
 
 Program Fixpoint split_at {A:Set} (n:nat) (l:list A)
   : {! res !:! ((list A)*(list A)) !<! c !>!
     l = (fst res) ++ (snd res) /\
     length (fst res) = min n (length l) /\
-    (exists k_0, 2 * (length (fst res)) + k_0 <= c) /\
-    (exists k_1, c <= 2 * (length (fst res)) + k_1) !}
+    split_at_best_time (length (fst res)) <= c /\
+    c <= split_at_worst_time (length (fst res))!}
   :=
   match n with
     | O =>
@@ -55,37 +63,26 @@ Program Fixpoint split_at {A:Set} (n:nat) (l:list A)
   end.
 
 Next Obligation.
-  repeat split; auto.
-  exists 1. omega.
-  exists 1. omega.
+  unfold split_at_best_time, split_at_worst_time.
+  repeat split; auto. omega.
 Qed.
 
-Next Obligation.
-  repeat split; auto.
-  exists 1. omega.
-  exists 2. omega.
-Qed.
+Local Obligation Tactic := idtac.
 
 Next Obligation.
+  intros A n l n' EQn. subst n.
+  intros a l' EQl. subst l.
+  intros [xs1 xs2] _.
+  simpl. intros xm EQxm. subst xm.
+  intros an REC_P.
+  destruct REC_P as [EQl' [EQlen_xs1 REC_P]].
+  subst l'.  
   split. auto.
-  simpl in *.
-  rename l0 into bs.
-  rename l1 into cs.
-  clear am H11 H10.
-  clear H0. clear H1.
-  rename H7 into EQlenbs.
-  rewrite <- EQlenbs.
-  clear EQlenbs.
-  rename H2 into k_0.
-  rename H5 into LEan.
-  rename H4 into GEan.
-  rename H3 into k_1.
-  clear H8 H9.
+  rewrite <- EQlen_xs1.
   split. auto.
-  split.
-
-  exists k_0. omega.
-  exists k_1. omega.
+  clear EQlen_xs1.
+  unfold split_at_best_time, split_at_worst_time in *.
+  omega.
 Qed.
 
 Lemma min_div2:
@@ -102,6 +99,10 @@ Proof.
   omega.
 Qed.
 
+Definition merge_best_time (n:nat) := 1.
+Definition merge_worst_time (n:nat) := 3 * n + 1.
+Hint Unfold merge_best_time merge_worst_time.
+
 Program Fixpoint merge
   {A:Set} {A_cmp:A -> A -> Prop}
   (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
@@ -111,8 +112,8 @@ Program Fixpoint merge
     (IsSorted A_cmp xs) ->
     (IsSorted A_cmp ys) ->
     (SortedOf A_cmp (xs ++ ys) res) /\
-    (exists k_0, k_0 <= c) /\
-    (exists k_0, c <= (length xs) + (length ys) + k_0) !} :=
+    merge_best_time (length (xs ++ ys)) <= c /\
+    c <= merge_worst_time (length (xs ++ ys)) !} :=
   match ys with
     | nil =>
       += 1;
@@ -120,7 +121,7 @@ Program Fixpoint merge
     | cons y ys' =>
       match xs with
         | nil =>
-          += 1;
+          += 2 ;
           <== ys
         | cons x xs' =>
           match A_cmp_dec x y with
@@ -137,43 +138,62 @@ Program Fixpoint merge
   end.
 
 Next Obligation.
-  simpl_list. clear merge.
-  clear H1. rename H0 into IS.
-  split.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
+  intros xs ys _.
+  intros EQys. subst ys.
+  simpl. simpl_list.
+  intros xm EQxm. subst xm.
   unfold SortedOf.
-  eauto.
-  split. exists 1. omega.
-  exists 1. omega.
+  intros ISxs ISys.
+  split. eauto.
+  unfold merge_best_time, merge_worst_time.
+  omega.
 Qed.
 
 Next Obligation.
-  clear merge.
-  clear H0. rename H1 into IS.
-  split.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
+  intros xs ys _.
+  intros y ys' EQys.
+  subst ys.
+  intros EQxs. subst xs.
+  simpl.
+  intros xm EQxm. subst xm.
   unfold SortedOf.
-  eauto.
-  split. exists 1. omega.
-  exists 1. omega.
+  intros ISxs ISys.
+
+  split. eauto.
+  unfold merge_best_time, merge_worst_time.
+  omega.
 Qed.
 
 Next Obligation.
-  clear Heq_anonymous. rename wildcard' into CMP.
-  clear am H3.
-  rename H1 into ISxs.
-  rename H2 into ISys.
-  rename H0 into IH.
-  clear merge.
-  edestruct IH.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
+  intros xs ys _.
+  intros y ys' EQys. subst ys.
+  intros x xs' EQxs. subst xs.
+  intros _ CMP _.
+  simpl. omega.
+Qed.
+
+Next Obligation.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
+  intros xs ys _.
+  intros y ys' EQys. subst ys.
+  intros x xs' EQxs. subst xs.
+  intros _ CMP _.
+  intros res _.
+  simpl. intros xm EQxm. subst xm.
+  intros Nrec REC_P.
+  intros ISxs ISys.
+
+  edestruct REC_P as [SOres REC_T].
   unfold IsSorted in *.
   apply StronglySorted_inv in ISxs.
   intuition.
   auto.
-  clear IH. rename H into ISres.
-  destruct H0 as
-    [ [k_0 LEan]
-      [k_1 GEan] ].
-  unfold SortedOf in *.
-  destruct ISres as [PM ISres].
+  clear REC_P.
+  destruct SOres as [PM ISres].
+  
   split.
   split.
   eauto.
@@ -196,47 +216,54 @@ Next Obligation.
   eapply A_cmp_trans.
   apply CMP. auto.
 
-  split.
-  exists k_0. omega.
-  exists (k_1 + 2). simpl in GEan. omega.
+  unfold merge_best_time, merge_worst_time in *.
+  omega.
 Qed.
 
 Next Obligation.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
+  intros xs ys _.
+  intros y ys' EQys. subst ys.
+  intros x xs' EQxs. subst xs.
+  intros _ CMP _.
   simpl. rewrite app_length.
   rewrite app_length. simpl. omega.
 Qed.
 
 Next Obligation.
-  clear Heq_anonymous. rename wildcard' into CMP.
-  clear am H3.
-  rename H1 into ISxs.
-  rename H2 into ISys.
-  rename H0 into IH.
-  clear merge.
-  edestruct IH.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
+  intros xs ys _.
+  intros y ys' EQys. subst ys.
+  intros x xs' EQxs. subst xs.
+  intros _ CMP _.
+  intros res _.
+  simpl. intros xm EQxm. subst xm.
+  intros Nrec REC_P.
+  intros ISxs ISys.
+
+  edestruct REC_P as [SOres REC_T].
   auto.
   unfold IsSorted in *.
   apply StronglySorted_inv in ISys.
   intuition.
-  clear IH. rename H into ISres.
-  destruct H0 as
-    [ [k_0 LEan]
-      [k_1 GEan] ].
-  unfold SortedOf in *.
-  destruct ISres as [PM ISres].
-  split.
-  split.
+  clear REC_P.
+  destruct SOres as [PM ISres].
 
-  apply Permutation_sym.
+  split.
+  split.
+  
+  apply Permutation_sym.  
   eapply Permutation_trans.
   eapply Permutation_cons.
   apply Permutation_sym.
   apply PM.
   replace (x :: xs' ++ y :: ys') with
-    ((x :: xs') ++ y :: ys').  
-  remember (x :: xs') as xs.
+    ((x :: xs') ++ y :: ys').
+  replace (y :: x :: xs' ++ ys') with
+    (y :: (x :: xs') ++ ys').
   apply Permutation_cons_app.
   auto.
+  simpl. auto.
   simpl. auto.
 
   unfold IsSorted in *.
@@ -259,62 +286,15 @@ Next Obligation.
   apply A_cmp_total.
   apply CMP. auto.
 
-  split.
-  exists k_0. omega.
-  exists (k_1 + 2). simpl in GEan. omega.
+  rewrite app_length in *.
+  simpl.
+  unfold merge_best_time, merge_worst_time in *.
+  omega.
 Qed.
-
-Program Fixpoint mergesortc
-  {A:Set} {A_cmp:A -> A -> Prop}
-  (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
-  (A_cmp_dec:DecCmp A_cmp) (l:list A) (len:nat) (EQlen:len = length l)
-  {measure (length l)}
-  : {! res !:! list A !<! c !>!
-    (SortedOf A_cmp l res) /\
-    (exists k_0, (length l) * cl_log (length l) + k_0 <= c) /\
-    (exists k_0, c <= (length l) * cl_log (length l) + k_0) !} :=
-  match l with
-    | nil =>
-      += 1;
-      <== nil
-    | cons x l' =>
-      match even_odd_dec len with
-        | left EVEN =>
-          xs12 <- split_at (div2 len) l ;
-          xs1' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
-                              (fst xs12) (div2 len) _ _ ;
-          xs2' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
-                              (snd xs12) (div2 len) _ _ ;
-          res <- merge A_cmp_trans A_cmp_total A_cmp_dec xs1' xs2' ;
-          += 2 ;
-          <== res
-        | right ODD =>
-          res' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
-                              l' (pred len) _ _ ;
-          res <- insert A_cmp_trans A_cmp_total A_cmp_dec x res' ;
-          += 2 ;
-          <== res
-      end
-  end.
-          
-Next Obligation.
-  clear mergesortc.
-  unfold SortedOf. unfold IsSorted.
-  split. split. auto. apply SSorted_nil.
-  split. exists 1. omega.
-  exists 1. omega.
-Qed.
-
-Local Obligation Tactic := idtac.
 
 Next Obligation.
-  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
-    l len EQlen _ x l' EQl' _ EVEN _
-    [xs1 xs2] SPLIT_P.
-  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
-  simpl in *. subst len.
-  rewrite min_div2 in EQlen_xs1. auto.
-Qed.
+  program_simpl.
+Defined.
 
 Lemma xs1_lt_l:
   forall A (x:A) (l' l xs1:list A) len,
@@ -329,16 +309,6 @@ Proof.
   clear EQlen_xs1.
   apply lt_div2.
   subst l. simpl. omega.
-Qed.
-
-Next Obligation.
-  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
-    l len EQlen _ x l' EQl' _ EVEN _
-    [xs1 xs2] SPLIT_P.
-  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
-  simpl in *.
-  eapply xs1_lt_l; auto.
-  apply EQl'. subst len. auto.
 Qed.
 
 Lemma xs1_eq_xs2:
@@ -357,29 +327,6 @@ Proof.
   apply even_double in EVEN.  
   rewrite <- EQlen_xs1 in EVEN.
   unfold double in EVEN. omega.
-Qed.
-
-Next Obligation.
-  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
-    l len EQlen _ x l' EQl' _ EVEN _
-    [xs1 xs2] SPLIT_P _ _.
-  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
-  simpl in *.
-  rewrite (xs1_eq_xs2 A len l xs1 xs2 EQlen EVEN EQl EQlen_xs1).
-  subst len.
-  rewrite min_div2 in EQlen_xs1.
-  auto.
-Qed.
-
-Next Obligation.
-  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
-    l len EQlen _ x l' EQl' _ EVEN _
-    [xs1 xs2] SPLIT_P _ _.
-  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
-  simpl in *.
-  rewrite (xs1_eq_xs2 A len l xs1 xs2 EQlen EVEN EQl EQlen_xs1).
-  eapply xs1_lt_l; auto.
-  apply EQl'. subst len. auto.
 Qed.
 
 Lemma le_add:
@@ -406,7 +353,106 @@ Proof.
   eapply IHx; auto.
   omega.
 Qed.
+
+Definition mergesortc_best_time (n:nat) :=
+  n * (cl_log n) + 1.
+Definition mergesortc_worst_time (n:nat) :=
+  match n with
+    | O =>
+      1
+    | S _ =>
+      n * (cl_log n) + 3 * n + 2
+  end.
+Hint Unfold mergesortc_best_time mergesortc_worst_time.
+
+Program Fixpoint mergesortc
+  {A:Set} {A_cmp:A -> A -> Prop}
+  (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
+  (A_cmp_dec:DecCmp A_cmp) (l:list A) (len:nat) (EQlen:len = length l)
+  {measure (length l)}
+  : {! res !:! list A !<! c !>!
+    (SortedOf A_cmp l res) /\
+    mergesortc_best_time (length l) <= c /\
+    c <= mergesortc_worst_time (length l) !} :=
+  match l with
+    | nil =>
+      += 1;
+      <== nil
+    | cons x l' =>
+      match even_odd_dec len with
+        | left EVEN =>
+          xs12 <- split_at (div2 len) l ;
+          xs1' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+                              (fst xs12) (div2 len) _ _ ;
+          xs2' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+                              (snd xs12) (div2 len) _ _ ;
+          res <- merge A_cmp_trans A_cmp_total A_cmp_dec xs1' xs2' ;
+          += 2 ;
+          <== res
+        | right ODD =>
+          res' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+                              l' (pred len) _ _ ;
+          res <- insert A_cmp_trans A_cmp_total A_cmp_dec x res' ;
+          += 2 ;
+          <== res
+      end
+  end.
+          
+Next Obligation.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len EQlen _ x xm EQxm.
+  subst l. subst xm. simpl.
+  clear len EQlen.
   
+  unfold SortedOf. unfold IsSorted.
+  split. split. auto. apply SSorted_nil.
+  
+  unfold mergesortc_best_time, mergesortc_worst_time.
+  omega.
+Qed.
+
+Next Obligation.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len EQlen _ x l' EQl' _ EVEN _
+    [xs1 xs2] SPLIT_P.
+  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
+  simpl in *. subst len.
+  rewrite min_div2 in EQlen_xs1. auto.
+Qed.
+
+Next Obligation.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len EQlen _ x l' EQl' _ EVEN _
+    [xs1 xs2] SPLIT_P.
+  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
+  simpl in *.
+  eapply xs1_lt_l; auto.
+  apply EQl'. subst len. auto.
+Qed.
+
+Next Obligation.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len EQlen _ x l' EQl' _ EVEN _
+    [xs1 xs2] SPLIT_P _ _.
+  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
+  simpl in *.
+  rewrite (xs1_eq_xs2 A len l xs1 xs2 EQlen EVEN EQl EQlen_xs1).
+  subst len.
+  rewrite min_div2 in EQlen_xs1.
+  auto.
+Qed.
+
+Next Obligation.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len EQlen _ x l' EQl' _ EVEN _
+    [xs1 xs2] SPLIT_P _ _.
+  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
+  simpl in *.
+  rewrite (xs1_eq_xs2 A len l xs1 xs2 EQlen EVEN EQl EQlen_xs1).
+  eapply xs1_lt_l; auto.
+  apply EQl'. subst len. auto.
+Qed.
+
 Next Obligation.
   intros A A_cmp A_cmp_trans
     A_cmp_total A_cmp_dec.  
@@ -430,13 +476,14 @@ Next Obligation.
   rewrite EQl.
   destruct REC1_P as [SO1 REC1_P].
   destruct REC2_P as [SO2 REC2_P].
-  edestruct MERGE_P as [SOr [MERGE_OM MERGE_OH]].
+  edestruct MERGE_P as [SOr MERGE_T].
   unfold SortedOf in SO1. intuition.
   unfold SortedOf in SO2. intuition.
   clear MERGE_P.
   destruct SO2 as [PM2 SS2].
   destruct SO1 as [PM1 SS1].
   destruct SOr as [PMr SSr].
+  rewrite app_length in *.
   rewrite <- (Permutation_length PM1) in *.
   rewrite <- (Permutation_length PM2) in *.  
   split.
@@ -477,6 +524,10 @@ Next Obligation.
   destruct (length l) as [|LEN].
   inversion O. congruence.
 
+  unfold mergesortc_best_time, mergesortc_worst_time in *.
+  unfold split_at_best_time, split_at_worst_time in *.
+  unfold merge_best_time, merge_worst_time in *.
+
   replace (cl_log (S D + S D)) with (S (cl_log (S D))).
 Focus 2.
   replace (S D) with (D + 1); try omega.
@@ -489,36 +540,31 @@ Focus 2.
   rename len into L.
   clear A l EQlen x l' EQl.
 
-  destruct REC2_P as [REC2_OM REC2_OH].
-  destruct REC1_P as [REC1_OM REC1_OH].
-  destruct SPLIT_P as [SPLIT_OM SPLIT_OH].
-  split.
+  split; try omega.
+  replace (0 + 2) with 2; try omega.
+  remember (S D + S D) as SDSD.
+  destruct SDSD as [|t].
+  omega.
+  rewrite HeqSDSD in *.
+  clear t HeqSDSD.
   
-  clear SPLIT_OH MERGE_OH REC2_OH REC1_OH.
-  destruct SPLIT_OM as [KMsplit SPLIT_OM].
-  destruct MERGE_OM as [KMmerge MERGE_OM].
-  destruct REC2_OM as [KMrec2 REC2_OM].
-  destruct REC1_OM as [KMrec1 REC1_OM].
-  exists (KMrec2 + KMrec1 + KMsplit + KMmerge).
-  replace (S D * cl_log (S D) + S D * cl_log (S D) + (S D + S D) +
-    (KMrec2 + KMrec1 + KMsplit + KMmerge)) with
-  ((S D + S D + KMsplit) +
-    ((S D * cl_log (S D) + KMrec1) +
-      ((S D * cl_log (S D) + KMrec2) +
-        ((KMmerge))))); try omega.
+  replace (S D * cl_log (S D) + S D * cl_log (S D) + (S D + S D) + 3 * (S D + S D) +
+    2)
+    with
+      ((S D + S D + 2) + (S D * cl_log (S D) + S D * cl_log (S D) + 3 * (S D + S D))); try omega.
+  apply le_add.
+  omega.
 
-  clear SPLIT_OM MERGE_OM REC2_OM REC1_OM.
-  destruct SPLIT_OH as [KHsplit SPLIT_OH].
-  destruct MERGE_OH as [KHmerge MERGE_OH].
-  destruct REC2_OH as [KHrec2 REC2_OH].
-  destruct REC1_OH as [KHrec1 REC1_OH].
-  exists (KHrec2 + KHrec1 + KHsplit + KHmerge + S D + S D + 2).
-  replace (S D * cl_log (S D) + S D * cl_log (S D) + (S D + S D) +
-    (KHrec2 + KHrec1 + KHsplit + KHmerge + S D + S D + 2)) with
-  ((S D + S D + KHsplit) +
-    ((S D * cl_log (S D) + KHrec1) +
-      ((S D * cl_log (S D) + KHrec2) +
-        ((S D + S D + KHmerge + 2))))); try omega.
+  (* xxx need to fiddle with the function *)
+  admit.
+Qed.
+
+Next Obligation.
+  program_simpl.
+Qed.
+
+Next Obligation.
+  program_simpl.
 Qed.
 
 Next Obligation.
@@ -557,6 +603,9 @@ Next Obligation.
   rewrite <- (Permutation_length PMres') in *.
   clear res' PMres'.
 
+  unfold mergesortc_best_time, mergesortc_worst_time in *.
+  unfold insert_best_time, insert_worst_time in *.
+
   destruct len as [|len].
   inversion O.
   rewrite EQl.
@@ -575,23 +624,10 @@ Next Obligation.
   replace len with (p + p) in *; try omega.
   clear len EQp.
 
-  destruct REC_P as [REC_OM REC_OH].
-  destruct INSERT_P as [INSERT_OM INSERT_OH].
-
   destruct p as [|p].
   (* p = zero *)
   simpl in *.
-  split.
-
-  clear INSERT_OH REC_OH.
-  destruct INSERT_OM as [KMinsert [_ INSERT_OM]].
-  destruct REC_OM as [KMrec REC_OM].
-  exists (KMrec + KMinsert + 1). omega.
-
-  clear INSERT_OM REC_OM.
-  destruct INSERT_OH as [KHinsert [_ INSERT_OH]].
-  destruct REC_OH as [KHrec REC_OH].
-  exists (KHrec + KHinsert + 1). omega.
+  omega.
 
   (* p = S n *)
   replace (S p + S p) with (p + 1 + p + 1) in *; try omega.  
@@ -599,32 +635,90 @@ Next Obligation.
   replace (p + 1 + p + 1) with (S p + S p) in *; try omega.
   replace (p + 1) with (S p) in *; try omega.
 
-  split.
-
-  clear INSERT_OH REC_OH.
-  destruct INSERT_OM as [KMinsert [_ INSERT_OM]].
-  destruct REC_OM as [KMrec REC_OM].
-  exists (KMrec + KMinsert + 1).
-  replace (S (S p + S p) * (cl_log (S p) + 1) + (KMrec + KMinsert + 1)) with
-    ((S (S p + S p) * (cl_log (S p) + 1) + KMrec) +
-      ((KMinsert) +
-        ((1)))); try omega.
-  apply le_add; try omega.
-  eapply le_trans; [ | apply REC_OM ].
-  apply le_add; auto.
-  apply le_mult; auto.
-
-  (* xxx This is false. I'll have to change the lower bound to
-  something a little bit wider, but I'm worrid how that will affect
-  the other proofs. :( *)
-  
-  admit.
+  remember (S p + S p) as SpSp.
+  destruct SpSp as [|t].
+  omega.
+  rewrite HeqSpSp in *.
+  clear t HeqSpSp.
 
   rewrite mult_succ_l.
-    clear INSERT_OM REC_OM.
-  destruct INSERT_OH as [KHinsert [_ INSERT_OH]].
-  destruct REC_OH as [KHrec REC_OH].
-  exists (KHrec + KHinsert + S p + S p + 1). omega.
+
+  split.
+  cut ((cl_log (S p) + 1) <= Ninsert + 2). intros LE.
+  omega.
+  clear REC_P.
+
+  (* xxx false! *)
+  admit.
+
+  rewrite mult_succ_r.
+  cut (Ninsert + 2 <= (cl_log (S p) + 1) + 3). intros LE.
+  omega.
+  clear REC_P.
+
+  (* xxx false! *)
+  admit.
 Qed.
 
-(* xxx make a merge sort that doesn't take a length and computes it *)
+Next Obligation.
+  program_simpl.
+Defined.
+
+Definition mergesort_best_time (n:nat) :=
+  clength_time n + mergesortc_best_time n.
+Definition mergesort_worst_time (n:nat) :=
+  clength_time n + mergesortc_worst_time n.
+Hint Unfold mergesort_best_time mergesort_worst_time.
+
+Program Definition mergesort
+  {A:Set} {A_cmp:A -> A -> Prop}
+  (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
+  (A_cmp_dec:DecCmp A_cmp) (l:list A)
+  : {! res !:! list A !<! c !>!
+    (SortedOf A_cmp l res) /\
+    mergesort_best_time (length l) <= c /\
+    c <= mergesort_worst_time (length l) !} :=
+  len <- clength l ;
+  res <- mergesortc A_cmp_trans A_cmp_total A_cmp_dec l len _ ;
+  <== res.
+
+Solve Obligations using program_simpl.
+
+Next Obligation.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len _ res _.
+  intros Nmsc [SOres MSC_P].
+  intros Nlen [EQlen LEN_P].
+  subst len. subst Nlen.
+  split. auto.
+  remember (length l) as L.
+  clear A A_cmp A_cmp_trans A_cmp_total A_cmp_dec res SOres l HeqL.
+  unfold mergesort_best_time, mergesort_worst_time in *.
+  omega.
+Qed.
+
+Theorem mergesort_best:
+  big_omega mergesort_best_time (fun n => n * cl_log n).
+Proof.
+  unfold big_omega, mergesort_best_time.
+  unfold clength_time, mergesortc_best_time.
+
+  exists 0. exists 1.
+  intros n LE.
+  omega.
+Qed.
+
+Theorem mergesort_worst:
+  big_oh mergesort_worst_time (fun n => n * cl_log n).
+Proof.
+  unfold big_oh, mergesort_worst_time.
+  unfold clength_time, mergesortc_worst_time.
+
+  exists 1. exists 1.
+  intros n LE.
+  destruct n as [|n].
+  omega.
+
+  (* xxx it's not worth figuring this out until the numbers above are right *)
+  admit.
+Qed.

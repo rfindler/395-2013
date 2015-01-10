@@ -357,32 +357,95 @@ Proof.
   omega.
 Qed.
 
-Program Fixpoint mergesortc_best_time (n:nat) {measure n} :=
-  match n with
-    | O =>
-      1
-    | S n' =>
-      match even_odd_dec n with
-        | left _ =>
-          split_at_best_time (div2 n) +
-          mergesortc_best_time (div2 n) +
-          mergesortc_best_time (div2 n) +
-          merge_best_time n + 2
-        | right _ =>
-          mergesortc_best_time n' +
-          insert_best_time n' + 2
-      end
-  end.
+Inductive Mergesortc_Best_Time : nat -> nat -> Prop :=
+| MBT_O :
+  Mergesortc_Best_Time O 1
+| MBT_Sn_even :
+  forall n D,
+    even (S n) ->
+    Mergesortc_Best_Time (div2 (S n)) D ->
+    Mergesortc_Best_Time (S n)
+    (split_at_best_time (div2 (S n)) + D + D + merge_best_time (S n) + 2)
+| MBT_Sn_odd :
+  forall n D,
+    odd (S n) ->
+    Mergesortc_Best_Time n D ->
+    Mergesortc_Best_Time (S n) (D + insert_best_time n + 2).
+Hint Constructors Mergesortc_Best_Time.
 
-Solve Obligations using program_simpl.
+Lemma Mergesortc_Best_Time_fun :
+  forall n m m',
+    Mergesortc_Best_Time n m ->
+    Mergesortc_Best_Time n m' ->
+    m = m'.
+Proof.
+  apply (well_founded_induction lt_wf
+  (fun n => forall  m m',
+    Mergesortc_Best_Time n m ->
+    Mergesortc_Best_Time n m' ->
+    m = m')).
 
+  intros n IH m m' MBT MBT'.
+  inversion MBT.
+  subst n m.
+  inversion MBT'. auto.
+
+  rename H into E.
+  rename H0 into MBT1.
+  subst n m.
+  inversion MBT'.
+  subst n0 m'.
+  clear H0. rename H1 into MBT1'.
+  replace D0 with D. auto.
+  eapply (@IH _ _ _ _ MBT1 MBT1').
+
+  rename H0 into O.
+  apply (not_even_and_odd _ E) in O. contradiction.
+
+  subst n m.
+  rename H into O.
+  rename H0 into MBT1.
+  inversion MBT'.
+
+  rename H0 into E.
+  apply (not_even_and_odd _ E) in O. contradiction.
+
+  subst m' n0.
+  clear H0.
+  rename H1 into MBT1'.
+  replace D0 with D. auto.
+  eapply (@IH _ _ _ _ MBT1 MBT1').
+  
+Grab Existential Variables.
+auto.
+
+auto.
+
+Qed.
+
+Definition mergesortc_best_time_c (n:nat) :
+  { m : nat | Mergesortc_Best_Time n m }.
+Proof.
+  generalize n. clear n.
+  apply (well_founded_induction lt_wf).
+  intros n IH.
+  destruct n as [|n'].
+  eauto.
+  destruct (even_odd_dec (S n')) as [E | O].
+  destruct (IH (div2 (S n'))) as [D MBT]. auto.
+  eauto.
+  destruct (IH n') as [D MBT]. auto.
+  eauto.
+Defined.
+
+Definition mergesortc_best_time (n:nat) :=
+  proj1_sig (mergesortc_best_time_c n).
+    
 Lemma mergesortc_best_time_O:
   mergesortc_best_time 0 = 1.
 Proof.
   program_simpl.
 Qed.
-
-Require Import Coq.Program.Program.
 
 Lemma mergesortc_best_time_Sn_even:
   forall n,
@@ -394,9 +457,19 @@ Lemma mergesortc_best_time_Sn_even:
           merge_best_time n + 2).
 Proof.
   intros n E [m EQn]. subst n.
-  apply Fix_eq.
+  unfold mergesortc_best_time.
+  destruct (mergesortc_best_time_c (S m)) as [D0 MBT0].
+  destruct (mergesortc_best_time_c (div2 (S m))) as [D1 MBT1].
+  inversion MBT0.
+  clear H0. subst m.
+  subst D0.
+  rename H1 into MBT1'.
+  simpl.
+  rewrite (Mergesortc_Best_Time_fun _ _ _ MBT1 MBT1'). auto.
 
-Admitted.
+  rename H0 into O.
+  apply (not_even_and_odd _ E) in O. contradiction.
+Qed.
 
 Lemma mergesortc_best_time_Sn_odd:
   forall n n',
@@ -405,8 +478,22 @@ Lemma mergesortc_best_time_Sn_odd:
     mergesortc_best_time n = (mergesortc_best_time n' +
           insert_best_time n' + 2).
 Proof.
-  intros n E n' EQn. subst n.
-Admitted.
+  intros n n' O EQn. subst n.
+
+  unfold mergesortc_best_time.
+  destruct (mergesortc_best_time_c (S n')) as [D0 MBT0].
+  destruct (mergesortc_best_time_c n') as [D1 MBT1].
+  inversion MBT0.
+
+  rename H0 into E.
+  apply (not_even_and_odd _ E) in O. contradiction.
+  
+  clear H0. subst n.
+  subst D0.
+  rename H1 into MBT1'.
+  simpl.
+  rewrite (Mergesortc_Best_Time_fun _ _ _ MBT1 MBT1'). auto.
+Qed.
 
 Program Fixpoint mergesortc_worst_time (n:nat) {measure n} :=
   match n with

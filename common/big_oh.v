@@ -174,7 +174,7 @@ Definition big_omega f g :=
   exists n0 m, 
     forall n, 
       n0 <= n -> 
-      f(n) >= m * g(n)..
+      f(n) >= m * g(n).
 
 Definition big_theta f g :=
   big_oh f g /\ big_omega f g.

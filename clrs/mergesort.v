@@ -320,8 +320,8 @@ Program Fixpoint mergesort
   {measure (length l)}
   : {! res !:! list A !<! c !>!
     (SortedOf A_cmp l res) /\
-    (exists k_0, (length l) * fl_log (length l) + k_0 <= c) /\
-    (exists k_0, c <= (length l) * fl_log (length l) + k_0) !} :=
+    (exists k_0, (length l) * cl_log (length l) + k_0 <= c) /\
+    (exists k_0, c <= (length l) * cl_log (length l) + k_0) !} :=
   match l with
     | nil =>
       += 1;
@@ -563,67 +563,6 @@ Next Obligation.
   rewrite <- LENxs1 in SPLIT_OM.
   rewrite <- LENxs1 in SPLIT_OH.
   clear LENxs1.
-
-  remember (@braun_invariant_implies_cl_log_property (S L2') (S L1')).
-  clear Heqe.
-  assert (S L1' <= S L2' <= S L1' + 1) as LE.
-  destruct (even_or_odd (S L1' + S L2')) as [E | O].
-  apply LENxs2_E in E.
-  omega.
-  apply LENxs2_O in O.
-  omega.
-  apply e in LE. clear e.
-  clear LENxs2_E LENxs2_O.
-  
-  rewrite <- fl_log_cl_log_relationship in LE.
-  replace (S L2' + S L1' + 1) with (S (S L2' + S L1')) in LE; try omega.
-  rewrite <- fl_log_cl_log_relationship in LE.
-  rewrite (plus_comm (S L2') (S L1')) in LE.
-  replace (fl_log (S L1' + S L2')) with (S (fl_log L2')); try omega.
-
-  cut (S L1' * fl_log L2' + KMrec1 <= Nrec1). intro REC1_OM'.
-  cut (S L2' * fl_log L2' + KMrec2 <= Nrec2). intro REC2_OM'.
-  cut (Nrec1 <= S L1' * fl_log L2' + KHrec1). intro REC1_OH'.
-  cut (Nrec2 <= S L2' * fl_log L2' + KHrec2). intro REC2_OH'.
-  
-  split.
-  exists (KMrec2 + KMrec1 + KMsplit + KMmerge + S L1').
-  replace ((S L1' + S L2') * S (fl_log L2') +
-    (KMrec2 + KMrec1 + KMsplit + KMmerge + S L1'))
-    with
-      ((S L1' + S L2' + S L1' + KMsplit) +
-        ((S L1' * fl_log L2' + KMrec1) +
-          ((S L2' * fl_log L2' + KMrec2) +
-            ((KMmerge))))).
-  apply le_add. auto.
-  apply le_add. auto. 
-  apply le_add. auto.
-  omega.
-  rewrite mult_succ_r.
-  rewrite mult_plus_distr_r.
-  omega.
-
-  exists (KHrec2 + KHrec1 + KHsplit + KHmerge + S L1' + S L2' + S L1' + 2).
-  replace ((S L1' + S L2') * S (fl_log L2') +
-    (KHrec2 + KHrec1 + KHsplit + KHmerge + S L1' + S L2' + S L1' + 2))
-    with
-      ((S L1' + S L2' + S L1' + KHsplit) +
-        ((S L1' * fl_log L2' + KHrec1) +
-          ((S L2' * fl_log L2' + KHrec2) +
-            ((S L1' + S L2' + KHmerge + 2))))).
-  apply le_add. auto.
-  apply le_add. auto.
-  apply le_add. auto.
-  omega.
-  rewrite mult_succ_r.
-  rewrite mult_plus_distr_r.
-  omega.
-
-  eapply le_trans. apply REC2_OH.
-  apply le_add; auto.
-  (* XXX Fail *)
-  rewrite mult_succ_l.
-  rewrite mult_succ_l.
 
   destruct (even_or_odd (S L1' + S L2')) as [E | O].
 

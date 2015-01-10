@@ -215,3 +215,94 @@ Proof.
 Qed.
 Hint Rewrite fl_log_cl_log_relationship.
 
+Lemma div2_le:
+  forall n,
+    div2 n <= n.
+Proof.
+  induction n as [|n].
+  simpl. auto.
+
+  apply NPeano.div2_decr.
+  auto.
+Qed.
+
+Lemma ind_0_div2 :
+  forall P:nat -> Prop,
+    P 0 -> (forall n, P (div2 n) -> P (S n)) -> forall n, P n.
+Proof.
+  intros P P0 I.
+  apply (well_founded_ind lt_wf P).
+  intros n IH.
+  destruct n as [|n].
+  auto.
+  apply I.
+  apply IH.
+  unfold lt.
+  apply le_n_S.
+  apply div2_le.
+Qed.
+
+Lemma fl_log_decr:
+  forall x,
+    fl_log x <= x.
+Proof.
+  apply ind_0_div2.
+  
+  rewrite fl_log_zero.
+  auto.
+
+  intros n.
+  rewrite <- fl_log_div2.
+  intros LE.
+  rewrite plus_comm. simpl.
+  apply le_n_S.
+  eapply le_trans.
+  apply LE.
+  apply div2_le.
+Qed.
+
+Lemma fl_log_monotone:
+  forall x y,
+    x <= y ->
+    fl_log x <= fl_log y.
+Proof.
+  apply (ind_0_div2 (fun x => forall y : nat, x <= y -> fl_log x <= fl_log y)).
+
+  intros y LE. 
+  rewrite fl_log_zero.
+  apply le_0_n.
+
+  intros n IH y LE.
+  rewrite <- fl_log_div2.
+  destruct y as [|y].
+  omega.
+  assert (n <= y) as LE'; try omega.
+  clear LE.
+  rewrite <- fl_log_div2.
+  rewrite plus_comm. simpl.
+  rewrite plus_comm. simpl.
+  apply le_n_S.
+  apply IH.
+  apply div2_monotone.
+  auto.
+Qed.
+
+Lemma cl_log_monotone:
+  forall x y,
+    x <= y ->
+    cl_log x <= cl_log y.
+Proof.
+  intros [|n] y LE.
+  
+  rewrite cl_log_zero.
+  apply le_0_n.
+
+  rewrite <- fl_log_cl_log_relationship.
+  destruct y as [|y].
+  omega.
+  rewrite <- fl_log_cl_log_relationship.
+  assert (n <= y) as LE'; try omega.
+  apply le_n_S.
+  apply fl_log_monotone.
+  auto.
+Qed.

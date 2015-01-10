@@ -10,6 +10,7 @@ Require Import Braun.clrs.sorting.
 Require Import Min.
 Require Import Div2.
 Require Import Even.
+Require Import Braun.clrs.isort.
 
 Program Fixpoint clength {A:Set} (l:list A)
   : {! res !:! nat !<! c !>!
@@ -99,56 +100,6 @@ Proof.
   auto. auto.
   intros L IH.
   omega.
-Qed.
-
-Program Fixpoint split_evenly {A:Set} (l:list A)
-  : {! res !:! ((list A)*(list A)) !<! c !>!
-    l = (fst res) ++ (snd res) /\
-    length (fst res) = div2 (length l) /\
-    (even (length l) -> length (snd res) = div2 (length l)) /\
-    (odd (length l) -> length (snd res) = div2 (length l) + 1) /\
-    (exists k_0, (length l) + div2 (length l) + k_0 <= c) /\
-    (exists k_1, c <= (length l) + div2 (length l) + k_1) !} :=
-  len <- clength l ;
-  res <- split_at (div2 len) l ;
-  <== res.
-
-Next Obligation.
-  simpl in *.
-  clear am0 H12 H11.
-  rename l0 into bs.
-  rename l1 into cs.
-  clear H9 H10.
-  rename H3 into k_0.
-  rename H6 into LEan.
-  rename H4 into k_1.
-  rename H5 into GEan.
-  clear H. clear H0.
-  clear H2.
-  rename H8 into EQlenbs.
-  remember (length (bs ++ cs)) as L.
-  rewrite app_length in HeqL.
-  rewrite min_div2 in EQlenbs.
-  replace (length bs) with (div2 L) in *; try auto.
-  clear EQlenbs.
-  split. auto.
-  split. auto.
-  remember (length cs) as C in *.
-  clear A bs cs HeqC.
-  split; [idtac | split; [ idtac | split; [ exists k_0; omega | exists (k_1 + L + 1); omega] ] ]; 
-    clear k_0 an LEan k_1 GEan.
-
-  intros E.
-  apply even_double in E.
-  rewrite E in HeqL at 1.
-  clear E. remember (div2 L) as D. clear HeqD L.
-  unfold double in *. omega.
-
-  intros O.
-  apply odd_double in O.
-  rewrite O in HeqL at 1.
-  clear O. remember (div2 L) as D. clear HeqD L.
-  unfold double in *. omega.
 Qed.
 
 Program Fixpoint merge
@@ -313,152 +264,122 @@ Next Obligation.
   exists (k_1 + 2). simpl in GEan. omega.
 Qed.
 
-Program Fixpoint mergesort
+Program Fixpoint mergesortc
   {A:Set} {A_cmp:A -> A -> Prop}
   (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
-  (A_cmp_dec:DecCmp A_cmp) (l:list A)
+  (A_cmp_dec:DecCmp A_cmp) (l:list A) (len:nat) (EQlen:len = length l)
   {measure (length l)}
   : {! res !:! list A !<! c !>!
     (SortedOf A_cmp l res) /\
-    (even (length l) ->
-      (exists k_0, (length l) * cl_log (length l) + k_0 <= c) /\
-      (exists k_0, c <= (length l) * cl_log (length l) + k_0)) /\
-    (odd (length l) ->
-      (exists k_0, (length l) * cl_log (pred (length l)) + k_0 <= c) /\
-      (exists k_0, c <= (length l) * cl_log (pred (length l)) + k_0)) !} :=
+    (exists k_0, (length l) * cl_log (length l) + k_0 <= c) /\
+    (exists k_0, c <= (length l) * cl_log (length l) + k_0) !} :=
   match l with
     | nil =>
       += 1;
       <== nil
     | cons x l' =>
-      match l' with
-        | nil =>
-          += 2;
-          <== l
-        | cons x' l'' =>
-          xs12 <- split_evenly l ;
-          xs1' <- mergesort A_cmp_trans A_cmp_total A_cmp_dec (fst xs12) ;
-          xs2' <- mergesort A_cmp_trans A_cmp_total A_cmp_dec (snd xs12) ;
+      match even_odd_dec len with
+        | left EVEN =>
+          xs12 <- split_at (div2 len) l ;
+          xs1' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+                              (fst xs12) (div2 len) _ _ ;
+          xs2' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+                              (snd xs12) (div2 len) _ _ ;
           res <- merge A_cmp_trans A_cmp_total A_cmp_dec xs1' xs2' ;
+          += 2 ;
+          <== res
+        | right ODD =>
+          res' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+                              l' (pred len) _ _ ;
+          res <- insert A_cmp_trans A_cmp_total A_cmp_dec x res' ;
           += 2 ;
           <== res
       end
   end.
-
+          
 Next Obligation.
-  clear mergesort.
+  clear mergesortc.
   unfold SortedOf. unfold IsSorted.
   split. split. auto. apply SSorted_nil.
-  split.
-
-  intros E. split. exists 1. omega.
+  split. exists 1. omega.
   exists 1. omega.
-
-  intros O. inversion O.
 Qed.
+
+Local Obligation Tactic := idtac.
 
 Next Obligation.
-  clear mergesort.
-  unfold SortedOf. unfold IsSorted.
-  split. split. auto. apply SSorted_cons.
-  apply SSorted_nil. apply Forall_forall.
-  intros x' IN. contradiction.
-  split.
-
-  intros E. inversion E. rename H0 into O. inversion O.
-  
-  intros O. split.
-  exists 0. omega.
-  exists 2. omega.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len EQlen _ x l' EQl' _ EVEN _
+    [xs1 xs2] SPLIT_P.
+  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
+  simpl in *. subst len.
+  rewrite min_div2 in EQlen_xs1. auto.
 Qed.
 
-Lemma xs_arent_zero:
-  forall A (x x':A) l'' xs1 xs2 L1 L2,
-    x :: x' :: l'' = xs1 ++ xs2 ->
-    L1 = length xs1 ->
-    L2 = length xs2 ->
-    L1 = div2 (L1 + L2) ->
-    (even (L1 + L2) -> L2 = div2 (L1 + L2)) ->
-    (odd (L1 + L2) -> L2 = div2 (L1 + L2) + 1) ->
-    (exists L1', L1 = S L1') /\ (exists L2', L2 = S L2').
+Lemma xs1_lt_l:
+  forall A (x:A) (l' l xs1:list A) len,
+    x :: l' = l ->
+    len = length l ->
+    length xs1 = min (div2 len) len ->
+    length xs1 < length l.
 Proof.
-  intros A x x' l'' xs1 xs2 L1 L2
-    EQ HeqL1 HeqL2 EQ1 EQ2E EQ2O.
-
-  destruct xs1 as [|x1 xs1].
-  simpl in *. subst L1. subst xs2.
-  simpl in *.
-  destruct (even_or_odd L2) as [E | O].
-  apply EQ2E in E.
-  omega.
-  apply EQ2O in O.
-  omega.
-  simpl in EQ.
-  inversion EQ. clear EQ.
-  subst x1. rename H1 into EQ.
-
-  destruct xs2 as [|x2 xs2].
-  simpl in *. subst L2.
-  rewrite app_nil_r in EQ. subst xs1.
-  simpl in HeqL1.
-  rewrite plus_comm in *. simpl in *.
-  destruct (even_or_odd L1) as [E | O].
-  apply EQ2E in E.
-  congruence.
-  
-  apply EQ2O in O.
-  rewrite HeqL1 in O.
-  simpl in O.
-  congruence.
-
-  simpl in HeqL1.
-  simpl in HeqL2. eauto.
+  intros A x l' l xs1 len EQl EQlen EQlen_xs1.
+  subst len.
+  rewrite min_div2 in EQlen_xs1. rewrite EQlen_xs1.
+  clear EQlen_xs1.
+  apply lt_div2.
+  subst l. simpl. omega.
 Qed.
 
 Next Obligation.
-  clear mergesort.
-  clear am H6 H5.
-  clear H3 H4.
-  rename H into EQ.
-  rewrite EQ in *.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len EQlen _ x l' EQl' _ EVEN _
+    [xs1 xs2] SPLIT_P.
+  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
   simpl in *.
-  rename l0 into xs1.
-  rename l1 into xs2.
-  rename H0 into EQ1.
-  rename H1 into EQ2E.
-  rename H2 into EQ2O.
-  clear A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
-  rewrite app_length in *.
-  remember (length xs1) as L1.
-  remember (length xs2) as L2.
+  eapply xs1_lt_l; auto.
+  apply EQl'. subst len. auto.
+Qed.
 
-  edestruct (@xs_arent_zero A x x' l'' xs1 xs2 L1 L2 EQ HeqL1 HeqL2 EQ1 EQ2E EQ2O)
-  as [[L1' EQ1'] [L2' EQ2']].
-  omega.
+Lemma xs1_eq_xs2:
+  forall A len (l xs1 xs2:list A),
+    len = length l ->
+    even len ->
+    l = xs1 ++ xs2 ->
+    length xs1 = min (div2 len) (length l) ->
+    length xs2 = length xs1.
+Proof.
+  intros A len l xs1 xs2 EQlen EVEN EQl EQlen_xs1.
+  subst len.
+  rewrite min_div2 in EQlen_xs1.
+  rewrite EQl in *.
+  rewrite app_length in *.
+  apply even_double in EVEN.  
+  rewrite <- EQlen_xs1 in EVEN.
+  unfold double in EVEN. omega.
 Qed.
 
 Next Obligation.
-  clear mergesort.
-  clear am H9 H8.
-  clear am0 H0 H1.
-  clear H.
-  clear H6 H7.
-  rename H2 into EQ.
-  rewrite EQ in *.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len EQlen _ x l' EQl' _ EVEN _
+    [xs1 xs2] SPLIT_P _ _.
+  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
   simpl in *.
-  rename l0 into xs1.
-  rename l1 into xs2.
-  rename H3 into EQ1.
-  rename H4 into EQ2E.
-  rename H5 into EQ2O.
-  clear A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
-  rewrite app_length in *.
-  remember (length xs1) as L1.
-  remember (length xs2) as L2.
+  rewrite (xs1_eq_xs2 A len l xs1 xs2 EQlen EVEN EQl EQlen_xs1).
+  subst len.
+  rewrite min_div2 in EQlen_xs1.
+  auto.
+Qed.
 
-  edestruct (@xs_arent_zero A x x' l'' xs1 xs2 L1 L2 EQ HeqL1 HeqL2 EQ1 EQ2E EQ2O)
-  as [[L1' EQ1'] [L2' EQ2']].
-  omega.
+Next Obligation.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len EQlen _ x l' EQl' _ EVEN _
+    [xs1 xs2] SPLIT_P _ _.
+  destruct SPLIT_P as [an [EQl [EQlen_xs1 _]]].
+  simpl in *.
+  rewrite (xs1_eq_xs2 A len l xs1 xs2 EQlen EVEN EQl EQlen_xs1).
+  eapply xs1_lt_l; auto.
+  apply EQl'. subst len. auto.
 Qed.
 
 Lemma le_add:
@@ -485,20 +406,15 @@ Proof.
   eapply IHx; auto.
   omega.
 Qed.
-
-Obligation Tactic := idtac.
   
 Next Obligation.
   intros A A_cmp A_cmp_trans
-    A_cmp_total A_cmp_dec.
-  intros l _.
+    A_cmp_total A_cmp_dec.  
+  intros l len EQlen _.
   intros x l' EQl.
-  intros x' l'' EQl'.
-  intros [xs1 xs2].
-  rewrite EQl'.
-  rewrite EQl.
-  simpl.
-  intros _.
+  intros _ E _.
+  intros [xs1 xs2] _.
+  unfold fst, snd in *.
   intros xs1' _.
   intros xs2' _.
   intros res _.
@@ -508,24 +424,25 @@ Next Obligation.
   intros Nrec2 REC2_P.
   intros Nrec1 REC1_P.
   intros Nsplit SPLIT_P.
-  destruct SPLIT_P as [EQl_ [LENxs1 [LENxs2_E [LENxs2_O [SPLIT_OM SPLIT_OH]]]]].
+  destruct SPLIT_P as [EQlapp [EQlen_xs1 SPLIT_P]].
+  remember (xs1_eq_xs2 A len l xs1 xs2 EQlen E EQlapp EQlen_xs1) as EQlen_xs2.
+  rewrite EQlen_xs2 in *.
+  rewrite EQl.
   destruct REC1_P as [SO1 REC1_P].
   destruct REC2_P as [SO2 REC2_P].
   edestruct MERGE_P as [SOr [MERGE_OM MERGE_OH]].
   unfold SortedOf in SO1. intuition.
   unfold SortedOf in SO2. intuition.
   clear MERGE_P.
-  split.
-
-  clear REC2_P REC1_P SPLIT_OM SPLIT_OH MERGE_OM MERGE_OH.
-  clear Nmerge Nrec1 Nrec2 Nsplit.
-  unfold SortedOf in *.
-  unfold IsSorted in *.
   destruct SO2 as [PM2 SS2].
   destruct SO1 as [PM1 SS1].
   destruct SOr as [PMr SSr].
+  rewrite <- (Permutation_length PM1) in *.
+  rewrite <- (Permutation_length PM2) in *.  
   split.
-  rewrite EQl_.
+
+  split.
+  rewrite EQlapp.
   apply Permutation_sym.
   eapply Permutation_trans.
   apply Permutation_sym.
@@ -535,259 +452,179 @@ Next Obligation.
   apply Permutation_sym. auto.
   auto.
 
-  destruct SO2 as [PM2 SS2].
-  destruct SO1 as [PM1 SS1].
-  clear SS1 SS2 SOr res.
-  apply Permutation_length in PM1.
-  apply Permutation_length in PM2.
-  rewrite <- PM2 in *.
+  clear SS1 SS2 PMr SSr res.
   clear xs2' PM2.
-  rewrite <- PM1 in *.
   clear xs1' PM1.
   clear A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
+  clear HeqEQlen_xs2.
+  rewrite EQlapp.
+  rewrite app_length.
+  rewrite EQlen_xs2 in *.
+  rewrite <- EQlen in EQlen_xs1.
+  rewrite min_div2 in EQlen_xs1.
+  rewrite EQlen_xs1 in *.  
+  clear EQlen_xs2 xs2 EQlen_xs1 xs1 EQlapp.
+  remember (div2 len) as D.
 
-  subst l'.
-  rewrite EQl_ in *.
-  clear EQl_.
-  rewrite app_length in *.
-  remember (length xs1) as L1.
-  remember (length xs2) as L2.
-  edestruct (@xs_arent_zero A x x' l'' xs1 xs2 L1 L2 EQl HeqL1 HeqL2 LENxs1 LENxs2_E LENxs2_O)
-  as [[L1' EQ1'] [L2' EQ2']].
+  destruct D as [|D].
+  destruct l as [|x' l].
+  congruence.
+  simpl in EQlen.
+  rewrite EQlen in HeqD, E.
+  inversion E. clear n H.
+  rename H0 into O.
+  simpl in HeqD.
+  destruct (length l) as [|LEN].
+  inversion O. congruence.
 
-  clear x x' l'' EQl.
-  clear A l xs1 xs2 HeqL2 HeqL1.
-  rewrite EQ1' in *. clear L1 EQ1'.
-  rewrite EQ2' in *. clear L2 EQ2'.
+  replace (cl_log (S D + S D)) with (S (cl_log (S D))).
+Focus 2.
+  replace (S D) with (D + 1); try omega.
+  replace (D + 1 + (D + 1)) with (D + 1 + D + 1); try omega.
+  rewrite <- cl_log_even. omega.
 
+  rewrite mult_succ_r.
+  rewrite mult_plus_distr_r.
+  replace (2 * S D) with (S D + S D) in SPLIT_P; try omega.
+  rename len into L.
+  clear A l EQlen x l' EQl.
+
+  destruct REC2_P as [REC2_OM REC2_OH].
+  destruct REC1_P as [REC1_OM REC1_OH].
+  destruct SPLIT_P as [SPLIT_OM SPLIT_OH].
+  split.
+  
+  clear SPLIT_OH MERGE_OH REC2_OH REC1_OH.
   destruct SPLIT_OM as [KMsplit SPLIT_OM].
   destruct MERGE_OM as [KMmerge MERGE_OM].
+  destruct REC2_OM as [KMrec2 REC2_OM].
+  destruct REC1_OM as [KMrec1 REC1_OM].
+  exists (KMrec2 + KMrec1 + KMsplit + KMmerge).
+  replace (S D * cl_log (S D) + S D * cl_log (S D) + (S D + S D) +
+    (KMrec2 + KMrec1 + KMsplit + KMmerge)) with
+  ((S D + S D + KMsplit) +
+    ((S D * cl_log (S D) + KMrec1) +
+      ((S D * cl_log (S D) + KMrec2) +
+        ((KMmerge))))); try omega.
+
+  clear SPLIT_OM MERGE_OM REC2_OM REC1_OM.
   destruct SPLIT_OH as [KHsplit SPLIT_OH].
   destruct MERGE_OH as [KHmerge MERGE_OH].
-
-  rewrite <- LENxs1 in LENxs2_E.
-  rewrite <- LENxs1 in LENxs2_O.
-  rewrite <- LENxs1 in SPLIT_OM.
-  rewrite <- LENxs1 in SPLIT_OH.
-  clear LENxs1.
-
-  destruct REC1_P as [REC1_PE REC1_PO].
-  destruct REC2_P as [REC2_PE REC2_PO].
-
-  split.
-  (* Even *) 
-  intros E. apply LENxs2_E in E.
-  clear LENxs2_E LENxs2_O.
-  rewrite E in *. clear E L2'.
-  replace (cl_log (S L1' + S L1')) with (S (cl_log (S L1'))).
-Focus 2.
-  replace (S L1') with (L1' + 1); try omega.
-  replace (L1' + 1 + (L1' + 1)) with (L1' + 1 + L1' + 1); try omega.
-  rewrite <- cl_log_even. omega.
-
-  destruct (even_or_odd (S L1')) as [E | O].
-  
-  (* Even Even *)
-  clear REC2_PO REC1_PO.
-  destruct (REC1_PE E) as [REC1_OM REC1_OH].
-  destruct (REC2_PE E) as [REC2_OM REC2_OH].
-  clear REC1_PE REC2_PE E.
-
-  destruct REC2_OM as [KMrec2 REC2_OM].
-  destruct REC1_OM as [KMrec1 REC1_OM].
   destruct REC2_OH as [KHrec2 REC2_OH].
   destruct REC1_OH as [KHrec1 REC1_OH].
-  rewrite mult_plus_distr_r.
-  remember (cl_log (S L1')) as CL.
-  remember (S L1') as L1.
-  rewrite mult_comm. simpl.
-  
+  exists (KHrec2 + KHrec1 + KHsplit + KHmerge + S D + S D + 2).
+  replace (S D * cl_log (S D) + S D * cl_log (S D) + (S D + S D) +
+    (KHrec2 + KHrec1 + KHsplit + KHmerge + S D + S D + 2)) with
+  ((S D + S D + KHsplit) +
+    ((S D * cl_log (S D) + KHrec1) +
+      ((S D * cl_log (S D) + KHrec2) +
+        ((S D + S D + KHmerge + 2))))); try omega.
+Qed.
+
+Next Obligation.
+  intros A A_cmp A_cmp_trans
+    A_cmp_total A_cmp_dec.  
+  intros l len EQlen _.
+  intros x l' EQl.
+  intros _ O _.
+  intros res' _.
+  intros res _.
+  intros xm EQxm.
+  subst xm.
+  intros Ninsert INSERT_P.
+  intros Nrec REC_P.
+  destruct REC_P as [SOres' REC_P].
+  destruct INSERT_P as [SOres INSERT_P].
+  destruct SOres'. auto.
+  unfold SortedOf in *.
+  destruct SOres as [PMres ISres].
+  destruct SOres' as [PMres' ISres'].
   split.
-  exists (KMrec2 + KMrec1 + KMsplit + KMmerge + L1).
-  replace (L1 + CL * L1 + (L1 + CL * L1) + (KMrec2 + KMrec1 + KMsplit + KMmerge + L1))
-    with ((L1 * CL + KMrec2) + (L1 * CL + KMrec1) + (L1 + L1 + L1 + KMsplit) + KMmerge).
-  omega.
-  rewrite (mult_comm L1 CL).
-  omega.
-  
-  exists (KHrec2 + KHrec1 + KHsplit + KHmerge + L1 + L1 + L1 + 2).
-  replace (L1 + CL * L1 + (L1 + CL * L1) + (KHrec2 + KHrec1 + KHsplit + KHmerge + L1 + L1 + L1 + 2))
-    with ((L1 * CL + KHrec2) + (L1 * CL + KHrec1) + (L1 + L1 + L1 + KHsplit) + (L1 + L1 + KHmerge) + 2).
-  omega.
-  rewrite (mult_comm L1 CL).
-  omega.
-
-  (* Even Odd *)
-  clear REC2_PE REC1_PE.
-  destruct (REC1_PO O) as [REC1_OM REC1_OH].
-  destruct (REC2_PO O) as [REC2_OM REC2_OH].
-  clear REC1_PO REC2_PO O.
-
-  destruct REC2_OM as [KMrec2 REC2_OM].
-  destruct REC1_OM as [KMrec1 REC1_OM].
-  destruct REC2_OH as [KHrec2 REC2_OH].
-  destruct REC1_OH as [KHrec1 REC1_OH].
-  rewrite mult_plus_distr_r.
-  remember (cl_log (S L1')) as CL.
-  remember (cl_log (pred (S L1'))) as CLp.
-  remember (S L1') as L1.
-  rewrite mult_comm. simpl.
-  
-  split.
-  exists (KMrec2 + KMrec1 + KMsplit + KMmerge + L1).
-  replace (L1 + CL * L1 + (L1 + CL * L1) + (KMrec2 + KMrec1 + KMsplit + KMmerge + L1))
-    with ((L1 + L1 + L1 + KMsplit) +
-      ((L1 * CL + KMrec1) + ((L1 * CL + KMrec2) + KMmerge))).
-  apply le_add. auto.
-  apply le_add.
-  eapply le_trans; [|apply REC1_OM].
-  apply le_add; auto.
-  apply le_mult; auto.
-  subst CL CLp. subst L1. simpl.
-  admit.
-  apply le_add; try omega.
-  eapply le_trans; [|apply REC2_OM].
-  apply le_add; auto.
-  apply le_mult; auto.
-  subst CL CLp. subst L1. simpl.
-  admit.
-  rewrite (mult_comm L1 CL).
-  omega.
-  
-  exists (KHrec2 + KHrec1 + KHsplit + KHmerge + L1 + L1 + L1 + 2).
-  replace (L1 + CL * L1 + (L1 + CL * L1) + (KHrec2 + KHrec1 + KHsplit + KHmerge + L1 + L1 + L1 + 2))
-    with ((L1 + L1 + L1 + KHsplit) + ((L1 * CL + KHrec1) + ((L1 * CL + KHrec2) + (L1 + L1 + KHmerge + 2)))).
-  apply le_add. auto.
-  apply le_add.
-  eapply le_trans. apply REC1_OH.
-  apply le_add; auto.
-  apply le_mult; auto.
-  subst CL CLp. subst L1. simpl.
-  apply cl_log_monotone.
-  omega.
-  apply le_add; try omega.
-  eapply le_trans. apply REC2_OH.
-  apply le_add; auto.
-  apply le_mult; auto.
-  subst CL CLp. subst L1. simpl.
-  apply cl_log_monotone.
-  omega.
-  rewrite (mult_comm L1 CL).
-  omega.
-
-  (* Odd *)
-  intros O. apply LENxs2_O in O.
-  clear LENxs2_E LENxs2_O.
-  rewrite O in *. clear O L2'.
-  replace (pred (S L1' + (S L1' + 1))) with (S L1' + S L1'); try omega.
-  replace (cl_log (S L1' + S L1')) with (S (cl_log (S L1'))).
-Focus 2.
-  replace (S L1') with (L1' + 1); try omega.
-  replace (L1' + 1 + (L1' + 1)) with (L1' + 1 + L1' + 1); try omega.
-  rewrite <- cl_log_even. omega.
-
-  replace (S L1' + 1) with (S (S L1')) in *; try omega.
-  simpl pred in *.
-
-  destruct (even_or_odd (S L1')) as [E | O].
-  
-  (* Odd Even *)
-  clear REC2_PE REC1_PO.
-  destruct (REC1_PE E) as [REC1_OM REC1_OH].
-  edestruct REC2_PO as [REC2_OM REC2_OH].
-  simpl. apply odd_S. auto.
-  clear REC1_PE REC2_PO E.
-  destruct REC2_OM as [KMrec2 REC2_OM].
-  destruct REC1_OM as [KMrec1 REC1_OM].
-  destruct REC2_OH as [KHrec2 REC2_OH].
-  destruct REC1_OH as [KHrec1 REC1_OH].
-
-  remember (S L1') as L1.
-  remember (S L1) as SL1.
-  rewrite mult_plus_distr_r.
-  rewrite mult_succ_r in *.
-  rewrite mult_succ_r in *.
 
   split.
-  exists (KMrec2 + KMrec1 + KMsplit + KMmerge + L1 + 2).
-  replace (L1 * cl_log L1 + L1 + (SL1 * cl_log L1 + SL1) + (KMrec2 + KMrec1 + KMsplit + KMmerge + L1 + 2))
-    with
-      ((L1 + SL1 + L1 + KMsplit) +
-        ((L1 * cl_log L1 + KMrec1) +
-        (((SL1 * cl_log L1) + KMrec2) +
-        (KMmerge + 2)))); [ | omega ].
-  apply le_add. auto.
-  apply le_add. auto.
-  apply le_add; [ | omega ].
-  eapply le_trans; [| apply REC2_OM].
-  apply le_add; try auto.
-
-  exists (KHrec2 + KHrec1 + KHsplit + KHmerge + L1 + SL1 + L1 + 2).
-  replace (L1 * cl_log L1 + L1 + (SL1 * cl_log L1 + SL1) + (KHrec2 + KHrec1 + KHsplit + KHmerge + L1 + SL1 + L1 + 2))
-    with
-      ((L1 + SL1 + L1 + KHsplit) +
-        ((L1 * cl_log L1 + KHrec1) +
-        (((SL1 * cl_log L1) + KHrec2) +
-        (L1 + SL1 + KHmerge + 2)))); [ | omega ].
-  apply le_add. auto.
-  apply le_add. auto.
-  apply le_add; [ | omega ].
-  eapply le_trans; [| apply REC2_OH].
+  apply Permutation_sym.
+  eapply Permutation_trans.
+  apply Permutation_sym.
+  apply PMres.
+  apply perm_skip.
+  apply Permutation_sym.
+  apply PMres'.
   auto.
 
-  (* Odd Odd *)
-  clear REC2_PO REC1_PE.
-  destruct (REC1_PO O) as [REC1_OM REC1_OH].
-  edestruct REC2_PE as [REC2_OM REC2_OH].
-  simpl. apply even_S. auto.
-  clear REC1_PO REC2_PE O.
-  destruct REC2_OM as [KMrec2 REC2_OM].
-  destruct REC1_OM as [KMrec1 REC1_OM].
-  destruct REC2_OH as [KHrec2 REC2_OH].
-  destruct REC1_OH as [KHrec1 REC1_OH].
+  clear ISres ISres'.
+  clear res PMres.
+  clear A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
+  rewrite <- (Permutation_length PMres') in *.
+  clear res' PMres'.
 
-  admit.
+  destruct len as [|len].
+  inversion O.
+  rewrite EQl.
+  rewrite <- EQlen in *.
+  rewrite <- EQl in EQlen.
+  simpl in EQlen.
+  replace (length l') with len in *; try congruence.
+  clear A l x l' EQlen EQl.
+  apply odd_S2n in O.
+  destruct O as [p EQp].
+  unfold double in EQp.
+  rewrite EQp.
+  replace (S (p + p)) with (p + p + 1); try omega.
+  rewrite cl_log_odd.
+  replace (p + p + 1) with (S (p + p)); try omega.
+  replace len with (p + p) in *; try omega.
+  clear len EQp.
 
-  (* XXX *)
+  destruct REC_P as [REC_OM REC_OH].
+  destruct INSERT_P as [INSERT_OM INSERT_OH].
 
-  remember (S L1') as L1.
-  remember (L1 + 1) as SL1.
-  rewrite mult_plus_distr_r.
-  rewrite mult_succ_r in *.
-  rewrite mult_succ_r in *.
+  destruct p as [|p].
+  (* p = zero *)
+  simpl in *.
+  split.
+
+  clear INSERT_OH REC_OH.
+  destruct INSERT_OM as [KMinsert [_ INSERT_OM]].
+  destruct REC_OM as [KMrec REC_OM].
+  exists (KMrec + KMinsert + 1). omega.
+
+  clear INSERT_OM REC_OM.
+  destruct INSERT_OH as [KHinsert [_ INSERT_OH]].
+  destruct REC_OH as [KHrec REC_OH].
+  exists (KHrec + KHinsert + 1). omega.
+
+  (* p = S n *)
+  replace (S p + S p) with (p + 1 + p + 1) in *; try omega.  
+  rewrite <- cl_log_even in *.
+  replace (p + 1 + p + 1) with (S p + S p) in *; try omega.
+  replace (p + 1) with (S p) in *; try omega.
 
   split.
-  exists (KMrec2 + KMrec1 + KMsplit + KMmerge + L1 + 2).
-  replace (L1 * cl_log L1 + L1 + (SL1 * cl_log L1 + SL1) + (KMrec2 + KMrec1 + KMsplit + KMmerge + L1 + 2))
-    with
-      ((L1 + SL1 + L1 + KMsplit) +
-        ((L1 * cl_log L1 + KMrec1) +
-        (((SL1 * cl_log L1) + 2 + KMrec2) +
-        (KMmerge)))); [ | omega ].
-  apply le_add. auto.
-  apply le_add. auto.
+
+  clear INSERT_OH REC_OH.
+  destruct INSERT_OM as [KMinsert [_ INSERT_OM]].
+  destruct REC_OM as [KMrec REC_OM].
+  exists (KMrec + KMinsert + 1).
+  replace (S (S p + S p) * (cl_log (S p) + 1) + (KMrec + KMinsert + 1)) with
+    ((S (S p + S p) * (cl_log (S p) + 1) + KMrec) +
+      ((KMinsert) +
+        ((1)))); try omega.
   apply le_add; try omega.
-  eapply le_trans; [| apply REC2_OM].
-  apply le_add; try auto.
+  eapply le_trans; [ | apply REC_OM ].
+  apply le_add; auto.
+  apply le_mult; auto.
 
-  subst SL1. subst L1.
+  (* xxx This is false. I'll have to change the lower bound to
+  something a little bit wider, but I'm worrid how that will affect
+  the other proofs. :( *)
+  
   admit.
 
-  exists (KHrec2 + KHrec1 + (L1 + KHsplit) + (L1 + SL1 + KHmerge) + 2).
-  replace (L1 * cl_log L1 + L1 + (SL1 * cl_log L1 + SL1) +
-    (KHrec2 + KHrec1 + (L1 + KHsplit) + (L1 + SL1 + KHmerge) + 2))
-    with
-      ((L1 + SL1 + L1 + KHsplit) +
-        ((L1 * cl_log L1 + KHrec1) +
-          ((SL1 * cl_log L1 + KHrec2) +
-            ((L1 + SL1 + KHmerge) +
-              2)))); [ | omega ].
-  apply le_add. auto.
-  apply le_add. auto.
-  apply le_add; [| omega].
-  eapply le_trans. apply REC2_OH.
-  apply le_add; try auto.
-  apply le_mult; try auto.
-
-  admit.
+  rewrite mult_succ_l.
+    clear INSERT_OM REC_OM.
+  destruct INSERT_OH as [KHinsert [_ INSERT_OH]].
+  destruct REC_OH as [KHrec REC_OH].
+  exists (KHrec + KHinsert + S p + S p + 1). omega.
 Qed.
+
+(* xxx make a merge sort that doesn't take a length and computes it *)

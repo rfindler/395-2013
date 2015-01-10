@@ -564,16 +564,6 @@ Next Obligation.
   rewrite <- LENxs1 in SPLIT_OH.
   clear LENxs1.
 
-  remember (@braun_invariant_implies_cl_log_property (S L2') (S L1')).
-  clear Heqe.
-  assert (S L1' <= S L2' <= S L1' + 1) as LE.
-  destruct (even_or_odd (S L1' + S L2')) as [E | O].
-  apply LENxs2_E in E.
-  omega.
-  apply LENxs2_O in O.
-  omega.
-  apply e in LE. clear e.
-
   destruct (even_or_odd (S L1' + S L2')) as [E | O].
 
   remember (LENxs2_E E) as LENxs2.
@@ -609,6 +599,7 @@ Focus 2.
   omega.
 
   (* Odd *)
+  idtac.
 
   remember (LENxs2_O O) as LENxs2.
   clear LENxs2_E LENxs2_O HeqLENxs2.
@@ -640,6 +631,7 @@ Focus 2.
   eapply le_trans; [| apply REC2_OM].
   apply le_add; try auto.
 
+  subst SL1. subst L1.
   admit.
 
   exists (KHrec2 + KHrec1 + (L1 + KHsplit) + (L1 + SL1 + KHmerge) + 2).

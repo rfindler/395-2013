@@ -357,32 +357,34 @@ Proof.
   omega.
 Qed.
 
-Inductive Mergesortc_Best_Time : nat -> nat -> Prop :=
+Inductive Mergesortc_Best_Time sbt mbt ibt
+  : nat -> nat -> Prop :=
 | MBT_O :
-  Mergesortc_Best_Time O 1
+  Mergesortc_Best_Time sbt mbt ibt O 1
 | MBT_Sn_even :
   forall n D,
     even (S n) ->
-    Mergesortc_Best_Time (div2 (S n)) D ->
-    Mergesortc_Best_Time (S n)
-    (split_at_best_time (div2 (S n)) + D + D + merge_best_time (S n) + 2)
+    Mergesortc_Best_Time sbt mbt ibt (div2 (S n)) D ->
+    Mergesortc_Best_Time sbt mbt ibt (S n)
+    (sbt (div2 (S n)) + D + D + mbt (S n) + 2)
 | MBT_Sn_odd :
   forall n D,
     odd (S n) ->
-    Mergesortc_Best_Time n D ->
-    Mergesortc_Best_Time (S n) (D + insert_best_time n + 2).
+    Mergesortc_Best_Time sbt mbt ibt n D ->
+    Mergesortc_Best_Time sbt mbt ibt (S n) (D + ibt n + 2).
 Hint Constructors Mergesortc_Best_Time.
 
 Lemma Mergesortc_Best_Time_fun :
-  forall n m m',
-    Mergesortc_Best_Time n m ->
-    Mergesortc_Best_Time n m' ->
+  forall sbt mbt ibt n m m',
+    Mergesortc_Best_Time sbt mbt ibt n m ->
+    Mergesortc_Best_Time sbt mbt ibt n m' ->
     m = m'.
 Proof.
+  intros sbt mbt ibt.
   apply (well_founded_induction lt_wf
   (fun n => forall  m m',
-    Mergesortc_Best_Time n m ->
-    Mergesortc_Best_Time n m' ->
+    Mergesortc_Best_Time sbt mbt ibt n m ->
+    Mergesortc_Best_Time sbt mbt ibt n m' ->
     m = m')).
 
   intros n IH m m' MBT MBT'.
@@ -424,7 +426,10 @@ auto.
 Qed.
 
 Definition mergesortc_best_time_c (n:nat) :
-  { m : nat | Mergesortc_Best_Time n m }.
+  { m : nat |
+    Mergesortc_Best_Time
+    split_at_best_time merge_best_time insert_best_time
+    n m }.
 Proof.
   generalize n. clear n.
   apply (well_founded_induction lt_wf).
@@ -465,7 +470,7 @@ Proof.
   subst D0.
   rename H1 into MBT1'.
   simpl.
-  rewrite (Mergesortc_Best_Time_fun _ _ _ MBT1 MBT1'). auto.
+  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ _ MBT1 MBT1'). auto.
 
   rename H0 into O.
   apply (not_even_and_odd _ E) in O. contradiction.
@@ -492,28 +497,30 @@ Proof.
   subst D0.
   rename H1 into MBT1'.
   simpl.
-  rewrite (Mergesortc_Best_Time_fun _ _ _ MBT1 MBT1'). auto.
+  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ _ MBT1 MBT1'). auto.
 Qed.
 
-Program Fixpoint mergesortc_worst_time (n:nat) {measure n} :=
-  match n with
-    | O =>
-      1
-    | S n' =>
-      match even_odd_dec n with
-        | left _ =>
-          split_at_worst_time (div2 n) +
-          mergesortc_worst_time (div2 n) +
-          mergesortc_worst_time (div2 n) +
-          merge_worst_time n + 2
-        | right _ =>
-          mergesortc_worst_time n' +
-          insert_worst_time n' + 2
-      end
-  end.
+Definition mergesortc_worst_time_c (n:nat) :
+  { m : nat |
+    Mergesortc_Best_Time
+    split_at_worst_time merge_worst_time insert_worst_time
+    n m }.
+Proof.
+  generalize n. clear n.
+  apply (well_founded_induction lt_wf).
+  intros n IH.
+  destruct n as [|n'].
+  eauto.
+  destruct (even_odd_dec (S n')) as [E | O].
+  destruct (IH (div2 (S n'))) as [D MBT]. auto.
+  eauto.
+  destruct (IH n') as [D MBT]. auto.
+  eauto.
+Defined.
 
-Solve Obligations using program_simpl.
-
+Definition mergesortc_worst_time (n:nat) :=
+  proj1_sig (mergesortc_worst_time_c n).
+    
 Lemma mergesortc_worst_time_O:
   mergesortc_worst_time 0 = 1.
 Proof.
@@ -530,7 +537,19 @@ Lemma mergesortc_worst_time_Sn_even:
           merge_worst_time n + 2).
 Proof.
   intros n E [m EQn]. subst n.
-Admitted.
+  unfold mergesortc_worst_time.
+  destruct (mergesortc_worst_time_c (S m)) as [D0 MBT0].
+  destruct (mergesortc_worst_time_c (div2 (S m))) as [D1 MBT1].
+  inversion MBT0.
+  clear H0. subst m.
+  subst D0.
+  rename H1 into MBT1'.
+  simpl.
+  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ _ MBT1 MBT1'). auto.
+
+  rename H0 into O.
+  apply (not_even_and_odd _ E) in O. contradiction.
+Qed.
 
 Lemma mergesortc_worst_time_Sn_odd:
   forall n n',
@@ -539,8 +558,22 @@ Lemma mergesortc_worst_time_Sn_odd:
     mergesortc_worst_time n = (mergesortc_worst_time n' +
           insert_worst_time n' + 2).
 Proof.
-  intros n E n' EQn. subst n.
-Admitted.
+  intros n n' O EQn. subst n.
+
+  unfold mergesortc_worst_time.
+  destruct (mergesortc_worst_time_c (S n')) as [D0 MBT0].
+  destruct (mergesortc_worst_time_c n') as [D1 MBT1].
+  inversion MBT0.
+
+  rename H0 into E.
+  apply (not_even_and_odd _ E) in O. contradiction.
+  
+  clear H0. subst n.
+  subst D0.
+  rename H1 into MBT1'.
+  simpl.
+  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ _ MBT1 MBT1'). auto.
+Qed.
 
 Program Fixpoint mergesortc
   {A:Set} {A_cmp:A -> A -> Prop}
@@ -770,13 +803,55 @@ Next Obligation.
   program_simpl.
 Defined.
 
-Theorem mergesortc_best:
-  big_omega mergesortc_best_time (fun n => n * cl_log n).
+Theorem mergesortc_worst:
+  big_oh mergesortc_worst_time (fun n => n * cl_log n + 1).
 Proof.
+  unfold big_oh.
+  exists 0. exists 1.
+  intros n LE. clear LE. generalize n. clear n.
+  apply (well_founded_induction lt_wf
+    (fun n =>
+      mergesortc_worst_time n <= 1 * (n * cl_log n + 1))).
+  intros n IH.
+  destruct n as [|n].
+
+  rewrite mergesortc_worst_time_O. omega.
+
+  destruct (even_or_odd (S n)) as [E | O].
+  
+  rewrite mergesortc_worst_time_Sn_even; eauto.
+  assert ((div2 (S n)) < S n) as LEd; eauto.
+  apply IH in LEd. clear IH.
+  unfold split_at_worst_time, merge_worst_time.
+  apply even_2n in E.
+  destruct E as [p EQ].
+  rewrite EQ in *.
+  assert ((div2 (double p)) = p) as EQp.
+  unfold double. replace (p + p) with ( 2 * p) ; try omega.
+  apply div2_double.
+  rewrite EQp in *. clear EQp.
+  unfold double in *.
+  destruct p as [|p].
+  omega. clear EQ.
+  remember (mergesortc_worst_time (S p)) as M.
+  clear HeqM.
+
+  replace (S p + S p) with (p + 1 + p + 1); try omega.
+  rewrite <- cl_log_even.
+  replace (p + 1 + p + 1) with (S p + S p); try omega.
+  replace (p + 1) with (S p); try omega.
+  rewrite mult_plus_distr_r.
+  replace (S p + S p) with (2 * S p); try omega.
+  replace (3 * (2 * S p)) with (6 * S p); try omega.
+  replace (2 * S p + 2 + M + M + (6 * S p + 1) + 2) with
+    (8 * S p + 2 * M + 5); try omega.
+
+  admit.
+
 Admitted.
 
-Theorem mergesortc_worst:
-  big_oh mergesortc_worst_time (fun n => n * cl_log n).
+Theorem mergesortc_best:
+  big_omega mergesortc_best_time (fun n => n * cl_log n).
 Proof.
 Admitted.
 

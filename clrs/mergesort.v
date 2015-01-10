@@ -432,7 +432,7 @@ Next Obligation.
   remember (length xs1) as L1.
   remember (length xs2) as L2.
 
-  edestruct (xs_arent_zero A x x' l'' xs1 xs2 L1 L2 EQ HeqL1 HeqL2 EQ1 EQ2E EQ2O)
+  edestruct (@xs_arent_zero A x x' l'' xs1 xs2 L1 L2 EQ HeqL1 HeqL2 EQ1 EQ2E EQ2O)
   as [[L1' EQ1'] [L2' EQ2']].
   omega.
 Qed.
@@ -456,7 +456,7 @@ Next Obligation.
   remember (length xs1) as L1.
   remember (length xs2) as L2.
 
-  edestruct (xs_arent_zero A x x' l'' xs1 xs2 L1 L2 EQ HeqL1 HeqL2 EQ1 EQ2E EQ2O)
+  edestruct (@xs_arent_zero A x x' l'' xs1 xs2 L1 L2 EQ HeqL1 HeqL2 EQ1 EQ2E EQ2O)
   as [[L1' EQ1'] [L2' EQ2']].
   omega.
 Qed.
@@ -552,7 +552,7 @@ Next Obligation.
   rewrite app_length in *.
   remember (length xs1) as L1.
   remember (length xs2) as L2.
-  edestruct (xs_arent_zero A x x' l'' xs1 xs2 L1 L2 EQl HeqL1 HeqL2 LENxs1 LENxs2_E LENxs2_O)
+  edestruct (@xs_arent_zero A x x' l'' xs1 xs2 L1 L2 EQl HeqL1 HeqL2 LENxs1 LENxs2_E LENxs2_O)
   as [[L1' EQ1'] [L2' EQ2']].
 
   clear x x' l'' EQl.
@@ -663,13 +663,15 @@ Focus 2.
   apply le_add; auto.
   apply le_mult; auto.
   subst CL CLp. subst L1. simpl.
-  admit.
+  apply cl_log_monotone.
+  omega.
   apply le_add; try omega.
   eapply le_trans. apply REC2_OH.
   apply le_add; auto.
   apply le_mult; auto.
   subst CL CLp. subst L1. simpl.
-  admit.
+  apply cl_log_monotone.
+  omega.
   rewrite (mult_comm L1 CL).
   omega.
 

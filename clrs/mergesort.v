@@ -320,8 +320,12 @@ Program Fixpoint mergesort
   {measure (length l)}
   : {! res !:! list A !<! c !>!
     (SortedOf A_cmp l res) /\
-    (exists k_0, (length l) * cl_log (length l) + k_0 <= c) /\
-    (exists k_0, c <= (length l) * cl_log (length l) + k_0) !} :=
+    (even (length l) ->
+      (exists k_0, (length l) * cl_log (length l) + k_0 <= c) /\
+      (exists k_0, c <= (length l) * cl_log (length l) + k_0)) /\
+    (odd (length l) ->
+      (exists k_0, (length l) * cl_log (pred (length l)) + k_0 <= c) /\
+      (exists k_0, c <= (length l) * cl_log (pred (length l)) + k_0)) !} :=
   match l with
     | nil =>
       += 1;
@@ -345,8 +349,12 @@ Next Obligation.
   clear mergesort.
   unfold SortedOf. unfold IsSorted.
   split. split. auto. apply SSorted_nil.
-  split. exists 1. omega.
+  split.
+
+  intros E. split. exists 1. omega.
   exists 1. omega.
+
+  intros O. inversion O.
 Qed.
 
 Next Obligation.
@@ -356,8 +364,12 @@ Next Obligation.
   apply SSorted_nil. apply Forall_forall.
   intros x' IN. contradiction.
   split.
+
+  intros E. inversion E. rename H0 into O. inversion O.
+  
+  intros O. split.
   exists 0. omega.
-  exists 1. omega.
+  exists 2. omega.
 Qed.
 
 Lemma xs_arent_zero:
@@ -427,19 +439,18 @@ Qed.
 
 Next Obligation.
   clear mergesort.
-  clear am H11 H10.
-  clear am0 H3 H2.
+  clear am H9 H8.
+  clear am0 H0 H1.
   clear H.
-  clear H8 H9.
-  rename H4 into EQ.
+  clear H6 H7.
+  rename H2 into EQ.
   rewrite EQ in *.
   simpl in *.
   rename l0 into xs1.
   rename l1 into xs2.
-  clear H0 H1.
-  rename H5 into EQ1.
-  rename H6 into EQ2E.
-  rename H7 into EQ2O.
+  rename H3 into EQ1.
+  rename H4 into EQ2E.
+  rename H5 into EQ2O.
   clear A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   rewrite app_length in *.
   remember (length xs1) as L1.
@@ -498,15 +509,15 @@ Next Obligation.
   intros Nrec1 REC1_P.
   intros Nsplit SPLIT_P.
   destruct SPLIT_P as [EQl_ [LENxs1 [LENxs2_E [LENxs2_O [SPLIT_OM SPLIT_OH]]]]].
-  destruct REC1_P as [SO1 [REC1_OM REC1_OH]].
-  destruct REC2_P as [SO2 [REC2_OM REC2_OH]].
+  destruct REC1_P as [SO1 REC1_P].
+  destruct REC2_P as [SO2 REC2_P].
   edestruct MERGE_P as [SOr [MERGE_OM MERGE_OH]].
   unfold SortedOf in SO1. intuition.
   unfold SortedOf in SO2. intuition.
   clear MERGE_P.
   split.
 
-  clear REC2_OM REC2_OH REC1_OM REC1_OH SPLIT_OM SPLIT_OH MERGE_OM MERGE_OH.
+  clear REC2_P REC1_P SPLIT_OM SPLIT_OH MERGE_OM MERGE_OH.
   clear Nmerge Nrec1 Nrec2 Nsplit.
   unfold SortedOf in *.
   unfold IsSorted in *.
@@ -549,12 +560,8 @@ Next Obligation.
   rewrite EQ1' in *. clear L1 EQ1'.
   rewrite EQ2' in *. clear L2 EQ2'.
 
-  destruct REC2_OM as [KMrec2 REC2_OM].
-  destruct REC1_OM as [KMrec1 REC1_OM].
   destruct SPLIT_OM as [KMsplit SPLIT_OM].
   destruct MERGE_OM as [KMmerge MERGE_OM].
-  destruct REC2_OH as [KHrec2 REC2_OH].
-  destruct REC1_OH as [KHrec1 REC1_OH].
   destruct SPLIT_OH as [KHsplit SPLIT_OH].
   destruct MERGE_OH as [KHmerge MERGE_OH].
 
@@ -564,20 +571,32 @@ Next Obligation.
   rewrite <- LENxs1 in SPLIT_OH.
   clear LENxs1.
 
-  destruct (even_or_odd (S L1' + S L2')) as [E | O].
+  destruct REC1_P as [REC1_PE REC1_PO].
+  destruct REC2_P as [REC2_PE REC2_PO].
 
-  remember (LENxs2_E E) as LENxs2.
-  clear LENxs2_E LENxs2_O HeqLENxs2.
-  rewrite LENxs2 in *. clear LENxs2 L2'.
-  
-  (* Even *)
-  
+  split.
+  (* Even *) 
+  intros E. apply LENxs2_E in E.
+  clear LENxs2_E LENxs2_O.
+  rewrite E in *. clear E L2'.
   replace (cl_log (S L1' + S L1')) with (S (cl_log (S L1'))).
 Focus 2.
   replace (S L1') with (L1' + 1); try omega.
   replace (L1' + 1 + (L1' + 1)) with (L1' + 1 + L1' + 1); try omega.
   rewrite <- cl_log_even. omega.
+
+  destruct (even_or_odd (S L1')) as [E | O].
   
+  (* Even Even *)
+  clear REC2_PO REC1_PO.
+  destruct (REC1_PE E) as [REC1_OM REC1_OH].
+  destruct (REC2_PE E) as [REC2_OM REC2_OH].
+  clear REC1_PE REC2_PE E.
+
+  destruct REC2_OM as [KMrec2 REC2_OM].
+  destruct REC1_OM as [KMrec1 REC1_OM].
+  destruct REC2_OH as [KHrec2 REC2_OH].
+  destruct REC1_OH as [KHrec1 REC1_OH].
   rewrite mult_plus_distr_r.
   remember (cl_log (S L1')) as CL.
   remember (S L1') as L1.
@@ -598,18 +617,136 @@ Focus 2.
   rewrite (mult_comm L1 CL).
   omega.
 
-  (* Odd *)
-  idtac.
+  (* Even Odd *)
+  clear REC2_PE REC1_PE.
+  destruct (REC1_PO O) as [REC1_OM REC1_OH].
+  destruct (REC2_PO O) as [REC2_OM REC2_OH].
+  clear REC1_PO REC2_PO O.
 
-  remember (LENxs2_O O) as LENxs2.
-  clear LENxs2_E LENxs2_O HeqLENxs2.
-  rewrite LENxs2 in *. clear LENxs2 L2'.
-
-  replace (cl_log (S L1' + (S L1' + 1))) with (S (cl_log (S L1'))).
-Focus 2.
-  replace (S L1' + (S L1' + 1)) with (S L1' + S L1' + 1); try omega.
-  rewrite cl_log_odd.
+  destruct REC2_OM as [KMrec2 REC2_OM].
+  destruct REC1_OM as [KMrec1 REC1_OM].
+  destruct REC2_OH as [KHrec2 REC2_OH].
+  destruct REC1_OH as [KHrec1 REC1_OH].
+  rewrite mult_plus_distr_r.
+  remember (cl_log (S L1')) as CL.
+  remember (cl_log (pred (S L1'))) as CLp.
+  remember (S L1') as L1.
+  rewrite mult_comm. simpl.
+  
+  split.
+  exists (KMrec2 + KMrec1 + KMsplit + KMmerge + L1).
+  replace (L1 + CL * L1 + (L1 + CL * L1) + (KMrec2 + KMrec1 + KMsplit + KMmerge + L1))
+    with ((L1 + L1 + L1 + KMsplit) +
+      ((L1 * CL + KMrec1) + ((L1 * CL + KMrec2) + KMmerge))).
+  apply le_add. auto.
+  apply le_add.
+  eapply le_trans; [|apply REC1_OM].
+  apply le_add; auto.
+  apply le_mult; auto.
+  subst CL CLp. subst L1. simpl.
+  admit.
+  apply le_add; try omega.
+  eapply le_trans; [|apply REC2_OM].
+  apply le_add; auto.
+  apply le_mult; auto.
+  subst CL CLp. subst L1. simpl.
+  admit.
+  rewrite (mult_comm L1 CL).
   omega.
+  
+  exists (KHrec2 + KHrec1 + KHsplit + KHmerge + L1 + L1 + L1 + 2).
+  replace (L1 + CL * L1 + (L1 + CL * L1) + (KHrec2 + KHrec1 + KHsplit + KHmerge + L1 + L1 + L1 + 2))
+    with ((L1 + L1 + L1 + KHsplit) + ((L1 * CL + KHrec1) + ((L1 * CL + KHrec2) + (L1 + L1 + KHmerge + 2)))).
+  apply le_add. auto.
+  apply le_add.
+  eapply le_trans. apply REC1_OH.
+  apply le_add; auto.
+  apply le_mult; auto.
+  subst CL CLp. subst L1. simpl.
+  admit.
+  apply le_add; try omega.
+  eapply le_trans. apply REC2_OH.
+  apply le_add; auto.
+  apply le_mult; auto.
+  subst CL CLp. subst L1. simpl.
+  admit.
+  rewrite (mult_comm L1 CL).
+  omega.
+
+  (* Odd *)
+  intros O. apply LENxs2_O in O.
+  clear LENxs2_E LENxs2_O.
+  rewrite O in *. clear O L2'.
+  replace (pred (S L1' + (S L1' + 1))) with (S L1' + S L1'); try omega.
+  replace (cl_log (S L1' + S L1')) with (S (cl_log (S L1'))).
+Focus 2.
+  replace (S L1') with (L1' + 1); try omega.
+  replace (L1' + 1 + (L1' + 1)) with (L1' + 1 + L1' + 1); try omega.
+  rewrite <- cl_log_even. omega.
+
+  replace (S L1' + 1) with (S (S L1')) in *; try omega.
+  simpl pred in *.
+
+  destruct (even_or_odd (S L1')) as [E | O].
+  
+  (* Odd Even *)
+  clear REC2_PE REC1_PO.
+  destruct (REC1_PE E) as [REC1_OM REC1_OH].
+  edestruct REC2_PO as [REC2_OM REC2_OH].
+  simpl. apply odd_S. auto.
+  clear REC1_PE REC2_PO E.
+  destruct REC2_OM as [KMrec2 REC2_OM].
+  destruct REC1_OM as [KMrec1 REC1_OM].
+  destruct REC2_OH as [KHrec2 REC2_OH].
+  destruct REC1_OH as [KHrec1 REC1_OH].
+
+  remember (S L1') as L1.
+  remember (S L1) as SL1.
+  rewrite mult_plus_distr_r.
+  rewrite mult_succ_r in *.
+  rewrite mult_succ_r in *.
+
+  split.
+  exists (KMrec2 + KMrec1 + KMsplit + KMmerge + L1 + 2).
+  replace (L1 * cl_log L1 + L1 + (SL1 * cl_log L1 + SL1) + (KMrec2 + KMrec1 + KMsplit + KMmerge + L1 + 2))
+    with
+      ((L1 + SL1 + L1 + KMsplit) +
+        ((L1 * cl_log L1 + KMrec1) +
+        (((SL1 * cl_log L1) + KMrec2) +
+        (KMmerge + 2)))); [ | omega ].
+  apply le_add. auto.
+  apply le_add. auto.
+  apply le_add; [ | omega ].
+  eapply le_trans; [| apply REC2_OM].
+  apply le_add; try auto.
+
+  exists (KHrec2 + KHrec1 + KHsplit + KHmerge + L1 + SL1 + L1 + 2).
+  replace (L1 * cl_log L1 + L1 + (SL1 * cl_log L1 + SL1) + (KHrec2 + KHrec1 + KHsplit + KHmerge + L1 + SL1 + L1 + 2))
+    with
+      ((L1 + SL1 + L1 + KHsplit) +
+        ((L1 * cl_log L1 + KHrec1) +
+        (((SL1 * cl_log L1) + KHrec2) +
+        (L1 + SL1 + KHmerge + 2)))); [ | omega ].
+  apply le_add. auto.
+  apply le_add. auto.
+  apply le_add; [ | omega ].
+  eapply le_trans; [| apply REC2_OH].
+  auto.
+
+  (* Odd Odd *)
+  clear REC2_PO REC1_PE.
+  destruct (REC1_PO O) as [REC1_OM REC1_OH].
+  edestruct REC2_PE as [REC2_OM REC2_OH].
+  simpl. apply even_S. auto.
+  clear REC1_PO REC2_PE O.
+  destruct REC2_OM as [KMrec2 REC2_OM].
+  destruct REC1_OM as [KMrec1 REC1_OM].
+  destruct REC2_OH as [KHrec2 REC2_OH].
+  destruct REC1_OH as [KHrec1 REC1_OH].
+
+  admit.
+
+  (* XXX *)
 
   remember (S L1') as L1.
   remember (L1 + 1) as SL1.

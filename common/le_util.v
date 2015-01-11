@@ -230,3 +230,28 @@ Proof.
 
   apply div2_doubled_le_n.
 Qed.
+
+Lemma le_add:
+  forall x x' y y',
+    x <= x' ->
+    y <= y' ->
+    x + y <= x' + y'.
+Proof.
+  intros. omega.
+Qed.
+
+Lemma le_mult:
+  forall x x' y y',
+    x <= x' ->
+    y <= y' ->
+    x * y <= x' * y'.
+Proof.
+  induction x as [|x]; simpl.
+  intros. apply le_0_n.
+  intros.
+  destruct H. simpl.
+  apply le_add; auto.
+  simpl. apply le_add; auto.
+  eapply IHx; auto.
+  omega.
+Qed.

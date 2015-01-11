@@ -291,3 +291,17 @@ Lemma plus_succ_r:
 Proof.
   intros. omega.
 Qed.
+
+Lemma min_div2:
+  forall L,
+    min (div2 L) L = (div2 L).
+Proof.
+  intros L.
+  apply min_l.
+  generalize L. clear L.
+  apply ind_0_1_SS; simpl.
+
+  auto. auto.
+  intros L IH.
+  omega.
+Qed.

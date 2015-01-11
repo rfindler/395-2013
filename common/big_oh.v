@@ -170,6 +170,47 @@ Proof.
 Qed.
 Hint Resolve big_oh_mult_k_left_linear.
 
+Lemma big_oh_add_k:
+  forall f g k,
+    (forall n, 0 < g n) ->
+    big_oh f g ->
+    big_oh (fun n => f n + k) g.
+Proof.
+  intros f g k Gpos FG.
+  destruct FG as [N [M FG]].
+  eexists. exists (M + k).
+  intros n LE.
+  apply FG in LE.
+  rewrite mult_plus_distr_r.
+  apply le_add. auto.
+  assert (0 < g n) as Gpos'. auto.
+  destruct (g n) as [|gn].
+  omega.
+  rewrite mult_comm. simpl.
+  replace k with (k + 0); try omega.
+  apply le_add. omega.
+  apply le_0_n.
+Qed.
+
+Lemma big_oh_add_k_both:
+  forall f g k,
+    big_oh f g ->
+    big_oh (fun n => f n + k) (fun n => g n + k).
+Proof.
+  intros f g k FG.
+  destruct FG as [N [M FG]].
+  exists N. exists (S M).
+  intros n LE.
+  apply FG in LE.
+  rewrite mult_plus_distr_l.
+  apply le_add. simpl. omega.
+  clear FG LE f g N n.
+  simpl. 
+  replace k with (k + 0); try omega.
+  apply le_add. omega.
+  apply le_0_n.
+Qed.
+
 Definition big_omega f g :=
   exists n0 m, 
     forall n, 

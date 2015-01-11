@@ -1,4 +1,4 @@
-Require Import Braun.common.util Braun.common.same_structure.
+Require Import Braun.common.util Braun.common.le_util Braun.common.same_structure.
 Require Import Braun.common.log Braun.common.big_oh.
 Require Import Braun.common.sequence Braun.common.list_util.
 Require Import Braun.monad.monad.
@@ -82,20 +82,6 @@ Next Obligation.
   split. auto.
   clear EQlen_xs1.
   unfold split_at_best_time, split_at_worst_time in *.
-  omega.
-Qed.
-
-Lemma min_div2:
-  forall L,
-    min (div2 L) L = (div2 L).
-Proof.
-  intros L.
-  apply min_l.
-  generalize L. clear L.
-  apply ind_0_1_SS; simpl.
-
-  auto. auto.
-  intros L IH.
   omega.
 Qed.
 
@@ -330,31 +316,6 @@ Proof.
   apply even_double in EVEN.  
   rewrite <- EQlen_xs1 in EVEN.
   unfold double in EVEN. omega.
-Qed.
-
-Lemma le_add:
-  forall x x' y y',
-    x <= x' ->
-    y <= y' ->
-    x + y <= x' + y'.
-Proof.
-  intros. omega.
-Qed.
-
-Lemma le_mult:
-  forall x x' y y',
-    x <= x' ->
-    y <= y' ->
-    x * y <= x' * y'.
-Proof.
-  induction x as [|x]; simpl.
-  intros. apply le_0_n.
-  intros.
-  destruct H. simpl.
-  apply le_add; auto.
-  simpl. apply le_add; auto.
-  eapply IHx; auto.
-  omega.
 Qed.
 
 Inductive Mergesortc_Best_Time sbt mbt ibt
@@ -858,8 +819,9 @@ Proof.
   rewrite (mult_assoc 4 2).
   rewrite (mult_assoc 4 2).
   replace (4 * 2) with 8; try omega.
-
-  cut (2 * 4 + 5 <= 4). intros LE. omega. clear n p M LEd.
+  remember (S p * cl_log (S p)) as Q.
+  
+  cut (2 * 4 + 5 <= 4). intros LE. omega. clear n p M Q HeqQ LEd.
 
   (* XXX The Each M includes a 4 and the 5 comes from the RHS. The 4
   is the one from the right. The only value that can be put here is
@@ -889,26 +851,22 @@ Proof.
   replace (p + 1) with (S p) in LEd; try omega.
   remember (S p) as SP. clear HeqSP p.
 
-  (* xxx This could be true *)
+  remember (SP + SP) as SPSP.
+  replace (M + (2 * SPSP + 1) + 2) with (M + 2 * SPSP + 3); try omega.  
+  rewrite mult_plus_distr_r.
+  rewrite mult_1_l.
+  replace (SPSP * (cl_log SP + 1) + (cl_log SP + 1) + 1) with
+    ((SPSP * (cl_log SP + 1) + 1) + (cl_log SP + 1)); try omega.
+  rewrite mult_plus_distr_l.
+  remember (SPSP * (cl_log SP + 1) + 1) as Q.
+  rewrite mult_plus_distr_l.
+  rewrite mult_1_r.
+  rewrite <- plus_assoc.  
+  apply le_add. auto.
+  clear M LEd Q HeqQ.
+  subst SPSP.
 
-  repeat rewrite mult_plus_distr_l in *.
-  rewrite mult_1_r in *.
-  repeat rewrite mult_plus_distr_l in *.
-  rewrite mult_1_r in *.
-  
-  repeat rewrite mult_plus_distr_r in *.
-  replace (2 * p) with (p + p); try omega.
-  replace (4 * 1) with 4 in *; try omega.
-  SearchAb
-
-  
-  rewrite EQp.
-
-  omega.
-  
-  
-  omega.
-
+  (* xxx This is definitely false (look at a graph) *)
   admit.
 
 Admitted.
@@ -956,15 +914,26 @@ Lemma big_oh_n_nlogn:
 Proof.
 Admitted.
 
-Corollary mergesort_worst:
-  big_oh mergesort_worst_time (fun n => n * cl_log n).
+Lemma mergesort_worst_step:
+  forall f,
+    big_oh (fun n : nat => n + 1) f ->
+    big_oh mergesortc_worst_time f ->
+    big_oh mergesort_worst_time f.
 Proof.
+  intros f LINf mergesortc_worst.
   unfold mergesort_worst_time.
-  apply big_oh_plus; try apply mergesortc_worst.
+  apply big_oh_plus.
   unfold clength_time.
-  eapply big_oh_trans.
-  apply big_oh_add_k_linear.
+  auto. auto.
+Qed.
+
+Corollary mergesort_worst:
+  big_oh mergesort_worst_time (fun n : nat => n * cl_log n + 1).
+Proof.
+  apply mergesort_worst_step.
+  apply big_oh_add_k_both.
   apply big_oh_n_nlogn.
+  apply mergesortc_worst.
 Qed.
 
 Corollary mergesort_best:

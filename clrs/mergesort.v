@@ -807,11 +807,11 @@ Theorem mergesortc_worst:
   big_oh mergesortc_worst_time (fun n => n * cl_log n + 1).
 Proof.
   unfold big_oh.
-  exists 0. exists 1.
+  exists 0. exists 4.
   intros n LE. clear LE. generalize n. clear n.
   apply (well_founded_induction lt_wf
     (fun n =>
-      mergesortc_worst_time n <= 1 * (n * cl_log n + 1))).
+      mergesortc_worst_time n <= 4 * (n * cl_log n + 1))).
   intros n IH.
   destruct n as [|n].
 
@@ -844,7 +844,70 @@ Proof.
   replace (S p + S p) with (2 * S p); try omega.
   replace (3 * (2 * S p)) with (6 * S p); try omega.
   replace (2 * S p + 2 + M + M + (6 * S p + 1) + 2) with
-    (8 * S p + 2 * M + 5); try omega.
+    (2 * M + 8 * S p + 5); try omega.
+
+  replace (S p * (cl_log (S p) + 1) + S p * (cl_log (S p) + 1) + 1) with
+    ((2 * (S p * (cl_log (S p) + 1))) + 1); try omega.
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+  replace (S p * 1) with (S p); try omega.
+  rewrite mult_plus_distr_l in LEd.
+  replace (4 * 1) with 4 in *; try omega.
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+  rewrite (mult_assoc 4 2).
+  rewrite (mult_assoc 4 2).
+  replace (4 * 2) with 8; try omega.
+
+  cut (2 * 4 + 5 <= 4). intros LE. omega. clear n p M LEd.
+
+  (* XXX The Each M includes a 4 and the 5 comes from the RHS. The 4
+  is the one from the right. The only value that can be put here is
+  -5, which isn't a nat *)
+  admit.
+
+  erewrite mergesortc_worst_time_Sn_odd; eauto.
+  assert (n < S n) as LEd; eauto.
+  apply IH in LEd. clear IH.
+  remember (mergesortc_worst_time n) as M.
+  clear HeqM.
+  unfold insert_worst_time.
+  apply odd_S2n in O.
+  destruct O as [p EQp].
+  unfold double in EQp.
+  replace (S n) with (p + p +1); try omega.
+  rewrite cl_log_odd.
+  replace n with (p + p) in *; try omega.
+  clear EQp n.
+
+  destruct p as [|p].
+  simpl in *. omega.
+
+  replace (S p + S p) with (p + 1 + p + 1) in LEd; try omega.
+  rewrite <- cl_log_even in LEd.
+  replace (p + 1 + p + 1) with (S p + S p) in LEd; try omega.
+  replace (p + 1) with (S p) in LEd; try omega.
+  remember (S p) as SP. clear HeqSP p.
+
+  (* xxx This could be true *)
+
+  repeat rewrite mult_plus_distr_l in *.
+  rewrite mult_1_r in *.
+  repeat rewrite mult_plus_distr_l in *.
+  rewrite mult_1_r in *.
+  
+  repeat rewrite mult_plus_distr_r in *.
+  replace (2 * p) with (p + p); try omega.
+  replace (4 * 1) with 4 in *; try omega.
+  SearchAb
+
+  
+  rewrite EQp.
+
+  omega.
+  
+  
+  omega.
 
   admit.
 

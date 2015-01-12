@@ -227,3 +227,30 @@ Proof.
   simpl. auto.
   simpl pow. omega.
 Qed.
+
+Require Import Div2.
+
+Lemma pow2_monotone:
+  forall x y,
+    x <= y ->
+    pow 2 x <= pow 2 y.
+Proof.
+  induction x as [|x]; intros y LE.
+  simpl.
+  destruct y as [|y]. simpl. auto.
+  simpl. omega.
+  destruct y as [|y]. omega.
+  apply le_S_n in LE.
+  apply IHx in LE.
+  simpl.  omega.
+Qed.
+  
+Lemma fib_rec_time_guarantee:
+  ~
+  (forall n,
+    pow 2 (div2 n) <= fib_rec_time n <= pow 2 n).
+Proof.
+  intros H.
+  destruct (H 3) as [Pl Pr].
+  simpl in *. omega.
+Qed.

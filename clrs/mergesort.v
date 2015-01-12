@@ -104,16 +104,16 @@ Program Fixpoint merge
     (SortedOf A_cmp (xs ++ ys) res) /\
     merge_best_time (length (xs ++ ys)) <= c /\
     c <= merge_worst_time (length (xs ++ ys)) !} :=
-  match ys with
+  match xs with
     | nil =>
       += 1;
-      <== xs
-    | cons y ys' =>
-      match xs with
+      <== ys
+    | cons x xs' =>
+      match ys with
         | nil =>
           += 2 ;
-          <== ys
-        | cons x xs' =>
+          <== xs
+        | cons y ys' =>
           match A_cmp_dec x y with
             | left _ =>
               res <- merge A_cmp_trans A_cmp_total A_cmp_dec xs' ys ;
@@ -130,7 +130,7 @@ Program Fixpoint merge
 Next Obligation.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
-  intros EQys. subst ys.
+  intros EQxs. subst xs.
   simpl. simpl_list.
   intros xm EQxm. subst xm.
   unfold SortedOf.
@@ -143,13 +143,14 @@ Qed.
 Next Obligation.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
-  intros y ys' EQys.
-  subst ys.
-  intros EQxs. subst xs.
+  intros x xs' EQxs.
+  subst xs.
+  intros EQys. subst ys.
   simpl.
   intros xm EQxm. subst xm.
   unfold SortedOf.
   intros ISxs ISys.
+  rewrite app_nil_r.
 
   split. eauto.
   unfold merge_best_time, merge_worst_time.
@@ -159,8 +160,8 @@ Qed.
 Next Obligation.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
-  intros y ys' EQys. subst ys.
   intros x xs' EQxs. subst xs.
+  intros y ys' EQys. subst ys.
   intros _ CMP _.
   simpl. omega.
 Qed.
@@ -168,8 +169,8 @@ Qed.
 Next Obligation.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
-  intros y ys' EQys. subst ys.
   intros x xs' EQxs. subst xs.
+  intros y ys' EQys. subst ys.
   intros _ CMP _.
   intros res _.
   simpl. intros xm EQxm. subst xm.
@@ -213,8 +214,8 @@ Qed.
 Next Obligation.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
-  intros y ys' EQys. subst ys.
   intros x xs' EQxs. subst xs.
+  intros y ys' EQys. subst ys.
   intros _ CMP _.
   simpl. rewrite app_length.
   rewrite app_length. simpl. omega.
@@ -223,8 +224,8 @@ Qed.
 Next Obligation.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
-  intros y ys' EQys. subst ys.
   intros x xs' EQxs. subst xs.
+  intros y ys' EQys. subst ys.
   intros _ CMP _.
   intros res _.
   simpl. intros xm EQxm. subst xm.

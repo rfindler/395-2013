@@ -35,16 +35,13 @@ Next Obligation.
   omega.
 Qed.
 
-Definition split_at_best_time (n:nat) := 2 * n + 1.
-Definition split_at_worst_time (n:nat) := 2 * n + 2.
-Hint Unfold split_at_best_time split_at_worst_time.
+Definition split_at_time (n:nat) := 2 * n + 1.
 
-Program Fixpoint split_at {A:Set} (n:nat) (l:list A)
+Program Fixpoint split_at {A:Set} (n:nat) (l:list A) (V:n <= length l)
   : {! res !:! ((list A)*(list A)) !<! c !>!
     l = (fst res) ++ (snd res) /\
     length (fst res) = min n (length l) /\
-    split_at_best_time (length (fst res)) <= c /\
-    c <= split_at_worst_time (length (fst res))!}
+    c = split_at_time n !}
   :=
   match n with
     | O =>
@@ -53,35 +50,39 @@ Program Fixpoint split_at {A:Set} (n:nat) (l:list A)
     | S n' =>
       match l with
         | nil =>
-          += 2;
-          <== (nil, nil)
+          _
         | cons a l' =>
-          res <- split_at n' l' ;
+          res <- split_at n' l' _ ;
           += 2;
           <== (cons a (fst res), (snd res))
       end
   end.
 
 Next Obligation.
-  unfold split_at_best_time, split_at_worst_time.
-  repeat split; auto. omega.
+  unfold split_at_time.
+  simpl in *. omega.
+Qed.
+
+Next Obligation.
+  simpl in *. omega.
 Qed.
 
 Local Obligation Tactic := idtac.
 
 Next Obligation.
-  intros A n l n' EQn. subst n.
+  unfold split_at_time.
+  intros A n l VL n' EQn. subst n.
   intros a l' EQl. subst l.
   intros [xs1 xs2] _.
   simpl. intros xm EQxm. subst xm.
   intros an REC_P.
-  destruct REC_P as [EQl' [EQlen_xs1 REC_P]].
-  subst l'.  
+  destruct REC_P as [EQl' [EQlen_xs1 EQan]].
+  subst l'.  subst an.
   split. auto.
+  clear VL.
   rewrite <- EQlen_xs1.
   split. auto.
   clear EQlen_xs1.
-  unfold split_at_best_time, split_at_worst_time in *.
   omega.
 Qed.
 
@@ -318,34 +319,34 @@ Proof.
   unfold double in EVEN. omega.
 Qed.
 
-Inductive Mergesortc_Best_Time sbt mbt ibt
+Inductive Mergesortc_Best_Time mbt ibt
   : nat -> nat -> Prop :=
 | MBT_O :
-  Mergesortc_Best_Time sbt mbt ibt O 1
+  Mergesortc_Best_Time mbt ibt O 1
 | MBT_Sn_even :
   forall n D,
     even (S n) ->
-    Mergesortc_Best_Time sbt mbt ibt (div2 (S n)) D ->
-    Mergesortc_Best_Time sbt mbt ibt (S n)
-    (sbt (div2 (S n)) + D + D + mbt (S n) + 2)
+    Mergesortc_Best_Time mbt ibt (div2 (S n)) D ->
+    Mergesortc_Best_Time mbt ibt (S n)
+    (split_at_time (div2 (S n)) + D + D + mbt (S n) + 2)
 | MBT_Sn_odd :
   forall n D,
     odd (S n) ->
-    Mergesortc_Best_Time sbt mbt ibt n D ->
-    Mergesortc_Best_Time sbt mbt ibt (S n) (D + ibt n + 2).
+    Mergesortc_Best_Time mbt ibt n D ->
+    Mergesortc_Best_Time mbt ibt (S n) (D + ibt n + 2).
 Hint Constructors Mergesortc_Best_Time.
 
 Lemma Mergesortc_Best_Time_fun :
-  forall sbt mbt ibt n m m',
-    Mergesortc_Best_Time sbt mbt ibt n m ->
-    Mergesortc_Best_Time sbt mbt ibt n m' ->
+  forall mbt ibt n m m',
+    Mergesortc_Best_Time mbt ibt n m ->
+    Mergesortc_Best_Time mbt ibt n m' ->
     m = m'.
 Proof.
-  intros sbt mbt ibt.
+  intros mbt ibt.
   apply (well_founded_induction lt_wf
   (fun n => forall  m m',
-    Mergesortc_Best_Time sbt mbt ibt n m ->
-    Mergesortc_Best_Time sbt mbt ibt n m' ->
+    Mergesortc_Best_Time mbt ibt n m ->
+    Mergesortc_Best_Time mbt ibt n m' ->
     m = m')).
 
   intros n IH m m' MBT MBT'.
@@ -389,7 +390,7 @@ Qed.
 Definition mergesortc_best_time_c (n:nat) :
   { m : nat |
     Mergesortc_Best_Time
-    split_at_best_time merge_best_time insert_best_time
+    merge_best_time insert_best_time
     n m }.
 Proof.
   generalize n. clear n.
@@ -417,7 +418,7 @@ Lemma mergesortc_best_time_Sn_even:
   forall n,
     even n ->
     (exists m, n = S m) ->
-    mergesortc_best_time n = (split_at_best_time (div2 n) +
+    mergesortc_best_time n = (split_at_time (div2 n) +
           mergesortc_best_time (div2 n) +
           mergesortc_best_time (div2 n) +
           merge_best_time n + 2).
@@ -431,7 +432,7 @@ Proof.
   subst D0.
   rename H1 into MBT1'.
   simpl.
-  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ _ MBT1 MBT1'). auto.
+  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ MBT1 MBT1'). auto.
 
   rename H0 into O.
   apply (not_even_and_odd _ E) in O. contradiction.
@@ -458,13 +459,13 @@ Proof.
   subst D0.
   rename H1 into MBT1'.
   simpl.
-  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ _ MBT1 MBT1'). auto.
+  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ MBT1 MBT1'). auto.
 Qed.
 
 Definition mergesortc_worst_time_c (n:nat) :
   { m : nat |
     Mergesortc_Best_Time
-    split_at_worst_time merge_worst_time insert_worst_time
+    merge_worst_time insert_worst_time
     n m }.
 Proof.
   generalize n. clear n.
@@ -492,7 +493,7 @@ Lemma mergesortc_worst_time_Sn_even:
   forall n,
     even n ->
     (exists m, n = S m) ->
-    mergesortc_worst_time n = (split_at_worst_time (div2 n) +
+    mergesortc_worst_time n = (split_at_time (div2 n) +
           mergesortc_worst_time (div2 n) +
           mergesortc_worst_time (div2 n) +
           merge_worst_time n + 2).
@@ -506,7 +507,7 @@ Proof.
   subst D0.
   rename H1 into MBT1'.
   simpl.
-  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ _ MBT1 MBT1'). auto.
+  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ MBT1 MBT1'). auto.
 
   rename H0 into O.
   apply (not_even_and_odd _ E) in O. contradiction.
@@ -533,7 +534,7 @@ Proof.
   subst D0.
   rename H1 into MBT1'.
   simpl.
-  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ _ MBT1 MBT1'). auto.
+  rewrite (Mergesortc_Best_Time_fun _ _ _ _ _ MBT1 MBT1'). auto.
 Qed.
 
 Program Fixpoint mergesortc
@@ -552,7 +553,7 @@ Program Fixpoint mergesortc
     | cons x l' =>
       match even_odd_dec len with
         | left EVEN =>
-          xs12 <- split_at (div2 len) l ;
+          xs12 <- split_at (div2 len) l _ ;
           xs1' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
                               (fst xs12) (div2 len) _ _ ;
           xs2' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
@@ -580,6 +581,14 @@ Next Obligation.
 
   unfold mergesortc_best_time, mergesortc_worst_time.
   program_simpl.
+Qed.
+
+Next Obligation.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
+    l len EQlen _ x l' EQl' _ EVEN _.
+  subst len. subst l. simpl (length (x::l')).
+
+  remember (lt_div2 (S (length l'))) as LT. omega.
 Qed.
 
 Next Obligation.
@@ -783,7 +792,7 @@ Proof.
   rewrite mergesortc_worst_time_Sn_even; eauto.
   assert ((div2 (S n)) < S n) as LEd; eauto.
   apply IH in LEd. clear IH.
-  unfold split_at_worst_time, merge_worst_time.
+  unfold split_at_time, merge_worst_time.
   apply even_2n in E.
   destruct E as [p EQ].
   rewrite EQ in *.

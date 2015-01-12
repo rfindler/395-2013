@@ -89,8 +89,8 @@ Qed.
 (* xxx I think we know more for the way merge is called by merge sort
 (with equal input) *)
 
-Definition merge_best_time (n:nat) := 1.
-Definition merge_worst_time (n:nat) := 3 * n + 1.
+Definition merge_best_time (n:nat) (m:nat) := 3 * (min n m) + 1.
+Definition merge_worst_time (n:nat) (m:nat) := 3 * (n + m) + 1.
 Hint Unfold merge_best_time merge_worst_time.
 
 Program Fixpoint merge
@@ -102,8 +102,8 @@ Program Fixpoint merge
     (IsSorted A_cmp xs) ->
     (IsSorted A_cmp ys) ->
     (SortedOf A_cmp (xs ++ ys) res) /\
-    merge_best_time (length (xs ++ ys)) <= c /\
-    c <= merge_worst_time (length (xs ++ ys)) !} :=
+    merge_best_time (length xs) (length ys) <= c /\
+    c <= merge_worst_time (length xs) (length ys) !} :=
   match xs with
     | nil =>
       += 1;
@@ -137,6 +137,7 @@ Next Obligation.
   intros ISxs ISys.
   split. eauto.
   unfold merge_best_time, merge_worst_time.
+  rewrite min_0_l.
   omega.
 Qed.
 
@@ -154,6 +155,7 @@ Next Obligation.
 
   split. eauto.
   unfold merge_best_time, merge_worst_time.
+  rewrite min_0_r.
   omega.
 Qed.
 
@@ -208,7 +210,18 @@ Next Obligation.
   apply CMP. auto.
 
   unfold merge_best_time, merge_worst_time in *.
-  omega.
+  split; [ | omega ].
+  destruct REC_T as [REC_T _].
+  apply min_case_strong; intros LE.
+  inversion LE. rename H0 into EQ. rewrite <- EQ in *.
+  rewrite min_l in REC_T; try omega.
+  subst m. 
+  rewrite min_l in REC_T; try omega.
+  
+  inversion LE. rename H0 into EQ. rewrite EQ in *.
+  rewrite min_l in REC_T; try omega.
+  subst m. 
+  rewrite min_r in REC_T; try omega.
 Qed.
 
 Next Obligation.
@@ -277,10 +290,20 @@ Next Obligation.
   apply A_cmp_total.
   apply CMP. auto.
 
-  rewrite app_length in *.
-  simpl.
   unfold merge_best_time, merge_worst_time in *.
-  omega.
+  split; [|omega].
+  (* XXX copy, ugh *)
+  destruct REC_T as [REC_T _].
+  apply min_case_strong; intros LE.
+  inversion LE. rename H0 into EQ. rewrite <- EQ in *.
+  rewrite min_r in REC_T; try omega.
+  subst m. 
+  rewrite min_l in REC_T; try omega.
+  
+  inversion LE. rename H0 into EQ. rewrite EQ in *.
+  rewrite min_r in REC_T; try omega.
+  subst m.
+  rewrite min_r in REC_T; try omega.
 Qed.
 
 Next Obligation.
@@ -329,7 +352,7 @@ Inductive Mergesortc_Best_Time mbt ibt
     even (S n) ->
     Mergesortc_Best_Time mbt ibt (div2 (S n)) D ->
     Mergesortc_Best_Time mbt ibt (S n)
-    (split_at_time (div2 (S n)) + D + D + mbt (S n) + 2)
+    (split_at_time (div2 (S n)) + D + D + mbt (div2 (S n)) (div2 (S n)) + 2)
 | MBT_Sn_odd :
   forall n D,
     odd (S n) ->
@@ -422,7 +445,7 @@ Lemma mergesortc_best_time_Sn_even:
     mergesortc_best_time n = (split_at_time (div2 n) +
           mergesortc_best_time (div2 n) +
           mergesortc_best_time (div2 n) +
-          merge_best_time n + 2).
+          merge_best_time (div2 n) (div2 n) + 2).
 Proof.
   intros n E [m EQn]. subst n.
   unfold mergesortc_best_time.
@@ -497,7 +520,7 @@ Lemma mergesortc_worst_time_Sn_even:
     mergesortc_worst_time n = (split_at_time (div2 n) +
           mergesortc_worst_time (div2 n) +
           mergesortc_worst_time (div2 n) +
-          merge_worst_time n + 2).
+          merge_worst_time (div2 n) (div2 n) + 2).
 Proof.
   intros n E [m EQn]. subst n.
   unfold mergesortc_worst_time.
@@ -664,7 +687,6 @@ Next Obligation.
   destruct SO2 as [PM2 SS2].
   destruct SO1 as [PM1 SS1].
   destruct SOr as [PMr SSr].
-  rewrite app_length in *.
   rewrite <- (Permutation_length PM1) in *.
   rewrite <- (Permutation_length PM2) in *.  
   split.

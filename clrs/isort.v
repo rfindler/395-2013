@@ -200,3 +200,44 @@ Next Obligation.
   repeat rewrite mult_succ_r in *.
   omega.
 Qed.
+
+Theorem isort_is_nsquared : big_oh isort_worst_time (fun n => n * n).
+Proof.
+  unfold isort_worst_time.
+  unfold insert_worst_time.
+  exists 4.
+  exists 4.
+  intros.
+  destruct n; try omega.
+  destruct n; try omega.
+  destruct n; try omega.
+  destruct n; try omega.
+  clear H.
+  replace (S (S (S (S n)))) with (4+n); try omega.
+
+  (* clean up left-hand side *)
+  replace (2 * (4 + n)) with (8 + 2 * n); try omega.
+  rewrite mult_plus_distr_r.
+  replace (4 * (8 + 2 * n + 1)) with (32 + 8 * n + 4); try omega.
+  rewrite mult_plus_distr_l at 1.
+  replace (n * 1) with n; try omega.
+  rewrite mult_plus_distr_l.
+  replace (32 + 8 * n + 4 + (n * 8 + n * (2 * n) + n) + 1)
+  with (n * (2 * n) + 17 * n + 37); try omega.
+
+  (* clean up right-hand side *)
+  rewrite mult_plus_distr_r.
+  repeat (rewrite mult_plus_distr_l).
+  replace (4 * (4 * 4) + 4 * (4 * n) + (4 * (n * 4) + 4 * (n * n)))
+  with  (4 * (n * n) + 32 * n + 64); try omega.
+
+  (* get down to the squared term *)
+  apply plus_le_compat; try omega.
+  apply plus_le_compat; try omega.
+
+  replace (n * (2 * n)) with (2 * (n * n));
+    [|  rewrite mult_assoc at 1;
+       rewrite mult_comm at 1;
+       reflexivity].
+  apply mult_le_compat_r; omega.
+Qed.

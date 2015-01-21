@@ -5,6 +5,7 @@ Require Import Program.
 Require Import Omega.
 Require Import Max.
 Require Import Relations_1.
+Require Import Braun.clrs.fib.
 
 Inductive Color : Set :=
 | BLACK : Color
@@ -17,6 +18,22 @@ Inductive CTree (A:Set) : Set :=
 | CT_node :
   CTree A -> Color -> A -> CTree A -> CTree A.
 Hint Constructors CTree.
+
+Fixpoint count {A:Set} (ct:CTree A) :=
+  match ct with
+    | CT_leaf =>
+      0
+    | CT_node l c v r =>
+      count l + 1 + count r
+  end.
+
+Fixpoint height {A:Set} (ct:CTree A) :=
+  match ct with
+    | CT_leaf =>
+      0
+    | CT_node l c v r =>
+      S (max (height l) (height r))
+  end.
 
 Inductive IsColor {A:Set} : CTree A -> Color -> Prop :=
 | IC_leaf :
@@ -51,14 +68,6 @@ Inductive IsRB {A:Set} : CTree A -> nat -> Prop :=
     IsRB r n ->
     IsRB (CT_node A l BLACK v r) (S n).
 Hint Constructors IsRB.
-
-Fixpoint height {A:Set} (ct:CTree A) :=
-  match ct with
-    | CT_leaf =>
-      0
-    | CT_node l c v r =>
-      S (max (height l) (height r))
-  end.
 
 Theorem IsRB_impl_height :
   forall A (ct:CTree A) n,
@@ -185,11 +194,12 @@ Program Fixpoint bst_search {A:Set}
   (A_eq_dec:
     forall (x y:A),
       { x = y } + { x <> y })
-  (x:A) (ct:CTree A) (min_a max_a:A)
-  (MIN:A_cmp min_a x)
-  (MAX:A_cmp x max_a)
-  (BST:IsBST A_cmp ct min_a max_a) :
+  (x:A) (ct:CTree A) :
   {! res !:! bool !<! c !>!
+    forall (min_a max_a:A)
+      (MIN:A_cmp min_a x)
+      (MAX:A_cmp x max_a)
+      (BST:IsBST A_cmp ct min_a max_a),
     (res = true -> IsMember x ct) /\
     (res = false -> ~ IsMember x ct) /\
     1 <= c <= 3 * height ct + 2 !}
@@ -206,13 +216,11 @@ Program Fixpoint bst_search {A:Set}
         | right _ =>
           match A_cmp_dec x v with
             | left _ =>
-              res <- bst_search A_cmp A_asym A_trans A_cmp_dec A_eq_dec
-                                x l min_a v _ _ _ ;
+              res <- bst_search A_cmp A_asym A_trans A_cmp_dec A_eq_dec x l ;
               += 3 ;
               <== res
             | right _ =>
-              res <- bst_search A_cmp A_asym A_trans A_cmp_dec A_eq_dec
-                                x r v max_a _ _ _ ;
+              res <- bst_search A_cmp A_asym A_trans A_cmp_dec A_eq_dec x r ;
               += 3 ;
               <== res
           end
@@ -235,20 +243,22 @@ Next Obligation.
   omega.
 Qed.
 
-Next Obligation.
-  inversion BST.
-  subst. auto.
-Qed.
-
 Obligation Tactic := idtac.
 Next Obligation.
-  intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct min_a max_a CMPax CMPxa BST.
+  intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
   intros l c v r EQ. subst ct.
   intros _ NEQ _ _ CMPxv _.
   intros res.
   intros _.
   intros xm EQ. simpl in EQ. subst xm.
-  intros an [IMt [IMf AN]].
+  intros an REC.
+  intros min_a max_a CMPax CMPxa BST.
+  edestruct REC as [IMt [IMf AN]].
+   apply CMPax.
+   apply CMPxv.
+   inversion BST. subst. auto.
+  clear REC.
+
   split.
   intros EQ. apply IMt in EQ. eauto.
   split.
@@ -283,20 +293,21 @@ Next Obligation.
 Qed.
 Obligation Tactic := program_simpl.
 
-Next Obligation.
-  inversion BST.
-  subst. auto.
-Qed.
-
 Obligation Tactic := idtac.
 Next Obligation.
-  intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct min_a max_a CMPax CMPxa BST.
+  intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
   intros l c v r EQ. subst ct.
   intros _ NEQ _ _ CMPvx _.
   intros res.
   intros _.
   intros xm EQ. simpl in EQ. subst xm.
-  intros an [IMt [IMf AN]].
+  intros an REC.
+  intros min_a max_a CMPax CMPxa BST.
+  edestruct REC as [IMt [IMf AN]].
+   apply CMPvx.
+   apply CMPxa.
+   inversion BST. subst. auto.
+  clear REC.
   split.
   intros EQ. apply IMt in EQ. eauto.
   split.
@@ -341,26 +352,29 @@ Program Fixpoint rbbst_search {A:Set}
   (A_eq_dec:
     forall (x y:A),
       { x = y } + { x <> y })
-  (x:A) (ct:CTree A) (min_a max_a:A)
-  (MIN:A_cmp min_a x)
-  (MAX:A_cmp x max_a)
-  (BST:IsBST A_cmp ct min_a max_a):
+  (x:A) (ct:CTree A) :
   {! res !:! bool !<! c !>!
+    forall (min_a max_a:A)
+      (MIN:A_cmp min_a x)
+      (MAX:A_cmp x max_a)
+      (BST:IsBST A_cmp ct min_a max_a),
     (res = true -> IsMember x ct) /\
     (res = false -> ~ IsMember x ct) /\
     (forall n,
       IsRB ct n ->
       1 <= c <= 6 * n + 5) !}
   :=
-  res <- bst_search A_cmp A_asym A_trans A_cmp_dec A_eq_dec
-                    x ct min_a max_a MIN MAX BST ;
+  res <- bst_search A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct ;
   <== res.
 
 Obligation Tactic := idtac.
 Next Obligation.
-  intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct min_a max_a CMPax CMPxa BST.
+  intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
   intros res _.
-  intros an [IMt [IMf AN]].
+  intros an REC.
+  intros min_a max_a CMPax CMPxa BST.
+  edestruct REC as [IMt [IMf AN]].
+  apply CMPax. apply CMPxa. auto.
   split. auto.
   split. auto.
   intros n IR.

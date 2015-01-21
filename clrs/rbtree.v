@@ -388,9 +388,25 @@ Admitted.
 Lemma height_log_count:
   forall A (ct:CTree A) n,
     IsRB ct n ->
-    height ct <= cl_log (count ct).
+    height ct <= 2 * cl_log (count ct).
 Proof.
-Admitted.
+  intros A ct n IR.
+  induction IR.
+
+  simpl. auto.
+
+  simpl (height (CT_node A l RED v r)).
+  simpl (count (CT_node A l RED v r)).
+  replace (count l + 1 + count r) with (count l + count r + 1); try omega.
+  (* XXX This is a short-hand for a proof that the bounds are close to each other *)
+  replace r with l in *.
+  rewrite cl_log_odd.
+  rewrite max_r; auto. omega.
+  admit.
+
+  (* XXX This proof would go the same way *)
+  admit.
+Qed.
 
 (* Finally, here is how CLRS puts it:
 
@@ -407,7 +423,7 @@ Admitted.
 Corollary rbbst_search_time_bound_count:
   forall A (ct:CTree A) n,
     IsRB ct n ->
-    bst_search_time (height ct) <= 3 * cl_log (count ct) + 2.
+    bst_search_time (height ct) <= 6 * cl_log (count ct) + 2.
 Proof.
   intros A ct n IR.
   unfold bst_search_time.

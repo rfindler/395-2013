@@ -59,4 +59,4 @@ Extraction "extract.ml" insert_log.insert
            clrs.fib.fib_iter
            clrs.zip.minsert_at
            clrs.zip.minsertz_at
-           clrs.rbtree.rbbst_search.
+           clrs.rbtree.bst_search.

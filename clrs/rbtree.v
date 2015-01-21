@@ -69,6 +69,7 @@ Inductive IsRB {A:Set} : CTree A -> nat -> Prop :=
     IsRB (CT_node A l BLACK v r) (S n).
 Hint Constructors IsRB.
 
+(* The total height cannot be more than twice the black height *)
 Theorem IsRB_impl_height :
   forall A (ct:CTree A) n,
     IsRB ct n ->
@@ -184,6 +185,9 @@ Proof.
    subst. auto.
  Qed.
 
+Definition bst_search_time (n:nat) :=
+  3 * n + 2.
+
 Program Fixpoint bst_search {A:Set}
   (A_cmp:A -> A -> Prop)
   (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x)
@@ -202,7 +206,7 @@ Program Fixpoint bst_search {A:Set}
       (BST:IsBST A_cmp ct min_a max_a),
     (res = true -> IsMember x ct) /\
     (res = false -> ~ IsMember x ct) /\
-    1 <= c <= 3 * height ct + 2 !}
+    1 <= c <= bst_search_time (height ct) !}
   :=
   match ct with
     | CT_leaf =>
@@ -228,6 +232,7 @@ Program Fixpoint bst_search {A:Set}
   end.
 
 Next Obligation.
+ unfold bst_search_time.
  split.
  intros EQ. inversion EQ.
  split; try omega.
@@ -236,6 +241,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+  unfold bst_search_time.
   split.
   intros _. eauto.
   split.
@@ -245,9 +251,10 @@ Qed.
 
 Obligation Tactic := idtac.
 Next Obligation.
+  unfold bst_search_time.
   intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
   intros l c v r EQ. subst ct.
-  intros _ NEQ _ _ CMPxv _.
+  intros NEQ _ CMPxv _.
   intros res.
   intros _.
   intros xm EQ. simpl in EQ. subst xm.
@@ -295,9 +302,10 @@ Obligation Tactic := program_simpl.
 
 Obligation Tactic := idtac.
 Next Obligation.
+  unfold bst_search_time.
   intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
   intros l c v r EQ. subst ct.
-  intros _ NEQ _ _ CMPvx _.
+  intros NEQ _ CMPvx _.
   intros res.
   intros _.
   intros xm EQ. simpl in EQ. subst xm.
@@ -342,43 +350,13 @@ Next Obligation.
 Qed.
 Obligation Tactic := program_simpl.
 
-Program Fixpoint rbbst_search {A:Set}
-  (A_cmp:A -> A -> Prop)
-  (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x)
-  (A_trans:Transitive A A_cmp)
-  (A_cmp_dec:
-    forall (x y:A),
-      { A_cmp x y } + { A_cmp y x })
-  (A_eq_dec:
-    forall (x y:A),
-      { x = y } + { x <> y })
-  (x:A) (ct:CTree A) :
-  {! res !:! bool !<! c !>!
-    forall (min_a max_a:A)
-      (MIN:A_cmp min_a x)
-      (MAX:A_cmp x max_a)
-      (BST:IsBST A_cmp ct min_a max_a),
-    (res = true -> IsMember x ct) /\
-    (res = false -> ~ IsMember x ct) /\
-    (forall n,
-      IsRB ct n ->
-      1 <= c <= 6 * n + 5) !}
-  :=
-  res <- bst_search A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct ;
-  <== res.
-
-Obligation Tactic := idtac.
-Next Obligation.
-  intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
-  intros res _.
-  intros an REC.
-  intros min_a max_a CMPax CMPxa BST.
-  edestruct REC as [IMt [IMf AN]].
-  apply CMPax. apply CMPxa. auto.
-  split. auto.
-  split. auto.
-  intros n IR.
-  replace (an + 0) with an; try omega.
+Corollary rbbst_search_time_bound_black_height:
+  forall A (ct:CTree A) n,
+    IsRB ct n ->
+    bst_search_time (height ct) <= 6 * n + 5.
+Proof.
+  intros A ct n IR.
+  unfold bst_search_time.
   apply IsRB_impl_height in IR.
   destruct IR as [IRb IRr].
   replace (6 * n + 5) with (3 * (2 * n + 1) + 2); try omega.
@@ -388,4 +366,51 @@ Next Obligation.
   apply IRb in ICb. omega.
   apply IRr in ICr. omega.
 Qed.
-Obligation Tactic := program_simpl.
+
+(* The theorem above is actually not that strong because we really
+   want to relate the runtime the number of elements in the set. We've
+   previously shown that the black-height is related to the actual
+   height. We really need to relate the height to the count. *)
+
+(* This is based on the idea that the a complete binary tree contains
+   2^h nodes and an incomplete tree just has some missing nodes. *)
+
+Lemma count_pow_height:
+  forall A (ct:CTree A),
+    count ct <= pow 2 (height ct).
+Proof.
+Admitted.
+
+(* This is the inversion of the above, except that it is actually only
+   true when the tree is balanced, which rb trees are. (Maybe should
+   be fl_log?) *)
+
+Lemma height_log_count:
+  forall A (ct:CTree A) n,
+    IsRB ct n ->
+    height ct <= cl_log (count ct).
+Proof.
+Admitted.
+
+(* Finally, here is how CLRS puts it:
+
+   Lemma 13.1: A red-black tree with n internal nodes has height at
+   most 2 * lg(n + 1)
+
+   This proof embeds the proof about a bound on the black-height.
+
+ *)
+
+(* Assuming we can do one of those, or just admit it, then we can
+   prove this: *)
+
+Corollary rbbst_search_time_bound_count:
+  forall A (ct:CTree A) n,
+    IsRB ct n ->
+    bst_search_time (height ct) <= 3 * cl_log (count ct) + 2.
+Proof.
+  intros A ct n IR.
+  unfold bst_search_time.
+  apply height_log_count in IR.
+  omega.
+Qed.

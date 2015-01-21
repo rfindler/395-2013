@@ -30,7 +30,7 @@ Fixpoint fib_rec_time (n:nat) :=
   end.
 
 Program Fixpoint fib_rec (n:nat) :
-  {! res !:! nat !<! c !>!
+   {! res !:! nat !<! c !>!
     Fib n res /\
     c = fib_rec_time n !}
   :=

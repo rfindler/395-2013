@@ -95,123 +95,129 @@ Proof.
   omega.
 Defined.
 
-Definition IsSubstringAt (w:String) (s:String) (n:nat) : Prop :=
-  exists lw ls pre post,
-    StringAsList w lw /\
-    StringAsList s ls /\
-    length pre = n /\
-        ls = pre ++ lw ++ post.
-Hint Unfold IsSubstringAt.
+Definition IsSubstringAtFrom (w:String) (wn:nat) (s:String) (n:nat) : Prop :=
+  wn <= string_len w /\
+  n + wn <= string_len s /\
+  (forall i,
+    i < wn ->
+    string_ref w i = string_ref s (n + i)).
+Hint Unfold IsSubstringAtFrom.
 
-Program Fixpoint naive_search (w:String) (s:String) {measure (string_len s)} :
+Program Fixpoint naive_search_loop (w:String) (s:String)
+  (wn:nat) (sn:nat)
+  (ITER_OK:IsSubstringAtFrom w wn s (sn - wn))
+  (ITER_FAIL:forall n,
+    n <= (sn - (string_len w)) ->
+    ~ IsSubstringAtFrom w (string_len w) s n)
+  {measure (sn - wn)} :
   {! mn !:! Exc nat !<! c !>!
     (forall n,
       mn = value n ->
-      IsSubstringAt w s n) /\
+      IsSubstringAtFrom w (string_len w) s n) /\
     (mn = error ->
       forall n,
-        ~ IsSubstringAt w s n) /\
-    1 * ((string_len s) - (string_len w)) * (string_len w) + 1
-    <= c <=
-    2 * ((string_len s) - (string_len w)) * (string_len w) + 2 !}
+        n <= string_len s - (string_len w) ->
+        ~ IsSubstringAtFrom w (string_len w) s n) /\
+    0 <= c !}
   :=
-  match (string_len w) with
-    | O =>
+  match (beq_nat wn (string_len w)) with
+    | true =>
       += 1;
-      <== (value 0)
-    | S _ =>
-      match (string_len s) with
-        | O =>
+      <== (value (sn - (string_len w)))
+    | false =>
+      match (beq_nat sn (string_len s)) with
+        | true =>
           += 2 ;
           <== error
-        | S _ =>
-          match (beq_nat (string_ref w 0) (string_ref s 0)) with
+        | false =>
+          match (beq_nat (string_ref w wn) (string_ref s sn)) with
             | true =>
-              res <- naive_search (string_tail w) (string_tail s) ;
-              match res with
-                | value n =>
-                  += 4 ;
-                  <== (value (S n))
-                | error =>
-                  res <- naive_search w (string_tail s) ;
-                  match res with
-                    | value n =>
-                      += 5 ;
-                      <== (value (S n))
-                    | error =>
-                      += 5 ;
-                      <== error
-                  end
-              end
+              res <- naive_search_loop w s (S wn) (S sn) _ _ ;
+              += 3 ;
+              <== res
             | false =>
-              res <- naive_search w (string_tail s) ;
-              match res with
-                | value n =>
-                  += 4 ;
-                  <== (value (S n))
-                | error =>
-                  += 4 ;
-                  <== error
-              end
+              res <- naive_search_loop w s 0 (S sn - wn) _ _ ;
+              += 3 ;
+              <== res
           end
       end
   end.
 
+Lemma minus_plus:
+  forall n m,
+    m <= n ->
+    n - m + m = n.
+Proof.
+  intros n m. generalize n. clear n.
+  induction m as [|m]; intros n LE.
+
+  omega.
+  destruct n as [|n].
+  omega.
+  simpl.
+  rewrite plus_comm. simpl.
+  rewrite plus_comm. rewrite IHm.
+  auto.
+  omega.
+Qed.
+  
 Next Obligation.
-  clear naive_search.
-  destruct w as [w_len w_fun].
-  destruct s as [s_len s_fun].
-  simpl in *. subst w_len.
-  split.
+  clear naive_search_loop.
+  rename Heq_anonymous into EQ.
+  apply beq_nat_eq in EQ. subst wn.
+  split; [|split; [intros EQ; inversion EQ|]].
 
-  intros n EQ.
-  inversion EQ. clear EQ H0 n.
-  unfold IsSubstringAt.
-  exists (@nil nat).
-  destruct (StringAsList_dec (s_len, s_fun)) as [ls SALs].
-  exists ls.
-  exists (@nil nat).
-  exists ls. simpl.
-  split; auto.
-  split; auto.
-  simpl. intros. omega.
- 
-  split.
-  intros EQ. inversion EQ.
+  intros n EQ. inversion EQ. subst n. clear EQ.
+  auto.
 
-  rewrite plus_0_r.
-  rewrite <- minus_n_O.
-  rewrite mult_0_r.
-  rewrite mult_0_r.
-  simpl. omega.
+  auto.
 Qed.
 
 Next Obligation.
-  clear naive_search.
-  destruct w as [w_len w_fun].
-  destruct s as [s_len s_fun].
-  simpl in *. subst w_len s_len.
-  rename wildcard' into w_len.
+  clear naive_search_loop.
+  rename Heq_anonymous into NEQ.
+  rename Heq_anonymous0 into EQ.
+  apply beq_nat_eq in EQ. subst sn.
   split; [|split].
 
   intros n EQ. inversion EQ.
 
-  intros _ n ISA.
-  unfold IsSubstringAt in ISA.
-  destruct ISA as [lw [ls [pre [post [SALw [SALs [EQn EQls]]]]]]].
-  subst n ls.
-  destruct SALw as [LENw EQw].
-  destruct SALs as [LENs EQs].
-  clear EQw EQs.
-  simpl in *.
-  rewrite app_length in *.
-  rewrite app_length in *.
-  rewrite <- LENw in LENs.
-  omega.
+  intros _ n LE.
+  apply ITER_FAIL.
+  auto.
 
-  omega.
+  auto.
 Qed.
 
 Obligation Tactic := idtac.
 Next Obligation.
+  intros w s wn sn ITER_OK ITER_FAIL.
+  intros _.
+  intros h NEQw. subst h. 
+  symmetry in NEQw. apply beq_nat_false in NEQw.
+  intros h NEQs. subst h.
+  symmetry in NEQs. apply beq_nat_false in NEQs.
+  intros h EQ. subst h.
+  apply beq_nat_eq in EQ.
+  clear ITER_FAIL.
+  destruct ITER_OK as [LEw [LEs ITER_OK]].
+  split; [|split].
   
+  inversion LEw. congruence.
+  omega.
+
+  admit.
+
+  intros i LT.
+  inversion LT.
+  subst i.
+  simpl.
+  rewrite EQ.
+  rewrite minus_plus. auto.
+  admit.
+
+  subst m. simpl.
+  apply ITER_OK.
+  omega.
+Qed.
+

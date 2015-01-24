@@ -16,6 +16,7 @@ Inductive Fib : nat -> nat -> Prop :=
     Fib (S (S n)) (a + b).
 Hint Constructors Fib.
 
+(* xxx prove this is big_o fib *)
 Fixpoint fib_rec_time (n:nat) :=
   match n with
     | O =>

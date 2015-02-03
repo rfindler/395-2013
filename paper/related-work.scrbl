@@ -2,6 +2,15 @@
 @(require "cite.rkt" scribble/core)
 @title{Related Work}
 
+@;{
+
+Some related work to explore:
+
+http://www.cs.yale.edu/homes/hoffmann/publications.html
+
+}
+
+
 The most closely related work to our is 
 @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures].
 He presents a monad that, like ours, carries a

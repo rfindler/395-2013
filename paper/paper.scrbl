@@ -7,8 +7,8 @@
           racket/date)
 
 @title[#:style (style #f (list (tex-addition extra-tex-code)))]{
-  Putting Dependent Types to Work
-  @subtitle{A Coq Library That Enforces Correct Running-Times via Type-Checking}}
+  A Coq Library For Internal Verification of Running-Times
+}
 @doi{@hspace[4] @bold{Draft as of @(date->string (seconds->date (current-seconds)))}}
 
 @authorinfo["Jay McCarthy"
@@ -56,26 +56,18 @@ For the terminology cite:
 @abstract{
  This paper presents a Coq library that lifts
  an abstract yet precise notion of running-time into the type of a
- function and uses it to prove all nine of the algorithms
- in Okasaki's paper @italic{Three Algorithms on Braun 
-  Trees} have the claimed running times.
-  
- A secondary goal of this paper is to be an introduction to
- Coq. While Coq is never going to
- be as straight-forward as Logo or Scratch, it has
- has the capacity to write amazingly rich specifications
- of functions and, once you have done so, the corresponding
- proofs can be only as complex as they need to be in order
- to actually establish the specified properties. 
- This paper assumes only that its readers are familiar with
- ordinary, tree-processing functions and that they are
- willing to dig into very precise specifications of
- such functions. No familiarity with Coq itself is assumed.
+ function.
+
+ Our library is based on a monad that counts abstract steps,
+ controlled by one of the monadic operations. The monad's
+ computational content, however, is simply that of the identity
+ monad so programs written in our monad extract into 
+ idiomatic ocaml code.
+ 
+ We evaluated the library by proving that including Okasaki's
+ Braun Tree algorithms, merge sort, insertion sort, and fib
+ all have their expected running times.
 }
-
-@;@section{Introduction}
-
-@include-section["background.scrbl"]
 
 @include-section["insert.scrbl"]
 

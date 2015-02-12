@@ -48,7 +48,9 @@ correct.
 @citet[functors-for-proofs-and-programs] implemented a number of
 balanced binary tree implementations in Coq with proofs of 
 correctness (but not running time), with the goal of high-quality 
-extraction. They use the technique described in @secref["sec:conventional"].
+extraction. They use an ``external'' approach, where the types
+do not carry the running time information, which makes the proofs
+more complex.
 
 @citet[hoare-logic-state-monad]'s Hoare state monad is like our
 monad in that it exploits monadic structure to 

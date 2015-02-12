@@ -31,5 +31,7 @@ version of our monad is the identity monad, the monad
 operations simply evaporate when they are inlined.
 
 More importantly, however, note that this code does not
-have any proof residue, unlike the code
-extracted for @tt{drop} in @secref["sec:extraction-tmi"].
+have any proof residue; there are no extra data-structures
+or function arguments or other artifacts of the information
+used to prove the running time correct.
+

@@ -36,8 +36,7 @@ definition.
 
 To be able to state facts about Braun trees, however,
 we use @tt{Braun} to define when a binary tree is a
-Braun tree of size @tt{n} (much like our definition of
-lists of length @tt{n} in @secref["sec:background"]).
+Braun tree of size @tt{n}.
 
 @(apply inline-code (extract braun.v "Braun"))
 

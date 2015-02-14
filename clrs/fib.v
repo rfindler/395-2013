@@ -16,7 +16,31 @@ Inductive Fib : nat -> nat -> Prop :=
     Fib (S (S n)) (a + b).
 Hint Constructors Fib.
 
-(* xxx prove this is big_o fib *)
+Fixpoint fib (n:nat) : nat :=
+  match n with
+    | O =>
+      1
+    | S n' =>
+      match n' with
+        | O =>
+          1
+        | S n'' =>
+          (fib n'' + fib n')
+      end
+  end.
+
+Lemma Fib_fib:
+  forall n, Fib n (fib n).
+Proof.
+  apply (well_founded_induction lt_wf).
+  intros n IH.
+  destruct n as [|n].
+  eauto.
+  destruct n as [|n].
+  eauto.
+  replace (fib (S (S n))) with (fib n + fib (S n)); auto.
+Defined.
+
 Fixpoint fib_rec_time (n:nat) :=
   match n with
     | O =>
@@ -29,6 +53,30 @@ Fixpoint fib_rec_time (n:nat) :=
           (fib_rec_time n'') + (fib_rec_time n') + 2
       end
   end.
+
+Program Lemma fib_big_oh_fib:
+  big_oh fib fib_rec_time.
+Proof.
+  exists 0 1.
+  apply (well_founded_induction lt_wf (fun n => 0 <= n -> fib n <= 1 * (fib_rec_time n))).
+  intros n IH LE.
+  destruct n as [|n]. simpl. omega.
+  destruct n as [|n]. simpl. auto.
+  replace (fib_rec_time (S (S n))) with
+    ((fib_rec_time n) + (fib_rec_time (S n)) + 2); auto.
+
+  assert (fib n <= 1 * (fib_rec_time n)) as IHn.
+  eapply IH. auto. omega.
+  assert (fib (S n) <= 1 * (fib_rec_time (S n))) as IHSn.
+  eapply IH. auto. omega.
+
+  rewrite mult_1_l in *.
+
+  clear IH LE.
+  replace (fib (S (S n))) with (fib n + fib (S n)); auto.
+  rewrite plus_n_O at 1.
+  omega.
+Qed.
 
 Program Fixpoint fib_rec (n:nat) :
    {! res !:! nat !<! c !>!

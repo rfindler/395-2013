@@ -398,13 +398,22 @@ Proof.
   simpl (height (CT_node A l RED v r)).
   simpl (count (CT_node A l RED v r)).
   replace (count l + 1 + count r) with (count l + count r + 1); try omega.
+
+  
+  
   (* XXX This is a short-hand for a proof that the bounds are close to each other *)
   replace r with l in *.
   rewrite cl_log_odd.
   rewrite max_r; auto. omega.
   admit.
 
-  (* XXX This proof would go the same way *)
+  simpl (height (CT_node A l BLACK v r)).
+  simpl (count (CT_node A l BLACK v r)).
+  replace (count l + 1 + count r) with (count l + count r + 1); try omega.
+  (* XXX This is a short-hand for a proof that the bounds are close to each other *)
+  replace r with l in *.
+  rewrite cl_log_odd.
+  rewrite max_r; auto. omega.
   admit.
 Qed.
 

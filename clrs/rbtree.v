@@ -375,6 +375,35 @@ Qed.
 (* This is based on the idea that the a complete binary tree contains
    2^h nodes and an incomplete tree just has some missing nodes. *)
 
+Lemma count_pow_height'':
+  forall
+    (A : Set)
+    (ct1 : CTree A)
+    (ct2 : CTree A)
+    (IHct1 : count ct1 <= pow 2 (height ct1))
+    (IHct2 : count ct2 <= pow 2 (height ct2))
+    (LEh :    height ct2 <= height ct1),
+   count ct1 + 1 + count ct2 <= S (S (pow 2 (height ct1))).
+Proof.
+Admitted.
+
+Lemma count_pow_height':
+  forall A (ct:CTree A),
+    count ct <= pow 2 (height ct).
+Proof.
+  intros A.
+  induction ct.
+
+  simpl. auto.
+
+  simpl.
+  apply max_case_strong; intros LEh.
+  apply count_pow_height''; auto.
+
+  replace (count ct1 + 1 + count ct2) with (count ct2 + 1 + count ct1); try omega.
+  apply count_pow_height''; auto.
+Qed.
+
 Lemma count_pow_height:
   forall A (ct:CTree A),
     count ct <= pow 2 (height ct).

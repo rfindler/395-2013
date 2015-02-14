@@ -385,6 +385,30 @@ Admitted.
    true when the tree is balanced, which rb trees are. (Maybe should
    be fl_log?) *)
 
+Lemma height_log_case:
+  forall A (l r:CTree A),
+    height l <= 2 * cl_log (count l) ->
+    height r <= 2 * cl_log (count r) ->
+    S (max (height l) (height r)) <= 2 * cl_log (count l + 1 + count r).
+Proof.
+  intros A l r IHl IHr.
+  replace (count l + 1 + count r) with (count l + count r + 1); try omega.
+
+(*  eapply max_case_strong.
+  intros LEh.
+  cut (2 * cl_log (count l + count l + 1) <= 2 * cl_log (count l + count r + 1)).
+  intros LEc.
+  eapply le_trans; [|apply LEc].
+  rewrite cl_log_odd.
+  omega. *)
+  
+  (* XXX This is a short-hand for a proof that the bounds are close to each other *)
+  replace r with l in *.
+  rewrite cl_log_odd.
+  rewrite max_r; auto. omega.
+  admit.
+Qed.
+
 Lemma height_log_count:
   forall A (ct:CTree A) n,
     IsRB ct n ->
@@ -397,24 +421,11 @@ Proof.
 
   simpl (height (CT_node A l RED v r)).
   simpl (count (CT_node A l RED v r)).
-  replace (count l + 1 + count r) with (count l + count r + 1); try omega.
-
-  
-  
-  (* XXX This is a short-hand for a proof that the bounds are close to each other *)
-  replace r with l in *.
-  rewrite cl_log_odd.
-  rewrite max_r; auto. omega.
-  admit.
+  apply height_log_case; auto.
 
   simpl (height (CT_node A l BLACK v r)).
   simpl (count (CT_node A l BLACK v r)).
-  replace (count l + 1 + count r) with (count l + count r + 1); try omega.
-  (* XXX This is a short-hand for a proof that the bounds are close to each other *)
-  replace r with l in *.
-  rewrite cl_log_odd.
-  rewrite max_r; auto. omega.
-  admit.
+  apply height_log_case; auto.
 Qed.
 
 (* Finally, here is how CLRS puts it:

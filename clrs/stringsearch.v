@@ -221,3 +221,4 @@ Next Obligation.
   omega.
 Qed.
 
+Admit Obligations.

@@ -814,7 +814,7 @@ Program Fixpoint mergesortc_worst_time1 n {measure n} :=
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. admit. Defined.
+Next Obligation. apply lt_wf. Defined.
 
 Lemma worst_01 : forall n, mergesortc_worst_time n = mergesortc_worst_time1 n.
 Proof.
@@ -867,7 +867,7 @@ Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. admit. Defined.
+Next Obligation. apply lt_wf. Defined.
 
 Lemma worst_12 : forall n, mergesortc_worst_time1 n = mergesortc_worst_time2 n.
 Proof.
@@ -926,7 +926,7 @@ Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. admit. Defined.
+Next Obligation. apply lt_wf. Defined.
 
 Lemma worst_23 : forall n, mergesortc_worst_time2 n = mergesortc_worst_time3 n.
 Proof.
@@ -980,7 +980,7 @@ Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. admit. Defined.
+Next Obligation. apply lt_wf. Defined.
 
 Lemma worst_34 : forall n, mergesortc_worst_time3 n = mergesortc_worst_time4 n.
 Proof.
@@ -1030,7 +1030,7 @@ Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. admit. Defined.
+Next Obligation. apply lt_wf. Defined.
 
 Lemma worst_45 : forall n, mergesortc_worst_time4 n = mergesortc_worst_time5 n.
 Proof.
@@ -1076,7 +1076,7 @@ Program Fixpoint mergesortc_worst_time6 n {measure n} :=
   end.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. admit. Defined.
+Next Obligation. apply lt_wf. Defined.
 
 Lemma worst_56 : big_oh mergesortc_worst_time5 mergesortc_worst_time6.
 Proof.
@@ -1150,7 +1150,7 @@ Program Fixpoint mergesortc_worst_time7 n {measure n} :=
   end.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. admit. Defined.
+Next Obligation. apply lt_wf. Defined.
 
 Lemma worst_67 : big_oh mergesortc_worst_time6 mergesortc_worst_time7.
 Proof.
@@ -1196,7 +1196,7 @@ Theorem mergesortc_worst:
   big_oh mergesortc_worst_time (fun n => n * cl_log n + 1).
 Proof.
   unfold big_oh.
-  exists 0. exists 4.
+  exists 0. exists 4. (* xxx graph suggest this 4 should be 6 *)
   intros n LE. clear LE. generalize n. clear n.
   apply (well_founded_induction lt_wf
     (fun n =>
@@ -1377,7 +1377,7 @@ Program Fixpoint mergesortc_best_time1 n {measure n} :=
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. admit. Defined.
+Next Obligation. apply lt_wf. Defined.
 
 Corollary mergesort_best:
   big_omega mergesort_best_time (fun n => n * cl_log n).

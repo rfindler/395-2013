@@ -375,6 +375,23 @@ Qed.
 (* This is based on the idea that the a complete binary tree contains
    2^h nodes and an incomplete tree just has some missing nodes. *)
 
+Lemma le_exists:
+  forall m n,
+    n <= m ->
+    { x | m = x + n }.
+Proof.
+ induction m as [|m]; intros n LE.
+ exists 0. omega.
+ destruct n as [|n].
+ exists (S m). omega.
+ edestruct (IHm n) as [x EQm].
+ omega.
+ subst m.
+ clear IHm.
+ exists x.
+ omega.
+Defined.
+
 Lemma count_pow_height':
   forall
     (A : Set)
@@ -385,6 +402,20 @@ Lemma count_pow_height':
     (LEh :    height ct2 <= height ct1),
    count ct1 + 1 + count ct2 <= S (S (pow 2 (height ct1))).
 Proof.
+  intros.
+  eapply le_trans.
+  eapply le_add.
+  eapply le_add.
+  apply IHct1.
+  auto.
+  apply IHct2.
+  clear IHct1 IHct2.
+  remember (height ct2) as L.
+  remember (height ct1) as R.
+  clear A ct1 ct2 HeqL HeqR.
+  apply le_exists in LEh.
+  destruct LEh as [x EQr]. subst R.
+
 Admitted.
 
 Lemma count_pow_height:
@@ -428,6 +459,7 @@ Proof.
   apply cl_log_monotone.
   apply le_add; auto.
   apply le_add; auto.
+
 Admitted.
 
 Lemma height_log_case:

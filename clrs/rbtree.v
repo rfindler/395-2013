@@ -375,7 +375,7 @@ Qed.
 (* This is based on the idea that the a complete binary tree contains
    2^h nodes and an incomplete tree just has some missing nodes. *)
 
-Lemma count_pow_height'':
+Lemma count_pow_height':
   forall
     (A : Set)
     (ct1 : CTree A)
@@ -387,7 +387,7 @@ Lemma count_pow_height'':
 Proof.
 Admitted.
 
-Lemma count_pow_height':
+Lemma count_pow_height:
   forall A (ct:CTree A),
     count ct <= pow 2 (height ct).
 Proof.
@@ -398,21 +398,37 @@ Proof.
 
   simpl.
   apply max_case_strong; intros LEh.
-  apply count_pow_height''; auto.
+  apply count_pow_height'; auto.
 
   replace (count ct1 + 1 + count ct2) with (count ct2 + 1 + count ct1); try omega.
-  apply count_pow_height''; auto.
+  apply count_pow_height'; auto.
 Qed.
-
-Lemma count_pow_height:
-  forall A (ct:CTree A),
-    count ct <= pow 2 (height ct).
-Proof.
-Admitted.
 
 (* This is the inversion of the above, except that it is actually only
    true when the tree is balanced, which rb trees are. (Maybe should
    be fl_log?) *)
+
+Lemma height_log_case':
+  forall
+    (A : Set)
+    (l : CTree A)
+    (r : CTree A)
+    (IHl : height l <= 2 * cl_log (count l))
+    (IHr : height r <= 2 * cl_log (count r))
+    (LEh : height r <= height l),
+    S (height l) <= 2 * cl_log (count l + count r + 1).
+Proof.
+  intros.
+  cut (2 * cl_log (count l + count l + 1) <= 2 * cl_log (count l + count r + 1)).
+  intros LEc.
+  eapply le_trans; [|apply LEc].
+  rewrite cl_log_odd.
+  omega.
+  apply le_mult. auto.
+  apply cl_log_monotone.
+  apply le_add; auto.
+  apply le_add; auto.
+Admitted.
 
 Lemma height_log_case:
   forall A (l r:CTree A),
@@ -423,19 +439,10 @@ Proof.
   intros A l r IHl IHr.
   replace (count l + 1 + count r) with (count l + count r + 1); try omega.
 
-(*  eapply max_case_strong.
-  intros LEh.
-  cut (2 * cl_log (count l + count l + 1) <= 2 * cl_log (count l + count r + 1)).
-  intros LEc.
-  eapply le_trans; [|apply LEc].
-  rewrite cl_log_odd.
-  omega. *)
-  
-  (* XXX This is a short-hand for a proof that the bounds are close to each other *)
-  replace r with l in *.
-  rewrite cl_log_odd.
-  rewrite max_r; auto. omega.
-  admit.
+  eapply max_case_strong.
+  apply height_log_case'; auto.
+  replace (count l + count r + 1) with (count r + count l + 1); try omega.
+  apply height_log_case'; auto.
 Qed.
 
 Lemma height_log_count:
@@ -466,8 +473,7 @@ Qed.
 
  *)
 
-(* Assuming we can do one of those, or just admit it, then we can
-   prove this: *)
+(* Assuming we can do one of those, then we can prove this: *)
 
 Corollary rbbst_search_time_bound_count:
   forall A (ct:CTree A) n,

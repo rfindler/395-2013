@@ -125,6 +125,27 @@ Proof.
 Qed.
 Hint Resolve big_oh_k_linear.
 
+Lemma big_oh_n_nlogn:
+  big_oh (fun n : nat => n) (fun n : nat => n * cl_log n).
+Proof.
+  exists 0.
+  exists 1.
+  intros n _.
+  replace (1 * (n * cl_log n)) with (n * cl_log n); [|omega].
+  induction n;[omega|].
+  apply le_n_S in IHn.
+  replace (S n) with (n+1) at 2; [|omega].
+  rewrite mult_plus_distr_r.
+  apply (le_trans (S n) (S (n * cl_log n))); [omega|].
+  clear IHn.
+  replace (S (n * cl_log n)) with ((n * cl_log n)+1);[|omega].
+  apply plus_le_compat.
+  apply mult_le_compat;[omega|].
+  apply cl_log_monotone; omega.
+  rewrite cl_log_div2'.
+  omega.
+Qed.
+
 Lemma big_oh_add_k_linear : forall k, big_oh (fun n => n + k) (fun n => n).
 Proof.
   intros k.

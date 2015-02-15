@@ -1,5 +1,5 @@
 Require Import Braun.common.util Braun.common.le_util Braun.common.same_structure.
-Require Import Braun.common.log Braun.common.big_oh.
+Require Import Braun.common.log Braun.common.big_oh Braun.common.le_util.
 Require Import Braun.common.sequence Braun.common.list_util.
 Require Import Braun.monad.monad.
 Require Import Program.
@@ -11,6 +11,9 @@ Require Import Min.
 Require Import Div2.
 Require Import Even.
 Require Import Braun.clrs.isort.
+Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith Init.Wf.
+
+Include WfExtensionality.
 
 Definition clength_time (n:nat) := n + 1.
 Hint Unfold clength_time.
@@ -796,6 +799,399 @@ Next Obligation.
   program_simpl.
 Defined.
 
+Program Fixpoint mergesortc_worst_time1 n {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' => 
+      if (even_odd_dec n)
+      then (split_at_time (div2 n) +
+            mergesortc_worst_time1 (div2 n) +
+            mergesortc_worst_time1 (div2 n) +
+            merge_worst_time (div2 n) (div2 n) + 2)
+      else  (mergesortc_worst_time1 n' +
+             insert_worst_time n' + 2)
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. admit. Defined.
+
+Lemma worst_01 : forall n, mergesortc_worst_time n = mergesortc_worst_time1 n.
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_worst_time n = mergesortc_worst_time1 n)).
+  intros n INDn.
+  destruct n.
+  rewrite mergesortc_worst_time_O.
+  unfold_sub mergesortc_worst_time1 (mergesortc_worst_time1 0).
+  omega.
+  unfold_sub mergesortc_worst_time1 (mergesortc_worst_time1 (S n)).
+  fold mergesortc_worst_time1.
+  destruct (even_odd_dec (S n)).
+  rewrite mergesortc_worst_time_Sn_even; try (exists n; auto); auto.
+  destruct n.
+  inversion e as [|n ODD_ZERO WHATEVER].
+  inversion ODD_ZERO.
+  replace (div2 (S (S n))) with (S (div2 n));[|auto].
+  rewrite (INDn (S (div2 n))).
+  omega.
+  replace (S (div2 n)) with (div2 n + 1);[|omega].
+  replace (S (S n)) with (S n + 1);[|omega].
+  apply plus_lt_compat_r.
+  auto.
+  rewrite (mergesortc_worst_time_Sn_odd (S n) n); auto.
+Qed.
+
+
+Program Fixpoint mergesortc_worst_time2 n {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' => 
+      if (even_odd_dec n)
+      then (split_at_time (div2 n) +
+            mergesortc_worst_time2 (div2 n) +
+            mergesortc_worst_time2 (div2 n) +
+            merge_worst_time (div2 n) (div2 n) + 2)
+      else  ((match n' with
+                | 0 => 1
+                | S n'' => 
+                  (split_at_time (div2 n') +
+                   mergesortc_worst_time2 (div2 n') +
+                   mergesortc_worst_time2 (div2 n') +
+                   merge_worst_time (div2 n') (div2 n') + 2)
+              end) +
+             insert_worst_time n' + 2)
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. admit. Defined.
+
+Lemma worst_12 : forall n, mergesortc_worst_time1 n = mergesortc_worst_time2 n.
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_worst_time1 n = mergesortc_worst_time2 n)).
+  intros n INDn.
+  destruct n.
+  unfold_sub mergesortc_worst_time1 (mergesortc_worst_time1 0).
+  unfold_sub mergesortc_worst_time2 (mergesortc_worst_time2 0).
+  auto.
+  unfold_sub mergesortc_worst_time1 (mergesortc_worst_time1 (S n)).
+  fold mergesortc_worst_time1.
+  unfold_sub mergesortc_worst_time2 (mergesortc_worst_time2 (S n)).
+  fold mergesortc_worst_time2.
+  destruct (even_odd_dec (S n)).
+  rewrite INDn; auto.
+  destruct n; auto.
+  apply lt_n_S; auto.
+  destruct n.
+  unfold insert_worst_time.
+  unfold_sub mergesortc_worst_time1 (mergesortc_worst_time1 0).
+  omega.
+  rewrite INDn; auto.
+  unfold_sub mergesortc_worst_time2 (mergesortc_worst_time2 (S n)).
+  fold mergesortc_worst_time2.
+  destruct (even_odd_dec (S n)).
+  destruct n; auto.
+  inversion o.
+  assert False.
+  apply (not_even_and_odd (S n)); auto.
+  intuition.
+Qed.
+
+
+Program Fixpoint mergesortc_worst_time3 n {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' => 
+      if (even_odd_dec n)
+      then (split_at_time (div2 n) +
+            mergesortc_worst_time3 (div2 n) +
+            mergesortc_worst_time3 (div2 n) +
+            merge_worst_time (div2 n) (div2 n) + 2)
+      else match n' with
+             | 0 => 1 + insert_worst_time n' + 2
+             | S n'' => 
+               (split_at_time (div2 n') +
+                mergesortc_worst_time3 (div2 n') +
+                mergesortc_worst_time3 (div2 n') +
+                merge_worst_time (div2 n') (div2 n') + 2
+                + insert_worst_time n' + 2)
+           end
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. admit. Defined.
+
+Lemma worst_23 : forall n, mergesortc_worst_time2 n = mergesortc_worst_time3 n.
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_worst_time2 n = mergesortc_worst_time3 n)).
+  intros n INDn.
+  destruct n.
+  unfold_sub mergesortc_worst_time2 (mergesortc_worst_time2 0).
+  unfold_sub mergesortc_worst_time3 (mergesortc_worst_time3 0).
+  auto.
+  unfold_sub mergesortc_worst_time2 (mergesortc_worst_time2 (S n)).
+  fold mergesortc_worst_time2.
+  unfold_sub mergesortc_worst_time3 (mergesortc_worst_time3 (S n)).
+  fold mergesortc_worst_time3.
+  rewrite INDn; [|destruct n; try apply lt_n_S; auto].
+  rewrite INDn; auto.
+  clear INDn.
+  destruct (even_odd_dec (S n)); auto.
+  destruct n; auto.
+Qed.
+
+Program Fixpoint mergesortc_worst_time4 n {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' => 
+      match n' with
+        | 0 => if (even_odd_dec n)
+               then (split_at_time (div2 n) +
+                     mergesortc_worst_time4 (div2 n) +
+                     mergesortc_worst_time4 (div2 n) +
+                     merge_worst_time (div2 n) (div2 n) + 2)
+               else 1 + insert_worst_time n' + 2
+        | S n'' => 
+          if (even_odd_dec n)
+          then (split_at_time (div2 n) +
+                mergesortc_worst_time4 (div2 n) +
+                mergesortc_worst_time4 (div2 n) +
+                merge_worst_time (div2 n) (div2 n) + 2)
+          else 
+            (split_at_time (div2 n') +
+             mergesortc_worst_time4 (div2 n') +
+             mergesortc_worst_time4 (div2 n') +
+             merge_worst_time (div2 n') (div2 n') + 2
+             + insert_worst_time n' + 2)
+      end
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. admit. Defined.
+
+Lemma worst_34 : forall n, mergesortc_worst_time3 n = mergesortc_worst_time4 n.
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_worst_time3 n = mergesortc_worst_time4 n)).
+  intros n INDn.
+  destruct n.
+  unfold_sub mergesortc_worst_time3 (mergesortc_worst_time3 0).
+  unfold_sub mergesortc_worst_time4 (mergesortc_worst_time4 0).
+  auto.
+  unfold_sub mergesortc_worst_time3 (mergesortc_worst_time3 (S n)).
+  fold mergesortc_worst_time3.
+  unfold_sub mergesortc_worst_time4 (mergesortc_worst_time4 (S n)).
+  fold mergesortc_worst_time4.
+  destruct (even_odd_dec (S n)).
+  destruct n.
+  unfold_sub mergesortc_worst_time3 (mergesortc_worst_time3 0).
+  unfold_sub mergesortc_worst_time4 (mergesortc_worst_time4 0).
+  omega.
+  rewrite INDn; try apply lt_n_S; auto.
+  rewrite INDn; auto.
+Qed.
+
+
+Program Fixpoint mergesortc_worst_time5 n {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' => 
+      match n' with
+        | 0 => 4
+        | S _ => 
+          if (even_odd_dec n)
+          then (split_at_time (div2 n) +
+                mergesortc_worst_time5 (div2 n) +
+                mergesortc_worst_time5 (div2 n) +
+                merge_worst_time (div2 n) (div2 n) + 2)
+          else 
+            (split_at_time (div2 n') +
+             mergesortc_worst_time5 (div2 n') +
+             mergesortc_worst_time5 (div2 n') +
+             merge_worst_time (div2 n') (div2 n') + 2
+             + insert_worst_time n' + 2)
+      end
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. admit. Defined.
+
+Lemma worst_45 : forall n, mergesortc_worst_time4 n = mergesortc_worst_time5 n.
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_worst_time4 n = mergesortc_worst_time5 n)).
+  intros n INDn.
+  destruct n.
+  unfold_sub mergesortc_worst_time4 (mergesortc_worst_time4 0).
+  unfold_sub mergesortc_worst_time5 (mergesortc_worst_time5 0).
+  auto.
+  destruct n.
+  unfold_sub mergesortc_worst_time4 (mergesortc_worst_time4 1).
+  fold mergesortc_worst_time4.
+  unfold_sub mergesortc_worst_time5 (mergesortc_worst_time5 1).
+  unfold_sub mergesortc_worst_time4 (mergesortc_worst_time4 0).
+  simpl.
+  auto.
+  unfold_sub mergesortc_worst_time4 (mergesortc_worst_time4 (S (S n))).
+  fold mergesortc_worst_time4.
+  unfold_sub mergesortc_worst_time5 (mergesortc_worst_time5 (S (S n))).
+  fold mergesortc_worst_time5.
+  repeat (rewrite INDn).
+  auto.
+  destruct n; auto.
+  apply lt_n_S; auto.
+Qed.
+
+
+Program Fixpoint mergesortc_worst_time6 n {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' => 
+      match n' with
+        | 0 => 4
+        | S _ => 
+          split_at_time (div2 n) +
+          mergesortc_worst_time6 (div2 n) +
+          mergesortc_worst_time6 (div2 n) +
+          merge_worst_time (div2 n) (div2 n) + 2
+          + insert_worst_time n' + 2
+      end
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. admit. Defined.
+
+Lemma worst_56 : big_oh mergesortc_worst_time5 mergesortc_worst_time6.
+Proof.
+  exists 0.
+  exists 1.
+  intros n _.
+  replace (1 * mergesortc_worst_time6 n) with (mergesortc_worst_time6 n); [|omega].
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_worst_time5 n <= mergesortc_worst_time6 n)).
+  clear n.
+  intros n INDn.
+  destruct n.
+  unfold_sub mergesortc_worst_time5 (mergesortc_worst_time5 0).
+  unfold_sub mergesortc_worst_time6 (mergesortc_worst_time6 0).
+  auto.
+  unfold_sub mergesortc_worst_time5 (mergesortc_worst_time5 (S n)).
+  fold mergesortc_worst_time5.
+  unfold_sub mergesortc_worst_time6 (mergesortc_worst_time6 (S n)).
+  fold mergesortc_worst_time6.
+  destruct n; auto.
+  destruct (even_odd_dec (S (S n))).
+  apply plus_le_compat_r.
+  apply le_plus_trans.
+  apply le_plus_trans.
+  apply plus_le_compat_r.
+  apply plus_le_compat; auto.
+  apply plus_le_compat; auto.
+  apply INDn.
+  apply lt_n_S; auto.
+  apply INDn.
+  apply lt_n_S; auto.
+
+  apply plus_le_compat_r.
+  apply plus_le_compat_r.
+  apply plus_le_compat_r.
+  apply plus_le_compat.
+  rewrite odd_div2.
+  apply plus_le_compat.
+  apply plus_le_compat.
+  unfold split_at_time.
+  apply plus_le_compat; auto.
+  apply le_mult_right.
+  auto.
+  apply INDn; auto.
+  apply INDn; auto.
+  inversion o as [X Y Z].
+  inversion Y; auto.
+  unfold merge_worst_time.
+  apply plus_le_compat_r.
+  apply plus_le_compat.
+  apply plus_le_compat.
+  apply div2_monotone; auto.
+  apply div2_monotone; auto.
+  assert (div2 (S n) <= div2 (S (S n))).
+  apply div2_monotone;auto.
+  omega.
+Qed.
+
+Program Fixpoint mergesortc_worst_time7 n {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' => 
+      match n' with
+        | 0 => 1
+        | S _ => 
+          (div2 n) + n +
+          mergesortc_worst_time7 (div2 n) +
+          mergesortc_worst_time7 (div2 n)
+      end
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. admit. Defined.
+
+Lemma worst_67 : big_oh mergesortc_worst_time6 mergesortc_worst_time7.
+Proof.
+  exists 1.
+  exists 8.
+  intros n LT.
+  destruct n.
+  intuition.
+  clear LT.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_worst_time6 (S n) <=
+                     8 * mergesortc_worst_time7 (S n))).
+  clear n.
+  intros n INDn.
+  unfold_sub mergesortc_worst_time6 (mergesortc_worst_time6 (S n)).
+  fold mergesortc_worst_time6.
+  unfold_sub mergesortc_worst_time7 (mergesortc_worst_time7 (S n)).
+  fold mergesortc_worst_time7.
+  destruct n; [omega|].
+  unfold split_at_time.
+  unfold merge_worst_time.
+  unfold insert_worst_time.
+  replace (2 * div2 (S (S n)) + 1 + mergesortc_worst_time6 (S (div2 n)) +
+           mergesortc_worst_time6 (S (div2 n)) +
+           (3 * (div2 (S (S n)) + div2 (S (S n))) + 1) + 2 + 
+           (2 * S n + 1) + 2)
+  with (8 * div2 (S (S n)) + (2 * n + 9) + mergesortc_worst_time6 (S (div2 n)) +
+        mergesortc_worst_time6 (S (div2 n))); [|omega].
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+  apply plus_le_compat.
+  apply plus_le_compat.
+  apply plus_le_compat.
+  omega.
+  omega.
+  apply INDn; auto.
+  apply INDn; auto.
+Qed.
+
 Theorem mergesortc_worst:
   big_oh mergesortc_worst_time (fun n => n * cl_log n + 1).
 Proof.
@@ -906,6 +1302,9 @@ Admitted.
 Theorem mergesortc_best:
   big_omega mergesortc_best_time (fun n => n * cl_log n).
 Proof.
+  unfold mergesortc_best_time.
+  unfold mergesortc_best_time_c.
+
 Admitted.
 
 Definition mergesort_best_time (n:nat) :=
@@ -941,11 +1340,6 @@ Next Obligation.
   omega.
 Qed.
 
-Lemma big_oh_n_nlogn:
-  big_oh (fun n : nat => n) (fun n : nat => n * cl_log n).
-Proof.
-Admitted.
-
 Lemma mergesort_worst_step:
   forall f,
     big_oh (fun n : nat => n + 1) f ->
@@ -967,6 +1361,23 @@ Proof.
   apply big_oh_n_nlogn.
   apply mergesortc_worst.
 Qed.
+
+Program Fixpoint mergesortc_best_time1 n {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' =>
+      if even_odd_dec n'
+      then (mergesortc_best_time1 n' +
+            insert_best_time n' + 2)
+      else (split_at_time (div2 n) +
+            mergesortc_best_time1 (div2 n) +
+            mergesortc_best_time1 (div2 n) +
+            merge_best_time (div2 n) (div2 n) + 2)
+    end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. admit. Defined.
 
 Corollary mergesort_best:
   big_omega mergesort_best_time (fun n => n * cl_log n).

@@ -119,6 +119,18 @@ Proof.
         omega).
 Qed.
 
+Theorem IsRB_impl_height_no_color :
+  forall A (ct:CTree A) n,
+    IsRB ct n ->
+    n <= height ct <= 2 * n + 1.
+Proof.
+  intros A ct n RBt.
+  destruct (IsRB_impl_height A ct n RBt) as [B R].
+  destruct (IsColor_either A ct) as [Bt | Rt]; auto.
+  apply B in Bt.
+  omega.
+Qed.
+
 Lemma blacken_okay:
   forall A l c v r n,
     IsRB (CT_node A l c v r) n ->
@@ -444,12 +456,19 @@ Lemma height_log_case':
     (A : Set)
     (l : CTree A)
     (r : CTree A)
+    (n : nat)
+    (RBl : IsRB l n)
+    (RBr : IsRB r n)
     (IHl : height l <= 2 * cl_log (count l))
     (IHr : height r <= 2 * cl_log (count r))
     (LEh : height r <= height l),
     S (height l) <= 2 * cl_log (count l + count r + 1).
 Proof.
   intros.
+
+  apply IsRB_impl_height_no_color in RBl.
+  apply IsRB_impl_height_no_color in RBr.
+  
   cut (2 * cl_log (count l + count l + 1) <= 2 * cl_log (count l + count r + 1)).
   intros LEc.
   eapply le_trans; [|apply LEc].
@@ -463,18 +482,20 @@ Proof.
 Admitted.
 
 Lemma height_log_case:
-  forall A (l r:CTree A),
+  forall A (l r:CTree A) n,
+    IsRB l n ->
+    IsRB r n ->
     height l <= 2 * cl_log (count l) ->
     height r <= 2 * cl_log (count r) ->
     S (max (height l) (height r)) <= 2 * cl_log (count l + 1 + count r).
 Proof.
-  intros A l r IHl IHr.
+  intros A l r n RBl RBr IHl IHr.
   replace (count l + 1 + count r) with (count l + count r + 1); try omega.
 
   eapply max_case_strong.
-  apply height_log_case'; auto.
+  apply height_log_case' with (n:=n); auto.
   replace (count l + count r + 1) with (count r + count l + 1); try omega.
-  apply height_log_case'; auto.
+  apply height_log_case' with (n:=n); auto.
 Qed.
 
 Lemma height_log_count:
@@ -489,11 +510,11 @@ Proof.
 
   simpl (height (CT_node A l RED v r)).
   simpl (count (CT_node A l RED v r)).
-  apply height_log_case; auto.
+  apply height_log_case with (n := n); auto.
 
   simpl (height (CT_node A l BLACK v r)).
   simpl (count (CT_node A l BLACK v r)).
-  apply height_log_case; auto.
+  apply height_log_case with (n := n); auto.
 Qed.
 
 (* Finally, here is how CLRS puts it:

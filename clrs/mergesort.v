@@ -1202,7 +1202,7 @@ Program Fixpoint mergesortc_worst_time8 n {measure n} :=
   end.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply something_I_dont_understand. Defined.
+Next Obligation. apply lt_wf. Defined.
 
 Lemma worst_78 : big_oh mergesortc_worst_time7 mergesortc_worst_time8.
 Proof.
@@ -1363,6 +1363,36 @@ Proof.
   omega.
 Qed.
 
+Program Fixpoint mergesortc_best_time1 (n:nat) {measure n} :=
+  match n with
+    | 0 => 1
+    | S n' =>
+      if (even_odd_dec n)
+      then (split_at_time (div2 n) +
+            mergesortc_best_time (div2 n) +
+            mergesortc_best_time (div2 n) +
+            merge_best_time (div2 n) (div2 n) + 2)
+      else (mergesortc_best_time n' +
+            insert_best_time n' + 2)
+  end.
+Next Obligation. apply lt_wf. Defined.
+
+Lemma best01 : forall n, mergesortc_best_time n = mergesortc_best_time1 n.
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_best_time n = mergesortc_best_time1 n)).
+  intros n IND.
+  destruct n.
+  program_simpl.
+  unfold_sub mergesortc_best_time1 (mergesortc_best_time1 (S n)).
+  destruct (even_odd_dec (S n)).
+  rewrite mergesortc_best_time_Sn_even; auto.
+  exists n; auto.
+  rewrite (mergesortc_best_time_Sn_odd (S n) n); auto.
+Qed.  
+
+
 Theorem mergesortc_best:
   big_omega mergesortc_best_time (fun n => n * cl_log n).
 Proof.
@@ -1404,44 +1434,6 @@ Next Obligation.
   omega.
 Qed.
 
-Lemma mergesort_worst_step:
-  forall f,
-    big_oh (fun n : nat => n + 1) f ->
-    big_oh mergesortc_worst_time f ->
-    big_oh mergesort_worst_time f.
-Proof.
-  intros f LINf mergesortc_worst.
-  unfold mergesort_worst_time.
-  apply big_oh_plus.
-  unfold clength_time.
-  auto. auto.
-Qed.
-
-Corollary mergesort_worst:
-  big_oh mergesort_worst_time (fun n : nat => n * cl_log n + 1).
-Proof.
-  apply mergesort_worst_step.
-  apply big_oh_add_k_both.
-  apply big_oh_n_nlogn.
-  apply mergesortc_worst.
-Qed.
-
-Program Fixpoint mergesortc_best_time1 n {measure n} :=
-  match n with
-    | 0 => 1
-    | S n' =>
-      if even_odd_dec n'
-      then (mergesortc_best_time1 n' +
-            insert_best_time n' + 2)
-      else (split_at_time (div2 n) +
-            mergesortc_best_time1 (div2 n) +
-            mergesortc_best_time1 (div2 n) +
-            merge_best_time (div2 n) (div2 n) + 2)
-    end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
 
 Corollary mergesort_best:
   big_omega mergesort_best_time (fun n => n * cl_log n).

@@ -1192,112 +1192,176 @@ Proof.
   apply INDn; auto.
 Qed.
 
-Theorem mergesortc_worst:
-  big_oh mergesortc_worst_time (fun n => n * cl_log n + 1).
+Program Fixpoint mergesortc_worst_time8 n {measure n} :=
+  match n with
+    | 0 => 0
+    | S _ => 
+      n +
+      mergesortc_worst_time8 (div2 n) +
+      mergesortc_worst_time8 (div2 n)
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. apply something_I_dont_understand. Defined.
+
+Lemma worst_78 : big_oh mergesortc_worst_time7 mergesortc_worst_time8.
 Proof.
-  unfold big_oh.
-  exists 0. exists 4. (* xxx graph suggest this 4 should be 6 *)
-  intros n LE. clear LE. generalize n. clear n.
-  apply (well_founded_induction lt_wf
-    (fun n =>
-      mergesortc_worst_time n <= 4 * (n * cl_log n + 1))).
-  intros n IH.
-  destruct n as [|n].
-
-  rewrite mergesortc_worst_time_O. omega.
-
-  destruct (even_or_odd (S n)) as [E | O].
-  
-  rewrite mergesortc_worst_time_Sn_even; eauto.
-  assert ((div2 (S n)) < S n) as LEd; eauto.
-  apply IH in LEd. clear IH.
-  unfold split_at_time, merge_worst_time.
-  apply even_2n in E.
-  destruct E as [p EQ].
-  rewrite EQ in *.
-  assert ((div2 (double p)) = p) as EQp.
-  unfold double. replace (p + p) with ( 2 * p) ; try omega.
-  apply div2_double.
-  rewrite EQp in *. clear EQp.
-  unfold double in *.
-  destruct p as [|p].
-  omega. clear EQ.
-  remember (mergesortc_worst_time (S p)) as M.
-  clear HeqM.
-
-  replace (S p + S p) with (p + 1 + p + 1); try omega.
-  rewrite <- cl_log_even.
-  replace (p + 1 + p + 1) with (S p + S p); try omega.
-  replace (p + 1) with (S p); try omega.
+  exists 1.
+  exists 8.
+  intros n LT.
+  destruct n. intuition.
+  clear LT.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_worst_time7 (S n) <=
+                     8 * mergesortc_worst_time8 (S n))).
+  clear n; intros n IND.
+  unfold_sub mergesortc_worst_time7 (mergesortc_worst_time7 (S n)).
+  fold mergesortc_worst_time7.
+  unfold_sub mergesortc_worst_time8 (mergesortc_worst_time8 (S n)).
+  destruct n.
+  unfold_sub mergesortc_worst_time8 (mergesortc_worst_time8 0).
+  omega.
+  repeat (rewrite mult_plus_distr_l).
+  apply plus_le_compat.
+  apply plus_le_compat.
+  replace 8 with (7+1);[|omega].
   rewrite mult_plus_distr_r.
-  replace (S p + S p) with (2 * S p); try omega.
-  replace (3 * (2 * S p)) with (6 * S p); try omega.
-  replace (2 * S p + 2 + M + M + (6 * S p + 1) + 2) with
-    (2 * M + 8 * S p + 5); try omega.
+  apply plus_le_compat; [|omega].
+  apply (le_trans (div2 (S (S n)))
+                  (div2 (S (S n)) + div2 (S (S n)))); [omega|].
+  apply (le_trans (div2 (S (S n)) + div2 (S (S n)))
+                  (S (S n)));[|omega].
+  apply div2_doubled_le_n.
+  apply IND; auto.
+  apply IND; auto.
+Qed.
 
-  replace (S p * (cl_log (S p) + 1) + S p * (cl_log (S p) + 1) + 1) with
-    ((2 * (S p * (cl_log (S p) + 1))) + 1); try omega.
-  rewrite mult_plus_distr_l.
-  rewrite mult_plus_distr_l.
-  replace (S p * 1) with (S p); try omega.
-  rewrite mult_plus_distr_l in LEd.
-  replace (4 * 1) with 4 in *; try omega.
-  rewrite mult_plus_distr_l.
-  rewrite mult_plus_distr_l.
-  rewrite (mult_assoc 4 2).
-  rewrite (mult_assoc 4 2).
-  replace (4 * 2) with 8; try omega.
-  remember (S p * cl_log (S p)) as Q.
-  
-  cut (2 * 4 + 5 <= 4). intros LE. omega. clear n p M Q HeqQ LEd.
+Definition mergesortc_worst_time9 n := n * cl_log n.
 
-  (* XXX The Each M includes a 4 and the 5 comes from the RHS. The 4
-  is the one from the right. The only value that can be put here is
-  -5, which isn't a nat *)
-  admit.
+Lemma worst_89 : big_oh mergesortc_worst_time8 mergesortc_worst_time9.
+Proof.
+  exists 2.
+  exists 4.
+  intros n LT.
+  destruct n. intuition.
+  destruct n. intuition.
+  clear LT.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_worst_time8 (S n) <=
+                     4 * mergesortc_worst_time9 (S n))).
+  clear n; intros n IND.
+  unfold_sub mergesortc_worst_time8 (mergesortc_worst_time8 (S n)).
+  unfold mergesortc_worst_time9.
+  destruct n.
+  unfold_sub mergesortc_worst_time8 (mergesortc_worst_time8 0).
+  unfold_sub cl_log (cl_log 1).
+  unfold_sub cl_log (cl_log 0).
+  omega.
+  unfold mergesortc_worst_time9 in IND.
+  apply (le_trans (S (S n) + 
+                   mergesortc_worst_time8 (S (div2 n)) +
+                   mergesortc_worst_time8 (S (div2 n)))
+                  (S (S n) + 
+                   (4 * (S (div2 n) * cl_log (S (div2 n)))) +
+                   (4 * (S (div2 n) * cl_log (S (div2 n)))))).
+  apply plus_le_compat.
+  apply plus_le_compat; [omega|].
+  apply IND; auto.
+  apply IND; auto.
+  clear IND.
 
-  erewrite mergesortc_worst_time_Sn_odd; eauto.
-  assert (n < S n) as LEd; eauto.
-  apply IH in LEd. clear IH.
-  remember (mergesortc_worst_time n) as M.
-  clear HeqM.
-  unfold insert_worst_time.
-  apply odd_S2n in O.
-  destruct O as [p EQp].
-  unfold double in EQp.
-  replace (S n) with (p + p +1); try omega.
-  rewrite cl_log_odd.
-  replace n with (p + p) in *; try omega.
-  clear EQp n.
-
-  destruct p as [|p].
-  simpl in *. omega.
-
-  replace (S p + S p) with (p + 1 + p + 1) in LEd; try omega.
-  rewrite <- cl_log_even in LEd.
-  replace (p + 1 + p + 1) with (S p + S p) in LEd; try omega.
-  replace (p + 1) with (S p) in LEd; try omega.
-  remember (S p) as SP. clear HeqSP p.
-
-  remember (SP + SP) as SPSP.
-  replace (M + (2 * SPSP + 1) + 2) with (M + 2 * SPSP + 3); try omega.  
+  replace (S (S n) + 4 * (S (div2 n) * cl_log (S (div2 n))) +
+           4 * (S (div2 n) * cl_log (S (div2 n))))
+  with (S (S n) + 2 * 4 * (S (div2 n) * cl_log (S (div2 n)))); [|omega].
+  replace (2 * 4) with 8;[|omega].
+  replace (S (div2 n)) with (div2 n + 1) at 1;[|omega].
+  rewrite mult_comm at 1.
   rewrite mult_plus_distr_r.
-  rewrite mult_1_l.
-  replace (SPSP * (cl_log SP + 1) + (cl_log SP + 1) + 1) with
-    ((SPSP * (cl_log SP + 1) + 1) + (cl_log SP + 1)); try omega.
+  unfold mult at 3.
+  rewrite plus_0_r.
+  rewrite mult_comm.
   rewrite mult_plus_distr_l.
-  remember (SPSP * (cl_log SP + 1) + 1) as Q.
+  rewrite plus_assoc.
+  rewrite mult_assoc.
+
+  apply (le_trans
+           (S (S n) + 8 * div2 n * cl_log (S (div2 n)) + 8 * cl_log (S (div2 n)))
+           (S (S n) + 4 * n * cl_log (S (div2 n)) + 8 * cl_log (S (div2 n)))).
+  apply plus_le_compat;[|omega].
+  apply plus_le_compat;[omega|].
+  apply mult_le_compat;[|omega].
+  
+  replace 8 with (4 * 2);[|omega].
+  rewrite <- mult_assoc.
+  apply mult_le_compat; [omega|].
+  unfold mult.
+  rewrite plus_0_r.
+  apply div2_doubled_le_n.
+  
+  replace (S (div2 n)) with (div2 (S (S n))); auto.
+  rewrite cl_log_div2'.
+  replace (S (cl_log (div2 (S (S n))))) 
+  with ((cl_log (div2 (S (S n))))+1);[|omega].
   rewrite mult_plus_distr_l.
-  rewrite mult_1_r.
-  rewrite <- plus_assoc.  
-  apply le_add. auto.
-  clear M LEd Q HeqQ.
-  subst SPSP.
+  replace (4 * (S (S n) * cl_log (div2 (S (S n))) + S (S n) * 1))
+  with (4 * (S (S n) * cl_log (div2 (S (S n))) + S (S n)));[|omega].
+  rewrite mult_plus_distr_l.
+  replace (4 * (S (S n) * cl_log (div2 (S (S n)))) + 4 * S (S n))
+  with ((1+3) * S (S n) + 4 * (S (S n) * cl_log (div2 (S (S n)))));[|omega].
+  rewrite mult_plus_distr_r.
+  replace (1 * (S (S n))) with (S (S n)); [|omega].
+  rewrite <- plus_assoc.
+  rewrite <- plus_assoc.
+  apply plus_le_compat;[omega|].
+  replace (S (S n)) with (n+2) at 4;[|omega].
+  rewrite mult_plus_distr_r.
+  rewrite mult_plus_distr_l.
+  replace (4 * (2 * cl_log (div2 (S (S n)))))
+  with (8 * cl_log (div2 (S (S n))));[|omega].
+  rewrite plus_assoc.
+  apply plus_le_compat;auto.
+  rewrite mult_assoc.
+  omega.
+Qed.
 
-  (* xxx This is definitely false (look at a graph) *)
-  admit.
-
-Admitted.
+Theorem mergesortc_worst:
+  big_oh mergesortc_worst_time (fun n => n * cl_log n).
+Proof.
+  apply (big_oh_trans mergesortc_worst_time
+                      mergesortc_worst_time5
+                      (fun n => n * cl_log n)).
+  exists 0.
+  exists 1.
+  intros n _.
+  unfold mult; rewrite plus_0_r.
+  rewrite worst_01.
+  rewrite worst_12.
+  rewrite worst_23.
+  rewrite worst_34.
+  rewrite worst_45.
+  omega.
+  apply (big_oh_trans mergesortc_worst_time5
+                      mergesortc_worst_time6
+                      (fun n => n * cl_log n)).
+  apply worst_56.
+  apply (big_oh_trans mergesortc_worst_time6
+                      mergesortc_worst_time7
+                      (fun n => n * cl_log n)).
+  apply worst_67.
+  apply (big_oh_trans mergesortc_worst_time7
+                      mergesortc_worst_time8
+                      (fun n => n * cl_log n)).
+  apply worst_78.
+  apply (big_oh_trans mergesortc_worst_time8
+                      mergesortc_worst_time9
+                      (fun n => n * cl_log n)).
+  apply worst_89.
+  exists 0. exists 1. intros n _. unfold mult at 1; rewrite plus_0_r.
+  unfold mergesortc_worst_time9.
+  omega.
+Qed.
 
 Theorem mergesortc_best:
   big_omega mergesortc_best_time (fun n => n * cl_log n).

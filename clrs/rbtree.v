@@ -459,23 +459,25 @@ Lemma height_log_case':
     (n : nat)
     (RBl : IsRB l n)
     (RBr : IsRB r n)
-    (IHl : height l <= 2 * cl_log (count l))
-    (IHr : height r <= 2 * cl_log (count r))
+    (IHl : height l <= 2 * cl_log (count l + 1))
+    (IHr : height r <= 2 * cl_log (count r + 1))
     (LEh : height r <= height l),
-    S (height l) <= 2 * cl_log (count l + count r + 1).
+    S (height l) <= 2 * cl_log (count l + count r + 1 + 1).
 Proof.
   intros.
 
   apply IsRB_impl_height_no_color in RBl.
   apply IsRB_impl_height_no_color in RBr.
   
-  cut (2 * cl_log (count l + count l + 1) <= 2 * cl_log (count l + count r + 1)).
+  cut (2 * cl_log (count l + 1 + count l + 1) <= 2 * cl_log (count l + count r + 1 + 1)).
   intros LEc.
   eapply le_trans; [|apply LEc].
-  rewrite cl_log_odd.
+  rewrite <- cl_log_even.
   omega.
   apply le_mult. auto.
   apply cl_log_monotone.
+  apply le_add; auto.
+  replace (count l + 1 + count l) with (count l + count l + 1); try omega.
   apply le_add; auto.
   apply le_add; auto.
 
@@ -485,12 +487,12 @@ Lemma height_log_case:
   forall A (l r:CTree A) n,
     IsRB l n ->
     IsRB r n ->
-    height l <= 2 * cl_log (count l) ->
-    height r <= 2 * cl_log (count r) ->
-    S (max (height l) (height r)) <= 2 * cl_log (count l + 1 + count r).
+    height l <= 2 * cl_log (count l + 1) ->
+    height r <= 2 * cl_log (count r + 1) ->
+    S (max (height l) (height r)) <= 2 * cl_log (count l + 1 + count r + 1).
 Proof.
   intros A l r n RBl RBr IHl IHr.
-  replace (count l + 1 + count r) with (count l + count r + 1); try omega.
+  replace (count l + 1 + count r + 1 ) with (count l + count r + 1 + 1); try omega.
 
   eapply max_case_strong.
   apply height_log_case' with (n:=n); auto.
@@ -501,7 +503,7 @@ Qed.
 Lemma height_log_count:
   forall A (ct:CTree A) n,
     IsRB ct n ->
-    height ct <= 2 * cl_log (count ct).
+    height ct <= 2 * cl_log (count ct + 1).
 Proof.
   intros A ct n IR.
   induction IR.
@@ -531,7 +533,7 @@ Qed.
 Corollary rbbst_search_time_bound_count:
   forall A (ct:CTree A) n,
     IsRB ct n ->
-    bst_search_time (height ct) <= 6 * cl_log (count ct) + 2.
+    bst_search_time (height ct) <= 6 * cl_log (count ct + 1) + 2.
 Proof.
   intros A ct n IR.
   unfold bst_search_time.

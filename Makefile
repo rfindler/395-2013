@@ -67,7 +67,8 @@ tmonad-gen: insert/insert_log_gen.v \
             sub1/sub1_linear_loop_gen.v \
             fold/fold_gen.v \
             clrs/insert_gen.v \
-            clrs/isort_gen.v
+            clrs/isort_gen.v \
+            clrs/clength_gen.v
 
 insert/insert_log_gen.v: rkt/insert.rkt $(GEN_DEPS)
 	racket rkt/insert.rkt > insert/insert_log_gen.v
@@ -128,6 +129,8 @@ clrs/insert_gen.v: rkt/isort_insert.rkt $(GEN_DEPS)
 	racket rkt/isort_insert.rkt > clrs/insert_gen.v
 clrs/isort_gen.v: rkt/isort.rkt $(GEN_DEPS)
 	racket rkt/isort.rkt > clrs/isort_gen.v
+clrs/clength_gen.v: rkt/clength.rkt $(GEN_DEPS)
+	racket rkt/clength.rkt > clrs/clength_gen.v
 
 Makefile.coq: tmonad-gen Makefile $(VS)
 	coq_makefile -R . Braun $(VS) -o Makefile.coq

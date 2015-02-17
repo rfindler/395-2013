@@ -15,34 +15,29 @@ Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith Init.Wf.
 
 Include WfExtensionality.
 
-Definition mergesort (l:list nat) := l.
-
-(* 
-comment all this out to not break the build
-
-Definition clength_time (n:nat) := n + 1.
+Definition clength_time (n:nat) := 7*n + 3.
 Hint Unfold clength_time.
 
-Program Fixpoint clength {A:Set} (l:list A)
-  : {! res !:! nat !<! c !>!
+Definition clength_result (A:Set) (l:list A) (res:nat) (c:nat) :=
     res = length l /\
-    c = clength_time (length l) !}
-  :=
-  match l with
-    | nil =>
-      += 1;
-      <== 0
-    | cons _ l' =>
-      n' <- clength l' ;
-      += 1 ;
-      <== 1 + n'
-  end.
+    c = clength_time (length l).
+Hint Unfold clength_result.
+
+Load "clength_gen.v".
 
 Next Obligation.
-  unfold clength_time.
-  omega.
+  clear H1 am.
+  rename H0 into CR.
+
+  destruct CR.
+  unfold clength_result.
+  unfold clength_time in *.
+  split; simpl; omega.
 Qed.
 
+Definition mergesort (l:list nat) := l.
+
+(*
 Definition split_at_time (n:nat) := 2 * n + 1.
 
 Program Fixpoint split_at {A:Set} (n:nat) (l:list A) (V:n <= length l)

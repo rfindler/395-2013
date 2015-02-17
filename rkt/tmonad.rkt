@@ -16,8 +16,10 @@
          require
          cons list
          nil
-         pair
+         pair 
+         left right
          even_odd_dec
+         le_lt_dec
          div2
          S
          (rename-out [-:nat -])
@@ -138,7 +140,15 @@
       [(#:returns result)
        (let ()
          (define res-strs (syntax->list #'result))
-         (unless res-strs (raise-syntax-error #f "expected a sequence of strings" stx #'result))
+         (unless res-strs
+           (raise-syntax-error #f "expected a sequence of strings" 
+                               stx 
+                               #'result))
+         (for ([x (in-list res-strs)])
+           (unless (string? (syntax-e x))
+             (raise-syntax-error #f "expected a string" 
+                                 stx 
+                                 x)))
          (values (reverse racket-args)
                  (reverse coq-args)
                  (apply string-append (map syntax-e res-strs))
@@ -203,7 +213,6 @@
          (define lst (syntax->list #'cases))
          (when lst
            (for ([case (in-list lst)])
-             (printf "case ~s\n" case)
              (syntax-case case ()
                [(stuff ...)
                 (unless (for/or ([stuff (in-list (syntax->list #'(stuff ...)))])
@@ -358,8 +367,11 @@
                               #'add1])))
 
 (struct pair (l r) #:transparent)
+(struct left (val) #:transparent)
+(struct right (val) #:transparent)
 
 (define (even_odd_dec n) (even? n))
+(define (le_lt_dec n m) (if (<= n m) (left #f) (right #f)))
 (define (div2 n) (floor (/ n 2)))
 
 (define (-:nat n m) 

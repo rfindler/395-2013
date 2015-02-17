@@ -8,36 +8,24 @@ Require Import List Relations_1.
 Require Import Sorting.Sorted Sorting.Permutation.
 Require Import Braun.clrs.sorting.
 
-Definition insert_best_time (n:nat) := 1.
-Definition insert_worst_time (n:nat) := 2 * n + 1.
+Definition insert_best_time (n:nat) := 5.
+Definition insert_worst_time (n:nat) := 15 * n + 9.
 
-Program Fixpoint insert
-  {A:Set} {A_cmp:A -> A -> Prop}
+Definition insert_result 
+  (A:Set) (A_cmp:A -> A -> Prop)
   (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
   (A_cmp_dec:DecCmp A_cmp) (a:A) (l:list A)
-  : {! res !:! list A !<! c !>!
-    (IsSorted A_cmp l) ->
-    (SortedOf A_cmp (cons a l) res) /\
-    insert_best_time (length l) <= c /\
-    c <= insert_worst_time (length l) !} :=
-  match l with
-    | nil =>
-      += 1;
-      <== (cons a nil)
-    | cons a' l' =>
-      match A_cmp_dec a a' with
-        | left _ =>
-          += 2;
-          <== (cons a l)
-        | right _ =>
-          res' <- (insert A_cmp_trans A_cmp_total A_cmp_dec a l');
-          += 2;
-          <== (cons a' res')
-      end
-  end.
+  (res:list A) (c:nat):=
+  (IsSorted A_cmp l) ->
+  (SortedOf A_cmp (cons a l) res) /\
+  insert_best_time (length l) <= c /\
+  c <= insert_worst_time (length l).
+
+Load "insert_gen.v".
 
 Next Obligation.
-  rename H0 into IS.
+  unfold insert_result.
+  intro IS.
   split.
   unfold SortedOf. unfold IsSorted.
   split. apply Permutation_refl.
@@ -49,9 +37,10 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+  unfold insert_result.
+  intro IS.
   rename wildcard' into CMP.
   clear Heq_anonymous.
-  rename H0 into IS.
   split.
 
   unfold SortedOf. split. apply Permutation_refl.
@@ -71,11 +60,12 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+  unfold insert_result.
+  intros IS.
   rename wildcard' into CMP.
   clear Heq_anonymous.
   rename H0 into IH.
-  clear H2 am.
-  rename H1 into IS.
+  clear H1 am.
 
   assert (IsSorted A_cmp l') as IS'.
   clear IH. unfold IsSorted in *.
@@ -118,42 +108,37 @@ Next Obligation.
   auto.
 
   unfold insert_best_time, insert_worst_time in *.
+  replace (length (a' :: l')) with (S (length l')); auto.
   omega.
 Qed.
 
-Definition isort_best_time (n:nat) := n * (insert_best_time n) + 1.
-Definition isort_worst_time (n:nat) := n * (insert_worst_time n) + 1.
+Definition isort_best_time (n:nat) := 14 * n + (insert_best_time n) * n + 3.
+Definition isort_worst_time (n:nat) := 14 * n + (insert_worst_time n) * n + 3.
 
-Program Fixpoint isort {A:Set} {A_cmp:A -> A -> Prop}
+Definition isort_result (A:Set) (A_cmp:A -> A -> Prop)
   (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
   (A_cmp_dec:DecCmp A_cmp)
-  (l:list A)
-  : {! res !:! list A !<! c !>!
+  (l:list A) (res : list A) (c : nat) :=
     (SortedOf A_cmp l res) /\
     (isort_best_time (length l)) <= c /\
-    c <= (isort_worst_time (length l)) !} :=
-  match l with
-    | nil =>
-      += 1;
-      <== nil
-    | cons a d =>
-      d' <- isort A_cmp_trans A_cmp_total A_cmp_dec d;
-      r' <- insert A_cmp_trans A_cmp_total A_cmp_dec a d';
-      += 1;
-      <== r'
-  end.
+    c <= (isort_worst_time (length l)).
+
+Load "isort_gen.v".
 
 Next Obligation.  
  split. 
  split. auto. 
  apply SSorted_nil.
  unfold isort_best_time, isort_worst_time in *.
+ unfold insert_best_time, insert_worst_time.
+ simpl.
  omega.
 Defined.
 
 Local Obligation Tactic := idtac.
 
 Next Obligation.
+  unfold isort_result.
   unfold isort_best_time, isort_worst_time in *.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros l a d EQl d' _ r' _ xm EQxm.
@@ -184,60 +169,103 @@ Next Obligation.
   remember (length d) as L.
   clear A A_cmp A_cmp_trans A_cmp_total A_cmp_dec a d d' r' HeqL l EQl.
 
-  rewrite plus_0_r in *.
-  rewrite mult_1_r in *.
-  split. omega.
-  clear OM.  
-
-  unfold insert_best_time, insert_worst_time in *.
-  simpl in *.
-  rewrite plus_0_r in *.
-  destruct REC_P as [_ REC_OH].
-  replace (L + L + 1) with (S (L + L)) in *; try omega.
-  replace (L + S L + 1) with (S (S (L + L))) in *; try omega.
-  rewrite plus_succ_r in *.
-  rewrite plus_succ_r.
-  repeat rewrite mult_succ_r in *.
+  unfold insert_best_time,insert_worst_time in *.
+  split; [omega|].
+  assert (forall n, S (L + n) = 1 + L + n) as CLEAN;
+    [intros;omega|repeat (rewrite CLEAN); clear CLEAN].
+  replace (S L) with (L+1);[|omega].
+  repeat (rewrite plus_assoc).
+  replace (L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 +
+           L + 1 + L + 1 + L + 1 + L + 1 + L + 0 + 1 + L +
+           (L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 +
+            L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 0 + 9) * 
+           S L + 3)
+  with (15 * L + 17 +
+        (L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 +
+         L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 0 + 9) * 
+        S L);[|omega].
+  replace (L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 1 +
+           L + 1 + L + 1 + L + 1 + L + 1 + L + 1 + L + 0 + 9)
+  with (15 * L + 23);[|omega].
+  replace (S (15 * L + 17 + (15 * L + 23) * S L)) 
+  with (15 * L + 18 + (15 * L + 23) * (S L));[|omega].
+  apply (le_trans (am + an + 14)
+                  (14 * L + (15 * L + 9) * L + 3
+                   + 15 * L + 9 + 14));[omega|].
+  replace (S L) with (L+1);[|omega].
+  repeat (rewrite mult_plus_distr_l).
+  repeat (rewrite mult_plus_distr_r).
   omega.
+Qed.
+
+Definition isort_worst_time2 (n:nat) := n + (insert_worst_time n) * n + 3.
+Lemma isort_worst_12 : big_oh isort_worst_time isort_worst_time2.
+Proof.
+  exists 1.
+  exists 14.
+  intros n LT.
+  destruct n.
+  intuition.
+  clear LT.
+  unfold isort_worst_time, isort_worst_time2.
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+  apply plus_le_compat;try omega.
+  apply plus_le_compat;try omega.
+  rewrite mult_assoc.
+  apply mult_le_compat; omega.
+Qed.
+
+Definition isort_worst_time3(n:nat) := n*n+n+1.
+Lemma isort_worst_23 : big_oh isort_worst_time2 isort_worst_time3.
+Proof.
+  exists 1.
+  unfold isort_worst_time2, isort_worst_time3, insert_worst_time.
+  exists 15.
+  intros n LT.
+  destruct n.
+  intuition.
+  clear LT.
+  replace (S n) with (n+1);[|omega].
+  repeat (rewrite mult_plus_distr_r).
+  repeat (rewrite mult_plus_distr_l).
+  repeat (rewrite mult_plus_distr_r).
+  repeat (rewrite plus_assoc).
+  repeat (rewrite mult_1_r).
+  repeat (rewrite mult_1_l).
+  rewrite mult_assoc.
+  omega.
+Qed.
+
+Definition isort_worst_time4 (n:nat) := n*n.
+Lemma isort_worst_34 : big_oh isort_worst_time3 isort_worst_time4.
+Proof.
+  exists 1.
+  exists 3.
+  intros n LT.
+  destruct n.
+  intuition.
+  clear LT.
+  unfold isort_worst_time3, isort_worst_time4.
+  replace (S n) with (n+1);[|omega].
+  repeat (rewrite mult_plus_distr_r).
+  repeat (rewrite mult_plus_distr_l).
+  repeat (rewrite plus_assoc).
+  repeat (rewrite mult_1_r).
+  repeat (rewrite mult_1_l).
+  rewrite mult_assoc.
+  replace (n * n + n + n + 1 + n + 1 + 1) with (n * n + 3*n + 3);[|omega].
+  replace (3 * n * n + 3 * n + 3 * n + 3) with (3 * n * n + 6 * n + 3);[|omega].
+  apply plus_le_compat;[|omega].
+  apply plus_le_compat;[|omega].
+  apply mult_le_compat;omega.
 Qed.
 
 Theorem isort_is_nsquared : big_oh isort_worst_time (fun n => n * n).
 Proof.
-  unfold isort_worst_time.
-  unfold insert_worst_time.
-  exists 4.
-  exists 4.
-  intros.
-  destruct n; try omega.
-  destruct n; try omega.
-  destruct n; try omega.
-  destruct n; try omega.
-  clear H.
-  replace (S (S (S (S n)))) with (4+n); try omega.
-
-  (* clean up left-hand side *)
-  replace (2 * (4 + n)) with (8 + 2 * n); try omega.
-  rewrite mult_plus_distr_r.
-  replace (4 * (8 + 2 * n + 1)) with (32 + 8 * n + 4); try omega.
-  rewrite mult_plus_distr_l at 1.
-  replace (n * 1) with n; try omega.
-  rewrite mult_plus_distr_l.
-  replace (32 + 8 * n + 4 + (n * 8 + n * (2 * n) + n) + 1)
-  with (n * (2 * n) + 17 * n + 37); try omega.
-
-  (* clean up right-hand side *)
-  rewrite mult_plus_distr_r.
-  repeat (rewrite mult_plus_distr_l).
-  replace (4 * (4 * 4) + 4 * (4 * n) + (4 * (n * 4) + 4 * (n * n)))
-  with  (4 * (n * n) + 32 * n + 64); try omega.
-
-  (* get down to the squared term *)
-  apply plus_le_compat; try omega.
-  apply plus_le_compat; try omega.
-
-  replace (n * (2 * n)) with (2 * (n * n));
-    [|  rewrite mult_assoc at 1;
-       rewrite mult_comm at 1;
-       reflexivity].
-  apply mult_le_compat_r; omega.
+  apply (big_oh_trans isort_worst_time isort_worst_time2).
+  apply isort_worst_12.
+  apply (big_oh_trans isort_worst_time2 isort_worst_time3).
+  apply isort_worst_23.
+  apply isort_worst_34.
 Qed.

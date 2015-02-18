@@ -15,8 +15,9 @@ Require Import Braun.to_list.to_list_naive.
 Require Import Braun.monad.monad.
 Require Import Braun.sub1.sub1.
 
-Require Import Braun.clrs.isort.
-Require Import Braun.clrs.mergesort.
+Require Import Braun.sort.isort.
+Require Import Braun.sort.mergesort.
+
 Require Import Braun.clrs.fib.
 Require Import Braun.clrs.zip.
 Require Import Braun.clrs.rbtree.
@@ -53,8 +54,9 @@ Extraction "extract.ml" insert_log.insert
            to_list_naive.to_list_naive
            sub1.sub1.sub1
 
-           clrs.isort.isort
-           clrs.mergesort.mergesort
+           sort.isort.isort
+           sort.mergesort.mergesort
+
            clrs.fib.fib_rec
            clrs.fib.fib_iter
            clrs.zip.minsert_at

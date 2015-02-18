@@ -6,7 +6,7 @@ Require Import Program.
 Require Import Omega.
 Require Import List Relations_1.
 Require Import Sorting.Sorted Sorting.Permutation.
-Require Import Braun.clrs.sorting.
+Require Import Braun.sort.sorting.
 
 Definition insert_best_time (n:nat) := 5.
 Definition insert_worst_time (n:nat) := 15 * n + 9.

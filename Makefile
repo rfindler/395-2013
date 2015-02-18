@@ -67,11 +67,11 @@ tmonad-gen: insert/insert_log_gen.v \
             sub1/sub1_gen.v \
             sub1/sub1_linear_loop_gen.v \
             fold/fold_gen.v \
-            clrs/insert_gen.v \
-            clrs/isort_gen.v \
-            clrs/clength_gen.v \
-            clrs/split2_gen.v \
-            clrs/merge_gen.v
+            sort/insert_gen.v \
+            sort/isort_gen.v \
+            sort/clength_gen.v \
+            sort/split2_gen.v \
+            sort/merge_gen.v
 
 insert/insert_log_gen.v: rkt/insert.rkt $(GEN_DEPS)
 	racket rkt/insert.rkt > insert/insert_log_gen.v
@@ -128,16 +128,16 @@ sub1/sub1_linear_loop_gen.v: rkt/sub1_linear_loop.rkt $(GEN_DEPS)
 fold/fold_gen.v: rkt/fold.rkt $(GEN_DEPS)
 	racket rkt/fold.rkt > fold/fold_gen.v
 
-clrs/insert_gen.v: rkt/isort_insert.rkt $(GEN_DEPS)
-	racket rkt/isort_insert.rkt > clrs/insert_gen.v
-clrs/isort_gen.v: rkt/isort.rkt $(GEN_DEPS)
-	racket rkt/isort.rkt > clrs/isort_gen.v
-clrs/clength_gen.v: rkt/clength.rkt $(GEN_DEPS)
-	racket rkt/clength.rkt > clrs/clength_gen.v
-clrs/split2_gen.v: rkt/split2.rkt $(GEN_DEPS)
-	racket rkt/split2.rkt > clrs/split2_gen.v
-clrs/merge_gen.v: rkt/merge.rkt $(GEN_DEPS)
-	racket rkt/merge.rkt > clrs/merge_gen.v
+sort/insert_gen.v: rkt/isort_insert.rkt $(GEN_DEPS)
+	racket rkt/isort_insert.rkt > sort/insert_gen.v
+sort/isort_gen.v: rkt/isort.rkt $(GEN_DEPS)
+	racket rkt/isort.rkt > sort/isort_gen.v
+sort/clength_gen.v: rkt/clength.rkt $(GEN_DEPS)
+	racket rkt/clength.rkt > sort/clength_gen.v
+sort/split2_gen.v: rkt/split2.rkt $(GEN_DEPS)
+	racket rkt/split2.rkt > sort/split2_gen.v
+sort/merge_gen.v: rkt/merge.rkt $(GEN_DEPS)
+	racket rkt/merge.rkt > sort/merge_gen.v
 
 Makefile.coq: tmonad-gen Makefile $(VS)
 	coq_makefile -R . Braun $(VS) -o Makefile.coq

@@ -6,11 +6,10 @@ Require Import Program.
 Require Import Omega.
 Require Import List Relations_1.
 Require Import Sorting.Sorted Sorting.Permutation.
-Require Import Braun.clrs.sorting.
 Require Import Min.
 Require Import Div2.
 Require Import Even.
-Require Import Braun.clrs.isort.
+Require Import Braun.sort.sorting Braun.sort.isort.
 Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith Init.Wf.
 
 Include WfExtensionality.

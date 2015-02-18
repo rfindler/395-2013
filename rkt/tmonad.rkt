@@ -16,7 +16,7 @@
          require
          cons list
          nil
-         pair 
+         pair fst snd
          left right
          even_odd_dec
          le_lt_dec
@@ -341,6 +341,8 @@
 (define (even_odd_dec n) (even? n))
 (define (le_lt_dec n m) (if (<= n m) (left #f) (right #f)))
 (define (div2 n) (floor (/ n 2)))
+(define (fst p) (pair-l p))
+(define (snd p) (pair-r p))
 
 (define (-:nat n m) 
   (define ans (- n m))

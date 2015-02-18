@@ -7,7 +7,7 @@
 (provide (rename-out [module-begin #%module-begin]
                      [top-interaction #%top-interaction])
          #%datum
-         (rename-out [app #%app])
+         #%app
          Fixpoint
          bt_mt
          bt_node
@@ -25,50 +25,18 @@
          (rename-out [-:nat -])
          + *
          false true
-         proj1_sig)
+         proj1_sig
+         (rename-out [coq:_ _]))
+
+(define coq:_ (let ()
+                (struct coq:_ ())
+                (coq:_)))
 
 (define (proj1_sig x) x)
 
 (define-syntax (top-interaction stx)
   (syntax-case stx ()
     [(_ . e) #'e]))
-
-(define-syntax (app stx)
-  (define (drop-vars-with-leading-underscores args)
-    (define anything-changed? #f)
-    (let loop ([anything-changed? #f]
-               [args args]
-               [acc '()])
-      (cond
-        [(null? args)
-         (if anything-changed?
-             (reverse acc)
-             #f)]
-        [else
-         (define arg (car args))
-         (cond
-           [(and (identifier? arg)
-                 (regexp-match?
-                  #rx"^_" (symbol->string (syntax-e arg))))
-            (loop #t (cdr args) acc)]
-           [else
-            (loop anything-changed?
-                  (cdr args)
-                  (cons arg acc))])])))
-  (syntax-case stx ()
-    [(_ proc-expr . args)
-     (let ()
-       (define argsl (syntax->list #'args))
-       (define new-args 
-         (and argsl
-              (drop-vars-with-leading-underscores
-               argsl)))
-       (cond
-         [new-args
-          #`(#%app proc-expr #,@new-args)]
-         [else
-          #`(#%app proc-expr . args)]))]))
-       
 
 (define-syntax (module-begin stx)
   (syntax-case stx ()

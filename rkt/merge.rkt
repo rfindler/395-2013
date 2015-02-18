@@ -1,5 +1,7 @@
 #lang at-exp s-exp "tmonad.rkt"
 
+(provide merge)
+
 (Fixpoint
  merge #:implicit @A{Set}
  #:implicit @A_cmp{A -> A -> Prop}

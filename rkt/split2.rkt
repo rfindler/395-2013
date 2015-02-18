@@ -1,5 +1,7 @@
 #lang at-exp s-exp "tmonad.rkt"
 
+(provide split2)
+
 (Fixpoint
  split2 #:implicit @A{Set}
  @n{nat} @l{list A}

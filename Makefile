@@ -71,7 +71,8 @@ tmonad-gen: insert/insert_log_gen.v \
             sort/isort_gen.v \
             sort/clength_gen.v \
             sort/split2_gen.v \
-            sort/merge_gen.v
+            sort/merge_gen.v \
+            sort/mergesortc_gen.v
 
 insert/insert_log_gen.v: rkt/insert.rkt $(GEN_DEPS)
 	racket rkt/insert.rkt > insert/insert_log_gen.v
@@ -138,6 +139,8 @@ sort/split2_gen.v: rkt/split2.rkt $(GEN_DEPS)
 	racket rkt/split2.rkt > sort/split2_gen.v
 sort/merge_gen.v: rkt/merge.rkt $(GEN_DEPS)
 	racket rkt/merge.rkt > sort/merge_gen.v
+sort/mergesortc_gen.v: rkt/mergesortc.rkt $(GEN_DEPS)
+	racket rkt/mergesortc.rkt > sort/mergesortc_gen.v
 
 Makefile.coq: tmonad-gen Makefile $(VS)
 	coq_makefile -R . Braun $(VS) -o Makefile.coq

@@ -23,7 +23,7 @@
          div2
          S
          (rename-out [-:nat -])
-         + *
+         + * pred
          false true
          proj1_sig
          (rename-out [coq:_ _]))
@@ -349,6 +349,7 @@
   (when (negative? ans)
     (error '- "negative result, ~a - ~a = ~a" n m ans))
   ans)
+(define (pred n) (-:nat n 1))
 
 (define false #f)
 (define true #t)

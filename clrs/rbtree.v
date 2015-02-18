@@ -369,14 +369,8 @@ Corollary rbbst_search_time_bound_black_height:
 Proof.
   intros A ct n IR.
   unfold bst_search_time.
-  apply IsRB_impl_height in IR.
-  destruct IR as [IRb IRr].
-  replace (6 * n + 5) with (3 * (2 * n + 1) + 2); try omega.
-  cut (height ct <= 2 * n + 1).
-   intros LE. omega.
-  destruct (IsColor_either _ ct) as [ICb | ICr].
-  apply IRb in ICb. omega.
-  apply IRr in ICr. omega.
+  apply IsRB_impl_height_no_color in IR.
+  omega.
 Qed.
 
 (* The theorem above is actually not that strong because we really
@@ -530,13 +524,31 @@ Qed.
 
 (* Assuming we can do one of those, then we can prove this: *)
 
+Lemma rb_black_height_impl_count:
+  forall (A : Set)
+    (ct : CTree A)
+    (n : nat)
+    (IR : IsRB ct n),
+    n <= cl_log (count ct + 1).
+Proof.
+  intros A ct n IR.
+  induction IR. omega.
+
+  simpl.
+
+Admitted.
+
 Corollary rbbst_search_time_bound_count:
   forall A (ct:CTree A) n,
     IsRB ct n ->
-    bst_search_time (height ct) <= 6 * cl_log (count ct + 1) + 2.
+    bst_search_time (height ct) <= 6 * cl_log (count ct + 1) + 5.
 Proof.
   intros A ct n IR.
-  unfold bst_search_time.
-  apply height_log_count in IR.
-  omega.
+  eapply le_trans.
+  apply rbbst_search_time_bound_black_height.
+  apply IR.
+  apply le_add; auto.
+  apply le_mult; auto.
+  apply rb_black_height_impl_count.
+  auto.
 Qed.

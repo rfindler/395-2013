@@ -42,6 +42,7 @@ extract/extract: extract/extract.ml
 extract/sextract: extract/sextract.ml
 	ocamlc -I ml -o $@ $^
 
+% XXX: Mr McCarthy, uncopy this code!
 tmonad-gen: insert/insert_log_gen.v \
             size/size_linear_gen.v \
             size/diff_gen.v \

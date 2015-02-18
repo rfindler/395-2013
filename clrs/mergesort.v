@@ -92,51 +92,27 @@ Next Obligation.
   omega.
 Qed.
 
-Definition mergesort (l:list nat) := l.
-(*
 
 (* xxx I think we know more for the way merge is called by merge sort
 (with equal input) *)
 
-Definition merge_best_time (n:nat) (m:nat) := 3 * (min n m) + 1.
-Definition merge_worst_time (n:nat) (m:nat) := 3 * (n + m) + 1.
+Definition merge_best_time (n:nat) (m:nat) := 17 * (min n m) + 3.
+Definition merge_worst_time (n:nat) (m:nat) := 17 * (n + m) + 3.
 Hint Unfold merge_best_time merge_worst_time.
 
-Program Fixpoint merge
-  {A:Set} {A_cmp:A -> A -> Prop}
-  (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
-  (A_cmp_dec:DecCmp A_cmp) (xs:list A) (ys:list A)
-  {measure (length (xs ++ ys))} 
-  : {! res !:! list A !<! c !>!
+Definition merge_result (A:Set) (A_cmp:A -> A -> Prop)
+           (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
+           (A_cmp_dec:DecCmp A_cmp) (xs:list A) (ys:list A) (res : list A) (c : nat) :=
     (IsSorted A_cmp xs) ->
     (IsSorted A_cmp ys) ->
     (SortedOf A_cmp (xs ++ ys) res) /\
     merge_best_time (length xs) (length ys) <= c /\
-    c <= merge_worst_time (length xs) (length ys) !} :=
-  match xs with
-    | nil =>
-      += 1;
-      <== ys
-    | cons x xs' =>
-      match ys with
-        | nil =>
-          += 2 ;
-          <== xs
-        | cons y ys' =>
-          match A_cmp_dec x y with
-            | left _ =>
-              res <- merge A_cmp_trans A_cmp_total A_cmp_dec xs' ys ;
-              += 3;
-              <== cons x res
-            | right _ =>
-              res <- merge A_cmp_trans A_cmp_total A_cmp_dec xs ys' ;
-              += 3;
-              <== cons y res
-          end
-      end
-  end.
+    c <= merge_worst_time (length xs) (length ys).
+
+Load "merge_gen.v".
 
 Next Obligation.
+  unfold merge_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
   intros EQxs. subst xs.
@@ -151,6 +127,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+  unfold merge_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
   intros x xs' EQxs.
@@ -169,20 +146,22 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+  unfold merge_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
   intros x xs' EQxs. subst xs.
   intros y ys' EQys. subst ys.
-  intros _ CMP _.
+  intros _ _.
   simpl. omega.
 Qed.
 
 Next Obligation.
+  unfold merge_result in *.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
   intros x xs' EQxs. subst xs.
   intros y ys' EQys. subst ys.
-  intros _ CMP _.
+  intros CMP _.
   intros res _.
   simpl. intros xm EQxm. subst xm.
   intros Nrec REC_P.
@@ -234,21 +213,23 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+  unfold merge_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
   intros x xs' EQxs. subst xs.
   intros y ys' EQys. subst ys.
-  intros _ CMP _.
+  intros CMP _.
   simpl. rewrite app_length.
   rewrite app_length. simpl. omega.
 Qed.
 
 Next Obligation.
+  unfold merge_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
   intros x xs' EQxs. subst xs.
   intros y ys' EQys. subst ys.
-  intros _ CMP _.
+  intros CMP _.
   intros res _.
   simpl. intros xm EQxm. subst xm.
   intros Nrec REC_P.
@@ -318,6 +299,9 @@ Qed.
 Next Obligation.
   program_simpl.
 Defined.
+
+Definition mergesort (l:list nat) := l.
+(*
 
 Lemma xs1_lt_l:
   forall A (x:A) (l' l xs1:list A) len,

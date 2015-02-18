@@ -35,35 +35,20 @@ Next Obligation.
   split; simpl; omega.
 Qed.
 
-Definition mergesort (l:list nat) := l.
+Definition split2_time (n:nat) := 15 * n + 5.
 
-(*
-Definition split_at_time (n:nat) := 2 * n + 1.
-
-Program Fixpoint split_at {A:Set} (n:nat) (l:list A) (V:n <= length l)
-  : {! res !:! ((list A)*(list A)) !<! c !>!
+Definition split2_result (A:Set) (n:nat) (l:list A) (V:n <= length l) 
+           (res:((list A)*(list A))) (c:nat) :=
     l = (fst res) ++ (snd res) /\
     length (fst res) = min n (length l) /\
-    c = split_at_time n !}
-  :=
-  match n with
-    | O =>
-      += 1;
-      <== (nil, l)
-    | S n' =>
-      match l with
-        | nil =>
-          _
-        | cons a l' =>
-          res <- split_at n' l' _ ;
-          += 2;
-          <== (cons a (fst res), (snd res))
-      end
-  end.
+    c = split2_time n.
+
+Load "split2_gen.v".
 
 Next Obligation.
-  unfold split_at_time.
-  simpl in *. omega.
+  unfold split2_result.
+  unfold split2_time.
+  simpl in *. auto.
 Qed.
 
 Next Obligation.
@@ -73,21 +58,42 @@ Qed.
 Local Obligation Tactic := idtac.
 
 Next Obligation.
-  unfold split_at_time.
+  unfold split2_result.
+  unfold split2_time.
+  intros A n l VL n' EQn. subst n.
+  intros a l' EQl. subst l.
+  simpl in VL.
+  omega.
+Qed.
+
+Next Obligation.
+  intros A n l NLT n' n'EQ.
+  subst n.
+  intros a l' LEQ.
+  subst l.
+  simpl in NLT.
+  omega.
+Qed.
+
+Next Obligation.
+  unfold split2_result.
+  unfold split2_time.
   intros A n l VL n' EQn. subst n.
   intros a l' EQl. subst l.
   intros [xs1 xs2] _.
-  simpl. intros xm EQxm. subst xm.
+  intros xm EQxm. subst xm.
   intros an REC_P.
   destruct REC_P as [EQl' [EQlen_xs1 EQan]].
-  subst l'.  subst an.
+  subst l'.  subst an. 
   split. auto.
-  clear VL.
-  rewrite <- EQlen_xs1.
-  split. auto.
-  clear EQlen_xs1.
+  split. simpl. auto.
+  replace (S n') with (n'+1);[|omega].
+  rewrite mult_plus_distr_l.
   omega.
 Qed.
+
+Definition mergesort (l:list nat) := l.
+(*
 
 (* xxx I think we know more for the way merge is called by merge sort
 (with equal input) *)
@@ -355,7 +361,7 @@ Inductive Mergesortc_Best_Time mbt ibt
     even (S n) ->
     Mergesortc_Best_Time mbt ibt (div2 (S n)) D ->
     Mergesortc_Best_Time mbt ibt (S n)
-    (split_at_time (div2 (S n)) + D + D + mbt (div2 (S n)) (div2 (S n)) + 2)
+    (split2_time (div2 (S n)) + D + D + mbt (div2 (S n)) (div2 (S n)) + 2)
 | MBT_Sn_odd :
   forall n D,
     odd (S n) ->
@@ -445,7 +451,7 @@ Lemma mergesortc_best_time_Sn_even:
   forall n,
     even n ->
     (exists m, n = S m) ->
-    mergesortc_best_time n = (split_at_time (div2 n) +
+    mergesortc_best_time n = (split2_time (div2 n) +
           mergesortc_best_time (div2 n) +
           mergesortc_best_time (div2 n) +
           merge_best_time (div2 n) (div2 n) + 2).
@@ -520,7 +526,7 @@ Lemma mergesortc_worst_time_Sn_even:
   forall n,
     even n ->
     (exists m, n = S m) ->
-    mergesortc_worst_time n = (split_at_time (div2 n) +
+    mergesortc_worst_time n = (split2_time (div2 n) +
           mergesortc_worst_time (div2 n) +
           mergesortc_worst_time (div2 n) +
           merge_worst_time (div2 n) (div2 n) + 2).
@@ -580,7 +586,7 @@ Program Fixpoint mergesortc
     | cons x l' =>
       match even_odd_dec len with
         | left EVEN =>
-          xs12 <- split_at (div2 len) l _ ;
+          xs12 <- split2 (div2 len) l _ ;
           xs1' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
                               (fst xs12) (div2 len) _ _ ;
           xs2' <- @mergesortc A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
@@ -804,7 +810,7 @@ Program Fixpoint mergesortc_worst_time1 n {measure n} :=
     | 0 => 1
     | S n' => 
       if (even_odd_dec n)
-      then (split_at_time (div2 n) +
+      then (split2_time (div2 n) +
             mergesortc_worst_time1 (div2 n) +
             mergesortc_worst_time1 (div2 n) +
             merge_worst_time (div2 n) (div2 n) + 2)
@@ -849,14 +855,14 @@ Program Fixpoint mergesortc_worst_time2 n {measure n} :=
     | 0 => 1
     | S n' => 
       if (even_odd_dec n)
-      then (split_at_time (div2 n) +
+      then (split2_time (div2 n) +
             mergesortc_worst_time2 (div2 n) +
             mergesortc_worst_time2 (div2 n) +
             merge_worst_time (div2 n) (div2 n) + 2)
       else  ((match n' with
                 | 0 => 1
                 | S n'' => 
-                  (split_at_time (div2 n') +
+                  (split2_time (div2 n') +
                    mergesortc_worst_time2 (div2 n') +
                    mergesortc_worst_time2 (div2 n') +
                    merge_worst_time (div2 n') (div2 n') + 2)
@@ -908,14 +914,14 @@ Program Fixpoint mergesortc_worst_time3 n {measure n} :=
     | 0 => 1
     | S n' => 
       if (even_odd_dec n)
-      then (split_at_time (div2 n) +
+      then (split2_time (div2 n) +
             mergesortc_worst_time3 (div2 n) +
             mergesortc_worst_time3 (div2 n) +
             merge_worst_time (div2 n) (div2 n) + 2)
       else match n' with
              | 0 => 1 + insert_worst_time n' + 2
              | S n'' => 
-               (split_at_time (div2 n') +
+               (split2_time (div2 n') +
                 mergesortc_worst_time3 (div2 n') +
                 mergesortc_worst_time3 (div2 n') +
                 merge_worst_time (div2 n') (div2 n') + 2
@@ -955,19 +961,19 @@ Program Fixpoint mergesortc_worst_time4 n {measure n} :=
     | S n' => 
       match n' with
         | 0 => if (even_odd_dec n)
-               then (split_at_time (div2 n) +
+               then (split2_time (div2 n) +
                      mergesortc_worst_time4 (div2 n) +
                      mergesortc_worst_time4 (div2 n) +
                      merge_worst_time (div2 n) (div2 n) + 2)
                else 1 + insert_worst_time n' + 2
         | S n'' => 
           if (even_odd_dec n)
-          then (split_at_time (div2 n) +
+          then (split2_time (div2 n) +
                 mergesortc_worst_time4 (div2 n) +
                 mergesortc_worst_time4 (div2 n) +
                 merge_worst_time (div2 n) (div2 n) + 2)
           else 
-            (split_at_time (div2 n') +
+            (split2_time (div2 n') +
              mergesortc_worst_time4 (div2 n') +
              mergesortc_worst_time4 (div2 n') +
              merge_worst_time (div2 n') (div2 n') + 2
@@ -1014,12 +1020,12 @@ Program Fixpoint mergesortc_worst_time5 n {measure n} :=
         | 0 => 4
         | S _ => 
           if (even_odd_dec n)
-          then (split_at_time (div2 n) +
+          then (split2_time (div2 n) +
                 mergesortc_worst_time5 (div2 n) +
                 mergesortc_worst_time5 (div2 n) +
                 merge_worst_time (div2 n) (div2 n) + 2)
           else 
-            (split_at_time (div2 n') +
+            (split2_time (div2 n') +
              mergesortc_worst_time5 (div2 n') +
              mergesortc_worst_time5 (div2 n') +
              merge_worst_time (div2 n') (div2 n') + 2
@@ -1067,7 +1073,7 @@ Program Fixpoint mergesortc_worst_time6 n {measure n} :=
       match n' with
         | 0 => 4
         | S _ => 
-          split_at_time (div2 n) +
+          split2_time (div2 n) +
           mergesortc_worst_time6 (div2 n) +
           mergesortc_worst_time6 (div2 n) +
           merge_worst_time (div2 n) (div2 n) + 2
@@ -1117,7 +1123,7 @@ Proof.
   rewrite odd_div2.
   apply plus_le_compat.
   apply plus_le_compat.
-  unfold split_at_time.
+  unfold split2_time.
   apply plus_le_compat; auto.
   apply le_mult_right.
   auto.
@@ -1171,7 +1177,7 @@ Proof.
   unfold_sub mergesortc_worst_time7 (mergesortc_worst_time7 (S n)).
   fold mergesortc_worst_time7.
   destruct n; [omega|].
-  unfold split_at_time.
+  unfold split2_time.
   unfold merge_worst_time.
   unfold insert_worst_time.
   replace (2 * div2 (S (S n)) + 1 + mergesortc_worst_time6 (S (div2 n)) +
@@ -1368,7 +1374,7 @@ Program Fixpoint mergesortc_best_time1 (n:nat) {measure n} :=
     | 0 => 1
     | S n' =>
       if (even_odd_dec n)
-      then (split_at_time (div2 n) +
+      then (split2_time (div2 n) +
             mergesortc_best_time (div2 n) +
             mergesortc_best_time (div2 n) +
             merge_best_time (div2 n) (div2 n) + 2)

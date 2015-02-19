@@ -1,5 +1,5 @@
 Require Import Braun.common.log Braun.common.le_util.
-Require Import Arith.
+Require Import Arith Arith.Mult.
 
 (* definition taken from Wikipedia, except *)
 (* that Wikipedia has n0 < n, not n0 <= n  *)
@@ -138,6 +138,36 @@ Proof.
 Qed.
 Hint Resolve big_oh_plus.
 
+Lemma big_oh_plus_rev : 
+  forall f g h,
+    big_oh h f -> big_oh h g -> big_oh h (fun n => f n + g n).
+Proof.
+  intros f g h HF HG.
+  destruct HF as [HFn [HFm HF]].
+  destruct HG as [HGn [HGm HG]].
+  exists (HFn + HGn).
+  exists ((S HFm) * (S HGm)).
+  intros n LT.
+  repeat (rewrite mult_plus_distr_l).
+  assert (h n <= HFm * f n) as LTONE;[apply HF;omega|clear HF].
+  assert (h n <= HGm * g n) as LTTWO;[apply HG;omega|clear HG].
+  clear LT.
+  apply (le_trans (h n) (HFm * f n)); auto.
+  replace (S HFm) with (HFm + 1);[|omega].
+  rewrite mult_plus_distr_r.
+  rewrite mult_plus_distr_r.
+  apply le_plus_trans.
+  apply le_plus_trans.
+  clear LTONE LTTWO.
+  induction HGm.
+  rewrite mult_1_r.
+  auto.
+  apply (le_trans (HFm * f n) (HFm * S HGm * f n)).
+  auto.
+  apply mult_le_compat; auto.
+  apply mult_le_compat; auto.
+Qed.
+
 Lemma big_oh_k_linear : forall k, big_oh (fun n => k) (fun n => n).
 Proof.
   intros k.
@@ -254,11 +284,8 @@ Proof.
   apply le_0_n.
 Qed.
 
-Definition big_omega f g :=
-  exists n0 m, 
-    forall n, 
-      n0 <= n -> 
-      f(n) >= m * g(n).
+(* definition from Knuth via Wikipedia *)
+Definition big_omega f g := big_oh g f.
 
 Definition big_theta f g :=
   big_oh f g /\ big_omega f g.

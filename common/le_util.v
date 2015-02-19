@@ -255,3 +255,34 @@ Proof.
   eapply IHx; auto.
   omega.
 Qed.
+
+Lemma le_prod : 
+  forall x y z, 
+    x <= y -> 
+    x <= z -> 
+    x <= y * z.
+Proof.
+  intros x y z XY XZ.
+  generalize dependent y.
+  generalize dependent z.
+  induction x.
+  intros.
+  remember (y*z).
+  omega.
+  intros z XZ y XY.
+  destruct y.
+  intuition.
+  destruct z.
+  intuition.
+  replace (S y) with (y+1);[|omega].
+  replace (S z) with (z+1);[|omega].
+  rewrite mult_plus_distr_r.
+  rewrite mult_plus_distr_l.
+  rewrite mult_1_l.
+  rewrite mult_1_r.
+  assert (x<=z) as XLTZ;[omega|].
+  assert (x<=y) as XLTY;[omega|].
+  remember (IHx z XLTZ y XLTY).
+  replace (S x) with (x+1);[|omega].
+  apply plus_le_compat; omega.
+Qed.

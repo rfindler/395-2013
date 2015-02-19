@@ -4,6 +4,7 @@ Require Import Braun.monad.monad.
 Require Import Program.
 Require Import Omega.
 Require Import Max.
+Require Import Div2.
 Require Import Relations_1.
 Require Import Braun.clrs.fib.
 
@@ -535,6 +536,30 @@ Proof.
   induction IR. omega.
 
   simpl.
+  eapply le_trans. apply IHIR1.
+  apply cl_log_monotone. omega.
+
+  simpl.
+  remember (count l) as L. clear IR1 HeqL l.
+  remember (count r) as R. clear IR2 HeqR r.
+  clear A v.
+  replace (L + 1 + R + 1) with (S (L + 1 + R)); try omega.
+  rewrite cl_log_div2'.
+  apply le_n_S.
+  eapply le_trans.
+  apply IHIR1.
+  clear IHIR1 IHIR2 n.
+  replace (L + 1) with (S L); try omega. simpl.
+  rewrite cl_log_div2'.
+  rewrite cl_log_div2'.
+  apply le_n_S.
+  apply cl_log_monotone.
+  apply div2_monotone.
+  apply le_n_S.
+
+  (* xxx this is not true. the problem is that there's not an earlier
+  connection between the distance between L and R *)
+
 
 Admitted.
 

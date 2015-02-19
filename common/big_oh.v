@@ -1,16 +1,15 @@
 Require Import Braun.common.log Braun.common.le_util.
 Require Import Arith Arith.Mult.
 
-(* big_oh and big_omega definitions based on _Introduction to
-   Algorithms_, 3rd Edition by Thomas H. Cormen, Charles E. Leiserson,
-   Ronald L. Rivest, Clifford Stein
-
-   but more restrictive in the big_oh case, since we allow only
-   natural number constants. In the big_omega case we effectively
-   allow rational number 'c's, but do it by asking for an explicit
-   numerator and denominator and then multiplying through by the
-   denominator to avoid needing to use rational numbers.
-*)
+(* big_oh and big_omega definitions based on _Introduction to           *)
+(* Algorithms_, 3rd Edition by Thomas H. Cormen, Charles E. Leiserson,  *)
+(* Ronald L. Rivest, Clifford Stein                                     *)
+(*                                                                      *)
+(* but more restrictive in the big_oh case, since we allow only         *)
+(* natural number constants. In the big_omega case we effectively       *)
+(* allow rational number 'c's, but do it by asking for an explicit      *)
+(* numerator and denominator and then multiplying through by the        *)
+(* denominator to avoid needing to use rational numbers.                *)
 
 Definition big_oh f g :=
   exists n0 c,

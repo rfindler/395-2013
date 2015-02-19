@@ -525,14 +525,64 @@ Qed.
 
 (* Assuming we can do one of those, then we can prove this: *)
 
+Lemma rb_black_height_0:
+  forall (A:Set) (t:CTree A),
+    IsRB t 0 -> IsColor t BLACK ->
+    t = CT_leaf A.
+Proof.
+  intros A t IR IC.
+  inversion IR. auto.
+  subst. inversion IC.
+Qed.
+
+Lemma rb_black_height_0_count:
+  forall (A:Set) (t:CTree A),
+    IsRB t 0 ->
+    count t <= 1.
+Proof.
+  intros A t IR.
+  
+  inversion IR. auto.
+  subst.
+  rewrite (rb_black_height_0 A l H H0) in *.
+  rewrite (rb_black_height_0 A r H1 H2) in *.
+  simpl. auto.
+Qed.
+
+Lemma rb_black_heights_close:
+  forall 
+    (A : Set)
+    (n : nat)
+    (l : CTree A)    
+    (IR1 : IsRB l n)
+    (r : CTree A)
+    (IR2 : IsRB r n),
+   count l <= div2 (count l + count r).
+Proof.
+  induction n; intros Tl IRl Tr IRr.
+
+  apply rb_black_height_0_count in IRl.
+  apply rb_black_height_0_count in IRr.
+  destruct (count Tl) as [|cTl].
+  destruct (count Tr) as [|cTr].
+  simpl. auto.
+  replace cTr with 0 in *; try omega.
+  replace cTl with 0 in *; try omega.
+  destruct (count Tr) as [|cTr].
+  simpl. admit. (* xxx false *)
+  replace cTr with 0 in *; try omega.
+  simpl. auto.
+
+Admitted.
+
 Lemma rb_black_height_impl_count:
   forall (A : Set)
     (ct : CTree A)
-    (n : nat)
-    (IR : IsRB ct n),
-    n <= cl_log (count ct + 1).
+    (bh : nat)
+    (IR : IsRB ct bh),
+    bh <= cl_log (count ct + 1).
 Proof.
-  intros A ct n IR.
+  intros A ct bh IR.
   induction IR. omega.
 
   simpl.
@@ -540,15 +590,13 @@ Proof.
   apply cl_log_monotone. omega.
 
   simpl.
-  remember (count l) as L. clear IR1 HeqL l.
-  remember (count r) as R. clear IR2 HeqR r.
-  clear A v.
+  remember (count l) as L.
+  remember (count r) as R.
   replace (L + 1 + R + 1) with (S (L + 1 + R)); try omega.
   rewrite cl_log_div2'.
   apply le_n_S.
   eapply le_trans.
   apply IHIR1.
-  clear IHIR1 IHIR2 n.
   replace (L + 1) with (S L); try omega. simpl.
   rewrite cl_log_div2'.
   rewrite cl_log_div2'.
@@ -557,18 +605,16 @@ Proof.
   apply div2_monotone.
   apply le_n_S.
 
-  (* xxx this is not true. the problem is that there's not an earlier
-  connection between the distance between L and R *)
-
-
-Admitted.
+  subst L R. clear IHIR1 IHIR2 v.
+  apply rb_black_heights_close with (n:=n); auto.
+Qed.
 
 Corollary rbbst_search_time_bound_count:
-  forall A (ct:CTree A) n,
-    IsRB ct n ->
+  forall A (ct:CTree A) bh,
+    IsRB ct bh ->
     bst_search_time (height ct) <= 6 * cl_log (count ct + 1) + 5.
 Proof.
-  intros A ct n IR.
+  intros A ct bh IR.
   eapply le_trans.
   apply rbbst_search_time_bound_black_height.
   apply IR.

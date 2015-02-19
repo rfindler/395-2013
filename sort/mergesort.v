@@ -91,7 +91,6 @@ Next Obligation.
   omega.
 Qed.
 
-
 (* xxx I think we know more for the way merge is called by merge sort
 (with equal input) *)
 
@@ -1074,6 +1073,220 @@ Proof.
   apply plus_le_compat;auto.
   rewrite mult_assoc.
   omega.
+Qed.
+
+
+Program Fixpoint mergesortc_best_time2 n {measure n} :=
+  match n with
+    | 0 => 3
+    | S n' => 
+      if (even_odd_dec n)
+      then (split2_time (div2 n) +
+            mergesortc_best_time2 (div2 n) +
+            mergesortc_best_time2 (div2 n) +
+            merge_best_time (div2 n) (div2 n) + 35)
+      else  ((match n' with
+                | 0 => 3
+                | S n'' => 
+                  (split2_time (div2 n') +
+                   mergesortc_best_time2 (div2 n') +
+                   mergesortc_best_time2 (div2 n') +
+                   merge_best_time (div2 n') (div2 n') + 35)
+              end) +
+             insert_best_time n' + 20)
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. apply lt_wf. Defined.
+
+Lemma best_12 : forall n, mergesortc_best_time n = mergesortc_best_time2 n.
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_best_time n = mergesortc_best_time2 n)).
+  intros n INDn.
+  destruct n.
+  unfold_sub mergesortc_best_time (mergesortc_best_time 0).
+  unfold_sub mergesortc_best_time2 (mergesortc_best_time2 0).
+  auto.
+  unfold_sub mergesortc_best_time (mergesortc_best_time (S n)).
+  fold mergesortc_best_time.
+  unfold_sub mergesortc_best_time2 (mergesortc_best_time2 (S n)).
+  fold mergesortc_best_time2.
+  destruct (even_odd_dec (S n)).
+  rewrite INDn; auto.
+  destruct n; auto.
+  apply lt_n_S; auto.
+  destruct n.
+  unfold insert_best_time.
+  unfold_sub mergesortc_best_time (mergesortc_best_time 0).
+  omega.
+  rewrite INDn; auto.
+  unfold_sub mergesortc_best_time2 (mergesortc_best_time2 (S n)).
+  fold mergesortc_best_time2.
+  destruct (even_odd_dec (S n)).
+  destruct n; auto.
+  inversion o.
+  assert False.
+  apply (not_even_and_odd (S n)); auto.
+  intuition.
+Qed.
+
+Program Fixpoint mergesortc_best_time3 n {measure n} :=
+  match n with
+    | 0 => 3
+    | S n' => 
+      if (even_odd_dec n)
+      then (split2_time (div2 n) +
+            mergesortc_best_time3 (div2 n) +
+            mergesortc_best_time3 (div2 n) +
+            merge_best_time (div2 n) (div2 n) + 35)
+      else match n' with
+             | 0 => 3 + insert_best_time n' + 20
+             | S n'' => 
+               (split2_time (div2 n') +
+                mergesortc_best_time3 (div2 n') +
+                mergesortc_best_time3 (div2 n') +
+                merge_best_time (div2 n') (div2 n') + 35
+                + insert_best_time n' + 20)
+           end
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. apply lt_wf. Defined.
+
+Lemma best_23 : forall n, mergesortc_best_time2 n = mergesortc_best_time3 n.
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_best_time2 n = mergesortc_best_time3 n)).
+  intros n INDn.
+  destruct n.
+  unfold_sub mergesortc_best_time2 (mergesortc_best_time2 0).
+  unfold_sub mergesortc_best_time3 (mergesortc_best_time3 0).
+  auto.
+  unfold_sub mergesortc_best_time2 (mergesortc_best_time2 (S n)).
+  fold mergesortc_best_time2.
+  unfold_sub mergesortc_best_time3 (mergesortc_best_time3 (S n)).
+  fold mergesortc_best_time3.
+  rewrite INDn; [|destruct n; try apply lt_n_S; auto].
+  rewrite INDn; auto.
+  clear INDn.
+  destruct (even_odd_dec (S n)); auto.
+  destruct n; auto.
+Qed.
+
+Program Fixpoint mergesortc_best_time4 n {measure n} :=
+  match n with
+    | 0 => 3
+    | S n' => 
+      match n' with
+        | 0 => if (even_odd_dec n)
+               then (split2_time (div2 n) +
+                     mergesortc_best_time4 (div2 n) +
+                     mergesortc_best_time4 (div2 n) +
+                     merge_best_time (div2 n) (div2 n) + 35)
+               else 3 + insert_best_time n' + 20
+        | S n'' => 
+          if (even_odd_dec n)
+          then (split2_time (div2 n) +
+                mergesortc_best_time4 (div2 n) +
+                mergesortc_best_time4 (div2 n) +
+                merge_best_time (div2 n) (div2 n) + 35)
+          else 
+            (split2_time (div2 n') +
+             mergesortc_best_time4 (div2 n') +
+             mergesortc_best_time4 (div2 n') +
+             merge_best_time (div2 n') (div2 n') + 35
+             + insert_best_time n' + 20)
+      end
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. apply lt_wf. Defined.
+
+Lemma best_34 : forall n, mergesortc_best_time3 n = mergesortc_best_time4 n.
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_best_time3 n = mergesortc_best_time4 n)).
+  intros n INDn.
+  destruct n.
+  unfold_sub mergesortc_best_time3 (mergesortc_best_time3 0).
+  unfold_sub mergesortc_best_time4 (mergesortc_best_time4 0).
+  auto.
+  unfold_sub mergesortc_best_time3 (mergesortc_best_time3 (S n)).
+  fold mergesortc_best_time3.
+  unfold_sub mergesortc_best_time4 (mergesortc_best_time4 (S n)).
+  fold mergesortc_best_time4.
+  destruct (even_odd_dec (S n)).
+  destruct n.
+  unfold_sub mergesortc_best_time3 (mergesortc_best_time3 0).
+  unfold_sub mergesortc_best_time4 (mergesortc_best_time4 0).
+  omega.
+  rewrite INDn; try apply lt_n_S; auto.
+  rewrite INDn; auto.
+Qed.
+
+Program Fixpoint mergesortc_best_time5 n {measure n} :=
+  match n with
+    | 0 => 3
+    | S n' => 
+      match n' with
+        | 0 => 28
+        | S _ => 
+          if (even_odd_dec n)
+          then (split2_time (div2 n) +
+                mergesortc_best_time5 (div2 n) +
+                mergesortc_best_time5 (div2 n) +
+                merge_best_time (div2 n) (div2 n) + 35)
+          else 
+            (split2_time (div2 n') +
+             mergesortc_best_time5 (div2 n') +
+             mergesortc_best_time5 (div2 n') +
+             merge_best_time (div2 n') (div2 n') + 35
+             + insert_best_time n' + 20)
+      end
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. apply lt_wf. Defined.
+
+Lemma best_45 : forall n, mergesortc_best_time4 n = mergesortc_best_time5 n.
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_best_time4 n = mergesortc_best_time5 n)).
+  intros n INDn.
+  destruct n.
+  unfold_sub mergesortc_best_time4 (mergesortc_best_time4 0).
+  unfold_sub mergesortc_best_time5 (mergesortc_best_time5 0).
+  auto.
+  destruct n.
+  unfold_sub mergesortc_best_time4 (mergesortc_best_time4 1).
+  fold mergesortc_best_time4.
+  unfold_sub mergesortc_best_time5 (mergesortc_best_time5 1).
+  unfold_sub mergesortc_best_time4 (mergesortc_best_time4 0).
+  simpl.
+  auto.
+  unfold_sub mergesortc_best_time4 (mergesortc_best_time4 (S (S n))).
+  fold mergesortc_best_time4.
+  unfold_sub mergesortc_best_time5 (mergesortc_best_time5 (S (S n))).
+  fold mergesortc_best_time5.
+  repeat (rewrite INDn).
+  auto.
+  destruct n; auto.
+  apply lt_n_S; auto.
 Qed.
 
 Lemma mergesortc_worst:

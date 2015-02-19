@@ -1297,11 +1297,13 @@ Program Fixpoint mergesortc_best_time6 n {measure n} :=
         | 0 => 28
         | S _ => 
           (split2_time (div2 n') +
-           mergesortc_best_time5 (div2 n') +
-           mergesortc_best_time5 (div2 n') +
+           mergesortc_best_time6 (div2 n') +
+           mergesortc_best_time6 (div2 n') +
            merge_best_time (div2 n') (div2 n') + 35)
       end
   end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. apply lt_wf. Defined.
 
 Lemma mergesortc_best_time5_monotonic :
@@ -1384,6 +1386,7 @@ Proof.
   unfold_sub mergesortc_best_time5 (mergesortc_best_time5 0).
   omega.
   unfold_sub mergesortc_best_time6 (mergesortc_best_time6 (S n)).
+  fold mergesortc_best_time6.
   unfold_sub mergesortc_best_time5 (mergesortc_best_time5 (S n)).
   fold mergesortc_best_time5.
   destruct n; auto.
@@ -1397,18 +1400,47 @@ Proof.
 
   apply plus_le_compat; [|omega].
   apply plus_le_compat.
-  apply plus_le_compat; [|apply mergesortc_best_time5_monotonic].
-  apply plus_le_compat; [|apply mergesortc_best_time5_monotonic].
+  apply plus_le_compat.
+  apply plus_le_compat.
 
   unfold split2_time.
   omega.
+
+  apply (le_trans (mergesortc_best_time6 (div2 n))
+                  (mergesortc_best_time5 (div2 n))).
+  apply INDn.
+  apply (lt_le_trans (div2 n) (S n)); auto.
+  apply mergesortc_best_time5_monotonic.
+
+  apply (le_trans (mergesortc_best_time6 (div2 n))
+                  (mergesortc_best_time5 (div2 n))).
+  apply INDn.
+  apply (lt_le_trans (div2 n) (S n)); auto.
+  apply mergesortc_best_time5_monotonic.
 
   unfold merge_best_time.
   destruct (min_dec (S (div2 n)) (S (div2 n))) as [A|A];rewrite A;clear A;
   destruct (min_dec (div2 n) (div2 n)) as [A|A];rewrite A; omega.
 
-  omega.
+  apply le_plus_trans.
+  apply le_plus_trans.
+  apply plus_le_compat; auto.
+  apply plus_le_compat; auto.
+  apply plus_le_compat; [|apply INDn;auto].
+  apply plus_le_compat; [|apply INDn;auto].
+  auto.
 Qed.
+
+Program Fixpoint mergesortc_best_time7 n {measure n} :=
+  match n with
+    | 0 => 0
+    | S _ => 
+      n + mergesortc_best_time7 (div2 n) + mergesortc_best_time7 (div2 n) 
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. apply lt_wf. Defined.
+
 
 Lemma mergesortc_worst:
   big_oh mergesortc_worst_time (fun n => n * cl_log n).

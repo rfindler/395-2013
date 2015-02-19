@@ -1,5 +1,6 @@
 #lang at-exp s-exp "tmonad.rkt"
 
+(provide clength)
 (Fixpoint
  clength #:implicit @A{Set} @l{list A}
  #:returns @{nat}

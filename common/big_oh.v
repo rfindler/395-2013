@@ -77,6 +77,28 @@ Proof.
   assumption.
 Qed.
 
+Lemma big_oh_k___nlogn : 
+ forall k, big_oh (fun _ => k) (fun n => n * cl_log n).
+Proof.
+  intros k.
+  exists k.
+  exists 1.
+  intros n LT.
+  rewrite mult_1_l.
+  apply (le_trans k n); auto.
+  clear k LT.
+  destruct n.
+  omega.
+  replace (S n) with (S n * 1) at 1;[|omega].
+  apply mult_le_compat; auto.
+  induction n.
+  unfold_sub cl_log (cl_log 1).
+  omega.
+  apply (le_trans 1 (cl_log (S n))); auto.
+  apply cl_log_monotone.
+  omega.
+Qed.
+
 Lemma big_oh_mult :
   forall f g h,
     big_oh f g ->

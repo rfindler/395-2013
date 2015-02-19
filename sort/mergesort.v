@@ -618,8 +618,6 @@ Next Obligation.
   program_simpl.
 Defined.
 
-Definition mergesort (l:list nat) := l.
-
 Program Fixpoint mergesortc_worst_time2 n {measure n} :=
   match n with
     | 0 => 3
@@ -1078,7 +1076,7 @@ Proof.
   omega.
 Qed.
 
-Theorem mergesortc_worst:
+Lemma mergesortc_worst:
   big_oh mergesortc_worst_time (fun n => n * cl_log n).
 Proof.
   apply (big_oh_trans mergesortc_worst_time
@@ -1128,49 +1126,74 @@ Program Fixpoint mergesortc_best_time1 (n:nat) {measure n} :=
   end.
 Next Obligation. apply lt_wf. Defined.
 
-Theorem mergesortc_best:
+Lemma mergesortc_best:
   big_omega mergesortc_best_time (fun n => n * cl_log n).
 Proof.
   unfold mergesortc_best_time.
 Admitted.
 
 Definition mergesort_best_time (n:nat) :=
-  clength_time n + mergesortc_best_time n.
+  clength_time n + mergesortc_best_time n + 10.
 Definition mergesort_worst_time (n:nat) :=
-  clength_time n + mergesortc_worst_time n.
+  clength_time n + mergesortc_worst_time n + 10.
 Hint Unfold mergesort_best_time mergesort_worst_time.
 
-(*
-Program Definition mergesort
-  {A:Set} {A_cmp:A -> A -> Prop}
-  (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
-  (A_cmp_dec:DecCmp A_cmp) (l:list A)
-  : {! res !:! list A !<! c !>!
-    (SortedOf A_cmp l res) /\
-    mergesort_best_time (length l) <= c /\
-    c <= mergesort_worst_time (length l) !} :=
-  len <- clength l ;
-  res <- mergesortc A_cmp_trans A_cmp_total A_cmp_dec l len _ ;
-  <== res.
+Definition mergesort_result
+           (A:Set) (A_cmp:A -> A -> Prop)
+           (A_cmp_trans:Transitive A_cmp) (A_cmp_total:Total A_cmp)
+           (A_cmp_dec:DecCmp A_cmp) (l:list A) (res:list A) (c:nat) :=
+  (SortedOf A_cmp l res) /\
+  mergesort_best_time (length l) <= c /\
+  c <= mergesort_worst_time (length l).
 
-Solve Obligations using program_simpl.
+Load "mergesort_gen.v".
 
 Next Obligation.
-  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
-    l len _ res _.
-  intros Nmsc [SOres MSC_P].
+  program_simpl.
+  unfold clength_result in *.
+  omega.
+Qed.
+
+Next Obligation.
+  unfold mergesort_result.
+  unfold mergesortc_result.
+  intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec l len CLENGTHRES res _.
+  intros Nmsc [SOres [SORTED TIME]].
   intros Nlen [EQlen LEN_P].
   subst len. subst Nlen.
   split. auto.
   remember (length l) as L.
-  clear A A_cmp A_cmp_trans A_cmp_total A_cmp_dec res SOres l HeqL.
+  clear CLENGTHRES SORTED A A_cmp A_cmp_trans A_cmp_total A_cmp_dec res l HeqL.
   unfold mergesort_best_time, mergesort_worst_time in *.
   omega.
 Qed.
 
+Lemma mergesort_worst:
+  big_oh mergesort_worst_time (fun n => n * cl_log n).
+Proof.
+  apply big_oh_plus.
+  apply big_oh_plus.
+  apply big_oh_plus.
+  
+  exists 2.
+  exists 7.
+  intros n LT.
+  destruct n. intuition.
+  destruct n. intuition.
+
+  apply mult_le_compat; auto.
+  unfold_sub cl_log (cl_log (S (S n))).
+  replace (S (S n)) with (S (S n) * 1) at 1;[|omega].
+  apply mult_le_compat; auto.
+  omega.
+
+  apply big_oh_k___nlogn.
+  apply mergesortc_worst.
+  apply big_oh_k___nlogn.
+Qed.
 
 Corollary mergesort_best:
   big_omega mergesort_best_time (fun n => n * cl_log n).
 Proof.
-Admitted.
-*)
+  admit.
+Qed.

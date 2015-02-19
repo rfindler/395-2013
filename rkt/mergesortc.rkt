@@ -4,6 +4,8 @@
          "merge.rkt"
          "isort_insert.rkt")
 
+(provide mergesortc)
+
 (Fixpoint
  mergesortc #:implicit @A{Set} #:implicit @A_cmp{A -> A -> Prop}
  @A_cmp_trans{Transitive A_cmp} @A_cmp_total{Total A_cmp}

@@ -1289,6 +1289,127 @@ Proof.
   apply lt_n_S; auto.
 Qed.
 
+Program Fixpoint mergesortc_best_time6 n {measure n} :=
+  match n with
+    | 0 => 3
+    | S n' => 
+      match n' with
+        | 0 => 28
+        | S _ => 
+          (split2_time (div2 n') +
+           mergesortc_best_time5 (div2 n') +
+           mergesortc_best_time5 (div2 n') +
+           merge_best_time (div2 n') (div2 n') + 35)
+      end
+  end.
+Next Obligation. apply lt_wf. Defined.
+
+Lemma mergesortc_best_time5_monotonic :
+  forall n, mergesortc_best_time5 n <= mergesortc_best_time5 (S n).
+Proof.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_best_time5 n <= mergesortc_best_time5 (S n))).
+  intros n IND.
+  destruct n.
+  unfold_sub mergesortc_best_time5 (mergesortc_best_time5 0).
+  unfold_sub mergesortc_best_time5 (mergesortc_best_time5 1).
+  omega.
+  unfold_sub mergesortc_best_time5 (mergesortc_best_time5 (S n)).
+  fold mergesortc_best_time5.
+  remember (S n) as m.
+  unfold_sub mergesortc_best_time5 (mergesortc_best_time5 (S m)).
+  fold mergesortc_best_time5.
+  subst m.
+  destruct n.
+  simpl.
+  omega.
+  destruct (even_odd_dec (S (S (S n))));
+  destruct (even_odd_dec (S (S n))).
+  inversion e.
+  assert False;[apply (not_even_and_odd (S (S n))); auto|intuition].
+  clear e o.
+
+  replace (split2_time (div2 (S n)) + 
+           mergesortc_best_time5 (div2 (S n)) +
+           mergesortc_best_time5 (div2 (S n)) +
+           merge_best_time (div2 (S n)) (div2 (S n)) + 35 + 
+           insert_best_time (S n) + 20)
+  with (split2_time (div2 (S n)) + 
+        merge_best_time (div2 (S n)) (div2 (S n)) + 35 + 
+        insert_best_time (S n) + 20 +
+        mergesortc_best_time5 (div2 (S n)) +
+        mergesortc_best_time5 (div2 (S n)));[|omega].
+  replace (split2_time (div2 (S (S (S n)))) + 
+           mergesortc_best_time5 (S (div2 (S n))) +
+           mergesortc_best_time5 (S (div2 (S n))) +
+           merge_best_time (div2 (S (S (S n)))) (div2 (S (S (S n)))) + 35)
+  with  (split2_time (div2 (S (S (S n)))) + 
+         merge_best_time (div2 (S (S (S n)))) (div2 (S (S (S n)))) + 35 +
+         mergesortc_best_time5 (S (div2 (S n))) +
+         mergesortc_best_time5 (S (div2 (S n))));[|omega].
+  apply plus_le_compat;[|apply IND;auto].
+  apply plus_le_compat;[|apply IND;auto].
+
+  clear IND.
+  unfold split2_time.
+  unfold merge_best_time.
+  unfold insert_best_time.
+  replace (div2 (S (S (S n)))) with (S (div2 (S n)));[|simpl;auto].
+  destruct (min_dec (S (div2 (S n))) (S (div2 (S n)))) as [A|A];rewrite A;clear A;
+  destruct (min_dec (div2 (S n)) (div2 (S n))) as [A|A];rewrite A; omega.
+
+  apply le_plus_trans.
+  apply le_plus_trans.
+  apply plus_le_compat; auto.
+
+  inversion o.
+  assert False;[apply (not_even_and_odd (S (S n))); auto|intuition].
+Qed.
+
+Lemma best_56 : big_omega mergesortc_best_time5 mergesortc_best_time6.
+Proof.
+  apply big_oh_rev.
+  exists 0.
+  exists 1.
+  intros n _.
+  rewrite mult_1_l.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => mergesortc_best_time6 n <= mergesortc_best_time5 n)).
+  clear n.
+  intros n INDn.
+  destruct n.
+  unfold_sub mergesortc_best_time6 (mergesortc_best_time6 0).
+  unfold_sub mergesortc_best_time5 (mergesortc_best_time5 0).
+  omega.
+  unfold_sub mergesortc_best_time6 (mergesortc_best_time6 (S n)).
+  unfold_sub mergesortc_best_time5 (mergesortc_best_time5 (S n)).
+  fold mergesortc_best_time5.
+  destruct n; auto.
+  destruct (even_odd_dec (S (S n))).
+  replace (div2 (S (S n))) with (S (div2 (S n)));[|apply odd_div2;inversion e;auto].
+  replace (div2 (S n)) with (div2 n);
+    [|apply even_div2;
+       inversion e as [|XYZ ODD PDQ];
+       inversion ODD;
+       auto].
+
+  apply plus_le_compat; [|omega].
+  apply plus_le_compat.
+  apply plus_le_compat; [|apply mergesortc_best_time5_monotonic].
+  apply plus_le_compat; [|apply mergesortc_best_time5_monotonic].
+
+  unfold split2_time.
+  omega.
+
+  unfold merge_best_time.
+  destruct (min_dec (S (div2 n)) (S (div2 n))) as [A|A];rewrite A;clear A;
+  destruct (min_dec (div2 n) (div2 n)) as [A|A];rewrite A; omega.
+
+  omega.
+Qed.
+
 Lemma mergesortc_worst:
   big_oh mergesortc_worst_time (fun n => n * cl_log n).
 Proof.

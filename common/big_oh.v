@@ -1,13 +1,47 @@
 Require Import Braun.common.log Braun.common.le_util.
 Require Import Arith Arith.Mult.
 
-(* definition taken from Wikipedia, except *)
-(* that Wikipedia has n0 < n, not n0 <= n  *)
-Definition big_oh f g := 
-  exists n0 m, 
-    forall n, 
-      n0 <= n -> 
-      f(n) <= m * g(n).
+(* big_oh and big_omega definitions based on _Introduction to
+   Algorithms_, 3rd Edition by Thomas H. Cormen, Charles E. Leiserson,
+   Ronald L. Rivest, Clifford Stein
+
+   but more restrictive in the big_oh case, since we allow only
+   natural number constants. In the big_omega case we effectively
+   allow rational number 'c's, but do it by asking for an explicit
+   numerator and denominator and then multiplying through by the
+   denominator to avoid needing to use rational numbers.
+*)
+
+Definition big_oh f g :=
+  exists n0 c,
+    forall n,
+      n0 <= n ->
+      f(n) <= c * g(n).
+
+Definition big_omega f g :=
+  exists n0 c_num c_den,
+    forall n,
+      n >= n0 ->
+      c_num * g(n) <= c_den * f(n).
+
+Definition big_theta f g :=
+  big_oh f g /\ big_omega f g.
+
+Lemma big_oh_rev : 
+  forall f g,
+    big_oh g f ->
+    big_omega f g.
+Proof.
+  intros f g [n0 [m BIGOH_IMP]].
+  exists n0.
+  exists 1.
+  exists m.
+  intros n LT.
+  remember (BIGOH_IMP n LT) as LT2; clear HeqLT2.
+  clear LT BIGOH_IMP n0.
+  rewrite mult_1_l.
+  auto.
+Qed.
 
 Lemma big_oh_trans :
   forall f g h,
@@ -284,8 +318,3 @@ Proof.
   apply le_0_n.
 Qed.
 
-(* definition from Knuth via Wikipedia *)
-Definition big_omega f g := big_oh g f.
-
-Definition big_theta f g :=
-  big_oh f g /\ big_omega f g.

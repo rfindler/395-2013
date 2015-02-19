@@ -52,7 +52,7 @@ Qed.
 
 Next Obligation.
   simpl in *. omega.
-Qed.
+Defined.
 
 Local Obligation Tactic := idtac.
 
@@ -1306,6 +1306,7 @@ Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. apply lt_wf. Defined.
 
+
 Lemma mergesortc_best_time5_monotonic :
   forall n, mergesortc_best_time5 n <= mergesortc_best_time5 (S n).
 Proof.
@@ -1358,8 +1359,9 @@ Proof.
   unfold merge_best_time.
   unfold insert_best_time.
   replace (div2 (S (S (S n)))) with (S (div2 (S n)));[|simpl;auto].
-  destruct (min_dec (S (div2 (S n))) (S (div2 (S n)))) as [A|A];rewrite A;clear A;
-  destruct (min_dec (div2 (S n)) (div2 (S n))) as [A|A];rewrite A; omega.
+  rewrite min_same.
+  rewrite min_same.
+  omega.
 
   apply le_plus_trans.
   apply le_plus_trans.
@@ -1419,8 +1421,9 @@ Proof.
   apply mergesortc_best_time5_monotonic.
 
   unfold merge_best_time.
-  destruct (min_dec (S (div2 n)) (S (div2 n))) as [A|A];rewrite A;clear A;
-  destruct (min_dec (div2 n) (div2 n)) as [A|A];rewrite A; omega.
+  rewrite min_same.
+  rewrite min_same.
+  omega.
 
   apply le_plus_trans.
   apply le_plus_trans.
@@ -1434,12 +1437,69 @@ Qed.
 Program Fixpoint mergesortc_best_time7 n {measure n} :=
   match n with
     | 0 => 0
-    | S _ => 
-      n + mergesortc_best_time7 (div2 n) + mergesortc_best_time7 (div2 n) 
+    | S n' => 
+      match n' with
+        | 0 => 0
+        | S _ => 
+          (mergesortc_best_time6 (div2 n') +
+           mergesortc_best_time6 (div2 n') +
+           n)
+      end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. apply lt_wf. Defined.
+
+Lemma best_67 : big_omega mergesortc_best_time6 mergesortc_best_time7.
+  apply big_oh_rev.
+  exists 0.
+  exists 2.
+  intros n LT.
+  clear LT.
+  apply (well_founded_induction
+           lt_wf
+           (fun n =>  mergesortc_best_time7 n <= 2 * mergesortc_best_time6 n)).
+  clear n.
+  intros n IND.
+  destruct n.
+  unfold_sub mergesortc_best_time7 (mergesortc_best_time7 0).
+  unfold_sub mergesortc_best_time6 (mergesortc_best_time6 0).
+  omega.
+  
+  unfold_sub mergesortc_best_time7 (mergesortc_best_time7 (S n)).
+  fold mergesortc_best_time7.
+  unfold_sub mergesortc_best_time6 (mergesortc_best_time6 (S n)).
+  fold mergesortc_best_time6.
+  destruct n.
+  omega.
+
+  rewrite plus_comm at 1.
+  rewrite plus_assoc.
+  repeat (rewrite mult_plus_distr_l).
+  replace (2 * split2_time (div2 (S n)) + 
+           2 * mergesortc_best_time6 (div2 (S n)) +
+           2 * mergesortc_best_time6 (div2 (S n)) +
+           2 * merge_best_time (div2 (S n)) (div2 (S n)) + 2* 35)
+  with (2 * split2_time (div2 (S n)) + 
+        2 * merge_best_time (div2 (S n)) (div2 (S n)) + 2*35 +
+        2*mergesortc_best_time6 (div2 (S n)) +
+        2*mergesortc_best_time6 (div2 (S n)));[|omega].
+  apply plus_le_compat;[|omega].
+  apply plus_le_compat;[|omega].
+  unfold split2_time, merge_best_time.
+  replace (S (S n)) with (n+2);[|omega].
+  apply plus_le_compat; [|omega].
+  apply le_plus_trans.
+  rewrite mult_plus_distr_l.
+  apply le_plus_trans.
+  replace (2 * (15 * div2 (S n))) with (15 * (div2 (S n) + div2 (S n)));[|omega].
+  replace (div2 (S n)+ div2 (S n)) with (double (div2 (S n)));[|unfold double;auto].
+  destruct (even_odd_dec (S n)).
+  rewrite <- even_double;auto.
+  omega.
+  inversion o.
+  rewrite <- even_div2; auto.
+  rewrite <- even_double;auto.
+  omega.
+Qed.
 
 
 Lemma mergesortc_worst:

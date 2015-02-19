@@ -1,5 +1,7 @@
 Set Implicit Arguments.
-Require Import Arith.Even Arith.Div2 Omega NPow.
+Require Import Arith.Even Arith.Div2 Coq.Arith.Min.
+Require Import Omega NPow.
+
 
 (* I think this is stdlib somewhere *)
 Lemma plus_r_inj : 
@@ -304,4 +306,10 @@ Proof.
   auto. auto.
   intros L IH.
   omega.
+Qed.
+
+Lemma min_same : forall n, min n n = n.
+Proof.
+  intros.
+  destruct (min_dec n n) as [A|A];rewrite A; auto.
 Qed.

@@ -43,7 +43,7 @@ Qed.
 
 Next Obligation.
   simpl in NV. omega.
-Qed.
+Defined.
 
 Next Obligation.
   simpl in NV. omega.
@@ -234,7 +234,7 @@ Program Fixpoint zip_right {A:Set} (z:Zipper A) (SOME_RIGHT:(snd z) <> nil) :
 
 Next Obligation.
   congruence.
-Qed.
+Defined.
 
 Next Obligation.
  destruct z as [xs ys'].
@@ -280,7 +280,7 @@ Program Fixpoint zip_left {A:Set} (z:Zipper A) (SOME_LEFT:(fst z) <> nil) :
 
 Next Obligation.
   congruence.
-Qed.
+Defined.
 
 Next Obligation.
  destruct z as [xs' ys].

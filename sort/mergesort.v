@@ -91,9 +91,6 @@ Next Obligation.
   omega.
 Qed.
 
-(* xxx I think we know more for the way merge is called by merge sort
-(with equal input) *)
-
 Definition merge_best_time (n:nat) (m:nat) := 17 * (min n m) + 3.
 Definition merge_worst_time (n:nat) (m:nat) := 17 * (n + m) + 3.
 Hint Unfold merge_best_time merge_worst_time.
@@ -986,29 +983,24 @@ Proof.
   apply IND; auto.
 Qed.
 
-Definition mergesortc_worst_time9 n := n * cl_log n.
-
-Lemma worst_89 : big_oh mergesortc_worst_time8 mergesortc_worst_time9.
+Lemma worst_89 : big_oh mergesortc_worst_time8 (fun n => n * cl_log n).
 Proof.
-  exists 2.
+  exists 1.
   exists 4.
   intros n LT.
-  destruct n. intuition.
   destruct n. intuition.
   clear LT.
   apply (well_founded_induction 
            lt_wf
            (fun n => mergesortc_worst_time8 (S n) <=
-                     4 * mergesortc_worst_time9 (S n))).
+                     4 * ((S n) * cl_log (S n)))).
   clear n; intros n IND.
   unfold_sub mergesortc_worst_time8 (mergesortc_worst_time8 (S n)).
-  unfold mergesortc_worst_time9.
   destruct n.
   unfold_sub mergesortc_worst_time8 (mergesortc_worst_time8 0).
   unfold_sub cl_log (cl_log 1).
   unfold_sub cl_log (cl_log 0).
   omega.
-  unfold mergesortc_worst_time9 in IND.
   apply (le_trans (S (S n) + 
                    mergesortc_worst_time8 (S (div2 n)) +
                    mergesortc_worst_time8 (S (div2 n)))
@@ -1074,7 +1066,6 @@ Proof.
   rewrite mult_assoc.
   omega.
 Qed.
-
 
 Program Fixpoint mergesortc_best_time2 n {measure n} :=
   match n with
@@ -1510,49 +1501,6 @@ Lemma best_67 : big_oh mergesortc_best_time7 mergesortc_best_time6.
   rewrite <- even_double; auto.
 Qed.
 
-Program Fixpoint mergesortc_best_time8 n {measure n} :=
-  match n with
-    | 0 => 0
-    | S n' =>
-      (mergesortc_best_time8 (div2 n') +
-       mergesortc_best_time8 (div2 n') +
-       n)
-  end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
-
-Lemma best_78 : big_oh mergesortc_best_time8 mergesortc_best_time7.
-  exists 2.
-  exists 3.
-  intros n LT.
-  destruct n. intuition.
-  destruct n. intuition.
-  clear LT.
-  apply (well_founded_induction
-           lt_wf
-           (fun n => mergesortc_best_time8 (S (S n)) <= 3 * mergesortc_best_time7 (S (S n)))).
-  clear n; intros n IND.
-  unfold_sub mergesortc_best_time8 (mergesortc_best_time8 (S (S n))).
-  unfold_sub mergesortc_best_time7 (mergesortc_best_time7 (S (S n))).
-  destruct n.
-  simpl.
-  auto.
-  remember (div2 n) as m.
-  destruct m.
-  simpl.
-  omega.
-  repeat (rewrite mult_plus_distr_l).
-  apply plus_le_compat;[|omega].
-
-  apply plus_le_compat;
-  apply IND;
-  apply lt_S_n;
-  rewrite Heqm;
-  apply (lt_le_trans (div2 n) (S n));
-  auto.
-Qed.
-
 Lemma fl_log_growth_limited : 
   forall n:nat, 
     fl_log (n + 5) <= fl_log (n + 3) + 1.
@@ -1822,13 +1770,7 @@ Proof.
                       mergesortc_worst_time8
                       (fun n => n * cl_log n)).
   apply worst_78.
-  apply (big_oh_trans mergesortc_worst_time8
-                      mergesortc_worst_time9
-                      (fun n => n * cl_log n)).
   apply worst_89.
-  exists 0. exists 1. intros n _. unfold mult at 1; rewrite plus_0_r.
-  unfold mergesortc_worst_time9.
-  omega.
 Qed.
 
 Lemma mergesortc_best : 

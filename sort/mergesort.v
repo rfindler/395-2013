@@ -1557,6 +1557,146 @@ Lemma best_78 : big_omega mergesortc_best_time7 mergesortc_best_time8.
   auto.
 Qed.
 
+Lemma strange_fact : 
+  forall n,
+    odd n -> 
+    S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + cl_log (S (S (div2 (S n)))) <=
+    S (S (div2 n)) * cl_log (S (S (div2 n))) + n + 5.
+Proof.
+  admit.
+Qed.
+
+Lemma best7_nlogn : big_omega mergesortc_best_time7 (fun n => n * cl_log n).
+Proof.
+  apply big_oh_rev.
+  exists 2.
+  exists 3.
+  intros n LT.
+  destruct n. intuition.
+  destruct n. intuition.
+  clear LT.
+  apply (well_founded_induction
+           lt_wf
+           (fun n => (S (S n)) * cl_log (S (S n)) <= 3 * mergesortc_best_time7 (S (S n)))).
+  clear n; intros n IND.
+  unfold_sub mergesortc_best_time7 (mergesortc_best_time7 (S (S n))).
+  destruct n.
+  program_simpl.
+  remember (div2 n) as m.
+  destruct m.
+  unfold_sub mergesortc_best_time7 (mergesortc_best_time7 1).
+  destruct n.
+  program_simpl.
+  destruct n.
+  compute.
+  omega.
+  simpl in Heqm.
+  intuition.
+
+  rewrite cl_log_div2'.
+  replace (div2 (S (S (S n)))) with (S (div2 (S n)));[|unfold div2;auto].
+
+  destruct n.
+  unfold div2 in Heqm; intuition.
+  destruct n.
+  unfold div2 in Heqm; intuition.
+  simpl in Heqm.
+  assert (m = div2 n);[omega|subst m; clear Heqm].
+
+  replace (div2 (S (S (S n)))) with (S (div2 (S n)));[|unfold div2;auto].
+
+  destruct (even_odd_dec n).
+
+  (* even case *)
+  replace n with (double (div2 n)) at 1;[|rewrite even_double;auto].
+  unfold double.
+  rewrite odd_div2;[|constructor;auto].
+  replace (div2 (S (S n))) with (S (div2 n));[|unfold div2;auto].
+  replace (S (S (S (S (S (div2 n + div2 n)))))) 
+  with ((S (S (div2 n))) + (S (S (div2 n))) + 1);[|omega].
+  replace (S (cl_log (S (S (div2 n))))) with ((cl_log (S (S (div2 n))))+1);[|omega].
+  repeat (rewrite mult_plus_distr_l).
+  repeat (rewrite mult_plus_distr_r).
+  repeat (rewrite mult_1_r).
+  repeat (rewrite mult_1_l).
+
+  replace (S (S (div2 n)) * cl_log (S (S (div2 n))) +
+           S (S (div2 n)) * cl_log (S (S (div2 n))) + cl_log (S (S (div2 n))) +
+           (S (S (div2 n)) + S (S (div2 n)) + 1))
+  with (S (S (div2 n)) * cl_log (S (S (div2 n))) +
+        S (S (div2 n)) * cl_log (S (S (div2 n))) + 
+        (cl_log (S (S (div2 n))) + (S (S (div2 n)) + S (S (div2 n)) + 1)));[|omega].
+  apply plus_le_compat.
+
+  apply plus_le_compat; 
+    apply IND;
+    apply (lt_le_trans (div2 n) (S n)); auto.
+  
+  replace (3 * S (S (S (S (S n))))) with (2*n+10+n+5);[|omega].
+  replace (cl_log (S (S (div2 n))) + (S (S (div2 n)) + S (S (div2 n)) + 1))
+  with (cl_log (S (S (div2 n))) + ((div2 n) + (div2 n)) + 5);[|omega].
+  replace (div2 n + div2 n) with (double (div2 n));[|unfold double;auto].
+  rewrite <- even_double; auto.
+  apply plus_le_compat;auto.
+  apply plus_le_compat;auto.
+
+  rewrite <- fl_log_cl_log_relationship.
+  apply (le_trans (S (fl_log (S (div2 n))))
+                  (S (S (div2 n)))).
+  apply le_n_S.
+  apply fl_log_decr.
+  apply (le_trans (S (S (div2 n))) (S (S n))).
+  apply le_n_S.
+  apply le_n_S.
+  apply div2_le.
+  omega.
+
+  (* odd case *)
+  replace n with (S (double (div2 n))) at 1;[|rewrite odd_double;auto].
+  unfold double.
+  replace (S (S (S (S (S (S (div2 n + div2 n)))))))
+  with ((S (S (div2 n))) + (S (S (div2 n))) + 2);[|omega].
+  replace (S (cl_log (S (S (div2 (S n)))))) 
+  with ((cl_log (S (S (div2 (S n))))) + 1) ;[|omega].
+  repeat (rewrite mult_plus_distr_r).
+  repeat (rewrite mult_plus_distr_l).
+  repeat (rewrite plus_assoc).
+  repeat (rewrite mult_1_r).
+  replace ( S (S (div2 n)) * cl_log (S (S (div2 (S n)))) +
+            S (S (div2 n)) +
+            S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + 
+            S (S (div2 n)) +
+            2 * cl_log (S (S (div2 (S n)))) + 2)
+  with (S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + 
+        S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + 
+        2 * cl_log (S (S (div2 (S n)))) + 5 +
+        (S ((div2 n) + (div2 n))));[|omega].
+  replace ((div2 n) + (div2 n)) with (double (div2 n));[|unfold double;auto].
+  rewrite <- odd_double; auto.
+  replace (3 * S (S (S (S (S n))))) with (2*n + 10 + 5 + n);[|omega].
+  repeat (rewrite plus_assoc).
+  apply plus_le_compat;auto.
+  apply plus_le_compat;auto.
+
+  replace (3 * mergesortc_best_time7 (S (S (div2 n))) +
+           3 * mergesortc_best_time7 (S (S (div2 n))) + 2 * n + 10)
+  with ((3 * mergesortc_best_time7 (S (S (div2 n))) + n + 5) +
+        (3 * mergesortc_best_time7 (S (S (div2 n))) + n + 5));[|omega].
+  replace (S (S (div2 n)) * cl_log (S (S (div2 (S n)))) +
+           S (S (div2 n)) * cl_log (S (S (div2 (S n)))) +
+           2 * cl_log (S (S (div2 (S n)))))
+  with ((S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + cl_log (S (S (div2 (S n)))))+
+           (S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + cl_log (S (S (div2 (S n))))));[|omega].
+  apply plus_le_compat;
+    (apply (le_trans (S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + cl_log (S (S (div2 (S n)))))
+                     (S (S (div2 n)) * cl_log (S (S (div2 n))) + n + 5));
+     [apply strange_fact; auto|
+      (apply plus_le_compat;auto);
+        (apply plus_le_compat;auto);
+        apply IND;
+        apply (lt_le_trans (div2 n) (S n)); auto]).
+Qed.
+  
 Lemma mergesortc_worst:
   big_oh mergesortc_worst_time (fun n => n * cl_log n).
 Proof.

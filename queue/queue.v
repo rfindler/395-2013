@@ -57,8 +57,6 @@ Program Definition renq (addr : nat) (n : nat) :
             (fun i2 st2 st3 n_i2 => _)
             (ret () ())))))).
 
-Obligations.
-
 Admit Obligations.
 
 Program Definition enq (addr : nat) (n : nat) :

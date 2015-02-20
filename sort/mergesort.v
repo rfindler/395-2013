@@ -1371,9 +1371,8 @@ Proof.
   assert False;[apply (not_even_and_odd (S (S n))); auto|intuition].
 Qed.
 
-Lemma best_56 : big_omega mergesortc_best_time5 mergesortc_best_time6.
+Lemma best_56 : big_oh mergesortc_best_time6 mergesortc_best_time5.
 Proof.
-  apply big_oh_rev.
   exists 0.
   exists 1.
   intros n _.
@@ -1450,8 +1449,7 @@ Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. apply lt_wf. Defined.
 
-Lemma best_67 : big_omega mergesortc_best_time6 mergesortc_best_time7.
-  apply big_oh_rev.
+Lemma best_67 : big_oh mergesortc_best_time7 mergesortc_best_time6.
   exists 1.
   exists 3.
   intros n LT.
@@ -1512,7 +1510,6 @@ Lemma best_67 : big_omega mergesortc_best_time6 mergesortc_best_time7.
   rewrite <- even_double; auto.
 Qed.
 
-
 Program Fixpoint mergesortc_best_time8 n {measure n} :=
   match n with
     | 0 => 0
@@ -1525,8 +1522,7 @@ Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. intros. subst n. auto. Defined.
 Next Obligation. apply lt_wf. Defined.
 
-Lemma best_78 : big_omega mergesortc_best_time7 mergesortc_best_time8.
-  apply big_oh_rev.
+Lemma best_78 : big_oh mergesortc_best_time8 mergesortc_best_time7.
   exists 2.
   exists 3.
   intros n LT.
@@ -1666,9 +1662,8 @@ Proof.
   apply IND;auto.
 Qed.
 
-Lemma best7_nlogn : big_omega mergesortc_best_time7 (fun n => n * cl_log n).
+Lemma best7_nlogn : big_oh (fun n => n * cl_log n) mergesortc_best_time7.
 Proof.
-  apply big_oh_rev.
   exists 2.
   exists 3.
   intros n LT.
@@ -1785,10 +1780,13 @@ Proof.
   replace (S (S (div2 n)) * cl_log (S (S (div2 (S n)))) +
            S (S (div2 n)) * cl_log (S (S (div2 (S n)))) +
            2 * cl_log (S (S (div2 (S n)))))
-  with ((S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + cl_log (S (S (div2 (S n)))))+
-           (S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + cl_log (S (S (div2 (S n))))));[|omega].
+  with ((S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + 
+         cl_log (S (S (div2 (S n))))) +
+        (S (S (div2 n)) * cl_log (S (S (div2 (S n)))) +
+         cl_log (S (S (div2 (S n))))));[|omega].
   apply plus_le_compat;
-    (apply (le_trans (S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + cl_log (S (S (div2 (S n)))))
+    (apply (le_trans (S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + 
+                      cl_log (S (S (div2 (S n)))))
                      (S (S (div2 n)) * cl_log (S (S (div2 n))) + n + 5));
      [apply strange_fact; auto|
       (apply plus_le_compat;auto);
@@ -1833,19 +1831,26 @@ Proof.
   omega.
 Qed.
 
-Program Fixpoint mergesortc_best_time1 (n:nat) {measure n} :=
-  match n with
-    | 0 => 1
-    | S n' =>
-      if (even_odd_dec n)
-      then (split2_time (div2 n) +
-            mergesortc_best_time (div2 n) +
-            mergesortc_best_time (div2 n) +
-            merge_best_time (div2 n) (div2 n) + 2)
-      else (mergesortc_best_time n' +
-            insert_best_time n' + 2)
-  end.
-Next Obligation. apply lt_wf. Defined.
+Lemma mergesortc_best : 
+  big_oh (fun n => n * cl_log n) mergesortc_best_time.
+Proof.
+  apply (big_oh_trans (fun n => n * cl_log n)
+                      mergesortc_best_time7).
+  apply best7_nlogn.
+  apply (big_oh_trans mergesortc_best_time7 mergesortc_best_time6).
+  apply best_67.
+  apply (big_oh_trans mergesortc_best_time6 mergesortc_best_time5).
+  apply best_56.
+  exists 0.
+  exists 1.
+  intros n _.
+  rewrite mult_1_l.
+  rewrite <- best_45.
+  rewrite <- best_34.
+  rewrite <- best_23.
+  rewrite <- best_12.
+  auto.
+Qed.
 
 Definition mergesort_best_time (n:nat) :=
   clength_time n + mergesortc_best_time n + 10.
@@ -1883,7 +1888,7 @@ Next Obligation.
   omega.
 Qed.
 
-Lemma mergesort_worst:
+Theorem mergesort_worst :
   big_oh mergesort_worst_time (fun n => n * cl_log n).
 Proof.
   apply big_oh_plus.
@@ -1907,8 +1912,48 @@ Proof.
   apply big_oh_k___nlogn.
 Qed.
 
-Corollary mergesort_best:
+Theorem mergesort_best_rev:
+  big_oh (fun n => n * cl_log n) mergesort_best_time.
+Proof.
+  apply (big_oh_trans (fun n => n * cl_log n) mergesortc_best_time).
+  apply mergesortc_best.
+  exists 0.
+  exists 1.
+  intros n _.
+  rewrite mult_1_l.
+  unfold mergesort_best_time.
+  omega.
+Qed.  
+
+Theorem mergesort_best:
   big_omega mergesort_best_time (fun n => n * cl_log n).
 Proof.
-  admit.
+  apply big_oh_rev.
+  apply mergesort_best_rev.
+Qed.
+
+Theorem mergesort_running_time:
+  forall f,
+    (forall n, mergesort_best_time n <= f n <= mergesort_worst_time n) ->
+    big_theta f (fun n => n * cl_log n).
+Proof.
+  intros f ASS.
+  split.
+  apply (big_oh_trans f mergesort_worst_time);[|apply mergesort_worst].
+  exists 0.
+  exists 1.
+  intros n _.
+  rewrite mult_1_l.
+  remember (ASS n).
+  omega.
+
+  apply big_oh_rev.
+  apply (big_oh_trans (fun n : nat => n * cl_log n) mergesort_best_time).
+  apply mergesort_best_rev.
+  exists 0.
+  exists 1.
+  intros n _.
+  rewrite mult_1_l.
+  remember (ASS n).
+  omega.
 Qed.

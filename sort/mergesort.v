@@ -1557,6 +1557,54 @@ Lemma best_78 : big_omega mergesortc_best_time7 mergesortc_best_time8.
   auto.
 Qed.
 
+Lemma fl_log_growth_limited : 
+  forall n:nat, 
+    fl_log (n + 5) <= fl_log (n + 3) + 1.
+Proof.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => fl_log (n + 5) <= fl_log (n + 3) + 1)).
+  intros n IND.
+  destruct n.
+  program_simpl.
+  destruct n.
+  program_simpl.
+  destruct n.
+  program_simpl.
+  destruct n.
+  program_simpl.
+  destruct n.
+  program_simpl.
+  destruct n.
+  program_simpl.
+  replace (S (S (S (S (S (S n))))) + 5) with (S (n+10));[|omega].
+  rewrite fl_log_div2'.
+  replace (div2 (n+10)) with (div2 n + 5);
+    [|(replace (n+10) with (10+n);[|omega]);
+       simpl; omega].
+  apply (le_trans (S (fl_log (div2 n + 5)))
+                  (S (fl_log (div2 n + 3) +1))).
+  apply le_n_S.
+  apply IND.
+  apply (lt_le_trans (div2 n) (S n));auto.
+  omega.
+  replace (S (fl_log (div2 n + 3) + 1))
+  with (fl_log (div2 n + 3) + 2);[|omega].
+  replace (S (S (S (S (S (S n))))) + 3)
+  with (S ((S (S (S (S (S n))))) + 3));[|omega].
+  rewrite fl_log_div2'.
+  replace (S (fl_log (div2 (S (S (S (S (S n)))) + 3))) + 1)
+  with (fl_log (div2 (S (S (S (S (S n)))) + 3)) + 2);[|omega].
+  apply plus_le_compat;auto.
+  apply fl_log_monotone.
+  replace (S (S (S (S (S n)))) + 3) with (S (S (S (S (S (S (n+2)))))));[|omega].
+  replace (div2 (S (S (S (S (S (S (n + 2)))))))) 
+  with (div2 (n+2) + 3);[|simpl;auto].
+  apply plus_le_compat;auto.
+  apply div2_monotone; omega.
+  omega.
+Qed.
+
 Lemma strange_fact : 
   forall n,
     odd n -> 
@@ -1572,7 +1620,50 @@ Proof.
   replace (S (S (S (S (S n))))) with (n+5);[|omega].
   replace (S (S (S (S n)))) with (n+4);[|omega].
   replace (S (S (S n))) with (n+3);[|omega].
-  CRAZY
+  apply (le_trans (div2 (n + 4) * fl_log (n + 5) + fl_log (n + 5))
+                  (div2 (n + 4) * (fl_log (n + 3) + 1) + fl_log (n + 5))).
+  apply plus_le_compat;auto.
+  apply mult_le_compat;auto.
+  apply fl_log_growth_limited.
+  
+  rewrite mult_plus_distr_l.
+  rewrite mult_1_r.
+  rewrite (odd_double n) at 7; auto.
+  unfold double.
+  replace (div2 (n+4)) with (div2 n + 2);
+    [|(replace (n+4) with (S (S (S (S n))));[|omega]);
+       simpl;
+       omega].
+  replace ((div2 n + 2) * fl_log (n + 3) +
+           S (div2 n + div2 n) + 5)
+  with ((div2 n + 2) * fl_log (n + 3) +
+        (div2 n + 2) + (div2 n + 4));[|omega].
+  apply plus_le_compat;auto.
+  apply (well_founded_induction 
+           lt_wf
+           (fun n => fl_log (n+5) <= div2 n + 4)).
+  clear n OD.
+  intros n IND.
+  destruct n.
+  program_simpl.
+  destruct n.
+  program_simpl.
+  simpl div2.
+  apply (le_trans (fl_log (S (S n) + 5))
+                  (S (fl_log (n + 5)))).
+  replace (S (S n) + 5) with (S (n+6));[|omega].
+  rewrite fl_log_div2'.
+  apply le_n_S.
+  apply fl_log_monotone.
+  replace (n+6) with (6+n);[|omega].
+  replace (div2 (6+n)) with (div2 n + 3);[|simpl;omega].
+  apply plus_le_compat;auto.
+  clear IND.
+  apply (ind_0_1_SS (fun n => div2 n <= n));
+    (intros ;simpl; omega).
+  replace (S (div2 n) + 4) with (S (div2 n + 4));[|omega].
+  apply le_n_S.
+  apply IND;auto.
 Qed.
 
 Lemma best7_nlogn : big_omega mergesortc_best_time7 (fun n => n * cl_log n).
@@ -1755,12 +1846,6 @@ Program Fixpoint mergesortc_best_time1 (n:nat) {measure n} :=
             insert_best_time n' + 2)
   end.
 Next Obligation. apply lt_wf. Defined.
-
-Lemma mergesortc_best:
-  big_omega mergesortc_best_time (fun n => n * cl_log n).
-Proof.
-  unfold mergesortc_best_time.
-Admitted.
 
 Definition mergesort_best_time (n:nat) :=
   clength_time n + mergesortc_best_time n + 10.

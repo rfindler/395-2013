@@ -1563,7 +1563,16 @@ Lemma strange_fact :
     S (S (div2 n)) * cl_log (S (S (div2 (S n)))) + cl_log (S (S (div2 (S n)))) <=
     S (S (div2 n)) * cl_log (S (S (div2 n))) + n + 5.
 Proof.
-  admit.
+  intros n OD.
+  repeat (rewrite <- fl_log_cl_log_relationship).
+  rewrite <- odd_div2; auto.
+  replace (S (S (div2 n))) with (div2 (S (S (S (S n)))));[|unfold div2;auto].
+  replace (S (div2 n)) with (div2 (S (S n)));[|unfold div2;auto].
+  repeat (rewrite <- fl_log_div2').
+  replace (S (S (S (S (S n))))) with (n+5);[|omega].
+  replace (S (S (S (S n)))) with (n+4);[|omega].
+  replace (S (S (S n))) with (n+3);[|omega].
+  CRAZY
 Qed.
 
 Lemma best7_nlogn : big_omega mergesortc_best_time7 (fun n => n * cl_log n).

@@ -1512,6 +1512,51 @@ Lemma best_67 : big_omega mergesortc_best_time6 mergesortc_best_time7.
   rewrite <- even_double; auto.
 Qed.
 
+
+Program Fixpoint mergesortc_best_time8 n {measure n} :=
+  match n with
+    | 0 => 0
+    | S n' =>
+      (mergesortc_best_time8 (div2 n') +
+       mergesortc_best_time8 (div2 n') +
+       n)
+  end.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. intros. subst n. auto. Defined.
+Next Obligation. apply lt_wf. Defined.
+
+Lemma best_78 : big_omega mergesortc_best_time7 mergesortc_best_time8.
+  apply big_oh_rev.
+  exists 2.
+  exists 3.
+  intros n LT.
+  destruct n. intuition.
+  destruct n. intuition.
+  clear LT.
+  apply (well_founded_induction
+           lt_wf
+           (fun n => mergesortc_best_time8 (S (S n)) <= 3 * mergesortc_best_time7 (S (S n)))).
+  clear n; intros n IND.
+  unfold_sub mergesortc_best_time8 (mergesortc_best_time8 (S (S n))).
+  unfold_sub mergesortc_best_time7 (mergesortc_best_time7 (S (S n))).
+  destruct n.
+  simpl.
+  auto.
+  remember (div2 n) as m.
+  destruct m.
+  simpl.
+  omega.
+  repeat (rewrite mult_plus_distr_l).
+  apply plus_le_compat;[|omega].
+
+  apply plus_le_compat;
+  apply IND;
+  apply lt_S_n;
+  rewrite Heqm;
+  apply (lt_le_trans (div2 n) (S n));
+  auto.
+Qed.
+
 Lemma mergesortc_worst:
   big_oh mergesortc_worst_time (fun n => n * cl_log n).
 Proof.

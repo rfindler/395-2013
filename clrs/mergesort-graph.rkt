@@ -2,8 +2,7 @@
 (require plot)
 (plot-new-window? #t)
 
-(define (div2 n)
-  (quotient n 2))
+(require "../rkt/log.rkt")
 
 (define (split_at_time n)
   (+ (* 2 n) 1))
@@ -27,12 +26,6 @@
 
 (define (insert_worst_time n)
   (+ (* 2 n) 1))
-
-(define (log_2 n)
-  (/ (log n) (log 2)))
-
-(define (cl_log n)
-  (ceiling (log_2 (+ n 1))))
 
 (define (mergesortc_worst_time n)
   (Mergesortc_Best_Time

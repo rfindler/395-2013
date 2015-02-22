@@ -1,12 +1,11 @@
 Require Import Braun.common.util Braun.common.le_util Braun.common.same_structure.
-Require Import Braun.common.log Braun.common.big_oh.
+Require Import Braun.common.log Braun.common.big_oh Braun.common.pow.
 Require Import Braun.monad.monad.
 Require Import Program.
 Require Import Omega.
 Require Import Max.
 Require Import Div2.
 Require Import Relations_1.
-Require Import Braun.clrs.fib.
 
 Inductive Color : Set :=
 | BLACK : Color

@@ -1,5 +1,5 @@
 Require Import Braun.common.util Braun.common.le_util Braun.common.same_structure.
-Require Import Braun.common.log Braun.common.big_oh.
+Require Import Braun.common.log Braun.common.big_oh Braun.common.pow.
 Require Import Braun.monad.monad.
 Require Import Program.
 Require Import Omega.
@@ -82,8 +82,9 @@ Definition fib_rec_result (n:nat) (res:nat) (c:nat) :=
     Fib n res /\
     c = fib_rec_time n.
 
-(* Load "fib_rec_gen.v". *)
+Load "fib_rec_gen.v".
 
+(*
 Program Fixpoint fib_rec (n:nat) :
    {! res !:! nat !<! c !>!
     Fib n res /\
@@ -112,6 +113,9 @@ Next Obligation.
   rename n'' into n.
   destruct n as [|n]; simpl; omega.
 Qed.
+*)
+
+Admit Obligations.
 
 Lemma fib_rec_time_SSSn:
   forall n,
@@ -133,14 +137,6 @@ Proof.
   induction n as [|[|n]]; simpl; omega.
 Qed.
 
-Fixpoint pow n m :=
-  match m with
-    | O =>
-      1
-    | S m =>
-      n + pow n m
-  end.
-
 Lemma fib_rec_time_upper:
   forall n,
     pow 2 n <= fib_rec_time (S n).
@@ -160,6 +156,20 @@ Proof.
   simpl in *.
   omega.
 Qed.
+
+Definition fib_iter_loop_result (fuel:nat) (target:nat) (a:nat) (b:nat) (res:nat) (c:nat) :=
+    1 < target ->
+    fuel < target ->
+    Fib (target - fuel - 1) a ->
+    Fib (target - fuel) b ->
+    Fib target res /\
+    c = fuel + 1.
+
+Load "fib_iter_loop_gen.v".
+
+Admit Obligations.
+
+(*
 
 Program Fixpoint fib_iter_loop (fuel:nat) (target:nat) (a:nat) (b:nat) :
   {! res !:! nat !<! c !>!
@@ -219,6 +229,7 @@ Next Obligation.
  subst an. split. auto.
  omega.
 Qed.
+*)
 
 Fixpoint fib_iter_time (n:nat) :=
   match n with
@@ -233,6 +244,15 @@ Fixpoint fib_iter_time (n:nat) :=
       end
   end.
 
+Definition fib_iter_result (target:nat) (res:nat) (c:nat) :=
+    Fib target res /\
+    c = fib_iter_time target.
+
+Load "fib_iter_gen.v".
+
+Admit Obligations.
+
+(*
 Program Fixpoint fib_iter (target:nat) :
   {! res !:! nat !<! c !>!
     Fib target res /\
@@ -264,6 +284,7 @@ Next Obligation.
   replace (S (S target'') - S target'') with 1; try omega.
   auto.
 Qed.
+*)
 
 Theorem fib_iter_is_better:
   forall n,
@@ -285,21 +306,6 @@ Qed.
 
 Require Import Div2.
 
-Lemma pow2_monotone:
-  forall x y,
-    x <= y ->
-    pow 2 x <= pow 2 y.
-Proof.
-  induction x as [|x]; intros y LE.
-  simpl.
-  destruct y as [|y]. simpl. auto.
-  simpl. omega.
-  destruct y as [|y]. omega.
-  apply le_S_n in LE.
-  apply IHx in LE.
-  simpl.  omega.
-Qed.
-  
 Lemma fib_rec_time_guarantee:
   ~
   (forall n,

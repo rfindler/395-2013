@@ -18,7 +18,7 @@ Require Import Braun.sub1.sub1.
 Require Import Braun.sort.isort.
 Require Import Braun.sort.mergesort.
 
-Require Import Braun.clrs.fib.
+Require Import Braun.fib.fib.
 Require Import Braun.clrs.zip.
 Require Import Braun.clrs.rbtree.
 
@@ -57,8 +57,9 @@ Extraction "extract.ml" insert_log.insert
            sort.isort.isort
            sort.mergesort.mergesort
 
-           clrs.fib.fib_rec
-           clrs.fib.fib_iter
+           fib.fib.fib_rec
+           fib.fib.fib_iter
+
            clrs.zip.minsert_at
            clrs.zip.minsertz_at
            clrs.rbtree.bst_search.

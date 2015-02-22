@@ -74,7 +74,10 @@ tmonad-gen: insert/insert_log_gen.v \
             sort/merge_gen.v \
             sort/mergesortc_gen.v \
             sort/mergesort_gen.v \
-            clrs/bst_search_gen.v
+            clrs/bst_search_gen.v \
+            fib/fib_rec_gen.v \
+            fib/fib_iter_loop_gen.v \
+            fib/fib_iter_gen.v
 
 insert/insert_log_gen.v: rkt/insert.rkt $(GEN_DEPS)
 	racket rkt/insert.rkt > insert/insert_log_gen.v
@@ -148,6 +151,14 @@ sort/mergesort_gen.v: rkt/mergesort.rkt $(GEN_DEPS)
 
 clrs/bst_search_gen.v: rkt/bst_search.rkt $(GEN_DEPS)
 	racket rkt/bst_search.rkt > clrs/bst_search_gen.v
+
+fib/fib_rec_gen.v: rkt/fib_rec.rkt $(GEN_DEPS)
+	racket rkt/fib_rec.rkt > fib/fib_rec_gen.v
+fib/fib_iter_loop_gen.v: rkt/fib_iter_loop.rkt $(GEN_DEPS)
+	racket rkt/fib_iter_loop.rkt > fib/fib_iter_loop_gen.v
+fib/fib_iter_gen.v: rkt/fib_iter.rkt $(GEN_DEPS)
+	racket rkt/fib_iter.rkt > fib/fib_iter_gen.v
+
 
 Makefile.coq: tmonad-gen Makefile $(VS)
 	coq_makefile -R . Braun $(VS) -o Makefile.coq

@@ -168,5 +168,5 @@ Makefile.coq: tmonad-gen Makefile $(VS)
 clean: Makefile.coq
 	$(MAKE) -f Makefile.coq clean
 	rm -f paper/paper.pdf
-	rm -f extract/extract.ml extract/a.out
+	rm -f extract/extract.ml extract/a.out extract/extract.mli
 	find . \( -name '*.vo' -o -name '*.d' -o -name '*.glob' -o -name '*.cmi' -o -name '*.cmo' -o -name '*_gen.v' \) -exec rm -f {} \;

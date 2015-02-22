@@ -78,6 +78,12 @@ Proof.
   omega.
 Qed.
 
+Definition fib_rec_result (n:nat) (res:nat) (c:nat) :=
+    Fib n res /\
+    c = fib_rec_time n.
+
+(* Load "fib_rec_gen.v". *)
+
 Program Fixpoint fib_rec (n:nat) :
    {! res !:! nat !<! c !>!
     Fib n res /\

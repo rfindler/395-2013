@@ -11,6 +11,8 @@
          Fixpoint
          bt_mt
          bt_node
+         CT_leaf
+         CT_node
          match if bind let => <==
          provide
          require
@@ -60,7 +62,7 @@
 
 (define-for-syntax (nmid? x)
   (and (identifier? x)
-       (member x (syntax->list #'(pair bt_node cons)) free-identifier=?)))
+       (member x (syntax->list #'(pair bt_node CT_node cons)) free-identifier=?)))
 
 (define-for-syntax (parse-Fixpoint-arg stx arg implicit?)
   (syntax-case arg ()
@@ -266,12 +268,15 @@
        1]))
 
   (define (check-match-pattern stx)
-    (syntax-case stx (nil bt_mt)
+    (syntax-case stx (nil bt_mt CT_leaf)
       [nil
        (raise-syntax-error #f "nil needs parens in a pattern position"
                            orig-stx stx)]
       [bt_mt
        (raise-syntax-error #f "bt_mt needs parens in a pattern position"
+                           orig-stx stx)]
+      [CT_leaf
+       (raise-syntax-error #f "CT_leaf needs parens in a pattern position"
                            orig-stx stx)]
       [(id1 id2 ...)
        (and (identifier? #'id1)
@@ -316,10 +321,19 @@
 
 (define the-bt_mt (bt_mt-struct))
 
+(struct CT_leaf-struct () #:transparent
+        #:methods gen:custom-write
+        [(define (write-proc val port mode)
+           (display "CT_leaf" port))])
+
+(define the-CT_leaf (CT_leaf-struct))
+
 (struct bt_node (val left right) #:transparent)
+(struct CT_node (left color val right) #:transparent)
 
 (r:define-match-expander nil (λ (stx) #''()) (λ (stx) #''()))
 (r:define-match-expander bt_mt (λ (stx) #'(bt_mt-struct)) (λ (stx) #'the-bt_mt))
+(r:define-match-expander CT_leaf (λ (stx) #'(CT_leaf-struct)) (λ (stx) #'the-CT_leaf))
 
 (r:define-match-expander S 
                          (λ (stx) 

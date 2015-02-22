@@ -201,6 +201,27 @@ Proof.
 Definition bst_search_time (n:nat) :=
   3 * n + 2.
 
+Definition bst_search_result (A:Set)
+  (A_cmp:A -> A -> Prop)
+  (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x)
+  (A_trans:Transitive A A_cmp)
+  (A_cmp_dec:
+    forall (x y:A),
+      { A_cmp x y } + { A_cmp y x })
+  (A_eq_dec:
+    forall (x y:A),
+      { x = y } + { x <> y })
+  (x:A) (ct:CTree A) (res:bool) (c:nat) :=
+  forall (min_a max_a:A)
+         (MIN:A_cmp min_a x)
+         (MAX:A_cmp x max_a)
+         (BST:IsBST A_cmp ct min_a max_a),
+    (res = true -> IsMember x ct) /\
+    (res = false -> ~ IsMember x ct) /\
+    1 <= c <= bst_search_time (height ct).
+
+(* Load "bst_search_gen.v". *)
+
 Program Fixpoint bst_search {A:Set}
   (A_cmp:A -> A -> Prop)
   (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x)

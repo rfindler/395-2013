@@ -198,7 +198,7 @@ Proof.
  Qed.
 
 Definition bst_search_time (n:nat) :=
-  3 * n + 2.
+  19 * n + 3.
 
 Definition bst_search_result (A:Set)
   (A_cmp:A -> A -> Prop)
@@ -219,72 +219,34 @@ Definition bst_search_result (A:Set)
     (res = false -> ~ IsMember x ct) /\
     1 <= c <= bst_search_time (height ct).
 
-(* Load "bst_search_gen.v". *)
-
-Program Fixpoint bst_search {A:Set}
-  (A_cmp:A -> A -> Prop)
-  (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x)
-  (A_trans:Transitive A A_cmp)
-  (A_cmp_dec:
-    forall (x y:A),
-      { A_cmp x y } + { A_cmp y x })
-  (A_eq_dec:
-    forall (x y:A),
-      { x = y } + { x <> y })
-  (x:A) (ct:CTree A) :
-  {! res !:! bool !<! c !>!
-    forall (min_a max_a:A)
-      (MIN:A_cmp min_a x)
-      (MAX:A_cmp x max_a)
-      (BST:IsBST A_cmp ct min_a max_a),
-    (res = true -> IsMember x ct) /\
-    (res = false -> ~ IsMember x ct) /\
-    1 <= c <= bst_search_time (height ct) !}
-  :=
-  match ct with
-    | CT_leaf =>
-      += 1;
-      <== false
-    | CT_node l c v r =>
-      match A_eq_dec x v with
-        | left _ =>
-          += 2 ;
-          <== true
-        | right _ =>
-          match A_cmp_dec x v with
-            | left _ =>
-              res <- bst_search A_cmp A_asym A_trans A_cmp_dec A_eq_dec x l ;
-              += 3 ;
-              <== res
-            | right _ =>
-              res <- bst_search A_cmp A_asym A_trans A_cmp_dec A_eq_dec x r ;
-              += 3 ;
-              <== res
-          end
-      end
-  end.
+Load "bst_search_gen.v".
 
 Next Obligation.
- unfold bst_search_time.
+ unfold bst_search_result, bst_search_time.
+ intros min_a max_a CMPax CMPxa BST.
  split.
  intros EQ. inversion EQ.
+ simpl.
  split; try omega.
  intros _ IM.
  inversion IM.
 Qed.
 
 Next Obligation.
-  unfold bst_search_time.
-  split.
-  intros _. eauto.
-  split.
-  intros EQ. congruence.
-  omega.
+ unfold bst_search_result, bst_search_time.
+ intros min_a max_a CMPax CMPxa BST.
+ split.
+ intros _. eauto.
+ split.
+ intros EQ. congruence.
+ simpl (height (CT_node A l c v r)).
+ rewrite mult_succ_r.
+ omega.
 Qed.
 
 Obligation Tactic := idtac.
 Next Obligation.
-  unfold bst_search_time.
+  unfold bst_search_result, bst_search_time.
   intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
   intros l c v r EQ. subst ct.
   intros NEQ _ CMPxv _.
@@ -327,6 +289,9 @@ Next Obligation.
   remember (height r) as R.
   clear HeqR HeqL IMf IMt CMPxv NEQ BST r v c l CMPxa CMPax max_a min_a x A_eq_dec
     A_cmp_dec A_trans A_asym A_cmp A res.
+  rewrite mult_succ_r.
+  rewrite <- plus_assoc.
+  replace (19 + 3) with 22; try omega.
   apply max_case_strong.
   intros LE. clear LE R. omega.
   intros LE. omega.
@@ -335,7 +300,7 @@ Obligation Tactic := program_simpl.
 
 Obligation Tactic := idtac.
 Next Obligation.
-  unfold bst_search_time.
+  unfold bst_search_result, bst_search_time.
   intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
   intros l c v r EQ. subst ct.
   intros NEQ _ CMPvx _.
@@ -386,7 +351,7 @@ Obligation Tactic := program_simpl.
 Corollary rbbst_search_time_bound_black_height:
   forall A (ct:CTree A) n,
     IsRB ct n ->
-    bst_search_time (height ct) <= 6 * n + 5.
+    bst_search_time (height ct) <= 38 * n + 22.
 Proof.
   intros A ct n IR.
   unfold bst_search_time.
@@ -632,7 +597,7 @@ Qed.
 Corollary rbbst_search_time_bound_count:
   forall A (ct:CTree A) bh,
     IsRB ct bh ->
-    bst_search_time (height ct) <= 6 * cl_log (count ct + 1) + 5.
+    bst_search_time (height ct) <= 38 * cl_log (count ct + 1) + 22.
 Proof.
   intros A ct bh IR.
   eapply le_trans.

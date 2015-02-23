@@ -40,14 +40,11 @@ Defined.
 
 Fixpoint fib_rec_time (n:nat) :=
   match n with
-    | O =>
-      3
+    | O => 3
     | S n' =>
       match n' with
-        | O =>
-          5
-        | S n'' =>
-          (fib_rec_time n'') + (fib_rec_time n') + 11
+        | O => 5
+        | S n'' => (fib_rec_time n'') + (fib_rec_time n') + 11
       end
   end.
 
@@ -79,7 +76,6 @@ Next Obligation.
   destruct n as [|n]; subst; simpl; omega.
 Qed.
 
-(*
 Program Lemma fib_big_oh_fib:
   big_oh fib fib_rec_time.
 Proof.
@@ -103,6 +99,99 @@ Proof.
   omega.
 Qed.
 
+Fixpoint fib_rec_time2 (n:nat) :=
+  match n with
+    | O => 0
+    | S n' =>
+      match n' with
+        | O => 1
+        | S n'' => (fib_rec_time2 n'') + (fib_rec_time2 n') + 1
+      end
+  end.
+
+Lemma fib_rec_time12 : big_oh fib_rec_time fib_rec_time2.
+  exists 1 11.
+  intros n LT.
+  destruct n. intuition.
+  clear LT.
+  apply (well_founded_induction
+           lt_wf
+           (fun n => fib_rec_time (S n) <= 11 * (fib_rec_time2 (S n)))).
+  clear n; intros n IND.
+  destruct n.
+  simpl.
+  omega.
+  destruct n.
+  simpl.
+  omega.
+  replace (fib_rec_time (S (S (S n)))) 
+  with (fib_rec_time (S n) + fib_rec_time (S (S n)) + 11);
+    [|unfold fib_rec_time;omega].
+  replace (fib_rec_time2 (S (S (S n)))) 
+  with (fib_rec_time2 (S n) + fib_rec_time2 (S (S n)) + 1);
+    [|unfold fib_rec_time2;omega].
+  repeat (rewrite mult_plus_distr_l).
+  apply plus_le_compat.
+  apply plus_le_compat;apply IND;auto.
+  omega.
+Qed.
+
+Lemma fib_nonneg : forall n, 0 < fib (S n).
+Proof.
+  induction n.
+  simpl.
+  omega.
+  replace (fib (S (S n))) with (fib (S n) + fib n);[|unfold fib;omega].
+  omega.
+Qed.  
+
+Lemma fib_rec_time2_fib_relationship : 
+  forall n, fib_rec_time2 n + 1 = (fib (S (S n))).
+Proof.
+  intros.
+  apply (well_founded_induction
+           lt_wf
+           (fun n => fib_rec_time2 n + 1 = (fib (S (S n))))).
+  clear n; intros n IND.
+  destruct n.
+  simpl; reflexivity.
+  destruct n.
+  simpl; reflexivity.
+  replace (fib_rec_time2 (S (S n))) with (fib_rec_time2 (S n) + fib_rec_time2 n + 1);
+    [|unfold fib_rec_time2;omega].
+  replace (fib (S (S (S (S n))))) with (fib (S (S (S n))) + fib (S (S n)));
+    [|unfold fib;omega].
+  replace (fib_rec_time2 (S n) + fib_rec_time2 n + 1 + 1)
+  with ((fib_rec_time2 (S n) + 1) + (fib_rec_time2 n + 1));[|omega].
+  rewrite IND; auto.
+Qed.
+
+Lemma fib_rec_time23 : big_oh fib_rec_time2 fib.
+  exists 0 3.
+  intros n _.
+  assert ((fib_rec_time2 n + 1) <= S (3 * fib n));[|omega].
+  rewrite fib_rec_time2_fib_relationship.
+  replace (S (3 * fib n)) with (3 * fib n + 1);[|omega].
+  apply (well_founded_induction
+           lt_wf
+           (fun n => fib (S (S n)) <= 3 * fib n + 1)).
+  clear n; intros n IND.
+  destruct n.
+  simpl.
+  omega.
+  destruct n.
+  simpl.
+  omega.
+  replace (fib (S (S (S (S n)))))
+  with (fib (S (S (S n))) + fib (S (S n)));
+    [|unfold fib;omega].
+  replace (fib (S (S n))) with (fib (S n) + fib n) at 2;
+    [|unfold fib;omega].
+  repeat (rewrite mult_plus_distr_l).
+  admit.
+Qed.
+
+(*
 Lemma fib_big_omega_fib:
   big_omega fib fib_rec_time.
 Proof.

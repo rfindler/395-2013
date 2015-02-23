@@ -136,13 +136,43 @@ Lemma fib_rec_time12 : big_oh fib_rec_time fib_rec_time2.
   omega.
 Qed.
 
+Lemma fib_SS : forall n, fib (S (S n)) = fib (S n) + fib n.
+Proof.
+  intros; unfold fib; rewrite plus_comm; auto.
+Qed.
+
+Lemma fib_monotone : forall (n : nat) (m : nat), m <= n -> fib m <= fib n.
+Proof.
+  intros n m LE.
+  destruct LE.
+  auto.
+  remember (S m0) as n.
+  assert (m < n) as LT; [omega|].
+  clear LE Heqn.
+  apply (well_founded_induction lt_wf
+                                (fun (n : nat) =>
+                                   forall (m : nat), m < n -> fib m <= fib n)); auto.
+  clear m m0 n LT.
+  intros x0 H m H0.
+  destruct x0 as [|n'].
+  inversion H0.
+  destruct n' as [|n''].
+  inversion H0; [compute; omega|inversion H2].
+  rewrite fib_SS.
+  destruct m as [|m'].
+  replace (fib 0) with 0; [|compute;auto].
+  apply le_0_n.
+  destruct m' as [|m''].
+  apply le_plus_trans.
+  destruct n'' as [|n''']; [|apply H]; try omega.
+  destruct n'' as [|n''']; [intuition|]. 
+  apply le_plus_trans.
+  inversion H0; auto.
+Qed.
+
 Lemma fib_nonneg : forall n, 0 < fib (S n).
 Proof.
-  induction n.
-  simpl.
-  omega.
-  replace (fib (S (S n))) with (fib (S n) + fib n);[|unfold fib;omega].
-  omega.
+  induction n;[simpl|rewrite fib_SS]; omega.
 Qed.  
 
 Lemma fib_rec_time2_fib_relationship : 
@@ -159,8 +189,7 @@ Proof.
   simpl; reflexivity.
   replace (fib_rec_time2 (S (S n))) with (fib_rec_time2 (S n) + fib_rec_time2 n + 1);
     [|unfold fib_rec_time2;omega].
-  replace (fib (S (S (S (S n))))) with (fib (S (S (S n))) + fib (S (S n)));
-    [|unfold fib;omega].
+  rewrite fib_SS.
   replace (fib_rec_time2 (S n) + fib_rec_time2 n + 1 + 1)
   with ((fib_rec_time2 (S n) + 1) + (fib_rec_time2 n + 1));[|omega].
   rewrite IND; auto.
@@ -172,53 +201,31 @@ Lemma fib_rec_time23 : big_oh fib_rec_time2 fib.
   assert ((fib_rec_time2 n + 1) <= S (3 * fib n));[|omega].
   rewrite fib_rec_time2_fib_relationship.
   replace (S (3 * fib n)) with (3 * fib n + 1);[|omega].
-  apply (well_founded_induction
-           lt_wf
-           (fun n => fib (S (S n)) <= 3 * fib n + 1)).
-  clear n; intros n IND.
+  rewrite fib_SS.
+  replace (3 * fib n + 1) with (2 * fib n + 1 + fib n);[|omega].
+  apply plus_le_compat; auto.
   destruct n.
   simpl.
   omega.
-  destruct n.
-  simpl.
-  omega.
-  replace (fib (S (S (S (S n)))))
-  with (fib (S (S (S n))) + fib (S (S n)));
-    [|unfold fib;omega].
-  replace (fib (S (S n))) with (fib (S n) + fib n) at 2;
-    [|unfold fib;omega].
-  repeat (rewrite mult_plus_distr_l).
-  admit.
+  rewrite fib_SS.
+  replace (2 * fib (S n) + 1) with (fib (S n) + (fib (S n) + 1));[|omega].
+  apply plus_le_compat;auto.
+  apply le_plus_trans.
+  apply fib_monotone; auto.
+Qed.
+
+Theorem fib_big_theta_fib:
+  big_theta fib fib_rec_time.
+Proof.
+  split. 
+  apply fib_big_oh_fib.
+  apply big_oh_rev.
+  apply (big_oh_trans fib_rec_time fib_rec_time2).
+  apply fib_rec_time12.
+  apply fib_rec_time23.
 Qed.
 
 (*
-Lemma fib_big_omega_fib:
-  big_omega fib fib_rec_time.
-Proof.
-  apply big_oh_rev.
-  exists 1 11.
-  intros n LE.
-  destruct n. intuition.
-  clear LE.
-  apply (well_founded_induction lt_wf (fun n => fib_rec_time (S n) <= 11 * (fib (S n)))).
-  clear n.
-  intros n IND.
-  destruct n.
-  simpl; omega.
-  destruct n.
-  simpl; omega.
-  replace (fib_rec_time (S (S (S n)))) 
-  with ((fib_rec_time (S n)) + (fib_rec_time (S (S n))) + 11);[|unfold fib_rec_time; omega].
-  replace (fib (S (S (S n)))) 
-  with ((fib (S n)) + (fib (S (S n))));[|unfold fib;fold fib;omega].
-
-  replace (fib (S (S n))) 
-  with ((fib n) + (fib (S n)));[|unfold fib;fold fib;omega].
-  admit.
-   (* is this even true?! *)
-Qed.
-
-
 Lemma fib_rec_time_SSSn:
   forall n,
     fib_rec_time (S (S (S n))) =
@@ -434,12 +441,6 @@ Qed.
 
   Hint Resolve mle_2_and_3.
 
-
-  Lemma fib_SS : forall n, fib (S (S n)) = fib (S n) + fib n.
-  Proof.
-    intros; unfold fib; rewrite plus_comm; auto.
-  Qed.
-
   Lemma fib_S : forall (n : nat), n > 3 -> 3 * fib n < 2 * (fib (S n)).
   Proof.
     apply (well_founded_induction lt_wf
@@ -467,6 +468,8 @@ Qed.
   Qed.
   Hint Resolve fib_S.
 
+
+
   Lemma fib_log_div2 : forall (n : nat), 
                          n > 16 -> 3 * fib (cl_log (div2 n)) < 2 * fib (cl_log n).
   Proof.
@@ -483,32 +486,3 @@ Qed.
   Qed.
 
   Hint Resolve fib_log_div2.
-
-  Lemma fib_monotone : forall (n : nat) (m : nat), m <= n -> fib m <= fib n.
-  Proof.
-    intros n m LE.
-    destruct LE.
-    auto.
-    remember (S m0) as n.
-    assert (m < n) as LT; [omega|].
-    clear LE Heqn.
-    apply (well_founded_induction lt_wf
-                                  (fun (n : nat) =>
-                                     forall (m : nat), m < n -> fib m <= fib n)); auto.
-    clear m m0 n LT.
-    intros x0 H m H0.
-    destruct x0 as [|n'].
-    inversion H0.
-    destruct n' as [|n''].
-    inversion H0; [compute; omega|inversion H2].
-    rewrite fib_SS.
-    destruct m as [|m'].
-    replace (fib 0) with 0; [|compute;auto].
-    apply le_0_n.
-    destruct m' as [|m''].
-    apply le_plus_trans.
-    destruct n'' as [|n''']; [|apply H]; try omega.
-    destruct n'' as [|n''']; [intuition|]. 
-    apply le_plus_trans.
-    inversion H0; auto.
-  Qed.

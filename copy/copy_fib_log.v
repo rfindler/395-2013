@@ -1,6 +1,7 @@
 Require Import Braun.monad.monad Braun.common.index.
 Require Import Braun.common.braun Braun.common.log Braun.common.util.
 Require Import Braun.common.big_oh Braun.common.le_util.
+Require Import Braun.fib.fib.
 Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Program.Wf Init.Wf.
 
@@ -12,12 +13,14 @@ Section copy_fib.
 
   Variable A : Set.
 
+(*
   Program Fixpoint fib (n : nat) {measure n} : nat :=
     match n with
       | 0 => 0
       | 1 => 1
       | (S (S n')) => fib (S n') + fib n'
     end.
+*)
 
   Program Fixpoint rt_copy_fib (n : nat) {measure n}: nat :=
     match n with 
@@ -162,75 +165,6 @@ Section copy_fib.
     inversion o. assumption.
   Qed.
      
-  Lemma fib_monotone : forall (n : nat) (m : nat), m < n -> fib m <= fib n.
-  Proof.
-    apply (well_founded_induction lt_wf
-                                  (fun (n : nat) =>
-                                     forall (m : nat), m < n -> fib m <= fib n)).
-    intros x0 H m H0.
-    destruct x0 as [|n'].
-    inversion H0.
-    destruct n' as [|n''].
-    inversion H0; [compute; omega|inversion H2].
-    unfold_sub fib (fib (S (S n''))).
-    destruct m as [|m'].
-    replace (fib 0) with 0; [|compute;auto].
-    apply le_0_n.
-    destruct m' as [|m''].
-    apply le_plus_trans.
-    destruct n'' as [|n''']; [|apply H]; try omega.
-    destruct n'' as [|n''']; [intuition|]. 
-    apply le_plus_trans.
-    inversion H0; auto.
-  Qed.
-  Hint Resolve fib_monotone.
-  
-  Lemma mle_2_and_3 : forall a b, 3 * a < 2 * b -> 3 * (b + a) < 2 * (b + a + b).
-  Proof.
-    intros.
-    simpl. intuition.
-  Qed.
-
-  Hint Resolve mle_2_and_3.
-  
-  Lemma fib_S : forall (n : nat), n > 3 -> 3 * fib n < 2 * (fib (S n)).
-  Proof.
-    apply (well_founded_induction lt_wf
-                                  (fun (n : nat) =>
-                                     n > 3 -> 3 * fib n < 2 * (fib (S n)))).
-    intros n IH g2.
-    destruct n as [|n]; [compute; auto|].
-    destruct n as [|n]; [inversion g2 as [|q G qq]; inversion G|].
-    unfold_sub fib (fib (S (S (S n)))).
-    unfold_sub fib (fib (S (S n))).
-    destruct n as [|n]; [compute; auto|].
-    destruct n as [|n]; [inversion g2 as [|q1 G q2]; inversion G; omega|].
-    destruct n as [|n]; [compute; auto|].
-    destruct n as [|n]; [compute; auto|].
-    apply mle_2_and_3.
-    apply IH; auto.
-    omega.
-  Qed.
-
-  Hint Resolve fib_S.
-
-  Lemma fib_log_div2 : forall (n : nat), 
-                         n > 16 -> 3 * fib (cl_log (div2 n)) < 2 * fib (cl_log n).
-  Proof.
-    intros n g16.
-    unfold_sub cl_log (cl_log n).
-    do 16 (destruct n as [|n]; [inversion g16; try omega|]).
-    fold_sub cl_log.
-    unfold div2. fold div2.
-    apply fib_S.
-    unfold gt.
-    apply lt_le_trans with (m := cl_log 8); [compute; auto|]. 
-    apply cl_log_monotone. 
-    intuition.
-  Qed.
-
-  Hint Resolve fib_log_div2.
-
   Program Fixpoint p (n : nat) {measure n} : nat :=
     match n with
       | 0 => 0
@@ -668,7 +602,7 @@ Section copy_fib.
     unfold_sub cl_log (cl_log (S (S (S (S n))))).
     unfold_sub cl_log (cl_log (S (S (div2 n)))).
     remember (cl_log (S (div2 (div2 n)))) as m.
-    unfold_sub fib (fib (S (S m))).
+    rewrite fib_SS.
     unfold_sub p (p (S (S (S (S n))))).
     subst.
     replace (S (cl_log (S (div2 (div2 n)))))

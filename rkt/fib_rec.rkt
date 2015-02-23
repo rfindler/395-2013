@@ -4,7 +4,7 @@
  fib_rec @n{nat} 
   #:returns @{nat}
  (match (n)
-   [0 => (<== 1)]
+   [0 => (<== 0)]
    [(S n′) 
     => 
     (match (n′)

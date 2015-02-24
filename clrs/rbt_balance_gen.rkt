@@ -28,9 +28,10 @@
     (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
    [{tc BLACK} ((CT_node a RED xV (CT_node b RED yV c)) zV d)
     (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
+   
    [{tc BLACK} (a xV (CT_node (CT_node b RED yV c) RED zV d))
     (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
    [{tc BLACK} (a xV (CT_node b RED yV (CT_node c RED zV d)))
     (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
-   [(a xV b)
-    (CT_node a tc xV b)]))
+   
+   [(CT_node tl tc tv tr)]))

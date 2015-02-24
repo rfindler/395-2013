@@ -24,13 +24,13 @@
  @tl{CTree A} @tc{Color} @tv{A} @tr{CTree A}
  #:returns @{CTree A}
  (match* (tc tl tv tr)
-   [(BLACK (CT_node (CT_node a RED xK xV b) RED yK yV c) zK zV d)
-    (CT_node (CT_node a BLACK xK xV b) RED yK yV (CT_node c BLACK zK zV d))]
-   [(BLACK (CT_node a RED xK xV (CT_node b RED yK yV c)) zK zV d)
-    (CT_node (CT_node a BLACK xK xV b) RED yK yV (CT_node c BLACK zK zV d))]
-   [(BLACK a xK xV (CT_node (CT_node b RED yK yV c) RED zK zV d))
-    (CT_node (CT_node a BLACK xK xV b) RED  yK yV (CT_node c BLACK zK zV d))]
-   [(BLACK a xK xV (CT_node b RED yK yV (CT_node c RED zK zV d)))
-    (CT_node (CT_node a BLACK xK xV b) RED yK yV (CT_node c BLACK zK zV d))]
-   [(c a xK xV b)
-    (CT_node a c xK xV b)]))
+   [(BLACK (CT_node (CT_node a RED xV b) RED yV c) zV d)
+    (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
+   [(BLACK (CT_node a RED xV (CT_node b RED yV c)) zV d)
+    (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
+   [(BLACK a xV (CT_node (CT_node b RED yV c) RED zV d))
+    (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
+   [(BLACK a xV (CT_node b RED yV (CT_node c RED zV d)))
+    (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
+   [(c a xV b)
+    (CT_node a c xV b)]))

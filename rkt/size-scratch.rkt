@@ -2,9 +2,9 @@
 (require "braun.rkt" "log.rkt"
          (prefix-in fp:
                     (combine-in
-                     "diff.rkt"
-                     "size_log_sq.rkt"
-                     (only-in "tmonad.rkt" bt_node bt_mt))))
+                     "../size/diff_gen.rkt"
+                     "../size/size_log_sq_gen.rkt"
+                     (only-in tmonad bt_node bt_mt))))
 
 (module copy racket
   (require "braun.rkt")

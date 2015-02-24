@@ -1,6 +1,7 @@
+GEN := $(shell find . -type f -name '*_gen.rkt' $)
 VS := $(shell find . -type f -name '*v' | grep -v _gen.v | grep -v /extract.v $)
 VERSIONS := tmonad
-GEN_DEPS := rkt/emit.rkt rkt/tmonad.rkt rkt/tmonad-coq.rkt
+GEN_DEPS := rkt/tmonad/emit.rkt rkt/tmonad/main.rkt rkt/tmonad/coq.rkt
 
 all: code paper admit
 
@@ -42,126 +43,10 @@ extract/extract: extract/extract.ml
 extract/sextract: extract/sextract.ml
 	ocamlc -I ml -o $@ $^
 
-# XXX: Mr McCarthy, uncopy this code!
-tmonad-gen: insert/insert_log_gen.v \
-            size/size_linear_gen.v \
-            size/diff_gen.v \
-            size/size_log_sq_gen.v \
-            copy/copy_linear_gen.v \
-		    copy/copy_fib_log_gen.v \
-            copy/copy_log_sq_gen.v \
-		    copy/copy2_gen.v copy/copy_log_gen.v \
-            make_array/make_array_nlogn1_gen.v \
-            make_array/make_array_nlogn2_gen.v \
-            make_array/unravel_gen.v \
-            make_array/take_gen.v \
-            make_array/drop_gen.v \
-            make_array/rows_gen.v \
-            make_array/rows1_gen.v \
-            make_array/split_gen.v \
-            make_array/pad_drop_gen.v \
-            make_array/zip_with_3_bt_node_gen.v \
-            make_array/build_gen.v \
-            make_array/foldr_build_gen.v \
-            make_array/make_array_linear_gen.v \
-            sub1/sub1_gen.v \
-            sub1/sub1_linear_loop_gen.v \
-            fold/fold_gen.v \
-            sort/insert_gen.v \
-            sort/isort_gen.v \
-            sort/clength_gen.v \
-            sort/split2_gen.v \
-            sort/merge_gen.v \
-            sort/mergesortc_gen.v \
-            sort/mergesort_gen.v \
-            clrs/bst_search_gen.v \
-            clrs/rbt_insert_gen.v \
-            fib/fib_rec_gen.v \
-            fib/fib_iter_loop_gen.v \
-            fib/fib_iter_gen.v
+tmonad-gen: $(GEN:%.rkt=%.v)
 
-insert/insert_log_gen.v: rkt/insert.rkt $(GEN_DEPS)
+%_gen.v: %_gen.rkt $(GEN_DEPS)
 	racket $< > $@
-
-size/size_linear_gen.v: rkt/size_linear.rkt $(GEN_DEPS)
-	racket $< > $@
-size/diff_gen.v: rkt/diff.rkt $(GEN_DEPS)
-	racket $< > $@
-size/size_log_sq_gen.v: rkt/size_log_sq.rkt $(GEN_DEPS)
-	racket $< > $@
-
-copy/copy_linear_gen.v: rkt/copy_linear.rkt $(GEN_DEPS)
-	racket $< > $@
-copy/copy_fib_log_gen.v: rkt/copy_fib.rkt $(GEN_DEPS)
-	racket $< > $@
-copy/copy_log_sq_gen.v: rkt/copy_insert.rkt $(GEN_DEPS)
-	racket $< > $@
-copy/copy2_gen.v: rkt/copy2.rkt $(GEN_DEPS)
-	racket $< > $@
-copy/copy_log_gen.v: rkt/copy.rkt $(GEN_DEPS)
-	racket $< > $@
-
-make_array/make_array_nlogn1_gen.v: rkt/make_array_nlogn1.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/make_array_nlogn2_gen.v: rkt/make_array_nlogn2.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/unravel_gen.v: rkt/unravel.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/take_gen.v: rkt/take.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/drop_gen.v: rkt/drop.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/rows_gen.v: rkt/rows.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/rows1_gen.v: rkt/rows1.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/split_gen.v: rkt/split.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/pad_drop_gen.v: rkt/pad_drop.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/zip_with_3_bt_node_gen.v: rkt/zip_with_3_bt_node.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/build_gen.v: rkt/build.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/foldr_build_gen.v: rkt/foldr_build.rkt $(GEN_DEPS)
-	racket $< > $@
-make_array/make_array_linear_gen.v: rkt/make_array_linear.rkt $(GEN_DEPS)
-	racket $< > $@
-
-sub1/sub1_gen.v: rkt/sub1.rkt $(GEN_DEPS)
-	racket $< > $@
-sub1/sub1_linear_loop_gen.v: rkt/sub1_linear_loop.rkt $(GEN_DEPS)
-	racket $< > $@
-fold/fold_gen.v: rkt/fold.rkt $(GEN_DEPS)
-	racket $< > $@
-
-sort/insert_gen.v: rkt/isort_insert.rkt $(GEN_DEPS)
-	racket $< > $@
-sort/isort_gen.v: rkt/isort.rkt $(GEN_DEPS)
-	racket $< > $@
-sort/clength_gen.v: rkt/clength.rkt $(GEN_DEPS)
-	racket $< > $@
-sort/split2_gen.v: rkt/split2.rkt $(GEN_DEPS)
-	racket $< > $@
-sort/merge_gen.v: rkt/merge.rkt $(GEN_DEPS)
-	racket $< > $@
-sort/mergesortc_gen.v: rkt/mergesortc.rkt $(GEN_DEPS)
-	racket $< > $@
-sort/mergesort_gen.v: rkt/mergesort.rkt $(GEN_DEPS)
-	racket $< > $@
-
-clrs/bst_search_gen.v: rkt/bst_search.rkt $(GEN_DEPS)
-	racket $< > $@
-clrs/rbt_insert_gen.v: rkt/rbt_insert.rkt $(GEN_DEPS)
-	racket $< > $@
-
-fib/fib_rec_gen.v: rkt/fib_rec.rkt $(GEN_DEPS)
-	racket $< > $@
-fib/fib_iter_loop_gen.v: rkt/fib_iter_loop.rkt $(GEN_DEPS)
-	racket $< > $@
-fib/fib_iter_gen.v: rkt/fib_iter.rkt $(GEN_DEPS)
-	racket $< > $@
-
 
 Makefile.coq: tmonad-gen Makefile $(VS)
 	coq_makefile -R . Braun $(VS) -o Makefile.coq

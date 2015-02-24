@@ -21,15 +21,14 @@ Volume 7 Issue 6, November 1997, 661 - 666
 
 ## rkt/
 
-  This directory contains the code that inserts the += expressions and
-  all of the implementations of the functions from Okasaki's paper.
+  This directory contains the code that inserts the += expressions.
 
-###  tmonad.rkt: 
+###  tmonad: 
   This file is the implementation of the transformation
   that inserts `+=` expressions. It is used as a language. That is, a
   program that begins 
 
-    #lang at-exp s-exp "tmonad.rkt"
+    #lang at-exp s-exp tmonad
 
   contains a fully-parenthesized version of Coq. Running the main
   module of a program written in that language prints the Coq-syntax
@@ -41,7 +40,7 @@ Volume 7 Issue 6, November 1997, 661 - 666
   time count. So, for example this module:
 
     #lang racket
-    (require "insert.rkt" "tmonad.rkt")
+    (require "insert.rkt" tmonad)
     (insert 3 (bt_node 1 (bt_node 2 bt_mt bt_mt) bt_mt))
 
   prints out:
@@ -91,12 +90,12 @@ Volume 7 Issue 6, November 1997, 661 - 666
  accepts an argument `bt` of type `@bin_tree A`, then we have to write 
  `@bt{@"@"bin_tree A}`.
 
-### tmonad-coq.rkt
+### tmonad/coq
 
  This file contains a parser for a simple subset of Coq and produces
  programs in the language above. To use it, write:
 
-    #reader "tmonad-coq.rkt"
+    #reader tmonad/coq
 
  and it will parse the Coq-style notation and turn it into the
- language described above (for "tmonad.rkt").
+ language described above (for "tmonad").

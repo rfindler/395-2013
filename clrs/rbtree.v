@@ -633,6 +633,6 @@ Definition rbt_insert_result (A:Set)
     (res = false -> ~ IsMember x ct) /\
     1 <= c <= rbt_insert_time (height ct).
 
-Load "rbt_insert_gen.v".
+(* Load "rbt_insert_gen.v". *)
 
-Admit Obligations.
+(* Admit Obligations. *)

@@ -11,7 +11,7 @@ doesn't typecheck) and can be used to compute the running time as well
 as the results. Eg:
 
   Welcome to Racket v6.1.1.8.
-  > (require "diff.rkt" "tmonad.rkt")
+  > (require "diff.rkt" tmonad)
   > (diff (bt_node 1 bt_mt bt_mt) 1)
   0
   15
@@ -21,7 +21,7 @@ is the number of abstract steps. This can be useful to experiment with
 the running time as a function of the input size when you're not sure
 what the precise running time is.
 
-The tmonad.rkt language also generates a main module which, when run,
+The tmonad language also generates a main module which, when run,
 prints out the coq code for the function with the right += expressions
 inserted. Eg:
 
@@ -49,7 +49,7 @@ inserted. Eg:
 
 This generated code has the free variable "diff_result" in but
 otherwise it has the same things as in the Racket version (the
-tmonad.rkt language includes things like even_odd_dec and div2 and
+tmonad language includes things like even_odd_dec and div2 and
 other things of that ilk to run the programs in Racket, but they just
 turn into Coq identifiers in the generated code output).
 

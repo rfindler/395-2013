@@ -11,7 +11,7 @@
 (define-runtime-path l.v "l.v")
 (define-runtime-path binds.v "binds.v")
 (define-runtime-path braun.v "../common/braun.v")
-(define-runtime-path insert.rkt "../rkt/insert.rkt")
+(define-runtime-path insert.rkt "../insert/insert_log_gen.rkt")
 (define-runtime-path monad.v "../monad/monad.v")
 (define-runtime-path insert_log.v "../insert/insert_log.v")
 (define-runtime-path insert_log_gen.v "../insert/insert_log_gen.v")

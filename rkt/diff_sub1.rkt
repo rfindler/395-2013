@@ -1,7 +1,6 @@
-#lang at-exp s-exp "tmonad.rkt"
-
+#lang at-exp s-exp tmonad
 (provide diff_sub1)
-(require "sub1.rkt")
+(require "../sub1/sub1_gen.rkt")
 
 (Fixpoint
  diff_sub1 @n{nat} @m{nat}

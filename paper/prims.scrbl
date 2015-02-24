@@ -1,7 +1,7 @@
 #lang scribble/base
 @(require "util.rkt" "cite.rkt"
           "../rkt/sub1-plot.rkt"
-          (prefix-in : "../rkt/sub1.rkt")
+          (prefix-in : "../sub1/sub1_gen.rkt")
           (prefix-in p: plot/pict)
           scriblib/figure
           pict 

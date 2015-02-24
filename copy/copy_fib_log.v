@@ -13,15 +13,6 @@ Section copy_fib.
 
   Variable A : Set.
 
-(*
-  Program Fixpoint fib (n : nat) {measure n} : nat :=
-    match n with
-      | 0 => 0
-      | 1 => 1
-      | (S (S n')) => fib (S n') + fib n'
-    end.
-*)
-
   Program Fixpoint rt_copy_fib (n : nat) {measure n}: nat :=
     match n with 
       | 0 => 3

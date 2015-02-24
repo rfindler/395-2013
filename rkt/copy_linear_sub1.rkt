@@ -1,6 +1,5 @@
-#lang at-exp s-exp "tmonad.rkt"
-
-(require "sub1.rkt")
+#lang at-exp s-exp tmonad
+(require "../sub1/sub1_gen.rkt")
 (provide copy_linear_sub1)
 (Fixpoint
  copy_linear_sub1 @n{nat}

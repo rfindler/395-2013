@@ -1,8 +1,7 @@
 #lang racket/base
-
-(require "make_array_nlogn1.rkt"
-         "make_array_nlogn2.rkt"
-         "make_array_linear.rkt")
+(require "../make_array/make_array_nlogn1_gen.rkt"
+         "../make_array/make_array_nlogn2_gen.rkt"
+         "../make_array/make_array_linear_gen.rkt")
 
 (define (check-against-naive make-array)
   (printf "testing ~a against make_array_naive\n" (object-name make-array))

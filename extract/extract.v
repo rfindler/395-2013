@@ -58,7 +58,7 @@ Extraction "extract.ml" insert_log.insert
            sort.mergesort.mergesort
 
            fib.fib.fib_rec
-           fib.fib.fib_iter
+           (* XXX fib.fib.fib_iter *)
 
            clrs.zip.minsert_at
            clrs.zip.minsertz_at

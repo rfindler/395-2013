@@ -24,9 +24,11 @@
  @tl{CTree A} @tc{Color} @tv{A} @tr{CTree A}
  #:returns @{CTree A}
  (match* #:else (CT_node tl tc tv tr)
-   [{tc BLACK} {tl (CT_node (CT_node a RED xV b) RED yV c)}
+   [{tc BLACK} {tl (CT_node tll tlc yV c)} {tlc RED} 
+    {tll (CT_node a tllc xV b)} {tllc RED}
     (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK tv tr))]
-   [{tc BLACK} {tl (CT_node a RED xV (CT_node b RED yV c))}
+   [{tc BLACK} {tl (CT_node a tlc xV tlr)} {tlc RED} 
+    {tlr (CT_node b tlrc yV c)} {tlrc RED}
     (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK tv tr))]
    
    [{tc BLACK} {tr (CT_node (CT_node b RED yV c) RED zV d)}

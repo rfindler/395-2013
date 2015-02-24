@@ -15,9 +15,13 @@ Volume 7 Issue 6, November 1997, 661 - 666
 
 ## To build:
 
-  Install coq verison 8.4 (September 2012) and Racket 6.0 (or later).
-  And if you've got everything on your path, just run 'make'. This will
-  check all of the proofs, extract ocaml code, and build the paper.
+Install coq verison 8.4 (September 2012) and Racket 6.0 (or later).
+
+cd rkt/tmonad
+raco pkg install
+
+And if you've got everything on your path, just run 'make'. This will
+check all of the proofs, extract OCaml code, and build the paper.
 
 ## rkt/
 
@@ -40,7 +44,7 @@ Volume 7 Issue 6, November 1997, 661 - 666
   time count. So, for example this module:
 
     #lang racket
-    (require "insert.rkt" tmonad)
+    (require "insert_log_gen.rkt" tmonad)
     (insert 3 (bt_node 1 (bt_node 2 bt_mt bt_mt) bt_mt))
 
   prints out:

@@ -17,7 +17,7 @@ code: coq extract/extract extract/sextract
 paper/paper.pdf: paper/paper.scrbl paper/util.rkt paper/l.v paper/lwl.v paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl */*.v
 	(cd paper; scribble --pdf paper.scrbl; cd ..)
 
-.PHONY: coq clean clean-ml
+.PHONY: coq clean clean-ml tmonad-gen
 
 clean-ml:
 	rm -f $(VERSIONS:%=%/extract.vo)
@@ -46,12 +46,14 @@ extract/sextract: extract/sextract.ml
 tmonad-gen: $(GEN:%.rkt=%.v)
 
 %_gen.v: %_gen.rkt $(GEN_DEPS)
+	raco make $<
 	racket $< > $@
 
 Makefile.coq: tmonad-gen Makefile $(VS)
 	coq_makefile -R . Braun $(VS) -o Makefile.coq
 
 %.vo : coq
+	@:
 
 clean: Makefile.coq
 	$(MAKE) -f Makefile.coq clean

@@ -64,6 +64,24 @@ Next Obligation.
   omega.
 Qed.
 
+Definition rbt_balance_worst := 42.
+Definition rbt_balance_best := 8.
+
+Definition rbt_balance_result (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A)
+  (res:CTree A) (c:nat) :=
+  True /\
+  (rbt_balance_best <= c <= rbt_balance_worst).
+
+Load "rbt_balance_gen.v".
+
+Solve Obligations using
+  unfold rbt_balance_result, rbt_balance_best, rbt_balance_worst;
+    split; [ auto | omega ].
+
+Solve Obligations using program_simpl.
+
+(* 115 obligations later! *)
+
 Definition rbt_insert_time (n:nat) :=
   19 * n + 3.
 
@@ -86,7 +104,7 @@ Definition rbt_insert_result (A:Set)
     (res = false -> ~ IsMember x ct) /\
     1 <= c <= rbt_insert_time (height ct).
 
-(* Load "rbt_balance_gen.v". *)
+(*  *)
 (* Load "rbt_insert_inner_gen.v". *)
 (* Load "rbt_insert_gen.v". *)
 

@@ -2,8 +2,8 @@
 (provide rbt_balance)
 
 (Fixpoint
- rbt_balance #:implicit @A{Set}
- @tl{CTree A} @tc{Color} @tv{A} @tr{CTree A}
+ rbt_balance 
+ @A{Set} @tl{CTree A} @tc{Color} @tv{A} @tr{CTree A}
  #:returns @{CTree A}
  (match
   (tc)
@@ -27,10 +27,11 @@
            =>
            (<==
             (CT_node
-             (CT_node tlll BLACK tllv tllr)
+             A
+             (CT_node A tlll BLACK tllv tllr)
              RED
              tlv
-             (CT_node tlr BLACK tv tr))))
+             (CT_node A tlr BLACK tv tr))))
           (_
            =>
            (match
@@ -43,10 +44,11 @@
                =>
                (<==
                 (CT_node
-                 (CT_node tll BLACK tlv tlrl)
+                 A
+                 (CT_node A tll BLACK tlv tlrl)
                  RED
                  tlrv
-                 (CT_node tlrr BLACK tv tr))))
+                 (CT_node A tlrr BLACK tv tr))))
               (_
                =>
                (match
@@ -67,10 +69,11 @@
                        =>
                        (<==
                         (CT_node
-                         (CT_node tl BLACK tv trll)
+                         A
+                         (CT_node A tl BLACK tv trll)
                          RED
                          trlv
-                         (CT_node trlr BLACK trv trr))))
+                         (CT_node A trlr BLACK trv trr))))
                       (_
                        =>
                        (match
@@ -83,12 +86,13 @@
                            =>
                            (<==
                             (CT_node
-                             (CT_node tl BLACK tv trl)
+                             A
+                             (CT_node A tl BLACK tv trl)
                              RED
                              trv
-                             (CT_node trrl BLACK trrv trrr))))
-                          (_ => (<== (CT_node tl tc tv tr)))))
-                        (_ => (<== (CT_node tl tc tv tr)))))))
+                             (CT_node A trrl BLACK trrv trrr))))
+                          (_ => (<== (CT_node A tl tc tv tr)))))
+                        (_ => (<== (CT_node A tl tc tv tr)))))))
                     (_
                      =>
                      (match
@@ -101,14 +105,15 @@
                          =>
                          (<==
                           (CT_node
-                           (CT_node tl BLACK tv trl)
+                           A
+                           (CT_node A tl BLACK tv trl)
                            RED
                            trv
-                           (CT_node trrl BLACK trrv trrr))))
-                        (_ => (<== (CT_node tl tc tv tr)))))
-                      (_ => (<== (CT_node tl tc tv tr)))))))
-                  (_ => (<== (CT_node tl tc tv tr)))))
-                (_ => (<== (CT_node tl tc tv tr)))))))
+                           (CT_node A trrl BLACK trrv trrr))))
+                        (_ => (<== (CT_node A tl tc tv tr)))))
+                      (_ => (<== (CT_node A tl tc tv tr)))))))
+                  (_ => (<== (CT_node A tl tc tv tr)))))
+                (_ => (<== (CT_node A tl tc tv tr)))))))
             (_
              =>
              (match
@@ -129,10 +134,11 @@
                      =>
                      (<==
                       (CT_node
-                       (CT_node tl BLACK tv trll)
+                       A
+                       (CT_node A tl BLACK tv trll)
                        RED
                        trlv
-                       (CT_node trlr BLACK trv trr))))
+                       (CT_node A trlr BLACK trv trr))))
                     (_
                      =>
                      (match
@@ -145,12 +151,13 @@
                          =>
                          (<==
                           (CT_node
-                           (CT_node tl BLACK tv trl)
+                           A
+                           (CT_node A tl BLACK tv trl)
                            RED
                            trv
-                           (CT_node trrl BLACK trrv trrr))))
-                        (_ => (<== (CT_node tl tc tv tr)))))
-                      (_ => (<== (CT_node tl tc tv tr)))))))
+                           (CT_node A trrl BLACK trrv trrr))))
+                        (_ => (<== (CT_node A tl tc tv tr)))))
+                      (_ => (<== (CT_node A tl tc tv tr)))))))
                   (_
                    =>
                    (match
@@ -163,14 +170,15 @@
                        =>
                        (<==
                         (CT_node
-                         (CT_node tl BLACK tv trl)
+                         A
+                         (CT_node A tl BLACK tv trl)
                          RED
                          trv
-                         (CT_node trrl BLACK trrv trrr))))
-                      (_ => (<== (CT_node tl tc tv tr)))))
-                    (_ => (<== (CT_node tl tc tv tr)))))))
-                (_ => (<== (CT_node tl tc tv tr)))))
-              (_ => (<== (CT_node tl tc tv tr)))))))))
+                         (CT_node A trrl BLACK trrv trrr))))
+                      (_ => (<== (CT_node A tl tc tv tr)))))
+                    (_ => (<== (CT_node A tl tc tv tr)))))))
+                (_ => (<== (CT_node A tl tc tv tr)))))
+              (_ => (<== (CT_node A tl tc tv tr)))))))))
         (_
          =>
          (match
@@ -183,10 +191,11 @@
              =>
              (<==
               (CT_node
-               (CT_node tll BLACK tlv tlrl)
+               A
+               (CT_node A tll BLACK tlv tlrl)
                RED
                tlrv
-               (CT_node tlrr BLACK tv tr))))
+               (CT_node A tlrr BLACK tv tr))))
             (_
              =>
              (match
@@ -207,10 +216,11 @@
                      =>
                      (<==
                       (CT_node
-                       (CT_node tl BLACK tv trll)
+                       A
+                       (CT_node A tl BLACK tv trll)
                        RED
                        trlv
-                       (CT_node trlr BLACK trv trr))))
+                       (CT_node A trlr BLACK trv trr))))
                     (_
                      =>
                      (match
@@ -223,12 +233,13 @@
                          =>
                          (<==
                           (CT_node
-                           (CT_node tl BLACK tv trl)
+                           A
+                           (CT_node A tl BLACK tv trl)
                            RED
                            trv
-                           (CT_node trrl BLACK trrv trrr))))
-                        (_ => (<== (CT_node tl tc tv tr)))))
-                      (_ => (<== (CT_node tl tc tv tr)))))))
+                           (CT_node A trrl BLACK trrv trrr))))
+                        (_ => (<== (CT_node A tl tc tv tr)))))
+                      (_ => (<== (CT_node A tl tc tv tr)))))))
                   (_
                    =>
                    (match
@@ -241,14 +252,15 @@
                        =>
                        (<==
                         (CT_node
-                         (CT_node tl BLACK tv trl)
+                         A
+                         (CT_node A tl BLACK tv trl)
                          RED
                          trv
-                         (CT_node trrl BLACK trrv trrr))))
-                      (_ => (<== (CT_node tl tc tv tr)))))
-                    (_ => (<== (CT_node tl tc tv tr)))))))
-                (_ => (<== (CT_node tl tc tv tr)))))
-              (_ => (<== (CT_node tl tc tv tr)))))))
+                         (CT_node A trrl BLACK trrv trrr))))
+                      (_ => (<== (CT_node A tl tc tv tr)))))
+                    (_ => (<== (CT_node A tl tc tv tr)))))))
+                (_ => (<== (CT_node A tl tc tv tr)))))
+              (_ => (<== (CT_node A tl tc tv tr)))))))
           (_
            =>
            (match
@@ -269,10 +281,11 @@
                    =>
                    (<==
                     (CT_node
-                     (CT_node tl BLACK tv trll)
+                     A
+                     (CT_node A tl BLACK tv trll)
                      RED
                      trlv
-                     (CT_node trlr BLACK trv trr))))
+                     (CT_node A trlr BLACK trv trr))))
                   (_
                    =>
                    (match
@@ -285,12 +298,13 @@
                        =>
                        (<==
                         (CT_node
-                         (CT_node tl BLACK tv trl)
+                         A
+                         (CT_node A tl BLACK tv trl)
                          RED
                          trv
-                         (CT_node trrl BLACK trrv trrr))))
-                      (_ => (<== (CT_node tl tc tv tr)))))
-                    (_ => (<== (CT_node tl tc tv tr)))))))
+                         (CT_node A trrl BLACK trrv trrr))))
+                      (_ => (<== (CT_node A tl tc tv tr)))))
+                    (_ => (<== (CT_node A tl tc tv tr)))))))
                 (_
                  =>
                  (match
@@ -303,14 +317,15 @@
                      =>
                      (<==
                       (CT_node
-                       (CT_node tl BLACK tv trl)
+                       A
+                       (CT_node A tl BLACK tv trl)
                        RED
                        trv
-                       (CT_node trrl BLACK trrv trrr))))
-                    (_ => (<== (CT_node tl tc tv tr)))))
-                  (_ => (<== (CT_node tl tc tv tr)))))))
-              (_ => (<== (CT_node tl tc tv tr)))))
-            (_ => (<== (CT_node tl tc tv tr)))))))))
+                       (CT_node A trrl BLACK trrv trrr))))
+                    (_ => (<== (CT_node A tl tc tv tr)))))
+                  (_ => (<== (CT_node A tl tc tv tr)))))))
+              (_ => (<== (CT_node A tl tc tv tr)))))
+            (_ => (<== (CT_node A tl tc tv tr)))))))))
       (_
        =>
        (match
@@ -331,10 +346,11 @@
                =>
                (<==
                 (CT_node
-                 (CT_node tl BLACK tv trll)
+                 A
+                 (CT_node A tl BLACK tv trll)
                  RED
                  trlv
-                 (CT_node trlr BLACK trv trr))))
+                 (CT_node A trlr BLACK trv trr))))
               (_
                =>
                (match
@@ -347,12 +363,13 @@
                    =>
                    (<==
                     (CT_node
-                     (CT_node tl BLACK tv trl)
+                     A
+                     (CT_node A tl BLACK tv trl)
                      RED
                      trv
-                     (CT_node trrl BLACK trrv trrr))))
-                  (_ => (<== (CT_node tl tc tv tr)))))
-                (_ => (<== (CT_node tl tc tv tr)))))))
+                     (CT_node A trrl BLACK trrv trrr))))
+                  (_ => (<== (CT_node A tl tc tv tr)))))
+                (_ => (<== (CT_node A tl tc tv tr)))))))
             (_
              =>
              (match
@@ -365,14 +382,15 @@
                  =>
                  (<==
                   (CT_node
-                   (CT_node tl BLACK tv trl)
+                   A
+                   (CT_node A tl BLACK tv trl)
                    RED
                    trv
-                   (CT_node trrl BLACK trrv trrr))))
-                (_ => (<== (CT_node tl tc tv tr)))))
-              (_ => (<== (CT_node tl tc tv tr)))))))
-          (_ => (<== (CT_node tl tc tv tr)))))
-        (_ => (<== (CT_node tl tc tv tr)))))))
+                   (CT_node A trrl BLACK trrv trrr))))
+                (_ => (<== (CT_node A tl tc tv tr)))))
+              (_ => (<== (CT_node A tl tc tv tr)))))))
+          (_ => (<== (CT_node A tl tc tv tr)))))
+        (_ => (<== (CT_node A tl tc tv tr)))))))
     (_
      =>
      (match
@@ -393,10 +411,11 @@
              =>
              (<==
               (CT_node
-               (CT_node tl BLACK tv trll)
+               A
+               (CT_node A tl BLACK tv trll)
                RED
                trlv
-               (CT_node trlr BLACK trv trr))))
+               (CT_node A trlr BLACK trv trr))))
             (_
              =>
              (match
@@ -409,12 +428,13 @@
                  =>
                  (<==
                   (CT_node
-                   (CT_node tl BLACK tv trl)
+                   A
+                   (CT_node A tl BLACK tv trl)
                    RED
                    trv
-                   (CT_node trrl BLACK trrv trrr))))
-                (_ => (<== (CT_node tl tc tv tr)))))
-              (_ => (<== (CT_node tl tc tv tr)))))))
+                   (CT_node A trrl BLACK trrv trrr))))
+                (_ => (<== (CT_node A tl tc tv tr)))))
+              (_ => (<== (CT_node A tl tc tv tr)))))))
           (_
            =>
            (match
@@ -427,12 +447,13 @@
                =>
                (<==
                 (CT_node
-                 (CT_node tl BLACK tv trl)
+                 A
+                 (CT_node A tl BLACK tv trl)
                  RED
                  trv
-                 (CT_node trrl BLACK trrv trrr))))
-              (_ => (<== (CT_node tl tc tv tr)))))
-            (_ => (<== (CT_node tl tc tv tr)))))))
-        (_ => (<== (CT_node tl tc tv tr)))))
-      (_ => (<== (CT_node tl tc tv tr)))))))
-  (_ => (<== (CT_node tl tc tv tr)))))
+                 (CT_node A trrl BLACK trrv trrr))))
+              (_ => (<== (CT_node A tl tc tv tr)))))
+            (_ => (<== (CT_node A tl tc tv tr)))))))
+        (_ => (<== (CT_node A tl tc tv tr)))))
+      (_ => (<== (CT_node A tl tc tv tr)))))))
+  (_ => (<== (CT_node A tl tc tv tr)))))

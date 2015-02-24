@@ -46,26 +46,31 @@
 
 (module+ test
   (define t
-    `(match* #:else (CT_node tl tc tv tr)
+    `(match* #:else (CT_node A tl tc tv tr)
       [{tc (BLACK)} {tl (CT_node tll tlc tlv tlr)} {tlc (RED)}
        {tll (CT_node tlll tllc tllv tllr)} {tllc (RED)}
        #:ret
-       (CT_node (CT_node tlll BLACK tllv tllr) RED tlv (CT_node tlr BLACK tv tr))]
+       (CT_node A 
+                (CT_node A tlll BLACK tllv tllr) RED tlv 
+                (CT_node A tlr BLACK tv tr))]
 
       [{tc (BLACK)} {tl (CT_node tll tlc tlv tlr)} {tlc (RED)}
        {tlr (CT_node tlrl tlrc tlrv tlrr)} {tlrc (RED)}
        #:ret
-       (CT_node (CT_node tll BLACK tlv tlrl) RED tlrv (CT_node tlrr BLACK tv tr))]
+       (CT_node A (CT_node A tll BLACK tlv tlrl) RED tlrv 
+                (CT_node A tlrr BLACK tv tr))]
 
       [{tc (BLACK)} {tr (CT_node trl trc trv trr)} {trc (RED)}
        {trl (CT_node trll trlc trlv trlr)} {trlc (RED)}
        #:ret
-       (CT_node (CT_node tl BLACK tv trll) RED trlv (CT_node trlr BLACK trv trr))]
+       (CT_node A (CT_node A tl BLACK tv trll) RED trlv
+                (CT_node A trlr BLACK trv trr))]
 
       [{tc (BLACK)} {tr (CT_node trl trc trv trr)} {trc (RED)}
        {trr (CT_node trrl trrc trrv trrr)} {trrc (RED)}
        #:ret
-       (CT_node (CT_node tl BLACK tv trl) RED trv (CT_node trrl BLACK trrv trrr))]))
+       (CT_node A (CT_node A tl BLACK tv trl) RED trv
+                (CT_node A trrl BLACK trrv trrr))]))
   (require racket/pretty)
   (pretty-print (do-match* t))
   (pretty-print DEFNS))

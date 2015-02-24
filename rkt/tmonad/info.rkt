@@ -1,4 +1,4 @@
 #lang info
 (define collection "tmonad")
-(define deps '())
+(define deps '("base" "parser-tools-lib"))
 (define build-deps '())

@@ -13,6 +13,8 @@
          bt_node
          CT_leaf
          CT_node
+         BLACK
+         RED
          match if bind let => <==
          provide
          require
@@ -334,6 +336,19 @@
 (r:define-match-expander nil (λ (stx) #''()) (λ (stx) #''()))
 (r:define-match-expander bt_mt (λ (stx) #'(bt_mt-struct)) (λ (stx) #'the-bt_mt))
 (r:define-match-expander CT_leaf (λ (stx) #'(CT_leaf-struct)) (λ (stx) #'the-CT_leaf))
+
+(struct BLACK-struct () #:transparent
+        #:methods gen:custom-write
+        [(define (write-proc val port mode)
+           (display "BLACK" port))])
+(define the-BLACK (BLACK-struct))
+(r:define-match-expander BLACK (λ (stx) #'(BLACK-struct)) (λ (stx) #'the-BLACK))
+(struct RED-struct () #:transparent
+        #:methods gen:custom-write
+        [(define (write-proc val port mode)
+           (display "RED" port))])
+(define the-RED (RED-struct))
+(r:define-match-expander RED (λ (stx) #'(RED-struct)) (λ (stx) #'the-RED))
 
 (r:define-match-expander S 
                          (λ (stx) 

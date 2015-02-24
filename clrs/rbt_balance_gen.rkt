@@ -35,11 +35,11 @@
     (CT_node (CT_node tll BLACK tlv tlrl) RED tlrv (CT_node tlrr BLACK tv tr))]
    
    [{tc BLACK} {tr (CT_node trl trc trv trr)} {trc RED} 
-    {trl (CT_node b trlc yV c)} {trlc RED}
+    {trl (CT_node trll trlc trlv trlr)} {trlc RED}
     
-    (CT_node (CT_node tl BLACK tv b) RED yV (CT_node c BLACK trv trr))]
+    (CT_node (CT_node tl BLACK tv trll) RED trlv (CT_node trlr BLACK trv trr))]
    
    [{tc BLACK} {tr (CT_node trl trc trv trr)} {trc RED} 
-    {trr (CT_node c trrc zV d)} {trrc RED}
+    {trr (CT_node trrl trrc trrv trrr)} {trrc RED}
     
-    (CT_node (CT_node tl BLACK tv trl) RED trv (CT_node c BLACK zV d))]))
+    (CT_node (CT_node tl BLACK tv trl) RED trv (CT_node trrl BLACK trrv trrr))]))

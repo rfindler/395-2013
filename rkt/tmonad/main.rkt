@@ -6,6 +6,7 @@
 
 (provide (rename-out [module-begin #%module-begin]
                      [top-interaction #%top-interaction])
+         define-syntax
          #%datum
          #%app
          Fixpoint
@@ -17,7 +18,7 @@
          RED
          match if bind let => <==
          provide
-         require
+         require for-syntax
          cons list
          nil
          pair fst snd

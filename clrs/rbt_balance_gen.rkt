@@ -1,25 +1,36 @@
 #lang at-exp s-exp tmonad
 (provide rbt_balance)
 
-;; xxx
-#;
-(define-syntax (match* stx)
-  (syntax-parse stx))
+(require (for-syntax racket/base
+                     syntax/parse))
+(define-syntax (Fixpoint* stx)
+  (define (expand-match* stx)
+    (syntax-parse stx
+      [(_ (expr ...)
+          [(pat ...) body]
+          ...)
+       (syntax/loc stx
+         (<== 1))]))
+  
+  (syntax-parse stx
+    [(_ name:id #:implicit iarg:expr arg:expr ... #:returns return:expr
+        body:expr)
+     (quasisyntax/loc stx
+       (Fixpoint name #:implicit iarg arg ... #:returns return
+                 #,(expand-match* #'body)))]))
 
-(Fixpoint
+(Fixpoint*
  rbt_balance #:implicit @A{Set}
  @tl{CTree A} @tc{Color} @tv{A} @tr{CTree A}
  #:returns @{CTree A}
- (<== tl)
- #;
  (match* (tc tl tv tr)
-   [((== BLACK) (T:C2 (== RED) (T:C2 (== RED) a xK xV b) yK yV c) zK zV d)
-    (T:C2 RED (T:C2 BLACK a xK xV b) yK yV (T:C2 BLACK c zK zV d))]
-   [((== BLACK) (T:C2 (== RED) a xK xV (T:C2 (== RED) b yK yV c)) zK zV d)
-    (T:C2 RED (T:C2 BLACK a xK xV b) yK yV (T:C2 BLACK c zK zV d))]
-   [((== BLACK) a xK xV (T:C2 (== RED) (T:C2 (== RED) b yK yV c) zK zV d))
-    (T:C2 RED (T:C2 BLACK a xK xV b) yK yV (T:C2 BLACK c zK zV d))]
-   [((== BLACK) a xK xV (T:C2 (== RED) b yK yV (T:C2 (== RED) c zK zV d)))
-    (T:C2 RED (T:C2 BLACK a xK xV b) yK yV (T:C2 BLACK c zK zV d))]
+   [(BLACK (CT_node (CT_node a RED xK xV b) RED yK yV c) zK zV d)
+    (CT_node (CT_node a BLACK xK xV b) RED yK yV (CT_node c BLACK zK zV d))]
+   [(BLACK (CT_node a RED xK xV (CT_node b RED yK yV c)) zK zV d)
+    (CT_node (CT_node a BLACK xK xV b) RED yK yV (CT_node c BLACK zK zV d))]
+   [(BLACK a xK xV (CT_node (CT_node b RED yK yV c) RED zK zV d))
+    (CT_node (CT_node a BLACK xK xV b) RED  yK yV (CT_node c BLACK zK zV d))]
+   [(BLACK a xK xV (CT_node b RED yK yV (CT_node c RED zK zV d)))
+    (CT_node (CT_node a BLACK xK xV b) RED yK yV (CT_node c BLACK zK zV d))]
    [(c a xK xV b)
-    (T:C2 c a xK xV b)]))
+    (CT_node a c xK xV b)]))

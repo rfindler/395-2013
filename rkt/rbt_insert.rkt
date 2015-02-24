@@ -7,61 +7,17 @@
  rbt_balance #:implicit @A{Set}
  @tl{CTree A} @tc{Color} @tv{A} @tr{CTree A}
  #:returns @{CTree A}
- 
- (match (tc)
-   [(RED) => (<== (CT_node tl tc tv tr))]
-   [(BLACK)
-    =>
-    (match (tl)
-      [(CT_leaf) => 
-       (match (tr)
-         [(CT_leaf) => 
-          (<== (CT_node tl tc tv tr))]
-         [(CT_node bl bc bv br) =>
-          (match (bc)
-            [(RED) => 
-             (match (bl)
-               [(CT_leaf) =>
-                (match (br)
-                  [(CT_leaf) =>
-                   (<== (CT_node tl tc tv tr))]
-                  [(CT_node brl brc brv brr) =>
-                   (match* (brc)
-                     ;; case 4
-                     [(RED) =>
-                      (<== (CT_node (CT_node tl BLACK tv bl) RED bv 
-                                    (CT_node brl BLACK brv brr)))]
-                     [(BLACK) =>
-                      (<== (CT_node tl tc tv tr))])])]
-               [(CT_node bll blc blv blr) =>
-                (match* (tr)
-                  ;; case 3
-                  [((CT_node (CT_node b (== RED) yV c) _ _ _))
-                   (<== (CT_node (CT_node tl BLACK tv b) RED yV (CT_node c BLACK bv br)))]
-                  ;; case 4
-                  [((CT_node _ _ _ (CT_node c (== RED) zV d)))
-                   (<== (CT_node (CT_node tl BLACK tv bl) RED bv (CT_node c BLACK zV d)))]
-                  [(b)
-                   (<== (CT_node tl tc tv tr))])])]
-            [(BLACK) =>
-             (<== (CT_node tl tc tv tr))])])]
-      [(CT_node al ac av ar)
-       =>       
-       (match* (tl tv tr)
-         ;; case 1
-         [((CT_node (CT_node a (== RED) xV b) (== RED) yV c) zV d)
-          (<== (CT_node (CT_node a BLACK xV b) RED  yV (CT_node c BLACK zV d)))]
-         ;; case 2
-         [((CT_node a (== RED) xV (CT_node b (== RED) yV c)) zV d)
-          (<== (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d)))]
-         ;; case 3
-         [(a xV (CT_node (CT_node b (== RED) yV c) (== RED) zV d))
-          (<== (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d)))]
-         ;; case 4
-         [(a xV (CT_node b (== RED) yV (CT_node c (== RED) zV d)))
-          (<== (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d)))]
-         [(a xV b)
-          (<== (CT_node tl tc tv tr))])])]))
+ (match* (tc tl tv tr)
+   [((== BLACK) (T:C2 (== RED) (T:C2 (== RED) a xK xV b) yK yV c) zK zV d)
+    (T:C2 RED (T:C2 BLACK a xK xV b) yK yV (T:C2 BLACK c zK zV d))]
+   [((== BLACK) (T:C2 (== RED) a xK xV (T:C2 (== RED) b yK yV c)) zK zV d)
+    (T:C2 RED (T:C2 BLACK a xK xV b) yK yV (T:C2 BLACK c zK zV d))]
+   [((== BLACK) a xK xV (T:C2 (== RED) (T:C2 (== RED) b yK yV c) zK zV d))
+    (T:C2 RED (T:C2 BLACK a xK xV b) yK yV (T:C2 BLACK c zK zV d))]
+   [((== BLACK) a xK xV (T:C2 (== RED) b yK yV (T:C2 (== RED) c zK zV d)))
+    (T:C2 RED (T:C2 BLACK a xK xV b) yK yV (T:C2 BLACK c zK zV d))]
+   [(c a xK xV b)
+    (T:C2 c a xK xV b)]))
 
 (Fixpoint
  rbt_insert_inner #:implicit @A{Set}

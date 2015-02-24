@@ -23,14 +23,14 @@
  rbt_balance #:implicit @A{Set}
  @tl{CTree A} @tc{Color} @tv{A} @tr{CTree A}
  #:returns @{CTree A}
- (match* (tc tl tv tr)
-   [(BLACK (CT_node (CT_node a RED xV b) RED yV c) zV d)
+ (match* (tl tv tr)
+   [{tc BLACK} ((CT_node (CT_node a RED xV b) RED yV c) zV d)
     (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
-   [(BLACK (CT_node a RED xV (CT_node b RED yV c)) zV d)
+   [{tc BLACK} ((CT_node a RED xV (CT_node b RED yV c)) zV d)
     (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
-   [(BLACK a xV (CT_node (CT_node b RED yV c) RED zV d))
+   [{tc BLACK} (a xV (CT_node (CT_node b RED yV c) RED zV d))
     (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
-   [(BLACK a xV (CT_node b RED yV (CT_node c RED zV d)))
+   [{tc BLACK} (a xV (CT_node b RED yV (CT_node c RED zV d)))
     (CT_node (CT_node a BLACK xV b) RED yV (CT_node c BLACK zV d))]
-   [(c a xV b)
-    (CT_node a c xV b)]))
+   [(a xV b)
+    (CT_node a tc xV b)]))

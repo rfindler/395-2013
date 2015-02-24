@@ -225,264 +225,155 @@ Proof.
   apply fib_rec_time23.
 Qed.
 
-(*
-Lemma fib_rec_time_SSSn:
-  forall n,
-    fib_rec_time (S (S (S n))) =
-    2 * fib_rec_time (S n) + fib_rec_time n + 4.
-Proof.
-  intros n.
-  replace (fib_rec_time (S (S (S n)))) with
-    ((fib_rec_time (S n)) + (fib_rec_time (S (S n))) + 2); try auto.
-  replace (fib_rec_time (S (S n))) with
-    ((fib_rec_time n) + (fib_rec_time (S n)) + 2); try auto.
-  omega.
-  admit.
-  admit.
-Qed.
-
-Lemma fib_rec_monotone:
-  forall n,
-    fib_rec_time n < fib_rec_time (S n).
-Proof.
-  induction n as [|[|n]]; simpl; omega.
-Qed.
-
-Lemma fib_rec_time_upper:
-  forall n,
-    pow 2 n <= fib_rec_time (S n).
-Admitted.
-(*
-Proof.
-  induction n as [|[|n]].  
-  simpl. auto.
-  simpl. auto.
-  rewrite fib_rec_time_SSSn.
-  replace (fib_rec_time (S (S n))) with
-    ((fib_rec_time n) + (fib_rec_time (S n)) + 2) in IHn; try auto.
-  remember (fib_rec_time n) as N.
-  remember (fib_rec_time (S n)) as SN.
-  assert (N < SN) as LT.
-  subst N SN.
-  apply fib_rec_monotone.
-  clear HeqN HeqSN.
-  simpl in *.
-  omega.
-Qed.
-*)
-
-Definition fib_iter_loop_result (fuel:nat) (target:nat) (a:nat) (b:nat) (res:nat) (c:nat) :=
+Definition fib_iter_loop_result (fuel:nat) (target:nat) (a:nat) (b:nat)
+           (res:nat) (c:nat) :=
     1 < target ->
     fuel < target ->
     Fib (target - fuel - 1) a ->
     Fib (target - fuel) b ->
     Fib target res /\
-    c = fuel + 1.
+    c = 10 * fuel + 3.
 
 Load "fib_iter_loop_gen.v".
 
-Admit Obligations.
-
-(*
-
-Program Fixpoint fib_iter_loop (fuel:nat) (target:nat) (a:nat) (b:nat) :
-  {! res !:! nat !<! c !>!
-    1 < target ->
-    fuel < target ->
-    Fib (target - fuel - 1) a ->
-    Fib (target - fuel) b ->
-    Fib target res /\
-    c = fuel + 1 !}
-  :=
-  match fuel with
-    | O =>
-      += 1 ;
-      <== b
-    | S fuel =>
-      res <- fib_iter_loop fuel target b (a + b) ;
-      += 1 ;
-      <== res
-  end.
-
 Next Obligation.
-  rewrite <- minus_n_O in *. auto.
+  unfold fib_iter_loop_result.
+  intros.
+
+  split.
+  destruct target.
+  intuition.
+  destruct target.
+  intuition.
+  eauto.
+  omega.
 Qed.
 
 Next Obligation.
+  unfold fib_iter_loop_result in *.
  rename fuel0 into fuel.
- clear am H5.
+ clear am H1.
  rename H0 into IH.
- rename H1 into LT.
- rename H2 into LE.
- rename H3 into Fa.
- rename H4 into Fb.
- edestruct IH as [Fab EQan].
- auto. omega.
- replace (target - fuel - 1) with (target - S fuel). auto.
- omega.
+ intros LT LE Fa Fb.
 
- destruct target as [|target].
+ destruct target.
+ intuition.
+ destruct target.
+ intuition.
+ edestruct IH as [Fab EQan];try omega.
+ replace (S (S target) - fuel - 1) with (S (S target) - S fuel) in *;auto.
  omega.
- destruct target as [|target].
- omega.
- destruct fuel as [|fuel].
- simpl in *.
- rewrite <- minus_n_O in *. auto.
- simpl in Fb.
- simpl in Fa.
- replace (S (S target) - S fuel) with (S (target - fuel)); try omega.
- remember (target - fuel) as TF.
- destruct TF as [|TF].
- simpl in *.
- replace fuel with target in *; try omega.
-
- simpl in Fa.
- rewrite <- minus_n_O in *.
+ replace (S (S target) - S fuel - 1) with (S target - S fuel) in *;[|omega].
+ replace (S (S target) - (S fuel)) with (S (S target - S fuel)) in *;[|omega].
+ replace (S (S target) - fuel) with (S (S (target - fuel)));[|omega].
  auto.
 
- subst an. split. auto.
+ split.
+ 
+ auto.
+
  omega.
 Qed.
-*)
 
 Fixpoint fib_iter_time (n:nat) :=
   match n with
-    | O =>
-      1
+    | O => 3
     | S n' =>
       match n' with
-        | O =>
-          2
-        | S n'' =>
-          n'' + 4
+        | O => 5
+        | S n'' => 10 * n'' + 23
       end
   end.
 
 Definition fib_iter_result (target:nat) (res:nat) (c:nat) :=
-    Fib target res /\
-    c = fib_iter_time target.
+  Fib target res /\
+  c = fib_iter_time target.
 
 Load "fib_iter_gen.v".
 
-Admit Obligations.
-
-(*
-Program Fixpoint fib_iter (target:nat) :
-  {! res !:! nat !<! c !>!
-    Fib target res /\
-    c = fib_iter_time target !}
-  :=  
-  match target with
-    | O =>
-      += 1 ;
-      <== 1
-    | S target' =>
-      match target' with
-        | O =>
-          += 2 ;
-          <== 1
-        | S target'' =>
-          res <- fib_iter_loop target' target 1 1 ;
-          += 2 ;
-          <== res
-      end
-  end.
+Next Obligation.
+  unfold fib_iter_result.
+  split; simpl; eauto.
+Qed.  
 
 Next Obligation.
+  unfold fib_iter_result.
+  split; simpl; eauto.
+Qed.
+
+Next Obligation.
+  unfold fib_iter_result, fib_iter_loop_result, fib_iter_time in *.
   clear am H1.
   rename H0 into FIL.
-  edestruct FIL; [ | | | | split; [ auto | omega ]]; clear FIL.
+  edestruct FIL; [ | | | | split; auto]; clear FIL.
   omega. omega.
-  replace (S (S target'') - S target'' - 1) with 0; try omega.
+  replace (S (S target'') - S target'' - 1) with 0; [|omega].
   auto.
-  replace (S (S target'') - S target'') with 1; try omega.
+  replace (S (S target'') - S target'') with 1;[|omega].
   auto.
+  subst an.
+  replace (S target'') with (target'' + 1);[|omega].
+  rewrite mult_plus_distr_l.
+  omega.
 Qed.
-*)
 
-Theorem fib_iter_is_better:
-  forall n,
-    fib_iter_time n <= fib_rec_time n.
-Admitted.
-(*
+Theorem fib_iter_linear: big_oh fib_iter_time (fun n => n).
 Proof.
-  intros [|n].
-  simpl. auto.
-  destruct n as [|n].
-  simpl. auto.
-  destruct n as [|n].
-  simpl. auto.
-  eapply le_trans; [ | apply fib_rec_time_upper ].
-  simpl.
-
-  induction n as [|n].
-  simpl. auto.
-  simpl pow. omega.
+  exists 2 20.
+  intros n LT.
+  destruct n;[intuition|].
+  destruct n;[intuition|].
+  clear LT.
+  unfold fib_iter_time.
+  omega.
 Qed.
-*)
-
-Lemma fib_rec_time_guarantee:
-  ~
-  (forall n,
-    pow 2 (div2 n) <= fib_rec_time n <= pow 2 n).
-Proof.
-  intros H.
-  destruct (H 3) as [Pl Pr].
-  simpl in *. omega.
-Qed.
-*)
-
   
-  Lemma mle_2_and_3 : forall a b, 3 * a < 2 * b -> 3 * (b + a) < 2 * (b + a + b).
-  Proof.
-    intros.
-    simpl. intuition.
-  Qed.
+Lemma mle_2_and_3 : forall a b, 3 * a < 2 * b -> 3 * (b + a) < 2 * (b + a + b).
+Proof.
+  intros.
+  simpl. intuition.
+Qed.
 
-  Hint Resolve mle_2_and_3.
+Lemma fib_S : forall (n : nat), n > 3 -> 3 * fib n < 2 * (fib (S n)).
+Proof.
+  apply (well_founded_induction lt_wf
+                                (fun (n : nat) =>
+                                   n > 3 -> 3 * fib n < 2 * (fib (S n)))).
+  intros n IH g2.
+  destruct n as [|n]; [compute; auto|].
+  destruct n as [|n]; [inversion g2 as [|q G qq]; inversion G|].
+  rewrite fib_SS.
+  destruct n as [|n]; [compute; auto|].
+  destruct n as [|n]; [inversion g2 as [|q1 G q2]; inversion G; omega|].
+  destruct n as [|n]; [compute; auto|].
+  destruct n as [|n]; [compute; auto|].
+  replace (fib (S (S (S (S (S (S (S n))))))))
+  with (fib (S (S (S (S (S n))))) + fib (S (S (S (S n)))) + fib (S (S (S (S (S n)))))).
+  apply mle_2_and_3.
+  apply IH; auto.
+  omega.
+  remember (fib (S (S (S (S (S n)))))) as a.
+  remember (fib (S (S (S (S n))))) as b.
+  rewrite fib_SS.
+  rewrite <- Heqa.
+  rewrite fib_SS.
+  auto.
+Qed.
+Hint Resolve fib_S.
 
-  Lemma fib_S : forall (n : nat), n > 3 -> 3 * fib n < 2 * (fib (S n)).
-  Proof.
-    apply (well_founded_induction lt_wf
-                                  (fun (n : nat) =>
-                                     n > 3 -> 3 * fib n < 2 * (fib (S n)))).
-    intros n IH g2.
-    destruct n as [|n]; [compute; auto|].
-    destruct n as [|n]; [inversion g2 as [|q G qq]; inversion G|].
-    rewrite fib_SS.
-    destruct n as [|n]; [compute; auto|].
-    destruct n as [|n]; [inversion g2 as [|q1 G q2]; inversion G; omega|].
-    destruct n as [|n]; [compute; auto|].
-    destruct n as [|n]; [compute; auto|].
-    replace (fib (S (S (S (S (S (S (S n))))))))
-    with (fib (S (S (S (S (S n))))) + fib (S (S (S (S n)))) + fib (S (S (S (S (S n)))))).
-    apply mle_2_and_3.
-    apply IH; auto.
-    omega.
-    remember (fib (S (S (S (S (S n)))))) as a.
-    remember (fib (S (S (S (S n))))) as b.
-    rewrite fib_SS.
-    rewrite <- Heqa.
-    rewrite fib_SS.
-    auto.
-  Qed.
-  Hint Resolve fib_S.
+Lemma fib_log_div2 : forall (n : nat), 
+                       n > 16 -> 3 * fib (cl_log (div2 n)) < 2 * fib (cl_log n).
+Proof.
+  intros n g16.
+  unfold_sub cl_log (cl_log n).
+  do 16 (destruct n as [|n]; [inversion g16; try omega|]).
+  fold_sub cl_log.
+  unfold div2. fold div2.
+  apply fib_S.
+  unfold gt.
+  apply lt_le_trans with (m := cl_log 8); [compute; auto|]. 
+  apply cl_log_monotone. 
+  intuition.
+Qed.
 
-
-
-  Lemma fib_log_div2 : forall (n : nat), 
-                         n > 16 -> 3 * fib (cl_log (div2 n)) < 2 * fib (cl_log n).
-  Proof.
-    intros n g16.
-    unfold_sub cl_log (cl_log n).
-    do 16 (destruct n as [|n]; [inversion g16; try omega|]).
-    fold_sub cl_log.
-    unfold div2. fold div2.
-    apply fib_S.
-    unfold gt.
-    apply lt_le_trans with (m := cl_log 8); [compute; auto|]. 
-    apply cl_log_monotone. 
-    intuition.
-  Qed.
-
-  Hint Resolve fib_log_div2.
+Hint Resolve fib_log_div2.

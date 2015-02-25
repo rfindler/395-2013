@@ -288,6 +288,19 @@ Proof.
   inversion H0; clear H0; subst; eauto.
 Qed.
 
+Theorem RBT_Balance_NonResult :
+  forall (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A),
+    (forall res, ~ RBT_Balance A tl tc tv tr res) ->
+    RBT_Balance_result A tl tc tv tr (CT_node A tl tc tv tr).
+Proof.
+  intros. unfold RBT_Balance_result.
+
+  split. intros [n_tl P_tl] [n_tr P_tr].
+  eexists. destruct tc.
+  eapply IR_node_black. apply P_tl.
+
+Admitted.
+
 Definition rbt_balance_worst := 42.
 Definition rbt_balance_best := 8.
 

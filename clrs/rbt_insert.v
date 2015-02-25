@@ -98,13 +98,24 @@ Inductive RBT_Balance (A:Set) : CTree A -> Color -> A -> CTree A -> CTree A -> P
   forall tll tlv tlrl tlrv tlrr tv tr,
     RBT_Balance A (CT_node A tll RED tlv (CT_node A tlrl RED tlrv tlrr)) BLACK tv tr
     (CT_node A (CT_node A tll BLACK tlv tlrl) RED tlrv 
-      (CT_node A tlrr BLACK tv tr)).
+      (CT_node A tlrr BLACK tv tr))
+| RBTB_Case3 :
+  forall tl tv trll trlv trlr trv trr,
+    RBT_Balance A tl BLACK tv (CT_node A (CT_node A trll RED trlv trlr) RED trv trr)
+    (CT_node A (CT_node A tl BLACK tv trll) RED trlv
+      (CT_node A trlr BLACK trv trr))
+| RBTB_Case4 :
+  forall tl tv trl trv trrl trrv trrr,
+    RBT_Balance A tl BLACK tv (CT_node A trl RED trv (CT_node A trrl RED trrv trrr))
+    (CT_node A (CT_node A tl BLACK tv trl) RED trv
+      (CT_node A trrl BLACK trrv trrr)).
 
 Definition RBT_Balance_result (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A)
   (res:CTree A) :=
   (SomeRB tl -> SomeRB tr -> SomeRB res) /\
   (forall A_cmp (A_trans:Transitive A A_cmp) min max,
     IsBST A_cmp tl min tv ->
+    A_cmp min tv ->
     A_cmp tv max ->
     IsBST A_cmp tr tv max ->
     IsBST A_cmp res min max) /\
@@ -138,7 +149,7 @@ Proof.
   inversion Ctll.
 
   split. intros A_cmp A_trans min max.
-  intros BSTtl CMP_tv_m BSTtr.
+  intros BSTtl CMP_m_tv CMP_tv_m BSTtr.
   inversion BSTtl; subst; clear BSTtl.
   rename H6 into CMP_m_tlv.
   rename H7 into CMP_tlv_tv.
@@ -175,7 +186,7 @@ Proof.
   inversion Ctlr.
 
   split. intros A_cmp A_trans min max.
-  intros BSTtl CMP_tv_m BSTtr.
+  intros BSTtl CMP_m_tv CMP_tv_m BSTtr.
   inversion BSTtl; subst; clear BSTtl.
   rename H6 into CMP_m_tlv.
   rename H7 into CMP_tlv_tv.
@@ -196,6 +207,83 @@ Proof.
   inversion H0; clear H0; subst; eauto.
   split. eauto.
   intros MEMe. eauto.
+  intros MEMe.
+  inversion MEMe; clear MEMe; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+
+  (* case 3 *)
+  split. intros RBtl RBtr.
+  destruct RBtl as [tln RBtl].
+  destruct RBtr as [trn RBtr].
+  inversion RBtr; subst; clear RBtr.
+  rename H2 into RBtrl.
+  rename H3 into Ctrl.
+  rename H5 into RBtrr.
+  rename H6 into Ctrr.
+  inversion Ctrl.
+
+  split. intros A_cmp A_trans min max.
+  intros BSTtl CMP_m_tv CMP_tv_m BSTtr.
+  inversion BSTtr; subst; clear BSTtr.
+  rename H6 into CMP_tv_trv.
+  rename H7 into CMP_trv_max.
+  rename H8 into BSTtrr.
+  rename H3 into BSTtrl.
+  inversion BSTtrl; subst; clear BSTtrl.
+  rename H3 into BSTtrll.
+  rename H6 into CMP_tv_trlv.
+  rename H7 into CMP_trlv_trv.
+  rename H8 into BSTtrlr.
+  eapply IB_node; auto.
+  eapply A_trans. apply CMP_m_tv. auto.
+  eapply A_trans. apply CMP_trlv_trv. auto.
+
+  split. split.
+  intros MEMe. eauto.
+  split. eauto.
+  intros MEMe.
+  inversion MEMe; clear MEMe; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+  intros MEMe.
+  inversion MEMe; clear MEMe; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+
+  (* XXX *)
+  (* case 4 *)
+  split. intros RBtl RBtr.
+  destruct RBtl as [tln RBtl].
+  destruct RBtr as [trn RBtr].
+  inversion RBtr; subst; clear RBtr.
+  rename H2 into RBtrl.
+  rename H3 into Ctrl.
+  rename H5 into RBtrr.
+  rename H6 into Ctrr.
+  inversion Ctrl.
+
+  split. intros A_cmp A_trans min max.
+  intros BSTtl CMP_m_tv CMP_tv_m BSTtr.
+  inversion BSTtr; subst; clear BSTtr.
+  rename H6 into CMP_tv_trv.
+  rename H7 into CMP_trv_max.
+  rename H8 into BSTtrr.
+  rename H3 into BSTtrl.
+  inversion BSTtrl; subst; clear BSTtrl.
+  rename H3 into BSTtrll.
+  rename H6 into CMP_tv_trlv.
+  rename H7 into CMP_trlv_trv.
+  rename H8 into BSTtrlr.
+  eapply IB_node; auto.
+  eapply A_trans. apply CMP_m_tv. auto.
+  eapply A_trans. apply CMP_trlv_trv. auto.
+
+  split. split.
+  intros MEMe. eauto.
+  split. eauto.
+  intros MEMe.
+  inversion MEMe; clear MEMe; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
   intros MEMe.
   inversion MEMe; clear MEMe; subst; eauto.
   inversion H0; clear H0; subst; eauto.

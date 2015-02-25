@@ -26,13 +26,34 @@ Proof.
   intros. split; intros IM; inversion IM; subst; eauto.
 Qed.
 
+Definition SomeRB {A:Set} (ct:CTree A) :=
+  exists n, IsRB ct n.
+
+Lemma SomeRB_node_l:
+  forall A l c v r,
+    SomeRB (CT_node A l c v r) ->
+    SomeRB l.
+Proof.
+  unfold SomeRB.
+  intros. destruct H as [n RB].
+  inversion RB; subst; eauto.
+Qed.
+
+Lemma SomeRB_node_r:
+  forall A l c v r,
+    SomeRB (CT_node A l c v r) ->
+    SomeRB r.
+Proof.
+  unfold SomeRB.
+  intros. destruct H as [n RB].
+  inversion RB; subst; eauto.
+Qed.
+
 Definition rbt_blacken_worst := 8.
 Definition rbt_blacken_best := 3.
 
 Definition rbt_blacken_result (A:Set) (ct:CTree A) (res:CTree A) (c:nat) :=
-  (forall n,
-    IsRB ct n ->
-    IsRB res n \/ IsRB res (S n)) /\
+  (SomeRB ct -> SomeRB res) /\
   (IsColor res BLACK) /\
   (forall A_cmp min max,
     IsBST A_cmp ct min max ->
@@ -44,7 +65,7 @@ Load "rbt_blacken_gen.v".
 
 Next Obligation.
   unfold rbt_blacken_result.
-  split. intuition.
+  split. auto.
   split. auto.
   split. intuition.
   split. apply SameMembers_refl.
@@ -54,7 +75,9 @@ Qed.
 
 Next Obligation.
   unfold rbt_blacken_result.
-  split. apply blacken_okay.
+  split. intros [n RB].
+  apply blacken_okay in RB.
+  unfold SomeRB. destruct RB; eauto.
   split. auto.
   split.
    intros A_cmp min max BST.
@@ -69,43 +92,190 @@ Definition rbt_balance_best := 8.
 
 Definition rbt_balance_result (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A)
   (res:CTree A) (c:nat) :=
-  True /\
+  (SomeRB tl -> SomeRB tr -> SomeRB res) /\
+  (forall A_cmp min max,
+    IsBST A_cmp tl min tv ->
+    IsBST A_cmp tr tv max ->
+    IsBST A_cmp res min max) /\
+  (forall e,
+    ((IsMember e tl -> IsMember e res) /\
+      (IsMember tv res) /\
+      (IsMember e tr -> IsMember e res)) /\
+    (IsMember e res ->
+      IsMember e tl \/
+      e = tv \/
+      IsMember e tr)) /\
   (rbt_balance_best <= c <= rbt_balance_worst).
 
 Load "rbt_balance_gen.v".
 
+Admit Obligations.
+
+(*
 Solve Obligations using
   unfold rbt_balance_result, rbt_balance_best, rbt_balance_worst;
     split; [ auto | omega ].
 
 Solve Obligations using program_simpl.
+*)
 
 (* 115 obligations later! *)
 
-Definition rbt_insert_time (n:nat) :=
-  19 * n + 3.
+Definition minof {A:Set} (A_cmp:A -> A -> Prop) (A_refl : forall x, A_cmp x x) (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x) (A_cmp_dec:forall (x y:A),
+{ A_cmp x y } + { A_cmp y x }) (x:A) (y:A) : { r : A | A_cmp r x /\ A_cmp r y /\ (r = x \/ r = y) }.
+Proof.
+  destruct (A_cmp_dec x y) as [X | Y].
+  exists x. split. apply A_refl. auto.
+  exists y. split. auto. split. apply A_refl. auto.
+Qed.
 
-Definition rbt_insert_result (A:Set)
-  (A_cmp:A -> A -> Prop)
-  (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x)
-  (A_trans:Transitive A A_cmp)
-  (A_cmp_dec:
-    forall (x y:A),
-      { A_cmp x y } + { A_cmp y x })
-  (A_eq_dec:
-    forall (x y:A),
-      { x = y } + { x <> y })
-  (x:A) (ct:CTree A) (res:bool) (c:nat) :=
-  forall (min_a max_a:A)
-         (MIN:A_cmp min_a x)
-         (MAX:A_cmp x max_a)
-         (BST:IsBST A_cmp ct min_a max_a),
-    (res = true -> IsMember x ct) /\
-    (res = false -> ~ IsMember x ct) /\
-    1 <= c <= rbt_insert_time (height ct).
+Lemma minof_left:
+  forall (A:Set) (A_cmp:A -> A -> Prop) (A_refl : forall x, A_cmp x x) (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x) (A_cmp_dec:forall (x y:A), { A_cmp x y } + { A_cmp y x }) (x:A) (y:A),
+    A_cmp x y ->
+    (` (minof A_cmp A_refl A_asym A_cmp_dec x y)) = x.
+Proof.
+  intros.
+  destruct (minof A_cmp A_refl A_asym A_cmp_dec x y) as [r P].
+  simpl.
+  destruct P as [P1 [P2 [EQ | EQ]]]; subst; auto.
+  apply A_asym in P1. contradiction.
+Qed.
 
-(*  *)
-(* Load "rbt_insert_inner_gen.v". *)
+Lemma minof_right:
+  forall (A:Set) (A_cmp:A -> A -> Prop) (A_refl : forall x, A_cmp x x) (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x) (A_cmp_dec:forall (x y:A), { A_cmp x y } + { A_cmp y x }) (x:A) (y:A),
+    A_cmp y x ->
+    (` (minof A_cmp A_refl A_asym A_cmp_dec x y)) = y.
+Proof.
+  intros.
+  destruct (minof A_cmp A_refl A_asym A_cmp_dec x y) as [r P].
+  simpl.
+  destruct P as [P1 [P2 [EQ | EQ]]]; subst; auto.
+  apply A_asym in P2. contradiction.
+Qed.
+
+Definition maxof {A:Set} (A_cmp:A -> A -> Prop) (A_refl : forall x, A_cmp x x) (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x) (A_cmp_dec:forall (x y:A),
+{ A_cmp x y } + { A_cmp y x }) (x:A) (y:A) : { r : A | A_cmp x r /\ A_cmp y r /\ (r = x \/ r = y)}.
+Proof.
+  destruct (A_cmp_dec x y) as [X | Y].
+  exists y. split. auto. split. apply A_refl. auto.
+  exists x. split. apply A_refl. auto.
+Qed.
+
+Lemma maxof_right:
+  forall (A:Set) (A_cmp:A -> A -> Prop) (A_refl : forall x, A_cmp x x) (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x) (A_cmp_dec:forall (x y:A), { A_cmp x y } + { A_cmp y x }) (x:A) (y:A),
+    A_cmp x y ->
+    (` (maxof A_cmp A_refl A_asym A_cmp_dec x y)) = y.
+Proof.
+  intros.
+  destruct (maxof A_cmp A_refl A_asym A_cmp_dec x y) as [r P].
+  simpl.
+  destruct P as [P1 [P2 [EQ | EQ]]]; subst; auto.
+  apply A_asym in P2. contradiction.
+Qed.
+
+Lemma maxof_left:
+  forall (A:Set) (A_cmp:A -> A -> Prop) (A_refl : forall x, A_cmp x x) (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x) (A_cmp_dec:forall (x y:A), { A_cmp x y } + { A_cmp y x }) (x:A) (y:A),
+    A_cmp y x ->
+    (` (maxof A_cmp A_refl A_asym A_cmp_dec x y)) = x.
+Proof.
+  intros.
+  destruct (maxof A_cmp A_refl A_asym A_cmp_dec x y) as [r P].
+  simpl.
+  destruct P as [P1 [P2 [EQ | EQ]]]; subst; auto.
+  apply A_asym in P1. contradiction.
+Qed.
+
+Definition rbt_insert_inner_worst (h:nat) := 24 * h + 8.
+Definition rbt_insert_inner_best (h:nat) := 7.
+
+Definition rbt_insert_inner_result (A:Set) (A_cmp:A -> A -> Prop) (A_refl : forall x, A_cmp x x) (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x) (A_trans:Transitive A A_cmp) (A_cmp_dec:forall (x y:A),
+{ A_cmp x y } + { A_cmp y x }) (A_eq_dec:forall (x y:A), { x = y } + { x <> y }) (ct:CTree A) (x:A) (res:CTree A) (c:nat) :=
+  (SomeRB ct -> SomeRB res) /\
+  (forall min max,
+    IsBST A_cmp ct min max ->
+    IsBST A_cmp res (proj1_sig (minof A_cmp A_refl A_asym A_cmp_dec min x)) (proj1_sig (maxof A_cmp A_refl A_asym A_cmp_dec max x))) /\
+  (forall e,
+    ((IsMember e ct -> IsMember e res) /\ IsMember x res) /\
+    (IsMember e res -> (e = x \/ IsMember e ct))) /\
+  (rbt_insert_inner_best (height ct) <= c <= rbt_insert_inner_worst (height ct)).
+
+Load "rbt_insert_inner_gen.v".
+
+Next Obligation.
+  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst.
+  split. intros _.
+  unfold SomeRB. eauto.
+
+  split.
+  intros min max B.
+  eapply IB_node. auto.
+  destruct (minof A_cmp A_refl A_asym A_cmp_dec min x) as [min' P].
+  simpl. intuition.
+  destruct (maxof A_cmp A_refl A_asym A_cmp_dec max x) as [max' P].
+  simpl. intuition.
+  auto.
+
+  split. intros e. split. auto.
+  intros IM. inversion IM; subst; auto.
+
+  simpl. omega.
+Qed.
+
+Next Obligation.
+  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst.
+  split. auto.
+
+  split.
+  intros min max B.
+  inversion B. subst.
+  rewrite minof_left; auto.
+  rewrite maxof_left; auto.
+
+  split. intros e. split.
+  auto. auto.
+
+  omega.
+Qed.
+
+Next Obligation.
+  clear am am0 H3 H2 Heq_anonymous0 Heq_anonymous.
+  rename wildcard' into NEQ.
+  rename wildcard'0 into CMPxv.
+  unfold rbt_balance_result, rbt_balance_best, rbt_balance_worst in *.
+  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst in *.
+  rename H0 into BAL_P.
+  rename H1 into REC_P.
+  simpl (height (CT_node A l c v r)).
+  destruct REC_P as [RBlp [BSTlp [MEM_lp REC_P]]].
+  destruct BAL_P as [RBres [BSTres [MEM_res BAL_P]]].
+
+  split. intros RBt.
+  apply RBres. apply RBlp.
+  eapply SomeRB_node_l. apply RBt. 
+  eapply SomeRB_node_r. apply RBt.
+
+  split. intros min max.
+  intros BSTt.
+  inversion BSTt. subst.
+  rename H3 into BSTl.
+  rename H6 into CMPmv.
+  rename H7 into CMPvm.
+  rename H8 into BSTr.
+  apply BSTlp in BSTl. clear BSTlp.
+  rewrite maxof_left in BSTl; auto.
+  assert (A_cmp x max) as CMPxm.
+   eapply A_trans. apply CMPxv. auto.
+  rewrite maxof_left; auto.
+
+  split. intros e.
+  destruct (MEM_res e) as [[MEM_res1a [MEM_res1b MEM_res1c]] MEM_res2]; clear MEM_res.
+  destruct (MEM_lp e) as [[MEM_lp1a MEM_lp1b] MEM_lp2]; clear MEM_lp.
+
+  split. split.
+  intros MEMt.
+  inversion MEMt; subst; auto.
+  apply MEM_res1a.
+
 (* Load "rbt_insert_gen.v". *)
 
 (* Admit Obligations. *)

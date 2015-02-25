@@ -250,7 +250,6 @@ Proof.
   inversion H0; clear H0; subst; eauto.
   inversion H0; clear H0; subst; eauto.
 
-  (* XXX *)
   (* case 4 *)
   split. intros RBtl RBtr.
   destruct RBtl as [tln RBtl].
@@ -260,7 +259,7 @@ Proof.
   rename H3 into Ctrl.
   rename H5 into RBtrr.
   rename H6 into Ctrr.
-  inversion Ctrl.
+  inversion Ctrr.
 
   split. intros A_cmp A_trans min max.
   intros BSTtl CMP_m_tv CMP_tv_m BSTtr.
@@ -269,14 +268,13 @@ Proof.
   rename H7 into CMP_trv_max.
   rename H8 into BSTtrr.
   rename H3 into BSTtrl.
-  inversion BSTtrl; subst; clear BSTtrl.
-  rename H3 into BSTtrll.
-  rename H6 into CMP_tv_trlv.
-  rename H7 into CMP_trlv_trv.
-  rename H8 into BSTtrlr.
+  inversion BSTtrr; subst; clear BSTtrr.
+  rename H3 into BSTtrrl.
+  rename H6 into CMP_trv_trrv.
+  rename H7 into CMP_trrv_m.
+  rename H8 into BSTtrrr.
   eapply IB_node; auto.
   eapply A_trans. apply CMP_m_tv. auto.
-  eapply A_trans. apply CMP_trlv_trv. auto.
 
   split. split.
   intros MEMe. eauto.

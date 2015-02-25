@@ -93,7 +93,12 @@ Inductive RBT_Balance (A:Set) : CTree A -> Color -> A -> CTree A -> CTree A -> P
     RBT_Balance A (CT_node A (CT_node A tlll RED tllv tllr) RED tlv tlr) BLACK tv tr
     (CT_node A 
       (CT_node A tlll BLACK tllv tllr) RED tlv 
-      (CT_node A tlr BLACK tv tr)).
+      (CT_node A tlr BLACK tv tr))
+| RBTB_Case2 :
+  forall tll tlv tlrl tlrv tlrr tv tr,
+    RBT_Balance A (CT_node A tll RED tlv (CT_node A tlrl RED tlrv tlrr)) BLACK tv tr
+    (CT_node A (CT_node A tll BLACK tlv tlrl) RED tlrv 
+      (CT_node A tlrr BLACK tv tr)).
 
 Definition RBT_Balance_result (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A)
   (res:CTree A) :=
@@ -146,6 +151,44 @@ Proof.
   rename H8 into BSTtllr.
   eapply IB_node; auto.
   eapply A_trans. apply CMP_tlv_tv. auto.
+
+  split. split.
+  intros MEMe.
+  inversion MEMe; clear MEMe; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+  split. eauto.
+  intros MEMe. eauto.
+  intros MEMe.
+  inversion MEMe; clear MEMe; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+
+  (* case 2 *)
+  split. intros RBtl RBtr.
+  destruct RBtl as [tln RBtl].
+  destruct RBtr as [trn RBtr].
+  inversion RBtl; subst; clear RBtl.
+  rename H2 into RBtll.
+  rename H3 into Ctll.
+  rename H5 into RBtlr.
+  rename H6 into Ctlr.
+  inversion Ctlr.
+
+  split. intros A_cmp A_trans min max.
+  intros BSTtl CMP_tv_m BSTtr.
+  inversion BSTtl; subst; clear BSTtl.
+  rename H6 into CMP_m_tlv.
+  rename H7 into CMP_tlv_tv.
+  rename H8 into BSTtlr.
+  rename H3 into BSTtll.
+  inversion BSTtlr; subst; clear BSTtlr.
+  rename H3 into BSTtlrl.
+  rename H6 into CMP_tlv_tlrv.
+  rename H7 into CMP_tlrv_tv.
+  rename H8 into BSTtlrr.
+  eapply IB_node; auto.
+  eapply A_trans. apply CMP_m_tlv. auto.
+  eapply A_trans. apply CMP_tlrv_tv. auto.
 
   split. split.
   intros MEMe.

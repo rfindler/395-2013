@@ -87,14 +87,20 @@ Next Obligation.
   omega.
 Qed.
 
-Definition rbt_balance_worst := 42.
-Definition rbt_balance_best := 8.
+Inductive RBT_Balance (A:Set) : CTree A -> Color -> A -> CTree A -> CTree A -> Prop :=
+| RBTB_Case1 :
+  forall tlll tllv tllr tlv tlr tv tr,
+    RBT_Balance A (CT_node A (CT_node A tlll RED tllv tllr) RED tlv tlr) BLACK tv tr
+    (CT_node A 
+      (CT_node A tlll BLACK tllv tllr) RED tlv 
+      (CT_node A tlr BLACK tv tr)).
 
-Definition rbt_balance_result (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A)
-  (res:CTree A) (c:nat) :=
+Definition RBT_Balance_result (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A)
+  (res:CTree A) :=
   (SomeRB tl -> SomeRB tr -> SomeRB res) /\
-  (forall A_cmp min max,
+  (forall A_cmp (A_trans:Transitive A A_cmp) min max,
     IsBST A_cmp tl min tv ->
+    A_cmp tv max ->
     IsBST A_cmp tr tv max ->
     IsBST A_cmp res min max) /\
   (forall e,
@@ -104,7 +110,61 @@ Definition rbt_balance_result (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A
     (IsMember e res ->
       IsMember e tl \/
       e = tv \/
-      IsMember e tr)) /\
+      IsMember e tr)).
+
+Theorem RBT_Balance_Result :
+  forall (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A) (res:CTree A),
+    RBT_Balance A tl tc tv tr res ->
+    RBT_Balance_result A tl tc tv tr res.
+Proof.
+  unfold RBT_Balance_result.
+  intros.
+  inversion H; clear H; subst.
+
+  (* case 1 *)
+  split. intros RBtl RBtr.
+  destruct RBtl as [tln RBtl].
+  destruct RBtr as [trn RBtr].
+  inversion RBtl; subst; clear RBtl.
+  rename H2 into RBtll.
+  rename H3 into Ctll.
+  rename H5 into RBtlr.
+  rename H6 into Ctlr.
+  inversion Ctll.
+
+  split. intros A_cmp A_trans min max.
+  intros BSTtl CMP_tv_m BSTtr.
+  inversion BSTtl; subst; clear BSTtl.
+  rename H6 into CMP_m_tlv.
+  rename H7 into CMP_tlv_tv.
+  rename H8 into BSTtlr.
+  rename H3 into BSTtll.
+  inversion BSTtll; subst; clear BSTtll.
+  rename H3 into BSTtlll.
+  rename H6 into CMP_m_tllv.
+  rename H7 into CMP_tllv_tlv.
+  rename H8 into BSTtllr.
+  eapply IB_node; auto.
+  eapply A_trans. apply CMP_tlv_tv. auto.
+
+  split. split.
+  intros MEMe.
+  inversion MEMe; clear MEMe; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+  split. eauto.
+  intros MEMe. eauto.
+  intros MEMe.
+  inversion MEMe; clear MEMe; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+  inversion H0; clear H0; subst; eauto.
+Qed.
+
+Definition rbt_balance_worst := 42.
+Definition rbt_balance_best := 8.
+
+Definition rbt_balance_result (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A)
+  (res:CTree A) (c:nat) :=
+  (RBT_Balance_result A tl tc tv tr res) /\
   (rbt_balance_best <= c <= rbt_balance_worst).
 
 Load "rbt_balance_gen.v".
@@ -247,7 +307,7 @@ Next Obligation.
   rename H1 into REC_P.
   simpl (height (CT_node A l c v r)).
   destruct REC_P as [RBlp [BSTlp [MEM_lp REC_P]]].
-  destruct BAL_P as [RBres [BSTres [MEM_res BAL_P]]].
+  destruct BAL_P as [[RBres [BSTres MEM_res]] BAL_P].
 
   split. intros RBt.
   apply RBres. apply RBlp.
@@ -304,7 +364,7 @@ Next Obligation.
   rename H1 into REC_P.
   simpl (height (CT_node A l c v r)).
   destruct REC_P as [RBrp [BSTrp [MEM_rp REC_P]]].
-  destruct BAL_P as [RBres [BSTres [MEM_res BAL_P]]].
+  destruct BAL_P as [[RBres [BSTres MEM_res]] BAL_P].
 
   split. intros RBt.
   apply RBres.
@@ -324,6 +384,11 @@ Next Obligation.
   assert (A_cmp min x) as CMPmx.
    eapply A_trans. apply CMPmv. auto.
   rewrite minof_left; auto.
+  apply BSTres. apply A_trans. auto.
+  eapply A_trans. apply CMPvm.
+  destruct (maxof A_cmp A_refl A_asym A_cmp_dec max x) as [R P]; simpl.
+  destruct P; auto.
+  apply BSTr.
 
   split. intros e.
   destruct (MEM_res e) as [[MEM_res1a [MEM_res1b MEM_res1c]] MEM_res2].

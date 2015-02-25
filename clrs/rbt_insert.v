@@ -350,6 +350,46 @@ Next Obligation.
   apply max_case_strong; intros LE; omega.
 Qed.
 
-(* Load "rbt_insert_gen.v". *)
+Definition rbt_insert_worst (h:nat) := rbt_insert_inner_worst h + rbt_blacken_worst + 14.
+Definition rbt_insert_best (h:nat) := 24.
 
-(* Admit Obligations. *)
+Definition rbt_insert_result (A:Set) (A_cmp:A -> A -> Prop) (A_refl : forall x, A_cmp x x) (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x) (A_trans:Transitive A A_cmp) (A_cmp_dec:forall (x y:A),
+  { A_cmp x y } + { A_cmp y x }) (A_eq_dec:forall (x y:A), { x = y } + { x <> y }) (ct:CTree A) (x:A) (res:CTree A) (c:nat) :=
+  (SomeRB ct -> SomeRB res) /\
+  (IsColor res BLACK) /\
+  (forall min max,
+    IsBST A_cmp ct min max ->
+    IsBST A_cmp res (proj1_sig (minof A_cmp A_refl A_asym A_cmp_dec min x)) (proj1_sig (maxof A_cmp A_refl A_asym A_cmp_dec max x))) /\
+  (forall e,
+    ((IsMember e ct -> IsMember e res) /\ IsMember x res) /\
+    (IsMember e res -> (e = x \/ IsMember e ct))) /\
+  (rbt_insert_best (height ct) <= c <= rbt_insert_worst (height ct)).
+
+Load "rbt_insert_gen.v".
+
+Next Obligation.
+  clear am H3 am0 H2.
+  rename H0 into BLACKEN_P.
+  rename H1 into INSERT_P.
+  rename an into blacken_n.
+  rename an0 into insert_n.
+  unfold rbt_insert_result, rbt_insert_best, rbt_insert_worst in *.
+  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst, rbt_balance_worst in *.
+  unfold rbt_blacken_result, rbt_blacken_best, rbt_blacken_worst in *.
+  destruct BLACKEN_P as [RBres [Cres [BSTres [SMres BLACKEN_P]]]].
+  destruct INSERT_P as [RBctp [BSTctp [MEMctp INSERT_P]]].
+  
+  split. auto.
+  split. auto.
+  split. auto.
+  
+  split. unfold SameMembers in SMres.
+  intros e. destruct (MEMctp e) as [[MEMe1a MEMe1b] MEMe2].
+  split. split. intros MEMe.
+  apply SMres. auto.
+  apply SMres. auto.
+  intros MEMe. apply MEMe2.
+  apply SMres. auto.
+
+  omega.
+Qed.

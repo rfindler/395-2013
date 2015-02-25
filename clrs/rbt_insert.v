@@ -185,7 +185,7 @@ Proof.
   apply A_asym in P1. contradiction.
 Qed.
 
-Definition rbt_insert_inner_worst (h:nat) := 24 * h + 8.
+Definition rbt_insert_inner_worst (h:nat) := (27 + rbt_balance_worst) * h + 8.
 Definition rbt_insert_inner_best (h:nat) := 7.
 
 Definition rbt_insert_inner_result (A:Set) (A_cmp:A -> A -> Prop) (A_refl : forall x, A_cmp x x) (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x) (A_trans:Transitive A A_cmp) (A_cmp_dec:forall (x y:A),
@@ -202,7 +202,7 @@ Definition rbt_insert_inner_result (A:Set) (A_cmp:A -> A -> Prop) (A_refl : fora
 Load "rbt_insert_inner_gen.v".
 
 Next Obligation.
-  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst.
+  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst, rbt_balance_worst.
   split. intros _.
   unfold SomeRB. eauto.
 
@@ -222,7 +222,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
-  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst.
+  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst, rbt_balance_worst.
   split. auto.
 
   split.
@@ -242,7 +242,7 @@ Next Obligation.
   rename wildcard' into NEQ.
   rename wildcard'0 into CMPxv.
   unfold rbt_balance_result, rbt_balance_best, rbt_balance_worst in *.
-  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst in *.
+  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst, rbt_balance_worst in *.
   rename H0 into BAL_P.
   rename H1 into REC_P.
   simpl (height (CT_node A l c v r)).
@@ -268,13 +268,87 @@ Next Obligation.
   rewrite maxof_left; auto.
 
   split. intros e.
-  destruct (MEM_res e) as [[MEM_res1a [MEM_res1b MEM_res1c]] MEM_res2]; clear MEM_res.
-  destruct (MEM_lp e) as [[MEM_lp1a MEM_lp1b] MEM_lp2]; clear MEM_lp.
+  destruct (MEM_res e) as [[MEM_res1a [MEM_res1b MEM_res1c]] MEM_res2].
+  destruct (MEM_lp e) as [[MEM_lp1a MEM_lp1b] MEM_lp2].
 
   split. split.
-  intros MEMt.
-  inversion MEMt; subst; auto.
-  apply MEM_res1a.
+  intros MEMt. inversion MEMt; subst; auto.
+
+  destruct (MEM_res x) as [[MEM_res1ax [MEM_res1bx MEM_res1cx]] MEM_res2x].
+  apply MEM_res1ax. auto.
+
+  intros MEMe. apply MEM_res2 in MEMe. clear MEM_res2.
+  destruct MEMe as [MEMlp | [MEMeq | MEMr]].
+   apply MEM_lp2 in MEMlp.
+   destruct MEMlp as [MEMeq | MEMl].
+    auto.
+    right. eauto.
+    
+   subst e. eauto.
+
+   eauto.
+
+  clear MEM_lp BSTlp RBlp MEM_res BSTres RBres.
+  split. omega.
+  rewrite mult_succ_r.
+  apply max_case_strong; intros LE; omega.
+Qed.
+
+Next Obligation.
+  clear am am0 H3 H2 Heq_anonymous0 Heq_anonymous.
+  rename wildcard' into NEQ.
+  rename wildcard'0 into CMPxv.
+  unfold rbt_balance_result, rbt_balance_best, rbt_balance_worst in *.
+  unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst, rbt_balance_worst in *.
+  rename H0 into BAL_P.
+  rename H1 into REC_P.
+  simpl (height (CT_node A l c v r)).
+  destruct REC_P as [RBrp [BSTrp [MEM_rp REC_P]]].
+  destruct BAL_P as [RBres [BSTres [MEM_res BAL_P]]].
+
+  split. intros RBt.
+  apply RBres.
+  eapply SomeRB_node_l. apply RBt. 
+  apply RBrp.
+  eapply SomeRB_node_r. apply RBt.
+
+  split. intros min max.
+  intros BSTt.
+  inversion BSTt. subst.
+  rename H3 into BSTl.
+  rename H6 into CMPmv.
+  rename H7 into CMPvm.
+  rename H8 into BSTr.
+  apply BSTrp in BSTr. clear BSTrp.
+  rewrite minof_left in BSTr; auto.
+  assert (A_cmp min x) as CMPmx.
+   eapply A_trans. apply CMPmv. auto.
+  rewrite minof_left; auto.
+
+  split. intros e.
+  destruct (MEM_res e) as [[MEM_res1a [MEM_res1b MEM_res1c]] MEM_res2].
+  destruct (MEM_rp e) as [[MEM_rp1a MEM_rp1b] MEM_rp2].
+
+  split. split.
+  intros MEMt. inversion MEMt; subst; auto.
+
+  destruct (MEM_res x) as [[MEM_res1ax [MEM_res1bx MEM_res1cx]] MEM_res2x].
+  apply MEM_res1cx. auto.
+
+  intros MEMe. apply MEM_res2 in MEMe. clear MEM_res2.
+  destruct MEMe as [MEMl | [MEMeq | MEMrp]].
+   eauto.
+   subst e. eauto.
+   apply MEM_rp2 in MEMrp.
+   destruct MEMrp as [MEMeq | MEMr].
+    auto.
+    right. eauto.
+
+  clear MEM_rp BSTrp RBrp MEM_res BSTres RBres.
+  split. omega.
+  rewrite mult_succ_r.
+  apply max_case_strong; intros LE; omega.
+Qed.
 
 (* Load "rbt_insert_gen.v". *)
 

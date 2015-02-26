@@ -8,7 +8,7 @@
 
 @figure["fig:line-counts" "Line Counts"]{@build-table[]}
 
-To better understand how well our monad works, we 
+To better understand how applicable our monad is, we 
 implemented all of the algorithms in @citet[three-algorithms-on-braun-trees]'s
 paper, @italic{Three Algorithms on Braun Trees}. The
 source code for our case study is on github: 

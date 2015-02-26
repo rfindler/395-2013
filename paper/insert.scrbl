@@ -12,13 +12,15 @@ the usual return and bind monadic operations. In return,
 the result type of a function can use not only the argument
 values to give it a very precise specification, but the
 type also has access to an abstract step count describing
-how many primitive operations the function executes.
+how many primitive operations (function calls, matches, variable 
+references etc.) that the function executes.
 
-To see how this works,
+To give a sense of how code using our library looks,
 we start with a definition of Braun trees@~cite[Braun]
 and the insertion function where the running time
-for the function is declared as part of the body of the function.
-In the next section, we make the running times implicit. 
+for the function is explicitly declared as part of the body of the function.
+In the next section, we make the running times implicit
+(and thus not spoofable).
 
 Braun trees are a form of balanced binary trees 
 where the balance condition allows only a single shape of
@@ -35,8 +37,8 @@ definition.
 @(apply inline-code (extract braun.v "bin_tree"))
 
 To be able to state facts about Braun trees, however,
-we use @tt{Braun} to define when a binary tree is a
-Braun tree of size @tt{n}.
+we need the inductive @tt{Braun} to specify which binary trees
+are Braun trees (at a given size @tt{n}).
 
 @(apply inline-code (extract braun.v "Braun"))
 
@@ -53,7 +55,7 @@ a braun tree of size @tt{s_size+t_size+1}.
 
 
 @Figure-ref["fig:insert"] shows the insertion function.
-It is fairly complex, so let us look carefully at each piece.
+Lets dig into this function, one line at a time.
 It accepts an object @tt{i} (of type @tt{A}) to insert into
 the Braun tree @tt{b}. Its result type uses a new notation:
 @inline-code|{
@@ -76,10 +78,7 @@ base 2 logarithm).
 These new @tt|{{! ... !}}| types are the types of
 computations in the monad. The monad tracks the running
 time as well as tracking the correctness property of the
-function. Since we use a monadic type as the result of the 
-function, we are saying that the function operates inside
-the monad and thus we can track its running time and its
-correctness properties.
+function.
 
 The body of the @tt{insert} function begins with the
 @tt{match} expression that determines if the input Braun
@@ -87,9 +86,9 @@ tree is empty or not. If it is empty, then the function
 returns a singleton tree that is obtained by calling
 @tt{bt_node} with two empty children. This case uses
 @tt{<==}, the return operation that injects simple values
-into the monad and @tt{+=} that declares that this simple
+into the monad and @tt{+=} that declares that this
 operation takes a single unit of computation. That is, the
-type of @tt{+=} insists that it accepts a natural number 
+type of @tt{+=} insists that @tt{+=} accepts a natural number 
 @tt{k} and a computation in the monad taking some number of
 steps, say @tt{n}. The result of @tt{+=} is also a
 computation in the monad just like the second argument,
@@ -97,22 +96,23 @@ except that the running time is @tt{n+k}.
 
 In the non-empty case, the insertion function recurs with
 the right subtree and then builds a new tree with the sub-trees
-swapped in order to preserve the Braun invariant. That is,
-since we know that the left subtree's size is either equal to or one
+swapped. This swapping is what preserves the Braun invariant. 
+Since we know that the left subtree's size is either equal to or one
 larger than the right's, when we add an element to the right and swap
 the subtrees, we will also end up with a new tree whose left
 subtree's size is either equal to or one greater than the right.
 
 The @tt{«var» <- «expr» ; «expr»} notation is the monadic bind
-operator; if behaves much like a @tt{let} expression. The first,
+operator; using a @tt{let}-style notation. The first,
 right-hand side expression must be a computation in the monad;
 the result value is pulled out of the monad and bound to 
 @tt{var} for use in the body expression.
 Then, as before, we return the new tree in the monad after treating
-this as a single abstract step of computation.
+this branch as a single abstract step of computation.
 
-Once this function is submitted to Coq, it responds with requests to
-prove two claims, one from each of the cases of the function. The first
+We exploit @citet[Program-cite]'s @tt{Program} to smooth proving
+these functions have their types. In this case, we are left with two
+proof obligations, one from each of the cases of the function. The first
 one is:
 @inline-code{
 forall n,
@@ -120,9 +120,8 @@ forall n,
    Braun (bt_node i bt_mt bt_mt) (n + 1) /\
    1 = fl_log n + 1
 }
-which may look a bit baroque. The left-hand side of the implication
-is saying that we get to assume that @tt{n} is the size of
-the empty binary tree. Of course, that tells us than @tt{n} must be
+The assumption is saying that @tt{n} is the size of the empty
+Braun tree, which tells us than @tt{n} must be
 zero. So simplifying we are asked to prove that:
 @inline-code{
 Braun (bt_node i bt_mt bt_mt) 1
@@ -177,4 +176,5 @@ need to know in order to prove that the recursive case
 of @tt{insert} works. That is, the assumptions correspond to
 the facts we gain from the input to the function and from
 the result of the recursive call and the final result corresponds
-to the facts we need to establish for this case.
+to the facts we need to establish for this case, thanks to
+@tt{Program} and the structure of our monad.

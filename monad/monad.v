@@ -1,5 +1,7 @@
 (* START: C *)
-Definition C (A:Set) (P:A -> nat -> Prop) : Set :=
+Definition C (A:Set) 
+             (P:A -> nat -> Prop)
+           : Set :=
    {a : A | exists (an:nat), (P a an)}.
 (* STOP: C *)
 Hint Unfold C.

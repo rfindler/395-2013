@@ -86,6 +86,10 @@
 @figure*["fig:translation" "Inserting += into insert"]{
 @(let ()
    (define (drop-leading-comment l)
+     (unless (regexp-match #rx"^ *[(][*][^*]*[*][)] *$" (car l))
+       (error 'drop-leading-comment 
+              "first line appears to not be a comment ~s" 
+              (car l)))
      ;; right now we know generation inserts
      ;; a single line that has the comment 'automatically generated'
      ;; use 'cdr' to drop it.

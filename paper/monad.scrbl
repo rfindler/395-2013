@@ -11,7 +11,7 @@ appropriately at each stage of the computation.
 Unfortunately, this cost would be part of the dynamic
 behavior of the algorithm. In other words,
 @tt{insert x bt} would, return a new tree and a number.
-Unfortunately, this violates our goal of having no complexity
+Returning both violates our goal of having no complexity
 residue in extracted programs.
 
 In Coq parlance, the problem is that we have a pair of two @tt{Set}
@@ -79,7 +79,7 @@ asking the user to provide proofs if necessary, as we saw in
 This is the type of @tt{ret}:
 @(apply inline-code (extract monad.v "ret"))
 
-This specifies that @tt{ret} will only construct a @tt{C A P} when
+This specifies that @tt{ret} will construct a @tt{C A P} only when
 given a proof, @tt{Pa0}, that the correct/runtime property holds
 between the actual value return @tt{a} and the natural number @tt{0}.
 
@@ -109,7 +109,6 @@ transformed into whatever the actual cost along that path was.
 
 We enapsulate this logic into a simple extra-monadic operator,
 @tt{inc}, that introduces @tt{k} units of cost:
-@raw-latex{\newpage}
 @(apply inline-code (extract monad.v "inc"))
 In programs using our monad, we write @tt{+= k e}, a
 shorthand for @tt{inc _ k _ e}.
@@ -141,8 +140,6 @@ those that respect the @tt{PA} property given the @emph{actual} value
 of @tt{a} that the @tt{A} computation produced. 
 We can use a dependent type on @tt{bf} to capture the connection
 between the costs in a third attempt at the type for @tt{bind}.
-
-@raw-latex{\newpage}
 
 @(apply inline-code (extract binds.v "bind3"))
 
@@ -178,7 +175,8 @@ dynamic content. Specifically @tt{ret} is simply the identity function,
 @tt{inc} is a function that just returns its second argument and @tt{bind}
 simply applies its second argument to its first.
 Furthermore, we have proven that they obey variants of the monad
-laws that incorporate the proof obligations.
+laws that incorporate the proof obligations (see the file @tt{monad/laws.v}
+in the supplementary material).
 
 In summary, the monad works by requiring the verifier to predict the
 running-time with the @tt{PA} property and then provide evidence that

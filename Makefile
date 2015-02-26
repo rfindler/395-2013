@@ -12,10 +12,17 @@ admit:
 
 paper: paper/paper.pdf
 
+supp: DNE
+	echo did you make clean first?
+	tar czf supp.tar.gz `ls | grep -v paper`
+	du -s -h supp.tar.gz
+
+DNE:
+
 code: coq extract/extract extract/sextract
 
 paper/paper.pdf: paper/paper.scrbl paper/util.rkt paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl */*.v
-	(cd paper; scribble --pdf paper.scrbl; cd ..)
+	(cd paper; raco make -v paper.scrbl && scribble --pdf paper.scrbl; cd ..)
 
 .PHONY: coq clean clean-ml tmonad-gen
 
@@ -51,5 +58,7 @@ Makefile.coq: tmonad-gen Makefile $(VS)
 clean: Makefile.coq
 	$(MAKE) -f Makefile.coq clean
 	rm -f paper/paper.pdf
+	rm -f supp.tar.gz
 	rm -f extract/extract.ml extract/a.out extract/extract.mli
+	find . -type d -name compiled -exec rm -rf '{}' +
 	find . \( -name '*.vo' -o -name '*.d' -o -name '*.glob' -o -name '*.cmi' -o -name '*.cmo' -o -name '*_gen.v' \) -exec rm -f {} \;

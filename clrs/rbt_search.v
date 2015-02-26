@@ -169,3 +169,18 @@ Proof.
   apply IsRB_impl_height_no_color in IR.
   omega.
 Qed.
+
+Corollary bst_search_time_theta:
+  big_theta bst_search_time (fun n => n).
+Proof.
+  unfold bst_search_time.
+  unfold big_theta. split.
+  unfold big_oh.
+  exists 3 20.
+  intros n LE.
+  destruct n as [|[|[|n]]]; try omega.
+
+  apply big_oh_rev.
+  exists 0 1.
+  intros n LE. omega.
+Qed.

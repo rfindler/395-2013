@@ -30,10 +30,6 @@ extract/extract.ml: extract/extract.vo
 	coqc -q -R . Braun extract/extract.v
 	mv extract.ml extract/
 
-extract/sextract.ml: smonad/extract.vo
-	coqc -q -R . Braun smonad/extract.v
-	mv sextract.ml extract/
-
 extract/extract: extract/extract.ml
 	ocamlc -I ml -o $@ $^
 

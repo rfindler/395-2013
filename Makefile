@@ -13,7 +13,9 @@ admit:
 paper: paper/paper.pdf
 
 supp: DNE
-	echo did you make clean first?
+	@echo
+	@echo did you make clean first?
+	@echo
 	tar czf supp.tar.gz `ls | grep -v paper`
 	du -s -h supp.tar.gz
 

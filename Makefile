@@ -26,14 +26,11 @@ coq: Makefile.coq
 	mkdir -p ml
 	$(MAKE) -f Makefile.coq
 
-# this dependency doesn't exist so this is always built
-# not sure how to build this into Makefile.coq and without
-# that it is hard to see what to depend on.
-extract/extract.ml: coq
+extract/extract.ml: extract/extract.vo
 	coqc -q -R . Braun extract/extract.v
 	mv extract.ml extract/
 
-extract/sextract.ml: coq
+extract/sextract.ml: smonad/extract.vo
 	coqc -q -R . Braun smonad/extract.v
 	mv sextract.ml extract/
 

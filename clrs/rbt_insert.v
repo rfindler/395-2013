@@ -288,19 +288,6 @@ Proof.
   inversion H0; clear H0; subst; eauto.
 Qed.
 
-Theorem RBT_Balance_NonResult :
-  forall (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A),
-    (forall res, ~ RBT_Balance A tl tc tv tr res) ->
-    RBT_Balance_result A tl tc tv tr (CT_node A tl tc tv tr).
-Proof.
-  intros. unfold RBT_Balance_result.
-
-  split. intros [n_tl P_tl] [n_tr P_tr].
-  eexists. destruct tc.
-  eapply IR_node_black. apply P_tl.
-
-Admitted.
-
 Definition rbt_balance_worst := 42.
 Definition rbt_balance_best := 8.
 
@@ -470,6 +457,9 @@ Next Obligation.
   assert (A_cmp x max) as CMPxm.
    eapply A_trans. apply CMPxv. auto.
   rewrite maxof_left; auto.
+  apply BSTres. auto. auto.
+  destruct (minof A_cmp A_refl A_asym A_cmp_dec min x) as [R [P1 [P2 P]]].
+  simpl. eapply A_trans. apply P1. auto. auto. auto.
 
   split. intros e.
   destruct (MEM_res e) as [[MEM_res1a [MEM_res1b MEM_res1c]] MEM_res2].
@@ -528,7 +518,7 @@ Next Obligation.
   assert (A_cmp min x) as CMPmx.
    eapply A_trans. apply CMPmv. auto.
   rewrite minof_left; auto.
-  apply BSTres. apply A_trans. auto.
+  apply BSTres. apply A_trans. auto. auto.
   eapply A_trans. apply CMPvm.
   destruct (maxof A_cmp A_refl A_asym A_cmp_dec max x) as [R P]; simpl.
   destruct P; auto.
@@ -603,30 +593,3 @@ Next Obligation.
   omega.
 Qed.
 
-Corollary rbt_insert_time_bound_count:
-  forall A (ct:CTree A) bh,
-    IsRB ct bh ->
-    rbt_insert_worst (height ct) <= 138 * cl_log (count ct + 1) + 99.
-Proof.
-  intros A ct bh IR.
-  eapply le_trans.
-  apply IsRB_impl_height_no_color in IR.
-  unfold rbt_insert_worst, rbt_blacken_worst, rbt_insert_inner_worst, rbt_balance_worst.
-  simpl (27 + 42).
-  rewrite <- plus_assoc.
-  simpl (8 + 14).
-  rewrite <- plus_assoc.
-  simpl (8 + 22).
-  apply le_add.
-  apply le_mult.
-  apply le_refl.
-  apply IR.
-  apply le_refl.
-  replace (69 * (2 * bh + 1)) with (138 * bh + 69); try omega.
-  rewrite <- plus_assoc.
-  simpl (69+30).
-  apply le_add; auto.
-  apply le_mult; auto.
-  apply rb_black_height_impl_count.
-  auto.
-Qed.

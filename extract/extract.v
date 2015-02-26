@@ -20,7 +20,8 @@ Require Import Braun.sort.mergesort.
 
 Require Import Braun.fib.fib.
 Require Import Braun.clrs.zip.
-Require Import Braun.clrs.rbtree.
+Require Import Braun.clrs.rbt_search.
+Require Import Braun.clrs.rbt_insert.
 
 Extract Inductive bool => "bool" [ "false" "true" ].
 Extract Inductive sumbool => "bool" [ "false" "true" ].
@@ -58,8 +59,9 @@ Extraction "extract.ml" insert_log.insert
            sort.mergesort.mergesort
 
            fib.fib.fib_rec
-           (* XXX fib.fib.fib_iter *)
+           fib.fib.fib_iter
 
            clrs.zip.minsert_at
            clrs.zip.minsertz_at
-           clrs.rbtree.bst_search.
+           clrs.rbt_search.bst_search
+           clrs.rbt_insert.rbt_insert.

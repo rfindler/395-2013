@@ -32,8 +32,8 @@
  Our library is based on a monad that counts abstract steps,
  controlled by one of the monadic operations. The monad's
  computational content, however, is simply that of the identity
- monad so programs written in our monad (that use ordinary 
- recursion schemes) extract into idiomatic OCaml code.
+ monad so programs written in our monad (that recur on the natural
+ structure of their arguments) extract into idiomatic OCaml code.
  
  We evaluated the library by proving that red-black trees,
  merge sort, insertion sort, fib, and Okasaki's

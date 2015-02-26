@@ -27,8 +27,15 @@ The three functions are
           @item{@tt{make_array}: convert a list into a Braun tree
                  (two n log n versions and a linear version).}]
 In total, we implemented 15 different functions using the monad.
+For all of them, we proved the expected Big O running times. For
+the naive fib, we proved that it is Big Ω and Big O of itself,
+Big O(2@raw-latex{$^n$}), and Big Ω(2@raw-latex{$^{n/2}$}). For 
+merge sort, we proved it is Big O(n@raw-latex{$^2$}) and Big Ω(n@raw-latex{$^2$}).
+For all of the functions except for @tt{make_array_linear} and red-black insertion
+we proved they are correct as well; for those we proved only the running times.
 
-The supplementary material contains all of the Coq code.
+The supplementary material contains all of the Coq code for
+the implementation and proofs of all of the functions in our case study.
 
 @section{Line Counts}
 
@@ -36,18 +43,19 @@ The line counts for the various implementations of the algorithms
 using our monad are shown in @figure-ref["fig:line-counts"].
 The files whose names end in @tt{gen.v} are the output of the 
 script that inserts @tt{+=} expressions, so they contain
-the complete definitions of the various functions and their
-helper functions that we implemented. As you can see, the
-functions are generally short. The proofs are typically much longer.
+the complete definitions of the various functions. There are more
+than 15 because a number of the functions needed helper functions
+that are in the monad (and thus require running time proofs).
+As you can see, the functions are generally short. The
+proofs are typically much longer.
 
 We divided the line counts up into proofs that are inside obligations
 (and thus correspond to establishing that the monadic types are
 correct) and other lines of proofs. With the exception of the
 @tt{make_array_linear} and the red-black tree insertion function, 
 the proofs inside the obligations establish the correctness of the
-functions and establish a basic running time result, but not one in terms of Big O. 
-The proofs for @tt{make_array_linear} and the red-black insertion
-establish only the running times.
+functions and establish a basic running time result, 
+but not one in terms of Big O. 
 
 For example, @Figure-ref["fig:copy_log_sq"] is the definition of the
 @tt{copy_log_sq} function, basically mirroring Okasaki's definition,

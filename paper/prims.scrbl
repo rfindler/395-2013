@@ -33,7 +33,8 @@ Assuming that the base is a power of 2, division by 2,
 evenness testing, and checking to see if a number is equal
 to 0 are all constant-time operations. The algorithms
 discussed in @secref["sec:case-study"] use two
-operations on numbers besides those: @tt{+} and @tt{sub1}.
+operations on numbers besides those: @tt{+} and @tt{sub1}
+(not counting the abstract comparison in the sorting functions).
 
 In general, addition of bignums is not constant time. However, certain
 uses of addition can be replaced by constant-time bit operations. For
@@ -56,7 +57,12 @@ to see which case applies is a constant time operation:
 if the numbers are the same the leading digits will be the same
 and if they differ by @tt{1}, the leading digits will be different.
 
-In general, @tt{sub1} is not constant time. It some situations,
+The uses of addition in @tt{fib}, however, are not constant time
+and so our analysis of @tt{fib} is not accurate at that level.
+We did not attempt to improve that treatment, but we did study
+@tt{sub1} more carefully. 
+
+Subtracting 1 from a number in binary representation is not constant time. It some situations,
 it may need to traverse the entire number to compute its predecessor.
 To explore its behavior, we implemented it using only constant-time
 operations. Here's the result of our translation applied

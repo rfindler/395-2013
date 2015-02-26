@@ -8,28 +8,34 @@ got its start.)
 
 ## To build:
 
-Install coq verison 8.4 (September 2012) and Racket 6.1.1 (or later).
+Install coq verison 8.4 (September 2012) and Racket 6.1.1 (or
+later). Make sure that `coqc` and `racket` are on your path. Run these
+commands:
 
-cd rkt/tmonad
-raco pkg install
+    cd rkt/tmonad
+    raco pkg install
+    cd ../..
+    make
 
-If you've got everything on your path, just run `make`. This will
-check all of the proofs, extract OCaml code, and build the paper.
+This will check all of the proofs, extract OCaml code (into
+`extract`), and build the paper.
 
-In general, each function whose running time is proven is first
-written in a file name ending in `_gen.rkt`. The content of those
-files is code in a specialized langauge that is a close mapping to Coq
-with our monad, but with no typechecking and without the +=
+As an overview of the structure of the code, function whose running
+time is proven is first written in a file name ending in
+`_gen.rkt`. The content of those files is code in a specialized
+langauge that is a very much like a fully parenthesized subset of Coq
+(with our monad), but without typechecking and without the +=
 expressions. Functions in that language, when compiled, automatically
 insert the += expressions to compute running times and, when called,
 return their results together with the running times. (This mode of
 use is only intended for experimentation to try to learn facts about
-the functions by graphing and the like). 
+the functions by graphing and the like).
 
-When you run one of the `_gen.rkt` files via the `racket`
-command-line, it also prints out the Coq code with the += expressions
-inserted. These printouts are then collected in to the `_gen.v` files
-which are `Load`ed into the coq scripts.
+When you run one of the `_gen.rkt` files via the `racket` command-line
+tool, it also prints out the Coq code with the += expressions
+inserted. The Makefile collects printouts into the `_gen.v` files
+which are `Load`ed into the various coq scripts at the appropriate
+point.
 
 ## insert/ 
 
@@ -72,6 +78,11 @@ constant time arithmetic operations)
 
 This directory contains the implementation of `fold`.
 
+## extract/ 
+
+This directory is where the extracted code (its interesting content is
+generated) by the Makefile.
+
 ## monad/
 
 This directory contains the implementation of the monad.
@@ -80,9 +91,27 @@ This directory contains the implementation of the monad.
 
 This directory contains a writeup of the monad.
 
-## extract/ 
+## common/
 
-This directory is where the extracted code is put by the Makefile.
+This directory contains :
+
+- big_oh.v: definition of big_oh, big_omega, and big_theta, as well as
+  some facts about them.
+
+- log.v: definitions of the log functions and some facts about them.
+
+- pow.v: definition of exponentiation and a fact about it.
+
+- braun.v: definition of Braun trees.
+
+- same_structure.v, sequence.v, index.v, list-util.v: some Braun-tree
+  related utilities.
+
+- array.v: some facts about logs useful for Braun proofs
+
+- le_util.v: some facts about less than and logs
+
+- util.v: misc facts
 
 ## rkt/
 

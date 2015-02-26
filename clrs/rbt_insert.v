@@ -593,3 +593,15 @@ Next Obligation.
   omega.
 Qed.
 
+Corollary rbt_insert_time_worst_theta:
+  big_theta rbt_insert_worst (fun n => n).
+Proof.
+  unfold rbt_insert_worst, rbt_insert_inner_worst, rbt_blacken_worst, rbt_balance_worst.
+  simpl (27 + 42).
+  eapply big_theta_trans.
+  apply big_theta_eq.
+  intros h.
+  replace (69 * h + 8 + 8 + 14) with (69 * h + 30); try omega.
+  reflexivity.
+  apply big_theta_mult_plus.
+Qed.

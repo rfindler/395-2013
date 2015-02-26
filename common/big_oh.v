@@ -19,6 +19,7 @@ Definition big_oh f g :=
 
 Definition big_omega f g :=
   exists n0 c_num c_den,
+    c_num > 0 /\
     forall n,
       n >= n0 ->
       c_num * g(n) <= c_den * f(n).
@@ -35,6 +36,7 @@ Proof.
   exists n0.
   exists 1.
   exists m.
+  split. auto.
   intros n LT.
   remember (BIGOH_IMP n LT) as LT2; clear HeqLT2.
   clear LT BIGOH_IMP n0.
@@ -73,7 +75,6 @@ Proof.
   rewrite <- fl_log_div2.
   omega.
 Qed.
-
 
 Lemma big_oh_nlogn_plus_n__nlogn :
   big_oh (fun n : nat => n * fl_log n + n) (fun n : nat => n * fl_log n).
@@ -315,5 +316,75 @@ Proof.
   replace k with (k + 0); try omega.
   apply le_add. omega.
   apply le_0_n.
+Qed.
+
+Lemma big_theta_mult_plus:
+  forall x y,
+    big_theta (fun n : nat => (S x) * n + y) (fun n : nat => n).
+Proof.
+  unfold big_theta. split.
+  unfold big_oh.
+  exists y. exists (S (S x)).
+  intros n LE.
+  simpl. omega.
+
+  apply big_oh_rev.
+  exists 0. exists 1.
+  intros n LE. simpl.
+  replace n with (n + 0); try omega.
+  replace (n + 0 + x * (n + 0) + y + 0) with
+    (n + (0 + x * (n + 0) + y + 0)); try omega.
+  apply le_add. auto.
+  apply le_0_n.
+Qed.
+
+Lemma big_oh_eq:
+  forall f g,
+    (forall n, f n = g n) ->
+    big_oh f g.
+Proof.
+  intros f g EQ.
+  exists 0. exists 1.
+  intros n LE. rewrite EQ. omega.
+Qed.
+
+Lemma big_theta_eq:
+  forall f g,
+    (forall n, f n = g n) ->
+    big_theta f g.
+Proof.
+  intros f g EQ.
+  split. apply big_oh_eq. auto.
+  apply big_oh_rev. apply big_oh_eq. auto.
+Qed.
+
+Lemma big_omega_rev : 
+  forall f g,
+    big_omega g f ->
+    big_oh f g.
+Proof.
+  intros f g [n0 [m1 [m2 [GT BIGOM_IMP]]]].
+  exists n0.
+  exists m2.
+  intros n LT.
+  remember (BIGOM_IMP n LT) as LT2; clear HeqLT2.
+  clear LT BIGOM_IMP n0.
+  eapply le_trans; [| apply LT2 ].
+  destruct m1 as [|m1]. omega.
+  rewrite mult_succ_l.
+  apply le_plus_r.
+Qed.
+
+Lemma big_theta_trans :
+  forall f g h,
+    big_theta f g ->
+    big_theta g h ->
+    big_theta f h.
+Proof.
+  intros f g h [Ofg Tfg] [Ogh Tgh].
+  split. eapply big_oh_trans. apply Ofg. auto.
+  apply big_oh_rev. eapply big_oh_trans.
+  apply big_omega_rev. apply Tgh.
+  apply big_omega_rev. apply Tfg.
 Qed.
 

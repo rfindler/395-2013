@@ -11,9 +11,18 @@ Fixpoint pow n m :=
       n * pow n m
   end.
 
-Lemma pow_2_0 : pow 2 0 = 1. Proof. auto. Qed.
-Lemma pow_2_1 : pow 2 1 = 2. Proof. auto. Qed.
-Lemma pow_2_2 : pow 2 2 = 4. Proof. auto. Qed.
+Lemma pow_2_0 : pow 2 0 = 1.
+Proof.
+  auto.
+Qed.
+Lemma pow_2_1 : pow 2 1 = 2.
+Proof.
+  auto.
+Qed.
+Lemma pow_2_2 : pow 2 2 = 4.
+Proof.
+  auto.
+Qed.
 
 Lemma pow2_monotone:
   forall x y,

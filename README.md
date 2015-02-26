@@ -1,7 +1,43 @@
 395-2013
 ========
 
-This repo contains Coq code for functions from
+This repo contains a monad for tracking running times for functions,
+written in Coq and a number of algorithms implemented using the monad.
+(It's name comes from a seminar at Northwestern where this project got
+its start.)
+
+## To build:
+
+Install coq verison 8.4 (September 2012) and Racket 6.1.1 (or later).
+
+cd rkt/tmonad
+raco pkg install
+
+If you've got everything on your path, just run 'make'. This will
+check all of the proofs, extract OCaml code, and build the paper.
+
+In general, each function whose running time is proven is first
+written in a file name ending in `_gen.rkt`. The content of those
+files is code in a specialized langauge that is a close mapping to Coq
+with our monad, but with no typechecking and without the +=
+expressions. Functions in that language, when compiled, automatically
+insert the += expressions to compute running times and, when called,
+return their results together with the running times. (This mode of
+use is only intended for experimentation to try to learn facts about
+the functions by graphing and the like). 
+
+When you run one of the `_gen.rkt` files via the `racket`
+command-line, it also prints out the Coq code with the += expressions
+inserted. These printouts are then collected in to the `_gen.v` files
+which are `Load`ed into the coq scripts.
+
+## insert/ 
+
+This directory contains the Braun tree insertion function.
+
+## copy/, make_array/, size/
+
+These directories contain the Coq implementation for functions from
 [Chris Okasaki](http://www.usma.edu/eecs/SitePages/Chris%20Okasaki.aspx)'s
 paper:
 
@@ -13,15 +49,40 @@ Volume 7 Issue 6, November 1997, 661 - 666
 
 [pdf from citeseer](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.52.6090&rep=rep1&type=pdf)
 
-## To build:
+## clrs/
 
-Install coq verison 8.4 (September 2012) and Racket 6.0 (or later).
+This directory contains the implementation of the red-black tree
+insert and lookup functions.
 
-cd rkt/tmonad
-raco pkg install
+## sort/
 
-And if you've got everything on your path, just run 'make'. This will
-check all of the proofs, extract OCaml code, and build the paper.
+This directory contains the implementation of insertion sort and merge sort.
+
+## fib/ 
+
+This directory contains the implementation of the naive recursive
+implementation of fib and the linear time implementation.
+
+## sub1/
+
+This directory contains the implementation of sub1 (in terms of
+constant time arithmetic operations)
+
+## fold/
+
+This directory contains the implementation of `fold`.
+
+## monad/
+
+This directory contains the implementation of the monad.
+
+## paper/ 
+
+This directory contains a writeup of the monad.
+
+## extract/ 
+
+This directory is where the extracted code is put by the Makefile.
 
 ## rkt/
 

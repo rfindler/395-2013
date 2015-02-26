@@ -1,10 +1,10 @@
 395-2013
 ========
 
-This repo contains a monad for tracking running times for functions,
+This repo contains a monad for tracking running times for functions
 written in Coq and a number of algorithms implemented using the monad.
-(It's name comes from a seminar at Northwestern where this project got
-its start.)
+(It's name comes from a PL seminar at Northwestern where this project
+got its start.)
 
 ## To build:
 
@@ -13,7 +13,7 @@ Install coq verison 8.4 (September 2012) and Racket 6.1.1 (or later).
 cd rkt/tmonad
 raco pkg install
 
-If you've got everything on your path, just run 'make'. This will
+If you've got everything on your path, just run `make`. This will
 check all of the proofs, extract OCaml code, and build the paper.
 
 In general, each function whose running time is proven is first

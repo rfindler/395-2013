@@ -25,6 +25,7 @@ Hint Unfold clength_result.
 Load "clength_gen.v".
 
 Next Obligation.
+Proof.
   clear H1 am.
   rename H0 into CR.
 
@@ -45,18 +46,21 @@ Definition split2_result (A:Set) (n:nat) (l:list A) (V:n <= length l)
 Load "split2_gen.v".
 
 Next Obligation.
+Proof.
   unfold split2_result.
   unfold split2_time.
   simpl in *. auto.
 Qed.
 
 Next Obligation.
+Proof.
   simpl in *. omega.
 Defined.
 
 Local Obligation Tactic := idtac.
 
 Next Obligation.
+Proof.
   unfold split2_result.
   unfold split2_time.
   intros A n l VL n' EQn. subst n.
@@ -66,6 +70,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   intros A n l NLT n' n'EQ.
   subst n.
   intros a l' LEQ.
@@ -75,6 +80,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold split2_result.
   unfold split2_time.
   intros A n l VL n' EQn. subst n.
@@ -107,6 +113,7 @@ Definition merge_result (A:Set) (A_cmp:A -> A -> Prop)
 Load "merge_gen.v".
 
 Next Obligation.
+Proof.
   unfold merge_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
@@ -122,6 +129,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold merge_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
@@ -141,6 +149,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold merge_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
@@ -151,6 +160,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold merge_result in *.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
@@ -208,6 +218,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold merge_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
@@ -219,6 +230,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold merge_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros xs ys _.
@@ -292,6 +304,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   program_simpl.
 Defined.
 
@@ -340,10 +353,9 @@ Program Fixpoint mergesortc_worst_time n {measure n} :=
       else  (mergesortc_worst_time n' +
              insert_worst_time n' + 20)
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Program Fixpoint mergesortc_best_time n {measure n} :=
   match n with
@@ -357,10 +369,8 @@ Program Fixpoint mergesortc_best_time n {measure n} :=
       else  (mergesortc_best_time n' +
              insert_best_time n' + 20)
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Definition mergesortc_result 
            (A:Set) (A_cmp:A -> A -> Prop)
@@ -374,6 +384,7 @@ Definition mergesortc_result
 Load "mergesortc_gen.v".
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec
     l len EQlen _ x xm EQxm.
@@ -389,6 +400,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros l len EQlen _ x l' EQl' EVEN.
@@ -398,6 +410,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros l len EQlen MERGESORTC x l' EQl' EVEN [xs1 xs2] SPLIT_P.
@@ -407,6 +420,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec l len EQlen.
   intros MERGESORTC x l' EQl' EVEN [xs1 xs2] SPLIT_P.
@@ -417,6 +431,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec l len EQlen.
   intros MERGESORTC x l' EQl' EVEN [xs1 xs2] SPLIT_P _ _.
@@ -429,6 +444,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec l len EQlen. 
   intros MERGESORTC x l' EQl' EVEN [xs1 xs2] SPLIT_P _ _.
@@ -440,6 +456,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.
   intros l len EQlen MERGESORTC.
@@ -548,16 +565,19 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   program_simpl.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   program_simpl.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   intros A A_cmp A_cmp_trans
     A_cmp_total A_cmp_dec.  
@@ -610,6 +630,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesortc_result.
   program_simpl.
 Defined.
@@ -633,11 +654,8 @@ Program Fixpoint mergesortc_worst_time2 n {measure n} :=
               end) +
              insert_worst_time n' + 20)
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma worst_12 : forall n, mergesortc_worst_time n = mergesortc_worst_time2 n.
 Proof.
@@ -691,11 +709,8 @@ Program Fixpoint mergesortc_worst_time3 n {measure n} :=
                 + insert_worst_time n' + 20)
            end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma worst_23 : forall n, mergesortc_worst_time2 n = mergesortc_worst_time3 n.
 Proof.
@@ -743,13 +758,8 @@ Program Fixpoint mergesortc_worst_time4 n {measure n} :=
              + insert_worst_time n' + 20)
       end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma worst_34 : forall n, mergesortc_worst_time3 n = mergesortc_worst_time4 n.
 Proof.
@@ -794,11 +804,8 @@ Program Fixpoint mergesortc_worst_time5 n {measure n} :=
              + insert_worst_time n' + 20)
       end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma worst_45 : forall n, mergesortc_worst_time4 n = mergesortc_worst_time5 n.
 Proof.
@@ -842,9 +849,8 @@ Program Fixpoint mergesortc_worst_time6 n {measure n} :=
           + insert_worst_time n' + 20
       end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma worst_56 : big_oh mergesortc_worst_time5 mergesortc_worst_time6.
 Proof.
@@ -890,9 +896,8 @@ Program Fixpoint mergesortc_worst_time7 n {measure n} :=
           mergesortc_worst_time7 (div2 n)
       end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma worst_67 : big_oh mergesortc_worst_time6 mergesortc_worst_time7.
 Proof.
@@ -946,9 +951,8 @@ Program Fixpoint mergesortc_worst_time8 n {measure n} :=
       mergesortc_worst_time8 (div2 n) +
       mergesortc_worst_time8 (div2 n)
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma worst_78 : big_oh mergesortc_worst_time7 mergesortc_worst_time8.
 Proof.
@@ -1086,11 +1090,8 @@ Program Fixpoint mergesortc_best_time2 n {measure n} :=
               end) +
              insert_best_time n' + 20)
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma best_12 : forall n, mergesortc_best_time n = mergesortc_best_time2 n.
 Proof.
@@ -1144,11 +1145,8 @@ Program Fixpoint mergesortc_best_time3 n {measure n} :=
                 + insert_best_time n' + 20)
            end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma best_23 : forall n, mergesortc_best_time2 n = mergesortc_best_time3 n.
 Proof.
@@ -1196,13 +1194,8 @@ Program Fixpoint mergesortc_best_time4 n {measure n} :=
              + insert_best_time n' + 20)
       end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma best_34 : forall n, mergesortc_best_time3 n = mergesortc_best_time4 n.
 Proof.
@@ -1247,11 +1240,8 @@ Program Fixpoint mergesortc_best_time5 n {measure n} :=
              + insert_best_time n' + 20)
       end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma best_45 : forall n, mergesortc_best_time4 n = mergesortc_best_time5 n.
 Proof.
@@ -1293,10 +1283,8 @@ Program Fixpoint mergesortc_best_time6 n {measure n} :=
            merge_best_time (div2 n') (div2 n') + 35)
       end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
-
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma mergesortc_best_time5_monotonic :
   forall n, mergesortc_best_time5 n <= mergesortc_best_time5 (S n).
@@ -1436,13 +1424,12 @@ Program Fixpoint mergesortc_best_time7 n {measure n} :=
            n)
       end
   end.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. intros. subst n. auto. Defined.
-Next Obligation. apply lt_wf. Defined.
+Solve Obligations using (intros; subst n; auto).
+Solve Obligations using (apply lt_wf).
 
 Lemma best_67 : big_oh mergesortc_best_time7 mergesortc_best_time6.
-  exists 1.
-  exists 3.
+Proof.
+  exists 1 3.
   intros n LT.
   destruct n. intuition.
   clear LT.
@@ -1811,12 +1798,14 @@ Definition mergesort_result
 Load "mergesort_gen.v".
 
 Next Obligation.
+Proof.
   program_simpl.
   unfold clength_result in *.
   omega.
 Qed.
 
 Next Obligation.
+Proof.
   unfold mergesort_result.
   unfold mergesortc_result.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec l len CLENGTHRES res _.

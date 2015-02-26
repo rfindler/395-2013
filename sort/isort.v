@@ -24,6 +24,7 @@ Definition insert_result
 Load "insert_gen.v".
 
 Next Obligation.
+Proof.
   unfold insert_result.
   intro IS.
   split.
@@ -37,6 +38,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold insert_result.
   intro IS.
   rename wildcard' into CMP.
@@ -60,6 +62,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold insert_result.
   intros IS.
   rename wildcard' into CMP.
@@ -126,6 +129,7 @@ Definition isort_result (A:Set) (A_cmp:A -> A -> Prop)
 Load "isort_gen.v".
 
 Next Obligation.  
+Proof.
  split. 
  split. auto. 
  apply SSorted_nil.
@@ -138,6 +142,7 @@ Defined.
 Local Obligation Tactic := idtac.
 
 Next Obligation.
+Proof.
   unfold isort_result.
   unfold isort_best_time, isort_worst_time in *.
   intros A A_cmp A_cmp_trans A_cmp_total A_cmp_dec.

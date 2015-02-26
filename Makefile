@@ -14,7 +14,7 @@ paper: paper/paper.pdf
 
 code: coq extract/extract extract/sextract
 
-paper/paper.pdf: paper/paper.scrbl paper/util.rkt paper/l.v paper/lwl.v paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl */*.v
+paper/paper.pdf: paper/paper.scrbl paper/util.rkt paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl */*.v
 	(cd paper; scribble --pdf paper.scrbl; cd ..)
 
 .PHONY: coq clean clean-ml tmonad-gen

@@ -33,6 +33,7 @@ Definition bst_search_result (A:Set)
 Load "bst_search_gen.v".
 
 Next Obligation.
+Proof.
  unfold bst_search_result, bst_search_time.
  intros min_a max_a CMPax CMPxa BST.
  split.
@@ -44,6 +45,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
  unfold bst_search_result, bst_search_time.
  intros min_a max_a CMPax CMPxa BST.
  split.
@@ -57,6 +59,7 @@ Qed.
 
 Obligation Tactic := idtac.
 Next Obligation.
+Proof.
   unfold bst_search_result, bst_search_time.
   intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
   intros l c v r EQ. subst ct.
@@ -111,6 +114,7 @@ Obligation Tactic := program_simpl.
 
 Obligation Tactic := idtac.
 Next Obligation.
+Proof.
   unfold bst_search_result, bst_search_time.
   intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
   intros l c v r EQ. subst ct.

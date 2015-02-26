@@ -36,20 +36,24 @@ Program Fixpoint insert_at {A:Set} (a:A) (n:nat) (l:list A) (NV:n <= length l) :
   end.
 
 Next Obligation.
+Proof.
   unfold InsertedAt, insert_at_time.
   simpl. split; auto.
   exists (@nil A). simpl. eauto.
 Qed.
 
 Next Obligation.
+Proof.
   simpl in NV. omega.
 Defined.
 
 Next Obligation.
+Proof.
   simpl in NV. omega.
 Qed.
 
 Next Obligation.
+Proof.
   clear NV.
   rename n' into n.
   clear H2.
@@ -90,6 +94,7 @@ Program Fixpoint minsert_at {A:Set} (ma:list A) (n:nat) (l:list A) (NV:n <= leng
   end.
 
 Next Obligation.
+Proof.
   unfold MInsertedAt.
   split; auto.
 
@@ -107,6 +112,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   rename H into IA_P.
   destruct IA_P as [xs [ys [EQl' [EQn EQres']]]].
   subst l n res'.
@@ -145,6 +151,7 @@ Proof.
 Qed.
 
 Next Obligation.
+Proof.
   clear H4 H6.
   rename H0 into REC_P.
   rename H1 into IA_P.
@@ -194,6 +201,7 @@ Program Fixpoint from_zip {A:Set} (z:Zipper A) (ALL_RIGHT:(fst z) = nil) :
   <== (snd z).
 
 Next Obligation.
+Proof.
  destruct z as [xs ys].
  simpl in *. subst xs.
  program_simpl.
@@ -233,10 +241,12 @@ Program Fixpoint zip_right {A:Set} (z:Zipper A) (SOME_RIGHT:(snd z) <> nil) :
   end.
 
 Next Obligation.
+Proof.
   congruence.
 Defined.
 
 Next Obligation.
+Proof.
  destruct z as [xs ys'].
  simpl in *.
  subst ys'.
@@ -279,10 +289,12 @@ Program Fixpoint zip_left {A:Set} (z:Zipper A) (SOME_LEFT:(fst z) <> nil) :
   end.
 
 Next Obligation.
+Proof.
   congruence.
 Defined.
 
 Next Obligation.
+Proof.
  destruct z as [xs' ys].
  simpl in *.
  subst xs'.
@@ -302,6 +314,7 @@ Program Fixpoint zip_insert {A:Set} (z:Zipper A) (a:A) :
   <== ((fst z), a :: (snd z)).
 
 Next Obligation.
+Proof.
   unfold ZipperInsert. auto.
 Qed.
 
@@ -327,6 +340,7 @@ Program Fixpoint zip_rightn {A:Set} (n:nat) (z:Zipper A) (NV:n <= length (snd z)
   end.
 
 Next Obligation.
+Proof.
   split; auto.
   destruct z as [xs zs].
   exists xs. exists (@nil A). exists zs.
@@ -334,12 +348,14 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   destruct (snd z) as [|a sz].
   simpl in NV. omega.
   congruence.
 Qed.
 
 Next Obligation.
+Proof.
   rename H into ZR.
   destruct ZR as [xs [a [ys [EQz EQzr]]]].
   subst z z'. simpl in *.
@@ -347,6 +363,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear H6 H4.
   rename H0 into ZRN.
   rename H1 into ZR.
@@ -388,6 +405,7 @@ Program Fixpoint zip_leftn {A:Set} (n:nat) (z:Zipper A) (NV:n <= length (fst z))
   end.
 
 Next Obligation.
+Proof.
   split; auto.
   destruct z as [xs zs].
   exists xs. exists (@nil A). exists zs.
@@ -395,12 +413,14 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   destruct (fst z) as [|a sz].
   simpl in NV. omega.
   congruence.
 Qed.
 
 Next Obligation.
+Proof.
   rename H into ZL.
   destruct ZL as [b [xs [ys [EQz EQzr]]]].
   subst z z'. simpl in *.
@@ -408,6 +428,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear H6 H4.
   rename H0 into ZLN.
   rename H1 into ZL.
@@ -445,7 +466,8 @@ Program Fixpoint zip_minsert {A:Set} (ma:list A) (z:Zipper A) :
       <== z''
   end.
 
-Next Obligation.
+Next Obligation. 
+Proof.
   unfold ZipperMInsert.
   simpl.
   destruct z as [xs ys].
@@ -453,6 +475,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear H6 H4.
   rename H0 into ZMI.
   rename H1 into ZI.
@@ -482,6 +505,7 @@ Program Fixpoint minsertz_at {A:Set} (ma:list A) (n:nat) (l:list A) (NV:n <= len
   <== l'.
 
 Next Obligation.
+Proof.
   rename H into EQ.
   rename H0 into ZO.
   destruct z as [xs ys].
@@ -492,6 +516,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   rename H into ZMI.
   rename H1 into ZRN.
   destruct z as [xs ys].
@@ -510,6 +535,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   rename H6 into ZO.
   rename H3 into ZRN.
   rename H1 into ZMI.
@@ -533,6 +559,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear H18 H19 H16 H14 H12 H10.
   rename H4 into ZOl.
   rename H3 into EQfz.

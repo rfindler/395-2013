@@ -64,6 +64,7 @@ Definition rbt_blacken_result (A:Set) (ct:CTree A) (res:CTree A) (c:nat) :=
 Load "rbt_blacken_gen.v".
 
 Next Obligation.
+Proof.
   unfold rbt_blacken_result.
   split. auto.
   split. auto.
@@ -74,6 +75,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold rbt_blacken_result.
   split. intros [n RB].
   apply blacken_okay in RB.
@@ -379,16 +381,19 @@ Definition rbt_insert_inner_result (A:Set) (A_cmp:A -> A -> Prop) (A_refl : fora
 Load "rbt_insert_inner_gen.v".
 
 Next Obligation.
+Proof.
   unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst, rbt_balance_worst.
   simpl. omega.
 Qed.
 
 Next Obligation.
+Proof.
   unfold rbt_insert_inner_result, rbt_insert_inner_best, rbt_insert_inner_worst, rbt_balance_worst.
   omega.
 Qed.
 
 Next Obligation.
+Proof.
   clear am am0 H3 H2 Heq_anonymous0 Heq_anonymous.
   rename wildcard' into NEQ.
   rename wildcard'0 into CMPxv.
@@ -403,6 +408,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear am am0 H3 H2 Heq_anonymous0 Heq_anonymous.
   rename wildcard' into NEQ.
   rename wildcard'0 into CMPxv.
@@ -426,6 +432,7 @@ Definition rbt_insert_result (A:Set) (A_cmp:A -> A -> Prop) (A_refl : forall x, 
 Load "rbt_insert_gen.v".
 
 Next Obligation.
+Proof.
   clear am H3 am0 H2.
   rename H0 into BLACKEN_P.
   rename H1 into INSERT_P.

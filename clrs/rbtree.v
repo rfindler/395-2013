@@ -197,8 +197,8 @@ Proof.
    subst. auto.
  Qed.
 
-(* This is based on the idea that the a complete binary tree contains
-   2^h nodes and an incomplete tree just has some missing nodes. *)
+(* This is based on the idea that the a complete binary tree contains *)
+(* 2^h nodes and an incomplete tree just has some missing nodes. *)
 
 Lemma le_exists:
   forall m n,

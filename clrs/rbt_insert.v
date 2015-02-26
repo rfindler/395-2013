@@ -311,6 +311,8 @@ Definition rbt_balance_result (A:Set) (tl:CTree A) (tc:Color) (tv:A) (tr:CTree A
 
 Load "rbt_balance_gen.v".
 
+(* Assume first part / Prove second *)
+
 Admit Obligations.
 
 (*

@@ -383,3 +383,11 @@
 
 (define false #f)
 (define true #t)
+
+(struct cinterleave-struct () #:transparent
+        #:methods gen:custom-write
+        [(define (write-proc val port mode)
+           (display "cinterleave" port))])
+
+(define cinterleave (cinterleave-struct))
+(provide cinterleave)

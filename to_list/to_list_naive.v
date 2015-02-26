@@ -22,18 +22,25 @@ Qed.
 Fixpoint tln_time n :=
   match n with
     | O =>
-      0
+      3
     | S n' =>
-      1 + n' + 2 * tln_time n'
+      15 + n' + 2 * tln_time n'
   end.
+
+Lemma tln_time_bigger:
+  forall tn,
+    3 <= tln_time tn.
+Proof.
+  induction tn as [|tn]; simpl; omega.
+Qed.
 
 Lemma tln_time_split:
   forall sn tn,
     tln_time sn + tln_time tn <= 2 * tln_time (sn + tn).
 Proof.
   induction sn as [|sn]; simpl; intros tn.
+  remember (tln_time_bigger tn) as P. omega.
 
-  omega.
   assert (tln_time sn + tln_time tn <= 2 * tln_time (sn + tn)) as LE.
   auto. omega.
 Qed.
@@ -43,34 +50,35 @@ doubling is the wrong operation. Maybe if I used Braun-ness in the
 correctness, then I could change the function to use something like
 div2, but I'm not sure. *)
 
-Program Fixpoint to_list_naive (A:Set) b :
-  {! xs !:! list A
-     !<! c !>!
-     SequenceR b xs
-   /\ c <= tln_time (length xs) !} :=
-  match b with
-    | bt_mt =>
-      <== nil
-    | bt_node x s t =>
-      sl <- to_list_naive A s ;
-      tl <- to_list_naive A t ;
-      xs' <- cinterleave A sl tl ;
-      += 1 ;
-      <== (cons x xs')
-  end.
+Definition to_list_naive_result (A:Set) b (xs:list A) (c:nat) :=
+  SequenceR b xs
+  /\ c <= tln_time (length xs).
+
+Load "to_list_naive_gen.v".
 
 Next Obligation.
-  clear am0 H8 H9.
-  clear am H10 H11.
+Proof.
+  unfold to_list_naive_result. simpl.
+  split. eauto. auto.
+Qed.
+
+Next Obligation.
+Proof.
+  clear am0 H7 am H6.
+  unfold to_list_naive_result in *.
+  destruct H1 as [SEQt ANt].
+  destruct H2 as [SEQs ANs].
+  clear H0. simpl length.
   rewrite <- interleave_length_split.
   remember (length sl) as sn.
   remember (length tl) as tn.
   split; eauto.
-  remember (sn + tn + 1) as p.
+  clear SEQs SEQt A x s t sl tl Heqtn Heqsn.
+  remember (sn + tn + 15) as p.
   replace (an1 + (an0 + p)) with
           (p + (an1 + an0)); try omega.
-  replace (S (sn + tn + (tln_time (sn + tn) + (tln_time (sn + tn) + 0)))) with
-          (p + 2 * tln_time (sn + tn)); try omega.
+  replace (tln_time (S (sn + tn))) with
+          (p + 2 * tln_time (sn + tn)); try (simpl; omega).
   apply Plus.plus_le_compat_l.
   apply Le.le_trans with (tln_time sn + tln_time tn); try omega.
   apply tln_time_split.

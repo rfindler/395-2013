@@ -197,173 +197,6 @@ Proof.
    subst. auto.
  Qed.
 
-Definition bst_search_time (n:nat) :=
-  19 * n + 3.
-
-Definition bst_search_result (A:Set)
-  (A_cmp:A -> A -> Prop)
-  (A_asym:forall x y, A_cmp x y -> ~ A_cmp y x)
-  (A_trans:Transitive A A_cmp)
-  (A_cmp_dec:
-    forall (x y:A),
-      { A_cmp x y } + { A_cmp y x })
-  (A_eq_dec:
-    forall (x y:A),
-      { x = y } + { x <> y })
-  (x:A) (ct:CTree A) (res:bool) (c:nat) :=
-  forall (min_a max_a:A)
-         (MIN:A_cmp min_a x)
-         (MAX:A_cmp x max_a)
-         (BST:IsBST A_cmp ct min_a max_a),
-    (res = true -> IsMember x ct) /\
-    (res = false -> ~ IsMember x ct) /\
-    1 <= c <= bst_search_time (height ct).
-
-Load "bst_search_gen.v".
-
-Next Obligation.
- unfold bst_search_result, bst_search_time.
- intros min_a max_a CMPax CMPxa BST.
- split.
- intros EQ. inversion EQ.
- simpl.
- split; try omega.
- intros _ IM.
- inversion IM.
-Qed.
-
-Next Obligation.
- unfold bst_search_result, bst_search_time.
- intros min_a max_a CMPax CMPxa BST.
- split.
- intros _. eauto.
- split.
- intros EQ. congruence.
- simpl (height (CT_node A l c v r)).
- rewrite mult_succ_r.
- omega.
-Qed.
-
-Obligation Tactic := idtac.
-Next Obligation.
-  unfold bst_search_result, bst_search_time.
-  intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
-  intros l c v r EQ. subst ct.
-  intros NEQ _ CMPxv _.
-  intros res.
-  intros _.
-  intros xm EQ. simpl in EQ. subst xm.
-  intros an REC.
-  intros min_a max_a CMPax CMPxa BST.
-  edestruct REC as [IMt [IMf AN]].
-   apply CMPax.
-   apply CMPxv.
-   inversion BST. subst. auto.
-  clear REC.
-
-  split.
-  intros EQ. apply IMt in EQ. eauto.
-  split.
-  intros EQ. apply IMf in EQ.
-  intros IM. inversion IM; subst; auto.
-  rename H0 into IMr.
-  inversion BST.
-  subst.
-  rename H3 into BSTl.
-  rename H6 into CMPav.
-  rename H7 into CMPva.
-  rename H8 into BSTr.
-  
-  edestruct IsMember_impl_bounds.
-  apply A_trans.
-  apply BSTr.
-  apply IMr.
-  rename H into CMPvx.
-  clear H0.
-  eapply A_asym.
-  apply CMPvx.
-  auto.
-
-  simpl (height (CT_node A l c v r)).
-  remember (height l) as L.
-  remember (height r) as R.
-  clear HeqR HeqL IMf IMt CMPxv NEQ BST r v c l CMPxa CMPax max_a min_a x A_eq_dec
-    A_cmp_dec A_trans A_asym A_cmp A res.
-  rewrite mult_succ_r.
-  rewrite <- plus_assoc.
-  replace (19 + 3) with 22; try omega.
-  apply max_case_strong.
-  intros LE. clear LE R. omega.
-  intros LE. omega.
-Qed.
-Obligation Tactic := program_simpl.
-
-Obligation Tactic := idtac.
-Next Obligation.
-  unfold bst_search_result, bst_search_time.
-  intros A A_cmp A_asym A_trans A_cmp_dec A_eq_dec x ct.
-  intros l c v r EQ. subst ct.
-  intros NEQ _ CMPvx _.
-  intros res.
-  intros _.
-  intros xm EQ. simpl in EQ. subst xm.
-  intros an REC.
-  intros min_a max_a CMPax CMPxa BST.
-  edestruct REC as [IMt [IMf AN]].
-   apply CMPvx.
-   apply CMPxa.
-   inversion BST. subst. auto.
-  clear REC.
-  split.
-  intros EQ. apply IMt in EQ. eauto.
-  split.
-  intros EQ. apply IMf in EQ.
-  intros IM. inversion IM; subst; auto.
-  rename H0 into IMl.
-  inversion BST.
-  subst.
-  rename H3 into BSTl.
-  rename H6 into CMPav.
-  rename H7 into CMPva.
-  rename H8 into BSTr.
-  
-  edestruct IsMember_impl_bounds.
-  apply A_trans.
-  apply BSTl.
-  apply IMl.
-  clear H.
-  rename H0 into CMPxv.
-  eapply A_asym.
-  apply CMPvx.
-  auto.
-
-  simpl (height (CT_node A l c v r)).
-  remember (height l) as L.
-  remember (height r) as R.
-  clear HeqR HeqL IMf IMt CMPvx NEQ BST r v c l CMPxa CMPax max_a min_a x A_eq_dec
-    A_cmp_dec A_trans A_asym A_cmp A res.
-  apply max_case_strong.
-  intros LE. omega.
-  intros LE. clear LE L. omega.
-Qed.
-Obligation Tactic := program_simpl.
-
-Corollary rbbst_search_time_bound_black_height:
-  forall A (ct:CTree A) n,
-    IsRB ct n ->
-    bst_search_time (height ct) <= 38 * n + 22.
-Proof.
-  intros A ct n IR.
-  unfold bst_search_time.
-  apply IsRB_impl_height_no_color in IR.
-  omega.
-Qed.
-
-(* The theorem above is actually not that strong because we really
-   want to relate the runtime the number of elements in the set. We've
-   previously shown that the black-height is related to the actual
-   height. We really need to relate the height to the count. *)
-
 (* This is based on the idea that the a complete binary tree contains
    2^h nodes and an incomplete tree just has some missing nodes. *)
 
@@ -384,47 +217,86 @@ Proof.
  omega.
 Defined.
 
-Lemma count_pow_height':
-  forall
-    (A : Set)
-    (ct1 : CTree A)
-    (ct2 : CTree A)
-    (IHct1 : count ct1 <= pow 2 (height ct1))
-    (IHct2 : count ct2 <= pow 2 (height ct2))
-    (LEh :    height ct2 <= height ct1),
-   count ct1 + 1 + count ct2 <= S (S (pow 2 (height ct1))).
-Proof.
-  intros.
-  eapply le_trans.
-  eapply le_add.
-  eapply le_add.
-  apply IHct1.
-  auto.
-  apply IHct2.
-  clear IHct1 IHct2.
-  remember (height ct2) as L.
-  remember (height ct1) as R.
-  clear A ct1 ct2 HeqL HeqR.
-  apply le_exists in LEh.
-  destruct LEh as [x EQr]. subst R.
+(* height | min_count | max_count *)
+(* 0      | 0         | 0 *)
+(* 1      | 1         | 1 *)
+(* 2      | 3         | 4 *)
 
-Admitted.
+Lemma count_height_0:
+  forall A (ct:CTree A),
+    height ct = 0 -> count ct = 0.
+Proof.
+  intros A ct.
+  destruct ct; simpl. auto.
+  intros EQ. congruence.
+Qed.
+
+Lemma count_height_1:
+  forall A (ct:CTree A),
+    height ct = 1 -> count ct = 1.
+Proof.
+  intros A ct.
+  destruct ct; simpl. auto.
+  intros EQ. inversion EQ. clear EQ. generalize H0. clear H0.
+  apply max_case_strong; intros LE EQ;
+    (rewrite count_height_0; [ rewrite count_height_0; [ auto | ] | ]); omega.
+Qed.  
+
+Lemma pow_pos:
+  forall n m,
+    exists x,
+      pow (S n) m = S x.
+Proof.
+  intros n m. generalize n. clear n. induction m; intros n.
+  simpl. eauto.
+  simpl.
+  destruct (IHm n) as [x EQ].
+  rewrite EQ. eexists.
+  simpl. auto.
+Qed.
 
 Lemma count_pow_height:
   forall A (ct:CTree A),
-    count ct <= pow 2 (height ct).
+    (* pred (2 * (height ct)) <= *)
+    (count ct) <= (pred (pow 2 (height ct))).
 Proof.
-  intros A.
-  induction ct.
-
+  intros A ct. induction ct.
   simpl. auto.
 
   simpl.
+  replace (count ct1 + 1 + count ct2) with (S (count ct1 + count ct2)); try omega.
+  rewrite plus_0_r.
+  destruct (pow_pos 1 (height ct1)) as [phct1 EQphct1].
+  rewrite EQphct1 in IHct1. simpl (pred (S phct1)) in IHct1.
+  destruct (pow_pos 1 (height ct2)) as [phct2 EQphct2].
+  rewrite EQphct2 in IHct2. simpl (pred (S phct2)) in IHct2.
   apply max_case_strong; intros LEh.
-  apply count_pow_height'; auto.
 
-  replace (count ct1 + 1 + count ct2) with (count ct2 + 1 + count ct1); try omega.
-  apply count_pow_height'; auto.
+  rename ct2 into L. rename ct1 into H.
+  rename IHct1 into IH_H. rename IHct2 into IH_L.
+  rename EQphct1 into EQphH. rename EQphct2 into EQphL.
+  rename phct1 into phH. rename phct2 into phL.
+  
+  rewrite EQphH. simpl.
+  replace (phH + S phH) with (S (phH + phH)); try omega.
+  apply le_n_S.
+  apply le_add; auto.
+  eapply le_trans. apply IH_L.
+  apply le_S_n. rewrite <- EQphH. rewrite <- EQphL.
+  apply pow2_monotone. auto.
+
+  rename ct1 into L. rename ct2 into H.
+  rename IHct2 into IH_H. rename IHct1 into IH_L.
+  rename EQphct2 into EQphH. rename EQphct1 into EQphL.
+  rename phct2 into phH. rename phct1 into phL.
+  
+  rewrite EQphH. simpl.
+  replace (phH + S phH) with (S (phH + phH)); try omega.
+  apply le_n_S.
+  apply le_add; auto.
+  eapply le_trans. apply IH_L.
+  apply le_S_n. rewrite <- EQphH. rewrite <- EQphL.
+  apply pow2_monotone. auto.
 Qed.
 
 (* This is the inversion of the above, except that it is actually only
@@ -594,17 +466,3 @@ Proof.
   apply rb_black_heights_close with (n:=n); auto.
 Qed.
 
-Corollary rbbst_search_time_bound_count:
-  forall A (ct:CTree A) bh,
-    IsRB ct bh ->
-    bst_search_time (height ct) <= 38 * cl_log (count ct + 1) + 22.
-Proof.
-  intros A ct bh IR.
-  eapply le_trans.
-  apply rbbst_search_time_bound_black_height.
-  apply IR.
-  apply le_add; auto.
-  apply le_mult; auto.
-  apply rb_black_height_impl_count.
-  auto.
-Qed.

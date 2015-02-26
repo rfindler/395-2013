@@ -9,12 +9,12 @@
 @figure*["fig:line-counts" "Line Counts"]{@build-table[]}
 
 To better understand how applicable our monad is, we 
-implemented all of the algorithms in @citet[three-algorithms-on-braun-trees]'s
-paper, @italic{Three Algorithms on Braun Trees}. The
-source code for our case study is on github: 
-@centered{@url{https://github.com/rfindler/395-2013}.}
-
-Okasaki's paper contains 
+implemented the search and insertion functions for 
+red-black trees, insertion sort, merge sort, both
+the naive recursive version of the nth Fibonacci number
+function and the linear time version, and
+all of the algorithms in @citet[three-algorithms-on-braun-trees]'s
+paper, @italic{Three Algorithms on Braun Trees}.  Okasaki's paper contains 
 several versions of each of the three functions, each with different
 running times, in each case culminating with efficient versions. 
 The three functions are
@@ -26,6 +26,9 @@ The three functions are
                  and}
           @item{@tt{make_array}: convert a list into a Braun tree
                  (two n log n versions and a linear version).}]
+In total, we implemented 15 different functions using the monad.
+
+The supplementary material contains all of the Coq code.
 
 @section{Line Counts}
 
@@ -40,9 +43,11 @@ functions are generally short. The proofs are typically much longer.
 We divided the line counts up into proofs that are inside obligations
 (and thus correspond to establishing that the monadic types are
 correct) and other lines of proofs. With the exception of the
-@tt{make_array_linear} files, the proofs inside the obligations
-establish the correctness of the functions and establish a basic
-running time result, but not one in terms of Big Oh. 
+@tt{make_array_linear} and the red-black tree insertion function, 
+the proofs inside the obligations establish the correctness of the
+functions and establish a basic running time result, but not one in terms of Big O. 
+The proofs for @tt{make_array_linear} and the red-black insertion
+establish only the running times.
 
 For example, @Figure-ref["fig:copy_log_sq"] is the definition of the
 @tt{copy_log_sq} function, basically mirroring Okasaki's definition,
@@ -64,11 +69,11 @@ The running time function, however, is defined in parallel to
 @(apply inline-code (extract copy_log_sq.v "copy_insert_time"))
 This makes it straightforward to prove that the running-time
 matches that function, but then leaves as a separate issue
-the proof that this function is Big Oh of the square of the log.
+the proof that this function is Big O of the square of the log.
 That is, there are 56 lines of proof to guarantee the result 
 type of the function is correct and an additional 179 lines
 to prove that that @tt{copy_log_sq_time}
-is Big Oh of the product of the log.
+is Big O of the square of the log.
 
 For the simpler functions (every one with linear running time
 except @tt{make_array_linear}), the running time can
@@ -83,7 +88,7 @@ can be read off of the columns in @figure-ref["fig:line-counts"].
 The @tt{Monad} and @tt{Common} lines count the number of lines of
 code in our monad's implementation (including the proofs of the monad laws)
 and some libraries used in multiple algorithms, including
-a Big Oh library, a Log library, the Braun tree definition, and
+a Big O library, a Log library, the Braun tree definition, and
 some common facts and definitions about Braun trees.
 
 @section{Extraction}
@@ -95,8 +100,10 @@ one element at a time, functions that process trees by processing
 the children and combine the result, or functions that recursively process
 numbers by counting down by ones from a given number. 
 In the second category are functions that ``skip'' over some of their inputs.
-In our case study, the only such functions process numbers and generally
-recur by diving the number by 2 instead of subtracting one.
+For example, there  are functions consuming natural numbers that
+recur by diving the number by 2 instead of subtracting one in 
+Okasaki's algorithms, and merge sort recurs by dividing the list in half
+at each step.
 
 Functions in the first category extract into precisely the OCaml code
 that you would expect, just like @tt{insert}, as discussed in 
@@ -153,5 +160,5 @@ let rec copy_log_sq x0 n =
 which is precisely the code that we would expect (compare with the Coq
 code for the same function in the previous subsection). Similar simplifications
 apply to the other functions in the second category and these changes
-correspond to fairly aggressive inlining, something that high-quality functional
-language compilers tend to do.
+correspond to fairly aggressive inlining (something that we would
+expect the OCaml compiler to do).

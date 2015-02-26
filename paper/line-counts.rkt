@@ -2,7 +2,8 @@
 (require racket/runtime-path
          racket/list
          scribble/base
-          racket/contract)
+         racket/format
+         racket/contract)
 (define-runtime-path above "..")
 (provide build-table)
 
@@ -10,11 +11,8 @@
 ;;  (listof <dir>)
 ;;  <dir> = (cons/c string?[dirname] (listof <problem>))
 ;;  <problem> = (cons/c <main-file> (listof <file>))
-(define classification
-  '(("size"
-     ("size_linear.v" "size_linear_gen.v")
-     ("size_log_sq.v" "diff_gen.v" "size_log_sq_gen.v"))
-    ("copy"
+(define braun-tree-classification
+  '(("copy"
      ("copy_linear.v" "copy_linear_gen.v")
      ("copy_fib_log.v" "copy_fib_log_gen.v")
      ("copy_log_sq.v" "copy_log_sq_gen.v")
@@ -30,26 +28,61 @@
       "zip_with_3_bt_node_gen.v"
       "build.v" "build_gen.v"))))
 
+(define other-classification 
+  '(("clrs"
+     ("rbtree.v"
+      "rbt_search.v"
+      "bst_search_gen.v")
+     ("rbt_insert.v"
+      "rbt_balance_gen.v"
+      "rbt_blacken_gen.v"
+      "rbt_insert_gen.v"
+      "rbt_insert_inner_gen.v"))
+    ("sort"
+     ("sorting.v")
+     ("isort.v"
+      "insert_gen.v"
+      "isort_gen.v")
+     ("merge_gen.v"
+      "mergesort.v"
+      "mergesort_gen.v"
+      "mergesortc_gen.v"
+      "split2_gen.v"
+      "clength_gen.v"))
+    ("fib"
+     ("fib.v" 
+      "fib_iter_gen.v"
+      "fib_iter_loop_gen.v"
+      "fib_rec_gen.v"))
+    ("size"
+     ("size_linear.v" "size_linear_gen.v")
+     ("size_log_sq.v" "diff_gen.v" "size_log_sq_gen.v"))))
+
+(define (build-table)
+  (tabular
+   #:sep @hspace[6]
+   (list (list (build-one-side-of-table other-classification #f)
+               (build-one-side-of-table braun-tree-classification #t)))))
+
 (define (count-a-dir dir)
   (compute-subtotal
    (for/list ([fn (in-list (directory-list (build-path above dir)))]
               #:when (regexp-match #rx"[.]v$" (path->string fn)))
      (cons fn (parse-file (build-path dir fn))))))
 
-(struct line-info (proofs obligations total) #:transparent)
+(struct line-info (proofs obligations non-proofs) #:transparent)
 
-(require racket/pretty)
-(define (build-table)
-  (define info (collect-info))
+(define (build-one-side-of-table classification total?)
+  (define info (collect-info classification))
   (define one-line-per-file
     (apply append
            (apply append info)))
   (define blank-row (list "" 'cont 'cont 'cont))
   (define (make-a-row label info)
     (list @bold{@label} 
-          (format "~a" (line-info-total info))
-          (format "~a" (line-info-obligations info))
-          (format "~a" (line-info-proofs info))))
+          (format-number (line-info-non-proofs info))
+          (format-number (line-info-obligations info))
+          (format-number (line-info-proofs info))))
   (define common-lines 
     (list (cons 'Monad (count-a-dir "monad"))
           (cons 'Common (count-a-dir "common"))))
@@ -63,37 +96,43 @@
        (list (if (symbol? label)
                  @bold{@(format "~a" label)}
                  @tt{@(car row)})
-             (format "~a" (line-info-total inf))
-             (format "~a" (line-info-obligations inf))
-             (format "~a" (line-info-proofs inf)))]
+             (format-number (line-info-non-proofs inf))
+             (format-number (line-info-obligations inf))
+             (format-number (line-info-proofs inf)))]
       [else blank-row]))
   (tabular
    #:sep @hspace[1]
    (append
     (list
      (list @bold{File} 
-           @bold{Non-blank}
+           @bold{Non-}
            @bold{Obligation}
            @bold{Other})
      (list @bold{} 
-           @bold{Lines}
+           @bold{Proof}
            @bold{Lines}
            @bold{Proof})
      (list @bold{} 
-           @bold{}
+           @bold{Lines}
            @bold{}
            @bold{Lines}))
     (for/list ([row (in-list one-line-per-file)])
       (build-table-row row))
     (list blank-row)
-    (for/list ([row (in-list common-lines)])
-      (build-table-row row))
-    (list blank-row)
-    (list
-     (list @bold{Total} 
-           (format "~a" (get-total all-rows line-info-total))
-           (format "~a" (get-total all-rows line-info-obligations))
-           (format "~a" (get-total all-rows line-info-proofs)))))))
+    
+    (if total?
+        (list (list @bold{Totals}
+                    (format-number (get-total all-rows line-info-non-proofs))
+                    (format-number (get-total all-rows line-info-obligations))
+                    (format-number (get-total all-rows line-info-proofs)))
+              (list (list @bold{Total number of lines:})
+                    (list (format-number (+ (get-total all-rows line-info-non-proofs)
+                                            (get-total all-rows line-info-obligations)
+                                            (get-total all-rows line-info-proofs))))
+                    'cont 'cont))
+        (append (for/list ([row (in-list common-lines)])
+                  (build-table-row row))
+                (list blank-row blank-row))))))
 
 (define/contract (get-total one-line-per-file sel)
   (-> (listof (or/c (cons/c any/c line-info?) #f)) any/c any/c)
@@ -103,7 +142,7 @@
        (sel (cdr x))]
       [else 0])))
       
-(define (collect-info)
+(define (collect-info classification)
   (for/list ([dir-list (in-list classification)])
     (define dir (list-ref dir-list 0))
     (define all-files 
@@ -126,7 +165,26 @@
 (define (compute-subtotal line-infos)
   (line-info (get-total line-infos line-info-proofs)
              (get-total line-infos line-info-obligations)
-             (get-total line-infos line-info-total)))
+             (get-total line-infos line-info-non-proofs)))
+
+(define (format-number n)
+  (cond
+    [(< n 1000) (format "~a" n)]
+    [(< n 1000000) (format "~a,~a" (quotient n 1000) 
+                           (~a (modulo n 1000)
+                               #:pad-string "0"
+                               #:min-width 3))]
+    [else (error 'format-number "too big")]))
+
+(module+ test 
+  (require rackunit)
+  (check-equal? (format-number 0) "0")
+  (check-equal? (format-number 10) "10")
+  (check-equal? (format-number 100) "100")
+  (check-equal? (format-number 1000) "1,000")
+  (check-equal? (format-number 10000) "10,000")
+  (check-equal? (format-number 100000) "100,000")
+  (check-equal? (format-number 123456) "123,456"))
 
 (define (parse-file fn)
   (call-with-input-file (build-path above fn)
@@ -147,7 +205,7 @@
           [else
            (set! proof-line-count (+ proof-line-count line-counter))])
         (unless found-proof-line?
-          (fail "Didn't find Proof. line for Qed.")))
+          (fail "Didn't find Proof. line for Qed. (or Defined.)")))
       
       (define (fail msg)
         (define-values (line col pos) (port-next-location port))
@@ -155,6 +213,8 @@
                msg
                (- line 1)
                fn))
+      
+      (define qed-regexp #rx"(Qed[.])|(Defined[.])")
       
       (for ([line (in-lines port)])
         (cond
@@ -172,17 +232,23 @@
                 (fail "found Next Obligation. on same line as Proof."))
               (set! in-obligation? #t)]
              [(regexp-match #rx"Proof[.]" line)
-              (when (regexp-match #rx"Qed[.]" line)
-                (fail "found Qed. on same line as Proof."))
+              (when (regexp-match qed-regexp line)
+                (fail "found Qed. (or Defined.) on same line as Proof."))
               (set! found-proof-line? #t)
               (set! line-counter 0)]
-             [(regexp-match #rx"Qed[.]" line)
+             [(regexp-match qed-regexp line)
               (finish-proof)
               (set! in-obligation? #f)
               (set! found-proof-line? #f)]
              [else
               (set! line-counter (+ line-counter 1))])]))
       
-      (line-info proof-line-count obligation-line-count total-line-count))))
+      (line-info proof-line-count 
+                 obligation-line-count 
+                 (- total-line-count
+                    obligation-line-count
+                    proof-line-count)))))
 
-(module+ main (void (build-table)))
+(module+ main 
+  (void (build-table)))
+

@@ -6,7 +6,7 @@
 
 @title[#:tag "sec:case-study"]{Case Study}
 
-@figure["fig:line-counts" "Line Counts"]{@build-table[]}
+@figure*["fig:line-counts" "Line Counts"]{@build-table[]}
 
 To better understand how applicable our monad is, we 
 implemented all of the algorithms in @citet[three-algorithms-on-braun-trees]'s

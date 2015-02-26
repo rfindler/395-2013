@@ -55,14 +55,17 @@ Definition fib_rec_result (n:nat) (res:nat) (c:nat) :=
 Load "fib_rec_gen.v".
 
 Next Obligation.
+Proof.
   split;eauto.
 Qed.
 
 Next Obligation.
+Proof.
   split;eauto.
 Qed.
 
 Next Obligation.
+Proof.
   clear am H3 am0 H2.
   rename H1 into FR_A.
   rename H0 into FR_B.
@@ -110,6 +113,7 @@ Fixpoint fib_rec_time2 (n:nat) :=
   end.
 
 Lemma fib_rec_time12 : big_oh fib_rec_time fib_rec_time2.
+Proof.
   exists 1 11.
   intros n LT.
   destruct n. intuition.
@@ -196,6 +200,7 @@ Proof.
 Qed.
 
 Lemma fib_rec_time23 : big_oh fib_rec_time2 fib.
+Proof.
   exists 0 3.
   intros n _.
   assert ((fib_rec_time2 n + 1) <= S (3 * fib n));[|omega].
@@ -237,6 +242,7 @@ Definition fib_iter_loop_result (fuel:nat) (target:nat) (a:nat) (b:nat)
 Load "fib_iter_loop_gen.v".
 
 Next Obligation.
+Proof.
   unfold fib_iter_loop_result.
   intros.
 
@@ -250,6 +256,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   unfold fib_iter_loop_result in *.
  rename fuel0 into fuel.
  clear am H1.
@@ -292,16 +299,19 @@ Definition fib_iter_result (target:nat) (res:nat) (c:nat) :=
 Load "fib_iter_gen.v".
 
 Next Obligation.
+Proof.
   unfold fib_iter_result.
   split; simpl; eauto.
 Qed.  
 
 Next Obligation.
+Proof.
   unfold fib_iter_result.
   split; simpl; eauto.
 Qed.
 
 Next Obligation.
+Proof.
   unfold fib_iter_result, fib_iter_loop_result, fib_iter_time in *.
   clear am H1.
   rename H0 into FIL.

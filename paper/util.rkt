@@ -7,8 +7,6 @@
          scribble/manual
          "extract.rkt")
 
-(define-runtime-path lwl.v "lwl.v")
-(define-runtime-path l.v "l.v")
 (define-runtime-path binds.v "binds.v")
 (define-runtime-path braun.v "../common/braun.v")
 (define-runtime-path insert.rkt "../insert/insert_log_gen.rkt")

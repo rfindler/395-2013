@@ -137,11 +137,12 @@ context.
 
 We follow @citet[automatic-complexity-analysis] and treat
 each function call, variable lookup, and case-dispatch
-as counting as a single unit of abstract time. Other cost functions
-are also possible to account for different cost semantics. Indeed,
-we could even adapt the machinery in a straight-forward way to count
-multiple aspects of the computation separately, e.g., the running time,
-memory accesses, or the number of allocations.
+as counting as a single unit of abstract time. The function 
+is straight-forward and is included in the supplementary
+materials (@tt{add-plusses/check-stx-errs} in @tt{rkt/tmonad/main.rkt}).
+Other cost functions
+are also possible to account for different cost semantics, as long
+as they map in a straight-forward way to the program's syntax.
 
 Here is the definition of @tt{insert_result}:
 @(apply inline-code (extract insert_log.v "insert_result"))

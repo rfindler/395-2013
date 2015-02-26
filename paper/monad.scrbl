@@ -4,7 +4,7 @@
 @title{The Monad}
 
 One way to account for cost is to use
-the monad to pair an actual values with
+the monad to pair an actual value with
 a natural number representing the computations current
 cost, and then ensure that this number is incremented
 appropriately at each stage of the computation.
@@ -29,7 +29,10 @@ we define @tt{C}:
 For a given @tt{A} and @tt{P}, @tt{C A P} is a dependent
 pair of @tt{a}, a value of type @tt{A}, and a proof that
 there exists some natural number @tt{an} for which @tt{a}
-and @tt{an} are related by @tt{P}. The right-hand side of
+and @tt{an} are related by @tt{P}. The intention is to think
+of the natural number as the running time and @tt{P} as
+some function-specific specification of running time
+(and possibly also correctness). Importantly, the right-hand side of
 this pair is a proposition, so it contributes no
 computational content. 
 
@@ -88,15 +91,20 @@ two computations in the monad, summing their running times, and
 @tt{inc} that adds to the count of the running time. We tackle
 @tt{inc} next.
 
-Suppose a program returns a value, @tt{a}, that takes exactly one step
-to compute. We would like our proof obligation to be @tt{P a 1}. This
-means that the obligation on @tt{ret}, @tt{P a 0}, will be irrelevant
-or worse, wrong. However, there is a simple way out of this bind: what
-if the property for the @tt{ret} were different than the property for
-the entire program? In code, what if the obligation were @tt{P' a 0}?
+Suppose a program returns a value, @tt{a} with property @tt{P}, 
+that takes exactly one step to compute, and so we have some expression like this:
+@inline-code{
+  += 1;
+   <== a
+}
+We would like our proof obligation for this expression to be @tt{P a 1}. 
+We know, however that the obligation on @tt{<==}, namely @tt{P a 0}, is irrelevant
+or worse, wrong. There is a simple way out of this bind, however: what
+if the @tt{P} for the @tt{ret} were different than the property for
+of the entire expression? In code, what if the obligation were @tt{P' a 0}?
 At worse, such a change would be irrelevant because there may not be a
 connection between @tt{P'} and @tt{P}. But, with this in mind we can
-choose a @tt{P'} such that @tt{P' a 0} @emph{is} @tt{P a 1}. 
+choose a @tt{P'} such that @tt{P' a 0} is the same as @tt{P a 1}. 
 
 We previously described @tt{P} as relation between @tt{A}s and
 @tt{nat}s, but in Coq this is just a function that accepts a @tt{A}
@@ -104,10 +112,10 @@ and @tt{nat} and returns a proposition. Thus, we can make @tt{P'} be
 the function: @tt{fun a an => P a (an+1)}. This has the effect of
 transforming the runtime obligation on @tt{ret} from above: as more
 steps take cost, the property itself accrues the cost so the proof that
-the verifier must provide that @tt{0} is an appropriate cost is
+the verifier must prove that the provided @tt{0} is an appropriate cost is
 transformed into whatever the actual cost along that path was.
 
-We enapsulate this logic into a simple extra-monadic operator,
+We encapsulate this logic into a simple monadic operator,
 @tt{inc}, that introduces @tt{k} units of cost:
 @(apply inline-code (extract monad.v "inc"))
 In programs using our monad, we write @tt{+= k e}, a

@@ -30,7 +30,7 @@ In total, we implemented 15 different functions using the monad.
 For all of them, we proved the expected Big O running times. For
 the naive fib, we proved that it is Big Ω and Big O of itself,
 Big O(2@raw-latex{$^n$}), and Big Ω(2@raw-latex{$^{n/2}$}). For 
-merge sort, we proved it is Big O(n@raw-latex{$^2$}) and Big Ω(n@raw-latex{$^2$}).
+merge sort, we proved it is Big O(n log(n)) and Big Ω(n log(n)).
 For all of the functions except for @tt{make_array_linear} and red-black insertion
 we proved they are correct as well; for those we proved only the running times.
 
@@ -43,7 +43,9 @@ The line counts for the various implementations of the algorithms
 using our monad are shown in @figure-ref["fig:line-counts"].
 The files whose names end in @tt{gen.v} are the output of the 
 script that inserts @tt{+=} expressions, so they contain
-the complete definitions of the various functions. There are more
+the definitions of the various functions, but without the 
+correctness conditions (or any of the proofs or data structure
+definitions). There are more
 than 15 because a number of the functions needed helper functions
 that are in the monad (and thus require running time proofs).
 As you can see, the functions are generally short. The
@@ -165,8 +167,13 @@ let rec copy_log_sq x0 n =
       | false -> Bt_node (x0, t, t)
       | true -> Bt_node (x0, (insert x0 t), t))
 }
-which is precisely the code that we would expect (compare with the Coq
-code for the same function in the previous subsection). Similar simplifications
-apply to the other functions in the second category and these changes
-correspond to fairly aggressive inlining (something that we would
-expect the OCaml compiler to do).
+which is precisely the code that we would expect (compare
+with the Coq code for the same function in the previous
+subsection). Similar simplifications apply to the other
+functions in the second category and these changes
+correspond to fairly aggressive inlining, something that we
+would expect the OCaml compiler to do. (In contrast,
+changing the signatures of functions to, say, remove an
+abstract running-time count that is threaded throughout the
+program is much more difficult and unlikely to be within the
+grasp of compilers that support separate compilation like OCaml's.)

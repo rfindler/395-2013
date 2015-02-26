@@ -3,7 +3,7 @@ VS := $(shell find . -type f -name '*v' | grep -v _gen.v | grep -v /extract.v $)
 VERSIONS := tmonad
 GEN_DEPS := rkt/tmonad/emit.rkt rkt/tmonad/main.rkt rkt/tmonad/coq.rkt
 
-all: code paper admit
+all: code admit
 
 admit:
 	@echo ""

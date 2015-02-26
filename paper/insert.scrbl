@@ -55,7 +55,7 @@ a braun tree of size @tt{s_size+t_size+1}.
 
 
 @Figure-ref["fig:insert"] shows the insertion function.
-Lets dig into this function, one line at a time.
+Let us dig into this function, one line at a time.
 It accepts an object @tt{i} (of type @tt{A}) to insert into
 the Braun tree @tt{b}. Its result type uses a new notation:
 @inline-code|{

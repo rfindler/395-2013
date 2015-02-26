@@ -54,8 +54,9 @@ that @tt{lsize} is @tt{rsize+1}. Accordingly, this operation
 can be replaced with either @tt{lsize*2+1} or @tt{lsize*2},
 both of which are constant-time operations. Also, checking
 to see which case applies is a constant time operation:
-if the numbers are the same the leading digits will be the same
-and if they differ by @tt{1}, the leading digits will be different.
+if the numbers are the same the digits at the front of the respective
+lists will be the same and if they differ by @tt{1}, those 
+digits will be different.
 
 The uses of addition in @tt{fib}, however, are not constant time
 and so our analysis of @tt{fib} is not accurate at that level.

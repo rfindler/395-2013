@@ -17,13 +17,27 @@ He presents a monad that, like ours, carries a
 notion of abstract time. Unlike our monad, his
 does not also carry an invariant -- in our terms
 his monad construction does not have the @tt{P} argument.
-This means that it is not possible to specify the
+In our opinion, figuring out the design of monad
+operations that support the @tt{P} argument is
+the major technical advance here.
+Accordingly, 
+@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]
+system cannot possible to specify the
 running time of many of the Braun functions, since
 the size information is not available without the
 additional assumption of Braunness.
 Also, his monad would leave natural numbers in the
 extracted code; avoiding that is a major goal
-of this work. 
+of this work.
+
+While @citet[resource-bound-certification]'s work does not
+leverage the full expressiveness of a theorem proving system
+like Coq's, it does share a similar resemblance to our approach.
+Also like 
+@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s
+and unlike ours, it does not provide a place to carry an
+invariant of the datastructures that can be used to
+establish running times.
 
 @citet[a-machine-checked-proof-of-the-average-case-complexity-of-quicksort-in-coq]
 give a proof of the average case complexity of Quicksort
@@ -62,6 +76,21 @@ is not intended to be erased during extraction.
 characteristic formula generator seems to produce Coq
 code with obligations similar to what our monad produces, but
 it does not consider running time.
+
+Others have explored automatic techniques for proving 
+programs have particular resource bounds using
+a variety of techniques@~cite[speed auto-parallel auto-heap recursion-in-bounded-space]
+These approaches are all weaker than our approach, but
+provide more automation.
+
+We have consistently used the word ``monad'' to describe 
+what our library provides and believe that that is a
+usefully evocative word to capture the essence of our
+library. It probably is not, however, technically accurate
+because the proof information changes the types of the
+operations, making it some kind of generalized form of monad,
+perhaps a specialization of @citet[Atkey-generalized-monad]'s
+or @citet[ACU-generalized-monad]'s.
 
 Our code builds heavily on @citet[Program-cite]'s @tt{Program} facility in Coq.
 

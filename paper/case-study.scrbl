@@ -8,6 +8,9 @@
 
 @figure*["fig:line-counts" "Line Counts"]{@build-table[]}
 
+XXX how to say something about to_list_naive? it's a Braun function
+that isn't in the paper. it's the naive version of the exercise
+
 To better understand how applicable our monad is, we 
 implemented the search and insertion functions for 
 red-black trees, insertion sort, merge sort, both

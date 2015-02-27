@@ -12,8 +12,8 @@
 @doi{@hspace[4] @bold{Draft as of @(date->string (seconds->date (current-seconds)))}}
 
 @authorinfo["Jay McCarthy"
-            "Brigham Young University"
-            "jay@cs.byu.edu"]
+            "Vassar College"
+            "jay.mccarthy@gmail.com"]
 @authorinfo["Burke Fetscher"
             "Northwestern University"
             "burke.fetscher@eecs.northwestern.edu"]

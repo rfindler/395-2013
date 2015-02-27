@@ -41,7 +41,7 @@ point.
 
 This directory contains the Braun tree insertion function.
 
-## copy/, make_array/, size/
+## copy/, make_array/, size/, to_list/
 
 These directories contain the Coq implementation for functions from
 [Chris Okasaki](http://www.usma.edu/eecs/SitePages/Chris%20Okasaki.aspx)'s

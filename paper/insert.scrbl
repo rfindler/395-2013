@@ -17,8 +17,8 @@ references etc.) that the function executes.
 
 To give a sense of how code using our library looks,
 we start with a definition of Braun trees@~cite[Braun]
-and the insertion function where the running time
-for the function is explicitly declared as part of the body of the function.
+and the insertion function where the contributions to the running time
+are explicitly declared as part of the body of the function.
 In the next section, we make the running times implicit
 (and thus not spoofable).
 

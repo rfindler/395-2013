@@ -157,7 +157,7 @@ function are useless. In particular, the argument to @tt{copy_log_sq_func}
 is a three-deep nested pair containing an integer (a real argument),
 the value in the tree (also a real argument), 
 and @tt{__} a constant that is defined at the top of the
-extraction file that is never used for anything.
+extraction file that is never used for anything and behaves like @tt{unit}.
 Similarly, the body of the function has the anonymous function that begins
 @tt{fun f0 fS n ->} that is simply an extra wrapper around a conditional.
 Simplifying these two away and inlining @tt{copy_log_sq_func} and
@@ -182,3 +182,24 @@ changing the signatures of functions to, say, remove an
 abstract running-time count that is threaded throughout the
 program is much more difficult and unlikely to be within the
 grasp of compilers that support separate compilation like OCaml's.)
+
+The functions in the first category are: @tt{insert},
+@tt{size_linear}, @tt{size}, @tt{make_array_naive}, @tt{foldr},
+@tt{make_array_naive_foldr}, @tt{unravel}, @tt{to_list_naive},
+@tt{isort}'s @tt{insert}, @tt{isort}, @tt{clength}, @tt{minsert_at},
+@tt{to_zip}, @tt{from_zip}, @tt{zip_right}, @tt{zip_left},
+@tt{zip_insert}, @tt{zip_minsert}, @tt{minsertz_at}, @tt{bst_search},
+@tt{rbt_blacken}, @tt{rbt_balance}, @tt{rbt_insert}.
+
+We catalog the functions in the second category into those that have
+the useless @tt{__} argument and those that simply have an additional
+function layer. The first group is a subset of the second.
+
+The useless argument functions are: @tt{copy_linear}, @tt{copy_fib},
+@tt{copy_log_sq}, @tt{copy2}, @tt{diff}, @tt{make_array_td},
+@tt{cinterleave}, @tt{merge}, @tt{mergesort}.
+
+The additional function layer functions ares: @tt{fib_rec},
+@tt{fib_iter}, @tt{sub1}, @tt{mergesort}'s @tt{split}, @tt{insert_at},
+@tt{zip_rightn}, @tt{zip_leftn}.
+

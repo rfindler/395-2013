@@ -25,20 +25,21 @@
             "robby@eecs.northwestern.edu"]
 
 @abstract{
- This paper presents a Coq library that lifts
- an abstract yet precise notion of running-time into the type of a
- function.
+
+ This paper presents a Coq library that lifts an abstract yet precise
+notion of running-time into the type of a function.
 
  Our library is based on a monad that counts abstract steps,
- controlled by one of the monadic operations. The monad's
- computational content, however, is simply that of the identity
- monad so programs written in our monad (that recur on the natural
- structure of their arguments) extract into idiomatic OCaml code.
- 
+controlled by one of the monadic operations. The monad's computational
+content, however, is simply that of the identity monad so programs
+written in our monad (that recur on the natural structure of their
+arguments) extract into idiomatic OCaml code.
+
  We evaluated the expressiveness of the library by proving that
- red-black trees, merge sort, insertion sort, fib, and Okasaki's Braun
- Tree algorithms all have their expected running times.
- 
+red-black tree insertion and search, merge sort, insertion sort,
+Fibonacci, iterated list insertion, and Okasaki's Braun Tree
+algorithms all have their expected running times.
+
 }
 
 @include-section["insert.scrbl"]

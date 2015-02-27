@@ -20,7 +20,7 @@ we start with a definition of Braun trees@~cite[Braun]
 and the insertion function where the contributions to the running time
 are explicitly declared as part of the body of the function.
 In the next section, we make the running times implicit
-(and thus not spoofable).
+(and thus not trusted or spoofable).
 
 Braun trees are a form of balanced binary trees 
 where the balance condition allows only a single shape of

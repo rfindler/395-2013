@@ -6,7 +6,7 @@ Require Import Omega.
 Require Import Max.
 Require Import Div2.
 Require Import Relations_1.
-Require Import Braun.clrs.rbtree.
+Require Import Braun.rbtrees.rbtree.
 
 Definition SameMembers {A:Set} (x:CTree A) (y:CTree A) :=
   forall e,

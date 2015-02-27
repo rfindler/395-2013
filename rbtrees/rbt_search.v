@@ -6,7 +6,7 @@ Require Import Omega.
 Require Import Max.
 Require Import Div2.
 Require Import Relations_1.
-Require Import Braun.clrs.rbtree.
+Require Import Braun.rbtrees.rbtree.
 
 Definition bst_search_time (n:nat) :=
   19 * n + 3.

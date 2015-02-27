@@ -31,7 +31,7 @@
      ("to_list_naive.v" "cinterleave_gen.v" "to_list_naive_gen.v"))))
 
 (define other-classification 
-  '(("clrs"
+  '(("rbtrees"
      ("rbtree.v"
       "rbt_search.v"
       "bst_search_gen.v")
@@ -59,8 +59,8 @@
     ("size"
      ("size_linear.v" "size_linear_gen.v")
      ("size_log_sq.v" "diff_gen.v" "size_log_sq_gen.v"))
-    ("clrs"
-     ("zip.v" "from_zip_gen.v" "minsert_at_gen.v" "minsertz_at_gen.v"
+    ("zippers"
+     ("zip.v" "from_zip_gen.v" "insert_at_gen.v" "minsert_at_gen.v" "minsertz_at_gen.v"
       "to_zip_gen.v" "zip_insert_gen.v" "zip_left_gen.v" "zip_leftn_gen.v"
       "zip_minsert_gen.v" "zip_right_gen.v" "zip_rightn_gen.v"))))
 

@@ -19,9 +19,9 @@ Require Import Braun.sort.isort.
 Require Import Braun.sort.mergesort.
 
 Require Import Braun.fib.fib.
-Require Import Braun.clrs.zip.
-Require Import Braun.clrs.rbt_search.
-Require Import Braun.clrs.rbt_insert.
+Require Import Braun.zippers.zip.
+Require Import Braun.rbtrees.rbt_search.
+Require Import Braun.rbtrees.rbt_insert.
 
 Extract Inductive bool => "bool" [ "false" "true" ].
 Extract Inductive sumbool => "bool" [ "false" "true" ].
@@ -65,7 +65,7 @@ Extraction "post_extract.ml" insert_log.insert
            fib.fib.fib_rec
            fib.fib.fib_iter
 
-           clrs.zip.minsert_at
-           clrs.zip.minsertz_at
-           clrs.rbt_search.bst_search
-           clrs.rbt_insert.rbt_insert.
+           zippers.zip.minsert_at
+           zippers.zip.minsertz_at
+           rbtrees.rbt_search.bst_search
+           rbtrees.rbt_insert.rbt_insert.

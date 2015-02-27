@@ -55,10 +55,14 @@ Volume 7 Issue 6, November 1997, 661 - 666
 
 [pdf from citeseer](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.52.6090&rep=rep1&type=pdf)
 
-## clrs/
+## rbtrees/
 
 This directory contains the implementation of the red-black tree
-insert and lookup functions, as well as the list insertion functions.
+insert and lookup functions
+
+## zippers
+
+This directory contains the zipper and list insertion functions.
 
 ## sort/
 

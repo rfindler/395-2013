@@ -26,7 +26,9 @@
       "take_drop_split.v" "drop_gen.v" "take_gen.v" "pad_drop_gen.v" "split_gen.v"
       "foldr_build_gen.v"
       "zip_with_3_bt_node_gen.v"
-      "build.v" "build_gen.v"))))
+      "build.v" "build_gen.v"))
+    ("to_list"
+     ("to_list_naive.v" "cinterleave_gen.v" "to_list_naive_gen.v"))))
 
 (define other-classification 
   '(("clrs"

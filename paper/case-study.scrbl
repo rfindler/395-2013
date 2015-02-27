@@ -26,7 +26,7 @@ The three functions are
                  and}
           @item{@tt{make_array}: convert a list into a Braun tree
                  (two n log n versions and a linear version).}]
-In total, we implemented 15 different functions using the monad.
+In total, we implemented 16 different functions using the monad.
 For all of them, we proved the expected Big O running times. For
 the naive fib, we proved that it is Big Ω and Big O of itself,
 Big O(2@raw-latex{$^n$}), and Big Ω(2@raw-latex{$^{n/2}$}). For 

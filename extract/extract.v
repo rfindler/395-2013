@@ -10,6 +10,7 @@ Require Import Braun.size.size_linear Braun.size.size_log_sq.
 Require Import Braun.make_array.make_array_nlogn1.
 Require Import Braun.make_array.make_array_nlogn1_fold.
 Require Import Braun.make_array.make_array_nlogn2.
+Require Import Braun.to_list.to_list_naive.
 
 Require Import Braun.monad.monad.
 Require Import Braun.sub1.sub1.
@@ -51,6 +52,8 @@ Extraction "extract.ml" insert_log.insert
            make_array_nlogn1.make_array_naive
            make_array_nlogn1_fold.make_array_naive
            make_array_nlogn2.make_array_td
+           to_list_naive.to_list_naive
+           
            sub1.sub1.sub1
 
            sort.isort.isort

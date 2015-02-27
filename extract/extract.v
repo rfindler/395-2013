@@ -38,6 +38,8 @@ Extract Constant minus => "sub_big_int".
 Extract Constant div2 => "fun a -> div_big_int a (big_int_of_int 2)".
 Extract Constant even_odd_dec => "fun a -> not (eq_big_int zero_big_int (mod_big_int a (big_int_of_int 2)))".
 
+Extract Inductive sigT => "(*)" [ "(,)" ].
+
 Extraction Inline ret bind inc.
 Extraction Inline projT1 projT2.
 

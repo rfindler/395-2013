@@ -108,80 +108,101 @@ some common facts and definitions about Braun trees.
 
 @section{Extraction}
 
-The extracted functions naturally fall into two categories. In the first
-category are functions that recur on the natural structure of their
-inputs, e.g., functions that process lists by walking down the list
-one element at a time, functions that process trees by processing
-the children and combine the result, or functions that recursively process
-numbers by counting down by ones from a given number. 
-In the second category are functions that ``skip'' over some of their inputs.
-For example, there  are functions consuming natural numbers that
-recur by diving the number by 2 instead of subtracting one in 
-Okasaki's algorithms, and merge sort recurs by dividing the list in half
-at each step.
+The extracted functions naturally fall into three categories.
+
+In the first category are functions that recur on the natural
+structure of their inputs, e.g., functions that process lists by
+walking down the list one element at a time, functions that process
+trees by processing the children and combine the result.  In the
+second category are functions that recursively process numbers by
+counting down by ones from a given number.  In the third category are
+functions that ``skip'' over some of their inputs. For example, there
+are functions consuming natural numbers that recur by diving the
+number by 2 instead of subtracting one in Okasaki's algorithms, and
+merge sort recurs by dividing the list in half at each step.
 
 Functions in the first category extract into precisely the OCaml code
-that you would expect, just like @tt{insert}, as discussed in 
+that you would expect, just like @tt{insert}, as discussed in
 @secref["sec:insert"].
 
-Functions in the second category extract into code 
-that is cluttered by Coq's support for non-simple
-recursion schemes. That is, each function in Coq must
-be proven to be well-defined and to terminate on all inputs.
-Functions that don't simply follow the natural recursive structure
-of their input get additional wrappers and useless data
-structure.
+Functions in the second category could extract like the first, except
+that because we extract Coq's @tt{nat} type, which is based on Peano
+numerals, into OCaml's @tt{big_int} type, which has a different
+structure, a natural @tt{match} expression in Coq becomes more complex
+pattern in OCaml. A representative example of this pattern is
+@tt{zip_rightn}. Here is the extracted version:
 
-The function @tt{copy_log_sq} is one such. Here is its output:
-@(apply inline-code 
+@(apply inline-code
         (extract 
          extract.ml 
          (λ (all-lines)
-           
-           (define (chop-some-lines ls)
-             (apply
-              append
-              (for/list ([l (in-list ls)])
-                (cond
-                  [(regexp-match #rx"n0[)][)][)] in copy_log_" l)
-                   (define ls (regexp-split #rx" in " l))
-                   (list (list-ref ls 0)
-                         (string-append "      in " (list-ref ls 1)))]
-                  [else
-                   (list l)]))))
-           
-           (chop-some-lines
-            (keep-range #rx"copy_log_sq" all-lines)))))
+           (trim-blank-from-end
+            (chop-after #rx"zip_leftn"
+                        (keep-after #rx"zip_rightn" all-lines))))))
+
+The body of this function is equivalent to a single conditional that
+returns @tt{z} when @tt{n} is @tt{0} and recursively calls
+@tt{zip_rightn} on @tt{n-1} otherwise. This artifact in the extraction
+is simply a by-product of the mismatch between @tt{nat} and
+@tt{big_int}. We expect that this artifact can be automatically
+removed by the OCaml compiler, as a transformation into the single
+conditional corresponds to modest inlining, since @tt{fO} and @tt{fS}
+occur exactly once and are constants.
+
+Functions in the third category, however, are more complex. They
+extract into code that is cluttered by Coq's support for non-simple
+recursion schemes. That is, each function in Coq must be proven to be
+well-defined and to terminate on all inputs.  Functions that don't
+simply follow the natural recursive structure of their input get
+useless data structures that in Coq recorded the decreasing nature of
+their input.
+
+The function @tt{cinterleave} is one such. Here is its output:
+
+@(apply inline-code
+        (extract 
+         extract.ml 
+         (λ (all-lines)
+           (trim-blank-from-end
+            (chop-after #rx"to_list_naive"
+                        (keep-after #rx"cinterleave_func" all-lines))))))
+
 All of the extra pieces beyond what was written in the original
-function are useless. In particular, the argument to @tt{copy_log_sq_func}
-is a three-deep nested pair containing an integer (a real argument),
-the value in the tree (also a real argument), 
-and @tt{__} a constant that is defined at the top of the
-extraction file that is never used for anything and behaves like @tt{unit}.
-Similarly, the body of the function has the anonymous function that begins
-@tt{fun f0 fS n ->} that is simply an extra wrapper around a conditional.
-Simplifying these two away and inlining @tt{copy_log_sq_func} and
-@tt{copy_log_sq0} results in this program:
+function are useless. In particular, the argument to
+@tt{cinterleave_func} is a three-deep nested pair containing @tt{__}
+and two lists. The @tt{__} is a constant that is defined at the top of
+the extraction file that is never used for anything and behaves like
+@tt{unit}. It corresponds to a proof that the combined length of the
+two lists is decreasing. The function starts by destructuring this
+complex argument to extract the two lists, @tt{e} and @tt{o}. Next it
+constructs a version of the function, @tt{cinterleave0}, that recovers
+the natural two argument function for use recursively in the body of
+the @tt{match} expression. Finally, this same two argument interface
+is reconstructed a second time, @tt{cinterleave}, for external
+applications. The external interface has an additional layer of
+strangeness in the form of applications of @tt{Obj.magic} which are
+used to uselessly coerce @tt{'a1 list} objects into @tt{'a1 list}
+objects. These coercions correspond to use of @tt{proj1_sig} in Coq to
+extract the value from a sigma type and are useless and always
+successful in OCaml. All together, the OCaml program is equivalent to:
+
 @inline-code{
-let rec copy_log_sq x0 n =
-  if n=0 
-  then Bt_mt
-  else let n'=n-1 in
-   let t = copy_log_sq x0 (div2 n') in
-     match even_odd_dec n' with
-      | false -> Bt_node (x0, t, t)
-      | true -> Bt_node (x0, (insert x0 t), t))
+let rec cinterleave e o =
+ match e with
+ | Nil -> o
+ | Cons (x0, xs) -> Cons (x0, (cinterleave o xs))
 }
-which is precisely the code that we would expect (compare
-with the Coq code for the same function in the previous
-subsection). Similar simplifications apply to the other
-functions in the second category and these changes
-correspond to fairly aggressive inlining, something that we
-would expect the OCaml compiler to do. (In contrast,
-changing the signatures of functions to, say, remove an
-abstract running-time count that is threaded throughout the
-program is much more difficult and unlikely to be within the
-grasp of compilers that support separate compilation like OCaml's.)
+
+which is exactly the Coq program and idiomatic OCaml code. Unlike the
+second category, it is less plausible that the OCaml compiler already
+performs this optimization and removes the superfluity from the Coq
+extraction output. However, it is plausible that such an optimization
+pass could be implemented, since it corresponds to inlining,
+de-tupling, and removing an unused @tt{unit}-like argument.
+(In contrast, changing the signatures of functions to, say, remove an
+abstract running-time count that is threaded throughout the program is
+much more difficult and unlikely to be within the grasp of compilers
+that support separate compilation like OCaml's.)
 
 The functions in the first category are: @tt{insert},
 @tt{size_linear}, @tt{size}, @tt{make_array_naive}, @tt{foldr},
@@ -191,15 +212,12 @@ The functions in the first category are: @tt{insert},
 @tt{zip_insert}, @tt{zip_minsert}, @tt{minsertz_at}, @tt{bst_search},
 @tt{rbt_blacken}, @tt{rbt_balance}, @tt{rbt_insert}.
 
-We catalog the functions in the second category into those that have
-the useless @tt{__} argument and those that simply have an additional
-function layer. The first group is a subset of the second.
-
-The useless argument functions are: @tt{copy_linear}, @tt{copy_fib},
-@tt{copy_log_sq}, @tt{copy2}, @tt{diff}, @tt{make_array_td},
-@tt{cinterleave}, @tt{merge}, @tt{mergesort}.
-
-The additional function layer functions ares: @tt{fib_rec},
-@tt{fib_iter}, @tt{sub1}, @tt{mergesort}'s @tt{split}, @tt{insert_at},
+The function in the second category are: @tt{fib_rec}, @tt{fib_iter},
+@tt{sub1}, @tt{mergesort}'s @tt{split}, @tt{insert_at},
 @tt{zip_rightn}, @tt{zip_leftn}.
+
+The function in the third category are: @tt{copy_linear},
+@tt{copy_fib}, @tt{copy_log_sq}, @tt{copy2}, @tt{diff},
+@tt{make_array_td}, @tt{cinterleave}, @tt{merge}, @tt{mergesort}. Some
+of the function in the second category are also in the third category.
 

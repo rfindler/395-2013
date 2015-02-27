@@ -6,6 +6,8 @@
          scribble/core
          scribble/manual
          "extract.rkt")
+(module+ test
+  (require rackunit))
 
 (define-runtime-path binds.v "binds.v")
 (define-runtime-path braun.v "../common/braun.v")
@@ -35,6 +37,30 @@
    (drop-up-to 
     reg
     (reverse (drop-up-to reg lines)))))
+
+(define (chop-after reg lines)
+  (cond
+   [(null? lines)
+    lines]
+   [(regexp-match reg (car lines))
+    null]
+   [else
+    (cons (car lines) (chop-after reg (cdr lines)))]))
+
+(define (keep-after reg lines)
+  (cond
+   [(null? lines)
+    lines]
+   [(regexp-match reg (car lines))
+    lines]
+   [else
+    (keep-after reg (cdr lines))]))
+
+(module+ test
+  (check-equal?
+   (chop-after #rx"bad"
+               (list "good" "good" "bad" "bad" "bad"))
+   (list "good" "good")))
 
 (provide extract
          (all-defined-out))

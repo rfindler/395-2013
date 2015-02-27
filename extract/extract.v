@@ -26,21 +26,22 @@ Require Import Braun.clrs.rbt_insert.
 Extract Inductive bool => "bool" [ "false" "true" ].
 Extract Inductive sumbool => "bool" [ "false" "true" ].
 Extract Inductive prod => "(*)"  [ "(,)" ].
+
 Extract Inductive nat => 
-"int" [ "0" "succ" ]
-      "(fun fO fS n -> if n=0 then fO () else fS (n-1))".
+"big_int" [ "zero_big_int" "succ_big_int" ]
+      "(fun fO fS n -> if (eq_big_int n zero_big_int) then fO () else fS (pred_big_int n))".
 
-Extract Constant plus => "fun x y -> x + y".
-Extract Constant mult => "fun x y -> x * y".
-Extract Constant minus => "fun x y -> x - y".
+Extract Constant plus => "add_big_int".
+Extract Constant mult => "mult_big_int".
+Extract Constant minus => "sub_big_int".
 
-Extract Constant div2 => "fun a -> a / 2".
-Extract Constant even_odd_dec => "fun a -> (a mod 2) != 0".
+Extract Constant div2 => "fun a -> div_big_int a (big_int_of_int 2)".
+Extract Constant even_odd_dec => "fun a -> not (eq_big_int zero_big_int (mod_big_int a (big_int_of_int 2)))".
 
 Extraction Inline ret bind inc.
 Extraction Inline projT1 projT2.
 
-Extraction "extract.ml" insert_log.insert
+Extraction "post_extract.ml" insert_log.insert
            size_linear.size_linear
            size_log_sq.size
 

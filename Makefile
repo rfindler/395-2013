@@ -37,10 +37,12 @@ coq: Makefile.coq
 
 extract/extract.ml: extract/extract.vo
 	coqc -q -R . Braun extract/extract.v
-	mv extract.ml extract/
+	echo "open Big_int;;" > extract/extract.ml
+	cat post_extract.ml >> extract/extract.ml
+	rm post_extract.ml
 
 extract/extract: extract/extract.ml
-	ocamlc -I ml -o $@ $^
+	ocamlc -I ml -o $@ nums.cma $^
 
 tmonad-gen: $(GEN:%.rkt=%.v)
 

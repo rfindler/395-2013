@@ -8,18 +8,16 @@
 
 @figure*["fig:line-counts" "Line Counts"]{@build-table[]}
 
-XXX how to say something about to_list_naive? it's a Braun function
-that isn't in the paper. it's the naive version of the exercise
-
-To better understand how applicable our monad is, we 
-implemented the search and insertion functions for 
-red-black trees, insertion sort, merge sort, both
-the naive recursive version of the nth Fibonacci number
-function and the linear time version, and
-all of the algorithms in @citet[three-algorithms-on-braun-trees]'s
-paper, @italic{Three Algorithms on Braun Trees}.  Okasaki's paper contains 
-several versions of each of the three functions, each with different
-running times, in each case culminating with efficient versions. 
+To better understand how applicable our monad is, we implemented the
+search and insertion functions for red-black trees, insertion sort,
+merge sort, both the naive recursive version of the nth Fibonacci
+number function and the linear time version, a function that insert
+@raw-latex{$m$} times into a list at position @raw-latex{$n$} using
+both lists and zippers, and all of the algorithms mentioned in
+@citet[three-algorithms-on-braun-trees]'s paper, @italic{Three
+Algorithms on Braun Trees}.  Okasaki's paper contains several versions
+of each of the three functions, each with different running times, in
+each case culminating with efficient versions.
 The three functions are
 @itemlist[@item{@tt{size}: computes the size of a Braun tree 
                  (a linear and a log squared version)}
@@ -29,13 +27,17 @@ The three functions are
                  and}
           @item{@tt{make_array}: convert a list into a Braun tree
                  (two n log n versions and a linear version).}]
-In total, we implemented 16 different functions using the monad.
-For all of them, we proved the expected Big O running times. For
-the naive fib, we proved that it is Big Ω and Big O of itself,
-Big O(2@raw-latex{$^n$}), and Big Ω(2@raw-latex{$^{n/2}$}). For 
-merge sort, we proved it is Big O(n log(n)) and Big Ω(n log(n)).
-For all of the functions except for @tt{make_array_linear} and red-black insertion
-we proved they are correct as well; for those we proved only the running times.
+In total, we implemented 17 different functions using the monad.  For
+all of them, we proved the expected Big O running times.  For merge
+sort, we proved it is Big O(n log(n)) and Big Ω(n log(n)). For the
+naive fib, we proved that it is Big Ω and Big O of itself, Big
+O(2@raw-latex{$^n$}), and Big Ω(2@raw-latex{$^{n/2}$}). For the list
+insertion functions, we prove that when @raw-latex{$m$} is positive,
+the zipper version is Big O of the list version (because the zipper
+version runs in Big O(@raw-latex{$m + n$}) while the list version runs
+in Big O(@raw-latex{$n * m$}). For all of the functions except for
+@tt{make_array_linear} and red-black insertion we proved they are
+correct as well; for those we proved only the running times.
 
 The supplementary material contains all of the Coq code for
 the implementation and proofs of all of the functions in our case study.

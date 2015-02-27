@@ -1,5 +1,5 @@
 GEN := $(shell find . -type f -name '*_gen.rkt' $)
-VS := $(shell find . -type f -name '*v' | grep -v _gen.v | grep -v /extract.v $)
+VS := $(shell find . -type f -name '*v' | grep -v _gen.v $)
 VERSIONS := tmonad
 GEN_DEPS := rkt/tmonad/emit.rkt rkt/tmonad/main.rkt rkt/tmonad/coq.rkt
 

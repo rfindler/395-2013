@@ -5,7 +5,7 @@ Require Import Braun.monad.monad.
 Require Import Program.
 Require Import Omega.
 
-Definition insert_at_time (n:nat) := 2 * n + 1.
+Definition insert_at_time (n:nat) := 13 * n + 5.
 Hint Unfold insert_at_time.
 
 Definition InsertedAt {A:Set} (a:A) (n:nat) (l:list A) (res:list A) :=
@@ -15,29 +15,15 @@ Definition InsertedAt {A:Set} (a:A) (n:nat) (l:list A) (res:list A) :=
     res = xs ++ a :: ys.
 Hint Unfold InsertedAt.
 
-Program Fixpoint insert_at {A:Set} (a:A) (n:nat) (l:list A) (NV:n <= length l) :
-  {! res !:! list A !<! c !>!
-    InsertedAt a n l res /\
-    c = insert_at_time n!}
-  :=
-  match n with
-    | O =>
-      += 1;
-      <== (cons a l)
-    | S n' =>
-      match l with
-        | nil =>
-          _
-        | cons a' l' =>
-          res' <- insert_at a n' l' _ ;
-          += 2 ;
-          <== (cons a' res')
-      end
-  end.
+Definition insert_at_result (A:Set) (a:A) (n:nat) (l:list A) (NV:n <= length l) (res:list A) (c:nat) :=
+  InsertedAt a n l res /\
+  c = insert_at_time n.
+
+Load "insert_at_gen.v".
 
 Next Obligation.
 Proof.
-  unfold InsertedAt, insert_at_time.
+  unfold InsertedAt, insert_at_time, insert_at_result.
   simpl. split; auto.
   exists (@nil A). simpl. eauto.
 Qed.
@@ -54,20 +40,27 @@ Qed.
 
 Next Obligation.
 Proof.
+  simpl in NV. omega.
+Qed.
+
+Next Obligation.
+Proof.
+  unfold insert_at_result in *.
   clear NV.
-  rename n' into n.
-  clear H2.
+  clear H1 am.
   rename H0 into REC_P.
-  unfold insert_at_time.
+  unfold insert_at_time in *.
+  destruct REC_P as [REC_P EQ].
+  subst an.
   split; try omega.
   unfold InsertedAt in *.
   destruct REC_P as [xs [ys [EQl' [EQn EQres']]]].
-  subst l' n res'.
-  exists (a' :: xs). exists ys.
+  subst lp np resp.
+  exists (ap :: xs). exists ys.
   simpl. eauto.
 Qed.
 
-Definition minsert_at_time (m:nat) (n:nat) := m * (insert_at_time n + 1) + 1.
+Definition minsert_at_time (m:nat) (n:nat) := m * (insert_at_time n + 15) + 3.
 Hint Unfold minsert_at_time.
 
 Definition MInsertedAt {A:Set} (ma:list A) (n:nat) (l:list A) (res:list A) :=
@@ -77,25 +70,15 @@ Definition MInsertedAt {A:Set} (ma:list A) (n:nat) (l:list A) (res:list A) :=
     res = xs ++ (rev ma) ++ ys.
 Hint Unfold MInsertedAt.
 
-Program Fixpoint minsert_at {A:Set} (ma:list A) (n:nat) (l:list A) (NV:n <= length l) :
-  {! res !:! list A !<! c !>!
-    MInsertedAt ma n l res /\
-    c = minsert_at_time (length ma) n!}
-  :=
-  match ma with
-    | nil =>
-      += 1;
-      <== l
-    | cons a ma' =>
-      res' <- insert_at a n l NV ;
-      res'' <- minsert_at ma' n res' _ ;
-      += 1 ;
-      <== res''
-  end.
+Definition minsert_at_result (A:Set) (ma:list A) (n:nat) (l:list A) (NV:n <= length l) (res:list A) (c:nat) :=
+  MInsertedAt ma n l res /\
+  c = minsert_at_time (length ma) n.
+
+Load "minsert_at_gen.v".
 
 Next Obligation.
 Proof.
-  unfold MInsertedAt.
+  unfold minsert_at_result, MInsertedAt.
   split; auto.
 
   generalize l NV. clear l NV.
@@ -113,9 +96,10 @@ Qed.
 
 Next Obligation.
 Proof.
-  rename H into IA_P.
+  unfold insert_at_result in *.
+  destruct H as [IA_P EQ]. subst am.
   destruct IA_P as [xs [ys [EQl' [EQn EQres']]]].
-  subst l n res'.
+  subst l n resp.
   rewrite app_length in *.
   simpl.
   omega.
@@ -152,13 +136,17 @@ Qed.
 
 Next Obligation.
 Proof.
-  clear H4 H6.
+  unfold minsert_at_result in *.
+  unfold insert_at_result in *.
+  clear am H3 am0 H2.
   rename H0 into REC_P.
   rename H1 into IA_P.
+  destruct IA_P as [IA_P EQ]. subst an0.
+  destruct REC_P as [REC_P EQ]. subst an.
   destruct IA_P as [xs [ys [EQl' [EQn EQres']]]].
-  subst l n res'.
+  subst l n resp.
   destruct REC_P as [xsR [ysR [EQ1 [EQ2 EQ3]]]].
-  subst res''.
+  subst respp.
   symmetry in EQ2.
   destruct (app_length_eq_both A xs (a :: ys) xsR ysR EQ2 EQ1) as [EQa EQb].
   subst xsR ysR.
@@ -170,9 +158,10 @@ Proof.
   auto.
 
   clear NV.
+  simpl.
   clear a ys.
   remember (length xs) as X. clear xs HeqX.
-  remember (length ma') as M. clear ma' HeqM.
+  remember (length map) as M. clear map HeqM.
   clear A.
   unfold minsert_at_time.
   rewrite mult_succ_l.
@@ -185,26 +174,30 @@ Definition ZipperOf {A:Set} (l:list A) (z:Zipper A) :=
   let (xs, ys) := z in
     l = rev xs ++ ys.
 
-Program Fixpoint to_zip {A:Set} (l:list A) :
-  {! res !:! Zipper A !<! c !>!
-    (fst res) = nil /\
-    ZipperOf l res /\
-    c = 1 !} :=
-  += 1 ;
-  <== (nil, l).
+Definition to_zip_result (A:Set) (l:list A) (res:Zipper A) (c:nat) :=
+  (fst res) = nil /\
+  ZipperOf l res /\
+  c = 3.
 
-Program Fixpoint from_zip {A:Set} (z:Zipper A) (ALL_RIGHT:(fst z) = nil) :
-  {! res !:! list A !<! c !>!
-    ZipperOf res z /\
-    c = 1 !} :=
-  += 1 ;
-  <== (snd z).
+Load "to_zip_gen.v".
 
 Next Obligation.
 Proof.
- destruct z as [xs ys].
- simpl in *. subst xs.
- program_simpl.
+  unfold to_zip_result. simpl. auto.
+Qed.
+
+Definition from_zip_result (A:Set) (z:Zipper A) (ALL_RIGHT:(fst z) = nil) (res:list A) (c:nat) :=
+  ZipperOf res z /\
+  c = 2.
+
+Load "from_zip_gen.v".
+
+Next Obligation.
+Proof.
+  unfold from_zip_result.
+  destruct z as [xs ys].
+  simpl in *. subst xs.
+  program_simpl.
 Qed.
 
 Definition ZipperRight {A:Set} (z res:Zipper A) :=
@@ -228,17 +221,11 @@ Proof.
   simpl. auto.
 Qed.
 
-Program Fixpoint zip_right {A:Set} (z:Zipper A) (SOME_RIGHT:(snd z) <> nil) :
-  {! res !:! Zipper A !<! c !>!
-    ZipperRight z res /\
-    c = 1 !} :=
-  match (snd z) with
-    | nil =>
-      _
-    | cons a ys =>
-      += 1 ;
-      <== (a :: (fst z), ys)
-  end.
+Definition zip_right_result (A:Set) (z:Zipper A) (SOME_RIGHT:(snd z) <> nil) (res:Zipper A) (c:nat) :=
+  ZipperRight z res /\
+  c = 9.
+
+Load "zip_right_gen.v".
 
 Next Obligation.
 Proof.
@@ -247,12 +234,13 @@ Defined.
 
 Next Obligation.
 Proof.
- destruct z as [xs ys'].
- simpl in *.
- subst ys'.
- split; auto.
- unfold ZipperRight.
- eauto.
+  unfold zip_right_result.
+  destruct z as [xs ys'].
+  simpl in *.
+  subst ys'.
+  split; auto.
+  unfold ZipperRight.
+  eauto.
 Qed.
 
 Definition ZipperLeft {A:Set} (z res:Zipper A) :=
@@ -276,17 +264,11 @@ Proof.
   simpl in ZO. auto.
 Qed.
 
-Program Fixpoint zip_left {A:Set} (z:Zipper A) (SOME_LEFT:(fst z) <> nil) :
-  {! res !:! Zipper A !<! c !>!
-    ZipperLeft z res /\
-    c = 1 !} :=
-  match (fst z) with
-    | nil =>
-      _
-    | cons b xs =>
-      += 1 ;
-      <== (xs, b :: (snd z))
-  end.
+Definition zip_left_result (A:Set) (z:Zipper A) (SOME_LEFT:(fst z) <> nil) (res:Zipper A) (c:nat) :=
+  ZipperLeft z res /\
+  c = 9.
+
+Load "zip_left_gen.v".
 
 Next Obligation.
 Proof.
@@ -295,26 +277,27 @@ Defined.
 
 Next Obligation.
 Proof.
- destruct z as [xs' ys].
- simpl in *.
- subst xs'.
- split; auto.
- unfold ZipperLeft.
- eauto.
+  unfold zip_left_result.
+  destruct z as [xs' ys].
+  simpl in *.
+  subst xs'.
+  split; auto.
+  unfold ZipperLeft.
+  eauto.
 Qed.
 
 Definition ZipperInsert {A:Set} (z:Zipper A) (a:A) (res:Zipper A) :=
   res = ((fst z), a :: (snd z)).
 
-Program Fixpoint zip_insert {A:Set} (z:Zipper A) (a:A) :
-  {! res !:! Zipper A !<! c !>!
-    ZipperInsert z a res /\
-    c = 1 !} :=
-  += 1 ;
-  <== ((fst z), a :: (snd z)).
+Definition zip_insert_result (A:Set) (z:Zipper A) (a:A) (res:Zipper A) (c:nat) :=
+  ZipperInsert z a res /\
+  c = 7.
+
+Load "zip_insert_gen.v".
 
 Next Obligation.
 Proof.
+  unfold zip_insert_result.
   unfold ZipperInsert. auto.
 Qed.
 
@@ -324,23 +307,15 @@ Definition ZipperRightN {A:Set} (z:Zipper A) (n:nat) (res:Zipper A) :=
     length ys = n /\
     res = (((rev ys) ++ xs), zs).
 
-Program Fixpoint zip_rightn {A:Set} (n:nat) (z:Zipper A) (NV:n <= length (snd z)) :
-  {! res !:! Zipper A !<! c !>!
-    ZipperRightN z n res /\
-    c = 2 * n + 1 !} :=
-  match n with
-    | O =>
-      += 1 ;
-      <== z
-    | S n' =>
-      z' <- zip_right z _ ;
-      z'' <- zip_rightn n' z' _ ;
-      += 1 ;
-      <== z''
-  end.
+Definition zip_rightn_result (A:Set) (n:nat) (z:Zipper A) (NV:n <= length (snd z)) (res:Zipper A) (c:nat) :=
+  ZipperRightN z n res /\
+  c = 21 * n + 3.
+
+Load "zip_rightn_gen.v".
 
 Next Obligation.
 Proof.
+  unfold zip_rightn_result.
   split; auto.
   destruct z as [xs zs].
   exists xs. exists (@nil A). exists zs.
@@ -349,6 +324,7 @@ Qed.
 
 Next Obligation.
 Proof.
+  unfold zip_rightn_result.
   destruct (snd z) as [|a sz].
   simpl in NV. omega.
   congruence.
@@ -356,23 +332,28 @@ Qed.
 
 Next Obligation.
 Proof.
+  unfold zip_right_result in *.
   rename H into ZR.
-  destruct ZR as [xs [a [ys [EQz EQzr]]]].
-  subst z z'. simpl in *.
+  destruct ZR as [[xs [a [ys [EQz EQzr]]]] EQ].
+  subst z zp. simpl in *.
   omega.
 Qed.
 
 Next Obligation.
 Proof.
-  clear H6 H4.
+  unfold zip_rightn_result in *.
+  unfold zip_right_result in *.
+  clear am am0 H2 H3.
   rename H0 into ZRN.
   rename H1 into ZR.
+  destruct ZRN as [ZRN EQ]. subst an.
+  destruct ZR as [ZR EQ]. subst an0.
   split; try omega.
   unfold ZipperRightN.
   destruct ZR as [xs [a [ys [EQz EQzr]]]].
-  subst z z'. simpl in *.
+  subst z zp. simpl in *.
   destruct ZRN as [xs' [ys' [zs' [EQ1 [EQ2 EQ3]]]]].
-  subst n' z''.
+  subst np zpp.
   replace xs' with (a :: xs) in *; try congruence.
   clear  xs' NV.
   replace ys with (ys' ++ zs') in *; try congruence.
@@ -389,23 +370,15 @@ Definition ZipperLeftN {A:Set} (z:Zipper A) (n:nat) (res:Zipper A) :=
     length ys = n /\
     res = (xs, (rev ys) ++ zs).
 
-Program Fixpoint zip_leftn {A:Set} (n:nat) (z:Zipper A) (NV:n <= length (fst z)) :
-  {! res !:! Zipper A !<! c !>!
-    ZipperLeftN z n res /\
-    c = 2 * n + 1 !} :=
-  match n with
-    | O =>
-      += 1 ;
-      <== z
-    | S n' =>
-      z' <- zip_left z _ ;
-      z'' <- zip_leftn n' z' _ ;
-      += 1 ;
-      <== z''
-  end.
+Definition zip_leftn_result (A:Set) (n:nat) (z:Zipper A) (NV:n <= length (fst z)) (res:Zipper A) (c:nat) :=
+  ZipperLeftN z n res /\
+  c = 21 * n + 3.
+
+Load "zip_leftn_gen.v".
 
 Next Obligation.
 Proof.
+  unfold zip_leftn_result.
   split; auto.
   destruct z as [xs zs].
   exists xs. exists (@nil A). exists zs.
@@ -421,23 +394,28 @@ Qed.
 
 Next Obligation.
 Proof.
+  unfold zip_left_result in *.
   rename H into ZL.
-  destruct ZL as [b [xs [ys [EQz EQzr]]]].
-  subst z z'. simpl in *.
+  destruct ZL as [[b [xs [ys [EQz EQzr]]]] EQ].
+  subst z zp. simpl in *.
   omega.
 Qed.
 
 Next Obligation.
 Proof.
-  clear H6 H4.
+  unfold zip_left_result in *.
+  unfold zip_leftn_result in *.
+  clear am H3 H2 am0.
   rename H0 into ZLN.
   rename H1 into ZL.
+  destruct ZLN as [ZLN EQ]. subst an.
+  destruct ZL as [ZL EQ]. subst an0.
   split; try omega.
   unfold ZipperLeftN.
   destruct ZL as [b [xs [ys [EQz EQzr]]]].
-  subst z z'. simpl in *.
+  subst z zp. simpl in *.
   destruct ZLN as [xs' [ys' [zs' [EQ1 [EQ2 EQ3]]]]].
-  subst n' z''.
+  subst np zpp.
   replace zs' with (b :: ys) in *; try congruence.
   clear zs' NV.
   replace xs with (ys' ++ xs') in *; try congruence.
@@ -451,23 +429,15 @@ Qed.
 Definition ZipperMInsert {A:Set} (z:Zipper A) (ma:list A) (res:Zipper A) :=
   res = ((fst z), (rev ma) ++ (snd z)).
 
-Program Fixpoint zip_minsert {A:Set} (ma:list A) (z:Zipper A) :
-  {! res !:! Zipper A !<! c !>!
-    ZipperMInsert z ma res /\
-    c = 2 * (length ma) + 1 !} :=
-  match ma with
-    | nil =>
-      += 1 ;
-      <== z
-    | cons a ma' =>
-      z' <- zip_insert z a ;
-      z'' <- zip_minsert ma' z' ;
-      += 1 ;
-      <== z''
-  end.
+Definition zip_minsert_result (A:Set) (ma:list A) (z:Zipper A) (res:Zipper A) (c:nat) :=
+  ZipperMInsert z ma res /\
+  c = 18 * (length ma) + 3.
+
+Load "zip_minsert_gen.v".
 
 Next Obligation. 
 Proof.
+  unfold zip_minsert_result.
   unfold ZipperMInsert.
   simpl.
   destruct z as [xs ys].
@@ -476,38 +446,35 @@ Qed.
 
 Next Obligation.
 Proof.
-  clear H6 H4.
+  unfold zip_minsert_result in *.
+  unfold zip_insert_result in *.
+  clear am H3 am0 H2.
   rename H0 into ZMI.
   rename H1 into ZI.
+  destruct ZMI as [ZMI EQ]. subst an.
+  destruct ZI as [ZiI EQ]. subst an0.
   unfold ZipperMInsert, ZipperInsert in *.
-  subst z'' z'.
+  subst zpp zp.
   destruct z as [xs ys].
-  simpl.
-  rewrite <- app_assoc. simpl.
-  split; auto.
+  split. simpl. rewrite <- app_assoc. simpl. auto.
+  simpl length.
   omega.
 Qed.
 
 Definition minsertz_at_time (m:nat) (n:nat) :=
-  1 + (2 * n + 1) + (2 * m + 1) + (2 * n + 1) + 1.
+  3 + (21 * n + 3) + (18 * m + 3) + (21 * n + 3) + 2 + 22.
 Hint Unfold minsertz_at_time.
 
-Program Fixpoint minsertz_at {A:Set} (ma:list A) (n:nat) (l:list A) (NV:n <= length l) :
-  {! res !:! list A !<! c !>!
-    MInsertedAt ma n l res /\
-    c = minsertz_at_time (length ma) n!}
-  :=
-  z <- (to_zip l) ;
-  zr <- (zip_rightn n z _) ;
-  zr' <- (zip_minsert ma zr) ;
-  z' <- (zip_leftn n zr' _) ;
-  l' <- from_zip z' _ ;
-  <== l'.
+Definition minsertz_at_result (A:Set) (ma:list A) (n:nat) (l:list A) (NV:n <= length l) (res:list A) (c:nat) :=
+  MInsertedAt ma n l res /\
+  c = minsertz_at_time (length ma) n.
+
+Load "minsertz_at_gen.v".
 
 Next Obligation.
 Proof.
-  rename H into EQ.
-  rename H0 into ZO.
+  unfold to_zip_result in *.
+  destruct H as [EQ [ZO EQam]].
   destruct z as [xs ys].
   simpl in *. subst xs.
   subst l.
@@ -517,14 +484,19 @@ Qed.
 
 Next Obligation.
 Proof.
-  rename H into ZMI.
-  rename H1 into ZRN.
+  unfold to_zip_result in *.
+  destruct H1 as [EQ [ZO EQam]].
+  unfold zip_rightn_result in *.
+  destruct H0 as [ZRN EQam0].
+  unfold zip_minsert_result in *.
+  destruct H as [ZMI EQam1].
+  subst.
   destruct z as [xs ys].
   simpl in *.
   subst xs l.
   simpl in *.
   unfold ZipperMInsert in *.
-  subst zr'.
+  subst zrp.
   unfold ZipperRightN in *.
   destruct ZRN as [xs' [ys' [z' [EQ1 [EQ2 EQ3]]]]].
   subst zr n.
@@ -536,13 +508,18 @@ Qed.
 
 Next Obligation.
 Proof.
-  rename H6 into ZO.
-  rename H3 into ZRN.
-  rename H1 into ZMI.
-  rename H into ZLN.
+  unfold to_zip_result in *.
+  unfold zip_rightn_result in *.
+  unfold zip_minsert_result in *.
+  unfold zip_leftn_result in *.
+  destruct H2 as [EQ [ZO EQam]].
+  destruct H1 as [ZRN EQam0].
+  destruct H0 as [ZMI EQam1].
+  destruct H as [ZLN EQam2].
+  subst.
 
   destruct ZLN as [xsL [ysL [zsL [EQ1 [EQ2 EQ3]]]]].
-  subst zr' n z'. simpl.
+  subst zrp n zp. simpl.
   destruct ZRN as [xsR [ysR [zsR [EQ1 [EQ2 EQ3]]]]].
   subst zr z. simpl.
   unfold ZipperMInsert in *.
@@ -555,20 +532,27 @@ Proof.
   apply EQ2.
   symmetry.
   apply EQapp.
+  subst xsL.
   auto.
 Qed.
 
 Next Obligation.
 Proof.
-  clear H18 H19 H16 H14 H12 H10.
-  rename H4 into ZOl.
-  rename H3 into EQfz.
-  rename H2 into ZRN.
-  rename H1 into ZMI.
-  rename H0 into ZLN.
-  rename H into ZOl'.
+  unfold to_zip_result in *.
+  unfold zip_rightn_result in *.
+  unfold zip_minsert_result in *.
+  unfold zip_leftn_result in *.
+  unfold from_zip_result in *.
+  unfold minsertz_at_result.
+  clear am am0 am1 am2 am3 H9 H8 H7 H6 H5.
+  destruct H4 as [EQfz [ZOl EQan3]].
+  destruct H3 as [ZRN EQan2].
+  destruct H2 as [ZMI EQan1].
+  destruct H1 as [ZLN EQan0].
+  destruct H0 as [ZOlp EQan].
+  subst.
 
-  destruct z as [xs ys]. simpl in *. subst xs.
+  destruct z as [xs ys]. simpl in EQfz. subst xs.
   simpl in ZOl. subst l.
   destruct ZRN as [xsR [ysR [zsR [EQ1 [EQ2 EQ3]]]]].
   subst zr n.
@@ -577,7 +561,7 @@ Proof.
   replace ys with (ysR ++ zsR) in *; try congruence.
   clear ys EQ1.
   destruct ZLN as [xsL [ysL [zsL [EQ1 [EQ2 EQ3]]]]].
-  subst zr' z'.
+  subst zrp zp.
   rewrite app_nil_r in *.
   unfold ZipperMInsert in ZMI.
   simpl in ZMI.
@@ -585,16 +569,50 @@ Proof.
   clear zsL.
   inversion ZMI. clear ZMI.
   rename H0 into ZMI.
-  unfold minsertz_at_time.
-  split; [ | omega ].
-  unfold ZipperOf in ZOl'.
-  subst l'.
+  split.
+  
+  unfold ZipperOf in ZOlp.
+  subst lp.
   rewrite app_assoc.
   rewrite <- rev_app_distr.
   rewrite ZMI.
   rewrite rev_involutive.
   exists ysR. exists zsR.
   auto.
+
+  unfold minsertz_at_time.
+  omega.
+Qed.
+
+Definition minsertz_at_time_clean m n :=
+  (0 * n * m) + (18 * m) + (42 * n) + 36.
+
+Lemma minsertz_at_time_clean_eq:
+  forall m n,
+    minsertz_at_time m n =
+    minsertz_at_time_clean m n.
+Proof.
+  unfold minsertz_at_time_clean, minsertz_at_time.
+  intros m n.
+  rewrite mult_0_l.
+  omega.
+Qed.
+
+Definition minsert_at_time_clean m n :=
+  (13 * n * m) + (20 * m) + (0 * n) + 3.
+
+Lemma minsert_at_time_clean_eq:
+  forall m n,
+    minsert_at_time_clean m n =
+    minsert_at_time m n.
+Proof.
+  unfold minsert_at_time_clean, minsert_at_time, insert_at_time.
+  intros m n.
+  rewrite mult_0_l.
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+  rewrite mult_comm.
+  omega.
 Qed.
 
 Theorem minsertz_is_better:
@@ -603,37 +621,37 @@ Theorem minsertz_is_better:
     big_oh (fun n => minsertz_at_time m n) (fun n => minsert_at_time m n).
 Proof.
   intros m LT.
-  unfold minsertz_at_time, minsert_at_time, insert_at_time.
+  eapply big_oh_trans.
+  apply big_oh_eq. apply minsertz_at_time_clean_eq.
+  eapply big_oh_trans; [ | apply big_oh_eq; apply minsert_at_time_clean_eq ].
+  unfold minsertz_at_time_clean, minsert_at_time_clean.
   unfold big_oh.
-  exists 0 5.
+  exists 0 12.
   intros n LE.
-  replace (1 + (2 * n + 1) + (2 * m + 1) + (2 * n + 1) + 1) with
-    (2 * m + 4 * n + 5); try omega.
-  replace (5 * (m * (2 * n + 1 + 1) + 1)) with
-    (10 * n * m + 10 * m + 5); try omega.
+  clear LE.
 
   destruct m as [|m]. omega.
+  clear LT.
+  rewrite mult_plus_distr_l.
+  apply le_add; [ | omega ].
+  replace (0 * n * S m + 18 * S m + 42 * n) with
+    (0 * n * S m + 42 * n + 18 * S m); try omega.
+  replace (13 * n * S m + 20 * S m + 0 * n) with
+    (13 * n * S m + 0 * n + 20 * S m); try omega.
+  rewrite mult_plus_distr_l.
+  apply le_add; [ | omega ].
+  rewrite mult_0_l. rewrite plus_0_l.
+  rewrite mult_0_l. rewrite plus_0_r.  
+  rewrite <- mult_assoc.
+  rewrite mult_assoc with (n := 12).
+  replace (12 * 13) with 156; try auto.  
+  rewrite mult_comm with (n := n).
+  rewrite mult_assoc.
+  rewrite mult_succ_r.
+  rewrite mult_plus_distr_r.
+  replace (42 * n) with (0 + 42 * n); try omega.
   apply le_add.
-  rewrite plus_comm.
-  apply le_add.
-  replace (4 * n) with (4 * n * 1); try omega.
-  apply le_mult.
-  omega. omega.
-  omega. auto.
-  clear LT LE.
-  repeat rewrite mult_plus_distr_l.
-  rewrite mult_1_r. rewrite mult_1_r.
-  rewrite mult_assoc.
-  rewrite mult_assoc.
-  replace (5 * m * 2 * n) with (10 * n * m); try omega.
-  rewrite <- mult_assoc.
-  rewrite <- mult_assoc.
-  rewrite <- mult_assoc.
-  rewrite (mult_comm m (2 * n)).
-  rewrite mult_assoc.
-  rewrite mult_assoc.
-  rewrite mult_assoc.
-  simpl.
-  auto.
+  apply le_0_n.
+  omega.
 Qed.
 

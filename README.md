@@ -58,7 +58,7 @@ Volume 7 Issue 6, November 1997, 661 - 666
 ## clrs/
 
 This directory contains the implementation of the red-black tree
-insert and lookup functions.
+insert and lookup functions, as well as the list insertion functions.
 
 ## sort/
 

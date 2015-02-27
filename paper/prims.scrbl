@@ -12,7 +12,7 @@
 @citet[automatic-complexity-analysis]'s cost function
 counts all primitive functions as constant (simply because
 it counts a call as unit time and then doesn't process the
-body). For most primitives, this exactly what you want. For
+body). For most primitives, this is exactly what you want. For
 example, field selection functions (e.g., @tt{car} and
 @tt{cdr}) are certainly constant time. Structure allocation
 functions (e.g., @tt{cons}) are usually constant time, when

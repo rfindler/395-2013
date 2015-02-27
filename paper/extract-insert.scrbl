@@ -23,7 +23,7 @@ type 'a bin_tree =
 | Bt_node (j, s, t) -> 
   Bt_node (i, (insert j t), s)
 }
-This exactly the code that Coq produces, whitespace, 
+This is exactly the code that Coq produces, whitespace,
 newlines and all. The only declarations we added to
 aid Coq's extraction was the suggestion that it should
 inline the monad operations. And since the extracted

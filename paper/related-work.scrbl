@@ -21,8 +21,8 @@ In our opinion, figuring out the design of monad
 operations that support the @tt{P} argument is
 the major technical advance here.
 Accordingly, 
-@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]
-system cannot possible to specify the
+@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s
+system cannot specify the
 running time of many of the Braun functions, since
 the size information is not available without the
 additional assumption of Braunness.

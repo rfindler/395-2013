@@ -49,7 +49,7 @@ construct) for the following call to @tt{C}, in order to avoid duplicating
 the type between @tt{!:!} and @tt{!<!}:
 @inline-code|{
 (C (@bin_tree A)
-   (fun (res:@bin_tree A) =>
+   (fun (res:@bin_tree A) (c:nat) =>
      (forall n, 
         Braun b n ->
         (Braun res (n+1) /\
@@ -70,7 +70,7 @@ definition of the monad and built a set of operations that
 can be combined in arbitrary ways but such that their combination
 ensures that the @tt{nat} must be used as the running time.
 
-The first of these operations is the monadic unit, @tt{ret}. Suppose an program
+The first of these operations is the monadic unit, @tt{ret}. Suppose a program
 returns an empty list, @tt{<== nil}. Such a program takes no steps to
 compute, because the value is readily available. This logic applies to
 all places where a computation ends. To do this, we define @tt{<== x}
@@ -118,7 +118,7 @@ transformed into whatever the actual cost along that path was.
 We encapsulate this logic into a simple monadic operator,
 @tt{inc}, that introduces @tt{k} units of cost:
 @(apply inline-code (extract monad.v "inc"))
-In programs using our monad, we write @tt{+= k e}, a
+In programs using our monad, we write @tt{+= k; e}, a
 shorthand for @tt{inc _ k _ e}.
 
 In principle, the logic for @tt{bind} is very similar. A @tt{bind}

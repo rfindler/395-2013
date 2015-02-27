@@ -35,9 +35,10 @@
  monad so programs written in our monad (that recur on the natural
  structure of their arguments) extract into idiomatic OCaml code.
  
- We evaluated the library by proving that red-black trees,
- merge sort, insertion sort, fib, and Okasaki's
- Braun Tree algorithms all have their expected running times.
+ We evaluated the expressiveness of the library by proving that
+ red-black trees, merge sort, insertion sort, fib, and Okasaki's Braun
+ Tree algorithms all have their expected running times.
+ 
 }
 
 @include-section["insert.scrbl"]

@@ -21,7 +21,7 @@ supp: DNE
 
 DNE:
 
-code: coq extract/extract extract/sextract
+code: coq extract/extract
 
 paper/paper.pdf: paper/paper.scrbl paper/util.rkt paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl */*.v
 	(cd paper; raco make -v paper.scrbl && scribble --pdf paper.scrbl; cd ..)
@@ -40,9 +40,6 @@ extract/extract.ml: extract/extract.vo
 	mv extract.ml extract/
 
 extract/extract: extract/extract.ml
-	ocamlc -I ml -o $@ $^
-
-extract/sextract: extract/sextract.ml
 	ocamlc -I ml -o $@ $^
 
 tmonad-gen: $(GEN:%.rkt=%.v)

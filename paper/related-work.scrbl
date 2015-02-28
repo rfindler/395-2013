@@ -11,7 +11,7 @@ http://www.cs.yale.edu/homes/hoffmann/publications.html
 }
 
 
-The most closely related work to our is 
+The most closely related work to ours is 
 @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures].
 He presents a monad that, like ours, carries a
 notion of abstract time. Unlike our monad, his
@@ -78,7 +78,7 @@ code with obligations similar to what our monad produces, but
 it does not consider running time.
 
 Others have explored automatic techniques for proving 
-programs have particular resource bounds using
+that programs have particular resource bounds using
 a variety of techniques@~cite[speed auto-parallel auto-heap recursion-in-bounded-space]
 These approaches are all weaker than our approach, but
 provide more automation.
@@ -99,7 +99,8 @@ Our code builds heavily on @citet[Program-cite]'s @tt{Program} facility in Coq.
 
 
 @(element (style "noindent" '()) '())
-@bold{Acknowledgments.} Thanks to
+@bold{Acknowledgments.} 
+Thanks to reviewers of previous versions of this paper. Thanks to
 Neil Toronto for help with the properties
 of integer logarithms (including efficient
 implementations of them).

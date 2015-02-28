@@ -49,7 +49,7 @@ the Braun invariant tells us that @tt{lsize} and @tt{rsize} are either
 equal, or that @tt{lsize} is @tt{rsize+1}. Accordingly, this operation
 can be replaced with either @tt{lsize*2+1} or @tt{lsize*2}, both of
 which are constant-time operations. Checking to see which case applies
-is also constant time: if the numbers are the same the digits at the
+is also constant time: if the numbers are the same, the digits at the
 front of the respective lists will be the same and if they differ by
 @tt{1}, those digits will be different.
 
@@ -59,13 +59,13 @@ attempt to improve that treatment, but we did study @tt{sub1} more
 carefully.
 
 Subtracting 1 from a number in binary representation is not constant
-time. In some situations, it may need to traverse the entire number to
-compute its predecessor.  To explore its behavior, we implemented it
+time. In some situations, @tt{sub1} may need to traverse the entire number to
+compute its predecessor.  To explore @tt{sub1}'s behavior, we implemented it
 using only constant-time operations. Here's the implementation with
 explicit costs: @(apply inline-code (extract sub1_gen.v cdr))
 
 This function uses a number of primitive operations. 
-If we think the representation of numbers as a linked 
+If we think of the representation of numbers as a linked 
 listed of binary digits, then these are the operations
 used by the function and their corresponding list operation:
 @itemlist[@item{zero testing: empty list check,}
@@ -110,7 +110,7 @@ loop counting down from @tt{n} to @tt{0}. This pattern is
 found in the functions @tt{take}, @tt{drop} and
 @tt{pad-drop} in the library. In this case, @tt{sub1} will
 be called once for each different number in that range and
-those times sum to a fixed number, proportional to the
+the total running time is proportional to the
 number of iterations.
 
 Second is a function that loops by subtracting @tt{1} and then

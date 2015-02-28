@@ -5,7 +5,7 @@
 
 One way to account for cost is to use the monad to pair an actual
 value (of type @tt{B}) with a natural number representing the
-computations current cost, and then ensure that this number is
+computation's current cost, and then ensure that this number is
 incremented appropriately at each stage of the computation.
 Unfortunately, this cost would be part of the dynamic behavior of the
 algorithm. In other words, @tt{insert x bt} would return a new tree
@@ -59,33 +59,34 @@ between @tt{!:!} and @tt{!<!}:
 
 One important aspect of the @tt{C} type is that the @tt{nat} is bound
 only by an existential, and thus is not connected to the value or the
-computation. That is, when we know an expression has the type @tt{C A
-P}, we do not know that its running time is correct since the proof
-that the expression is that type can supply any @tt{nat} to satisfy
-the existential.
+computation. Therefore, when we know an expression has the type @tt{C
+A P}, we do not know that its running time is correct. This isbecause
+the proof that the expression is that type can supply any @tt{nat} to
+satisfy the existential.
 
-Thus, in order to guarantee the correct running times,
-we treat types of the form @tt{C A P} as private to the
-definition of the monad and built a set of operations that
-can be combined in arbitrary ways but such that their combination
-ensures that the @tt{nat} used must be the running time.
+Thus, in order to guarantee the correct running times, we treat types
+of the form @tt{C A P} as private to the definition of the monad. We
+build a set of operations that can be combined in arbitrary ways but
+such that their combination ensures that the @tt{nat} used must be the
+running time.
 
-The first of these operations is the monadic unit, @tt{ret}. Suppose a program
-returns an empty list, @tt{<== nil}. Such a program takes no steps to
-compute, because the value is readily available. This logic applies to
-all places where a computation ends. To do this, we define @tt{<== x}
-to be @tt{ret _ _ x _}, a use of the monad operator @tt{ret}. The 
-underscores ask Coq to fill in well-typed arguments (resorting to
-asking the user to provide proofs if necessary, as we saw in 
-@secref["sec:insert"]).
+The first of these operations is the monadic unit, @tt{ret}. Suppose a
+program returns an empty list, @tt{<== nil}. Such a program takes no
+steps to compute, because the value is readily available. This logic
+applies to all places where a computation ends. To do this, we define
+@tt{<== x} to be @tt{ret _ _ x _}, a use of the monad operator
+@tt{ret}. The underscores ask Coq to fill in well-typed
+arguments (asking the user to provide proofs, if necessary, as we saw
+in @secref["sec:insert"]).
 
 This is the type of @tt{ret}:
 @(apply inline-code (extract monad.v "ret"))
 
 This specifies that @tt{ret} will construct a @tt{C A P} only when
 given a proof, @tt{Pa0}, that the correctness/runtime property holds
-between the actual value return @tt{a} and the natural number
-@tt{0}. In other words, when @tt{P} predicts the running time @tt{0}.
+between the actual value returned @tt{a} and the natural number
+@tt{0}. In other words, @tt{ret} requires @tt{P} to predict the
+running time as @tt{0}.
 
 There are two other operations in our monad: @tt{bind} that combines
 two computations in the monad, summing their running times, and
@@ -103,18 +104,19 @@ We know, however that the obligation on @tt{<==}, namely @tt{P a 0}, is irreleva
 or worse, wrong. There is a simple way out of this bind, however: what
 if the @tt{P} for the @tt{ret} were different than the property for
 of the entire expression? In code, what if the obligation were @tt{P' a 0}?
-At worse, such a change would be irrelevant because there may not be a
-connection between @tt{P'} and @tt{P}. But, with this in mind we can
+At worst, such a change would be irrelevant because there may not be a
+connection between @tt{P'} and @tt{P}. With this in mind, we can
 choose a @tt{P'} such that @tt{P' a 0} is the same as @tt{P a 1}. 
 
-We previously described @tt{P} as relation between @tt{A}s and
-@tt{nat}s, but in Coq this is just a function that accepts a @tt{A}
-and @tt{nat} and returns a proposition. Thus, we can make @tt{P'} be
-the function: @tt{fun a an => P a (an+1)}. This has the effect of
-transforming the runtime obligation on @tt{ret} from above: as more
-steps take cost, the property itself accrues the cost so the proof that
-the verifier must prove that the provided @tt{0} is an appropriate cost is
-transformed into whatever the actual cost along that path was.
+We previously described @tt{P} as a relation between @tt{A}s and
+@tt{nat}s, but in Coq this is just a function that accepts an @tt{A}
+and a @tt{nat} and returns a proposition. So, we can make @tt{P'} be
+the function @tt{fun a an => P a (an+1)}. This has the effect of
+transforming the runtime obligation on @tt{ret} from what was
+described above. The proof @tt{P a 0} becomes @tt{P a 1}. In general,
+if the cost along a control-flow path to a @tt{ret} has @tt{k} units
+of cost, the proof will be @tt{P a k}. Thus, we accrue the cost inside
+of the property itself.
 
 We encapsulate this logic into a simple monadic operator,
 @tt{inc}, that introduces @tt{k} units of cost:
@@ -135,54 +137,57 @@ property for @tt{A} is @tt{PA} and @tt{PB} for @tt{B}, then a first
 attempt at a type for @tt{bind} is:
 @(apply inline-code (extract binds.v "bind1"))
 
-This definition is incorrect from the perspective of cost,
-because it misses the key point of ensuring that whatever the cost was
-for producing the @tt{A}, it is accounted for along with the cost of
-producing the @tt{B}.
+This definition is incorrect from the perspective of cost, because it
+does not ensure that the cost for producing the @tt{A} is accounted
+for along with the cost of producing the @tt{B}.
 
-Suppose that the cost of generating the @tt{A} were @tt{7}, then we
+Suppose that the cost of generating the @tt{A} was @tt{7}, then we
 should transform the property of the @tt{B} computation to be @tt{fun
-b bn => PB b (bn+7)}. Unfortunately, we cannot ``look inside'' the @tt{A} 
-computation to know that it cost 7 units. Instead, we have to show that
-@emph{whatever} the cost for @tt{A} was, the cost of @tt{B} is still as 
-expected. This suggests a second attempt at a definition of @tt{bind}:
-@(apply inline-code (extract binds.v "bind2"))
+b bn => PB b (bn+7)}. Unfortunately, we cannot ``look inside'' the
+@tt{A} computation to know that it costs 7 units. Instead, we have to
+show that @emph{whatever} the cost for @tt{A} was, the cost of @tt{B}
+is still as expected. This suggests a second attempt at a definition
+of @tt{bind}: @(apply inline-code (extract binds.v "bind2"))
 
 Unfortunately, this is far too strong of a statement because there are
 some costs @tt{an} that are too much. The only @tt{an} costs that our
-proof about an application of @tt{bind} must be concerned with are
-those that respect the @tt{PA} property given the @emph{actual} value
-of @tt{a} that the @tt{A} computation produced. 
-We can use a dependent type on @tt{bf} to capture the connection
-between the costs in a third attempt at the type for @tt{bind}.
+@tt{bind} proof must be concerned with are those that respect the
+@tt{PA} property given the @emph{actual} value of @tt{a} that the
+@tt{A} computation produced.  We can use a dependent type on @tt{bf}
+to capture the connection between the costs in a third attempt at the
+type for @tt{bind}.
 
 @(apply inline-code (extract binds.v "bind3"))
 
-This version of @tt{bind} is complete from a cost perspective but has
-one problem for practical theorem proving. The body of the function
-@tt{bf} has access to the value @tt{a}, but it does not have access to
-the correctness part of the property @tt{PA}. At first blush, this
-doesn't matter because the proof of correctness for the result of
-@tt{bf} @emph{does} have access through the hypothesis @tt{PA a
-an}. But, that proof context is not available when producing the
-@tt{b} result. Instead, it assumes that @tt{b} has already been
-computed. This means that if the proof of @tt{PA} is necessary to
-compute @tt{b}, then we will be stuck. The simplest case where
-this occurs is when @tt{bf} performs non-structural recursion and must
-construct a well-foundness proof to perform the recursive call and
-this proof relies on the correctness of the @tt{a} value. This occurs
-in some of the functions we discuss in our case study in @secref["sec:case-study"].
+This version of @tt{bind} is complete, from a cost perspective, but
+has one problem for practical theorem proving. The body of the
+function @tt{bf} has access to the value @tt{a}, but it does not have
+access to the correctness part of the property @tt{PA}. At first
+blush, the missing @tt{PA} appears not to matter because the proof of
+correctness for the result of @tt{bf} @emph{does} have access through
+the hypothesis @tt{PA a an}. But, that proof context is not available
+when producing the @tt{b} result. Instead, @tt{bind} assumes that
+@tt{b} has already been computed. That assumption means if the proof
+of @tt{PA} is needed to compute @tt{b}, then we will be stuck. The
+most common case where @tt{PA} is neccessary occurs when @tt{bf}
+performs non-structural recursion and must construct a well-foundness
+proof to perform the recursive call. These well-foundness proofs
+typically rely on the correctness of the @tt{a} value. Some of the
+functions we discuss in our case study in @secref["sec:case-study"]
+could not be written with this version of @tt{bind}.
 
-It is simple to incorporate this information into the type of @tt{bf},
-once you realize the need for it,
-by adding an additional proposition argument that corresponds to the
-right-hand side of the @tt{C A PA} value @tt{am}:
-@(apply inline-code (extract monad.v "bind"))
+It is simple to incorporate the @tt{PA} proof into the type of
+@tt{bf}, once you realize the need for it, by adding an additional
+proposition argument that corresponds to the right-hand side of the
+@tt{C A PA} value @tt{am}: @(apply inline-code (extract
+monad.v "bind"))
 
 And finally, when writing programs we use the notation
 @inline-code{«x» <- «expr1» ; «expr2»}
 as a shorthand for
-@inline-code{bind _ _ _ _ expr1 (fun (x : _) (am : _) => expr2)}
+@inline-code{
+bind _ _ _ _ expr1
+ (fun (x : _) (am : _) => expr2)}
 
 Because all of the interesting aspects of these operations happen in
 their types, the extraction of these operations have no interesting

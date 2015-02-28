@@ -13,7 +13,7 @@
 To better understand how applicable our monad is, we implemented the
 search and insertion functions for red-black trees, insertion sort,
 merge sort, both the naive recursive version of the nth Fibonacci
-number function and the linear time version, a function that insert
+number function and the linear time version, a function that inserts
 @raw-latex{$m$} times into a list at position @raw-latex{$n$} using
 both lists and zippers, and all of the algorithms mentioned in
 @citet[three-algorithms-on-braun-trees]'s paper, @italic{Three
@@ -80,23 +80,22 @@ the function @tt{copy_log_sq_time}.
 
 The running time function, however, is defined in parallel to
 @tt{log_sq} itself, not as the product of the logs: @(apply
-inline-code (extract copy_log_sq.v "copy_insert_time")) This makes it
-straightforward to prove that the running-time matches that function,
-but leaves as a separate issue the proof that this function is Big O
-of the square of the log. There are 56 lines of proof to guarantee the
-result type of the function is correct and an additional 179 lines to
-prove that that @tt{copy_log_sq_time} is Big O of the square of the
-log.
+inline-code (extract copy_log_sq.v "copy_insert_time")) This parallel
+definition makes it straightforward to prove that @tt{copy_log_sq}'s
+running time equals @tt{copy_log_sq_time}, but leaves as a separate
+issue the proof that @tt{copy_log_sq_time} is Big O of the square of
+the log. There are 56 lines of proof to guarantee the result type of
+the function is correct and an additional 179 lines to prove that that
+@tt{copy_log_sq_time} is Big O of the square of the log.
 
-For the simpler functions (every one with linear running time
-except @tt{make_array_linear}), the running time can
-be expressed directly in the monadic result (with
-precise constants). However, for most of the functions
-the running time is expressed first precisely in a manner
-that matches the structure of the function and then that
-running time is proven to correspond to some asymptotic
-complexity, as with @tt{copy_log_sq}. The precise line counts
-can be read off of the columns in @figure-ref["fig:line-counts"].
+For the simpler functions (every one with linear running time except
+@tt{make_array_linear}), the running time can be expressed directly in
+the monadic result (with precise constants). However, for most of the
+functions the running time is first expressed precisely in a manner
+that matches the structure of the function and then that running time
+is proven to correspond to some asymptotic complexity, as with
+@tt{copy_log_sq}. The precise line counts can be read off of the
+columns in @figure-ref["fig:line-counts"].
 
 The @tt{Monad} and @tt{Common} lines count the number of lines of code
 in our monad's implementation (including the proofs of the monad laws)
@@ -110,12 +109,12 @@ The extracted functions naturally fall into three categories.
 
 In the first category are functions that recur on the natural
 structure of their inputs, e.g., functions that process lists from the
-front one element at a time, functions that process trees by
+front--one element at a time, functions that process trees by
 processing the children and combining the result, and so on. In the
 second category are functions that recursively process numbers by
 counting down by ones from a given number.  In the third category are
 functions that ``skip'' over some of their inputs. For example, in
-Okasaki's algorithms functions recur on natural numbers by diving the
+Okasaki's algorithms, functions recur on natural numbers by dividing the
 number by 2 instead of subtracting one, and merge sort recurs by
 dividing the list in half at each step.
 
@@ -124,7 +123,7 @@ that you would expect, just like @tt{insert}, as discussed in
 @secref["sec:insert"].
 
 Functions in the second category could extract like the first, except
-that because we extract Coq's @tt{nat} type, which is based on Peano
+because we extract Coq's @tt{nat} type, which is based on Peano
 numerals, into OCaml's @tt{big_int} type, which has a different
 structure, a natural @tt{match} expression in Coq becomes a more
 complex pattern in OCaml. A representative example of this pattern is
@@ -143,7 +142,7 @@ returns @tt{z} when @tt{n} is @tt{0} and recursively calls
 @tt{zip_rightn} on @tt{n-1} otherwise. This artifact in the extraction
 is simply a by-product of the mismatch between @tt{nat} and
 @tt{big_int}. We expect that this artifact can be automatically
-removed by the OCaml compiler, as a transformation into the single
+removed by the OCaml compiler. This transformation into the single
 conditional corresponds to modest inlining, since @tt{fO} and @tt{fS}
 occur exactly once and are constants.
 
@@ -190,10 +189,10 @@ use recursively in the body of the @tt{match} expression. Finally,
 this same two argument interface is reconstructed a second time,
 @tt{cinterleave}, for external applications. The external interface
 has an additional layer of strangeness in the form of applications of
-@tt{Obj.magic} which are used to uselessly coerce @tt{'a1 list}
-objects into @tt{'a1 list} objects. These coercions correspond to use
-of @tt{proj1_sig} in Coq to extract the value from a Sigma type and
-are useless and always successful in OCaml. 
+@tt{Obj.magic} which can be used to coerce types, but here is simply
+the identity function on values and in the types. These calls
+correspond to use of @tt{proj1_sig} in Coq to extract the value from a
+Sigma type and are useless and always successful in OCaml.
 
 @raw-latex{\newpage}
 
@@ -203,7 +202,7 @@ All together, the OCaml program is equivalent to:
 let rec cinterleave e o =
  match e with
  | Nil -> o
- | Cons (x0, xs) -> Cons (x0, (cinterleave o xs))
+ | Cons (x, xs) -> Cons (x, (cinterleave o xs))
 }
 
 This is exactly the Coq program and idiomatic OCaml code.  Unlike the
@@ -211,15 +210,11 @@ second category, it is less plausible that the OCaml compiler already
 performs this optimization and removes the superfluity from the Coq
 extraction output. However, it is plausible that such an optimization
 pass could be implemented, since it corresponds to inlining,
-de-tupling, and removing an unused @tt{unit}-like argument.
-(In contrast, changing the signatures of functions to, say, remove an
-abstract running-time count that is threaded throughout the program is
-much more difficult and unlikely to be within the grasp of compilers
-that support separate compilation like OCaml's.) In summary, the
-presence of these useless terms is unrelated to our running time
-monad, but is example of the sort of verification residue we wish to
-avoid and successfully avoid in the case of the running time
-obligations.
+de-tupling, and removing an unused @tt{unit}-like argument. In
+summary, the presence of these useless terms is unrelated to our
+running time monad, but is example of the sort of verification residue
+we wish to avoid and do successfully avoid in the case of the running
+time obligations.
 
 The functions in the first category are: @tt{insert},
 @tt{size_linear}, @tt{size}, @tt{make_array_naive}, @tt{foldr},
@@ -229,12 +224,13 @@ The functions in the first category are: @tt{insert},
 @tt{zip_insert}, @tt{zip_minsert}, @tt{minsertz_at}, @tt{bst_search},
 @tt{rbt_blacken}, @tt{rbt_balance}, @tt{rbt_insert}.
 
-The function in the second category are: @tt{fib_rec}, @tt{fib_iter},
+The functions in the second category are: @tt{fib_rec}, @tt{fib_iter},
 @tt{sub1}, @tt{mergesort}'s @tt{split}, @tt{insert_at},
 @tt{zip_rightn}, @tt{zip_leftn}.
 
-The function in the third category are: @tt{copy_linear},
+The functions in the third category are: @tt{copy_linear},
 @tt{copy_fib}, @tt{copy_log_sq}, @tt{copy2}, @tt{diff},
 @tt{make_array_td}, @tt{cinterleave}, @tt{merge}, @tt{mergesort}. Some
-of the function in the second category are also in the third category.
+of the functions in the second category are also in the third
+category.
 

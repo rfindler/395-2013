@@ -141,9 +141,9 @@ forall i j s t bt an n,
   Braun (bt_node i bt s) (n + 1) /\ 
   an + 1 = fl_log n + 1
 }
-Thus we may assume a slightly more general
+Thus, we may assume a slightly more general
 inductive hypothesis (the inner @tt{forall}) than we need
-(it is specialized to the recursive call that @tt{insert} makes but
+(it is specialized to the recursive call that @tt{insert} makes, but
 not the size of the tree) and that the tree @tt{bt_node j s t} is a
 Braun tree of size n. So, we must show that @tt{bt_node i bt s} is a
 Braun tree of size @tt{n + 1} and that the running time is correct.
@@ -171,8 +171,8 @@ which we can prove by using facts about logarithms
 and the details of the definition of Braun trees.
 
 This theorem corresponds precisely to what we need to know in order to
-prove that the recursive case of @tt{insert} works. That is, the
-assumptions correspond to the facts we gain from the input to the
-function and from the result of the recursive call and the final
-result corresponds to the facts we need to establish for this case,
-thanks to @tt{Program} and the structure of our monad.
+prove that the recursive case of @tt{insert} works. The assumptions
+correspond to the facts we gain from the input to the function and
+from the result of the recursive call. The conclusion corresponds to
+the facts we need to establish for this case. This precision of the
+obligation is thanks to @tt{Program} and the structure of our monad.

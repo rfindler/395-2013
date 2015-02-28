@@ -129,20 +129,19 @@ Our translation function accepts a function written in the
 monad, but without the monadic type on its result and produces
 one with it. For example, the @tt{insert} function shown on the
 left in @figure-ref["fig:translation"] is translated into the one
-on the right. In addition to adding @tt{+=} expressions, the
+on the right. As well as adding @tt{+=} expressions, the
 translation process also generates a call to @tt{insert_result}
 in the monadic result type. This function must then be defined 
 separately and the translation's output must be used in that
 context. 
 
-We follow @citet[automatic-complexity-analysis] and treat
-each function call, variable lookup, and case-dispatch
-as counting as a single unit of abstract time. The function 
-is straight-forward and is included in the supplementary
-materials (@tt{add-plusses/check-stx-errs} in @tt{rkt/tmonad/main.rkt}).
-Other cost functions
-are also possible to account for different cost semantics, as long
-as they map in a straight-forward way to the program's syntax.
+We follow @citet[automatic-complexity-analysis] and treat each
+function call, variable lookup, and case-dispatch as a single unit of
+abstract time. The function is straight-forward and is included in the
+supplementary materials (@tt{add-plusses/check-stx-errs} in
+@tt{rkt/tmonad/main.rkt}).  Different cost semantics are possible,
+provided a function could map them to the program's syntax in a
+straight-forward way.
 
 @raw-latex{\newpage}
 
@@ -151,6 +150,6 @@ Here is the definition of @tt{insert_result}:
 Unlike the previous version, this one accounts for the 
 larger constant factors and it also includes a stricter
 correctness condition. Specifically, the new conjunct
-insists that if you linearize the result Braun tree into a
-list, then you get the same thing as linearizing the input
+insists that if you linearize the resulting Braun tree into a
+list, then it is the same as linearizing the input
 and consing the new element onto the front of the list.

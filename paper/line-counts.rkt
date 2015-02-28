@@ -127,7 +127,10 @@
     (list blank-row)
     
     (if total?
-        (list (list @bold{Totals}
+        (list blank-row
+              blank-row
+              blank-row
+              (list @bold{Totals}
                     (format-number (get-total all-rows line-info-non-proofs))
                     (format-number (get-total all-rows line-info-obligations))
                     (format-number (get-total all-rows line-info-proofs)))

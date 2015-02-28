@@ -4,6 +4,8 @@
           "cite.rkt"
           scriblib/figure)
 
+@(define fun-count "17")
+
 @title[#:tag "sec:case-study"]{Case Study}
 
 @figure*["fig:line-counts" "Line Counts"]{@build-table[]}
@@ -26,16 +28,17 @@ The three functions are
                  (a linear, a fib ∘ log, a log squared, and a log time version),
                  and}
           @item{@tt{make_array}: convert a list into a Braun tree
-                 (two n log n versions and a linear version).}]
-In total, we implemented 17 different functions using the monad.  For
-all of them, we proved the expected Big O running times.  For merge
-sort, we proved it is Big O(n log(n)) and Big Ω(n log(n)). For the
-naive fib, we proved that it is Big Ω and Big O of itself, Big
-O(2@raw-latex{$^n$}), and Big Ω(2@raw-latex{$^{n/2}$}). For the list
-insertion functions, we prove that when @raw-latex{$m$} is positive,
-the zipper version is Big O of the list version (because the zipper
-version runs in Big O(@raw-latex{$m + n$}) while the list version runs
-in Big O(@raw-latex{$n * m$}). For all of the functions except for
+                 (two n log n versions and a linear version).}]  In
+total, we implemented @fun-count different functions using the monad.
+For all of them, we proved the expected Big O running times.  For
+merge sort, we proved it is Big O(@raw-latex{$n \log(n)$}) and Big
+Ω(@raw-latex{$n \log(n)$}). For the naive fib, we proved that it is
+Big Ω and Big O of itself, Big O(2@raw-latex{$^n$}), and Big
+Ω(2@raw-latex{$^{n/2}$}). For the list insertion functions, we prove
+that when @raw-latex{$m$} is positive, the zipper version is Big O of
+the list version (because the zipper version runs in Big
+O(@raw-latex{$m + n$}) while the list version runs in Big
+O(@raw-latex{$n * m$}). For all of the functions except for
 @tt{make_array_linear} and red-black insertion we proved they are
 correct as well; for those we proved only the running times.
 
@@ -45,16 +48,14 @@ the implementation and proofs of all of the functions in our case study.
 @section{Line Counts}
 
 The line counts for the various implementations of the algorithms
-using our monad are shown in @figure-ref["fig:line-counts"].
-The files whose names end in @tt{gen.v} are the output of the 
-script that inserts @tt{+=} expressions, so they contain
-the definitions of the various functions, but without the 
-correctness conditions (or any of the proofs or data structure
-definitions). There are more
-than 15 because a number of the functions needed helper functions
-that are in the monad (and thus require running time proofs).
-As you can see, the functions are generally short. The
-proofs are typically much longer.
+using our monad are shown in @figure-ref["fig:line-counts"].  The
+files whose names end in @tt{gen.v} are the output of the script that
+inserts @tt{+=} expressions, so they contain the definitions of the
+various functions, but without the correctness conditions (or any of
+the proofs or data structure definitions). There are more than @fun-count
+because a number of the functions needed helper functions that are in
+the monad (and thus require running time proofs).  As you can see, the
+functions are generally short. The proofs are typically much longer.
 
 We divided the line counts up into proofs that are inside obligations
 (and thus correspond to establishing that the monadic types are
@@ -113,7 +114,7 @@ The extracted functions naturally fall into three categories.
 In the first category are functions that recur on the natural
 structure of their inputs, e.g., functions that process lists by
 walking down the list one element at a time, functions that process
-trees by processing the children and combine the result.  In the
+trees by processing the children and combine the result, etc.  In the
 second category are functions that recursively process numbers by
 counting down by ones from a given number.  In the third category are
 functions that ``skip'' over some of their inputs. For example, there
@@ -128,8 +129,8 @@ that you would expect, just like @tt{insert}, as discussed in
 Functions in the second category could extract like the first, except
 that because we extract Coq's @tt{nat} type, which is based on Peano
 numerals, into OCaml's @tt{big_int} type, which has a different
-structure, a natural @tt{match} expression in Coq becomes more complex
-pattern in OCaml. A representative example of this pattern is
+structure, a natural @tt{match} expression in Coq becomes a more
+complex pattern in OCaml. A representative example of this pattern is
 @tt{zip_rightn}. Here is the extracted version:
 
 @(apply inline-code
@@ -138,7 +139,7 @@ pattern in OCaml. A representative example of this pattern is
          (λ (all-lines)
            (trim-blank-from-end
             (chop-after #rx"zip_leftn"
-                        (keep-after #rx"zip_rightn" all-lines))))))
+                        (keep-after #rx"let rec zip_rightn" all-lines))))))
 
 The body of this function is equivalent to a single conditional that
 returns @tt{z} when @tt{n} is @tt{0} and recursively calls
@@ -151,13 +152,24 @@ occur exactly once and are constants.
 
 Functions in the third category, however, are more complex. They
 extract into code that is cluttered by Coq's support for non-simple
-recursion schemes. That is, each function in Coq must be proven to be
-well-defined and to terminate on all inputs.  Functions that don't
-simply follow the natural recursive structure of their input get
-useless data structures that in Coq recorded the decreasing nature of
-their input.
+recursion schemes. Because each function in Coq must be proven to be
+well-defined and to terminate on all inputs, functions that don't
+simply follow the natural recursive structure of their input must have
+supplemental arguments that record the decreasing nature of their
+input. After extraction, these additional arguments clutter the OCaml
+code with useless data structures equivalent to the original set of
+arguments.
 
-The function @tt{cinterleave} is one such. Here is its output:
+The function @tt{cinterleave} is one such function. Here is the
+extracted version:
+
+@(apply inline-code
+        (extract 
+         extract.ml 
+         (λ (all-lines)
+           (trim-blank-from-end
+            (chop-after #rx"val cinterleave"
+                        (keep-after #rx"let rec cinterleave_func" all-lines))))))
 
 @(apply inline-code
         (extract 
@@ -165,26 +177,27 @@ The function @tt{cinterleave} is one such. Here is its output:
          (λ (all-lines)
            (trim-blank-from-end
             (chop-after #rx"to_list_naive"
-                        (keep-after #rx"cinterleave_func" all-lines))))))
+                        (keep-after #rx"let rec cinterleave" all-lines))))))
 
 All of the extra pieces beyond what was written in the original
 function are useless. In particular, the argument to
 @tt{cinterleave_func} is a three-deep nested pair containing @tt{__}
 and two lists. The @tt{__} is a constant that is defined at the top of
 the extraction file that is never used for anything and behaves like
-@tt{unit}. It corresponds to a proof that the combined length of the
-two lists is decreasing. The function starts by destructuring this
-complex argument to extract the two lists, @tt{e} and @tt{o}. Next it
-constructs a version of the function, @tt{cinterleave0}, that recovers
-the natural two argument function for use recursively in the body of
-the @tt{match} expression. Finally, this same two argument interface
-is reconstructed a second time, @tt{cinterleave}, for external
-applications. The external interface has an additional layer of
-strangeness in the form of applications of @tt{Obj.magic} which are
-used to uselessly coerce @tt{'a1 list} objects into @tt{'a1 list}
-objects. These coercions correspond to use of @tt{proj1_sig} in Coq to
-extract the value from a sigma type and are useless and always
-successful in OCaml. All together, the OCaml program is equivalent to:
+@tt{unit}. That piece of the tuple corresponds to a proof that the
+combined length of the two lists is decreasing. The function starts by
+destructuring this complex argument to extract the two lists, @tt{e}
+and @tt{o}. Next it constructs a version of the function,
+@tt{cinterleave0}, that recovers the natural two argument function for
+use recursively in the body of the @tt{match} expression. Finally,
+this same two argument interface is reconstructed a second time,
+@tt{cinterleave}, for external applications. The external interface
+has an additional layer of strangeness in the form of applications of
+@tt{Obj.magic} which are used to uselessly coerce @tt{'a1 list}
+objects into @tt{'a1 list} objects. These coercions correspond to use
+of @tt{proj1_sig} in Coq to extract the value from a Sigma type and
+are useless and always successful in OCaml. All together, the OCaml
+program is equivalent to:
 
 @inline-code{
 let rec cinterleave e o =
@@ -193,7 +206,7 @@ let rec cinterleave e o =
  | Cons (x0, xs) -> Cons (x0, (cinterleave o xs))
 }
 
-which is exactly the Coq program and idiomatic OCaml code. Unlike the
+This is exactly the Coq program and idiomatic OCaml code.  Unlike the
 second category, it is less plausible that the OCaml compiler already
 performs this optimization and removes the superfluity from the Coq
 extraction output. However, it is plausible that such an optimization
@@ -202,7 +215,11 @@ de-tupling, and removing an unused @tt{unit}-like argument.
 (In contrast, changing the signatures of functions to, say, remove an
 abstract running-time count that is threaded throughout the program is
 much more difficult and unlikely to be within the grasp of compilers
-that support separate compilation like OCaml's.)
+that support separate compilation like OCaml's.) In summary, the
+presence of these useless terms is unrelated to our running time
+monad, but is example of the sort of "verification cruft" we wish to
+avoid and successfully avoid in the case of the running time
+obligations.
 
 The functions in the first category are: @tt{insert},
 @tt{size_linear}, @tt{size}, @tt{make_array_naive}, @tt{foldr},
@@ -221,4 +238,3 @@ The function in the third category are: @tt{copy_linear},
 @tt{make_array_td}, @tt{cinterleave}, @tt{merge}, @tt{mergesort}. Some
 of the function in the second category are also in the third category.
 
-XXX Cat 3 is a product of using Coq itself, not our monad.

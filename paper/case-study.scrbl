@@ -212,7 +212,7 @@ extraction output. However, it is plausible that such an optimization
 pass could be implemented, since it corresponds to inlining,
 de-tupling, and removing an unused @tt{unit}-like argument. In
 summary, the presence of these useless terms is unrelated to our
-running time monad, but is example of the sort of verification residue
+running time monad, but is an example of the sort of verification residue
 we wish to avoid and do successfully avoid in the case of the running
 time obligations.
 

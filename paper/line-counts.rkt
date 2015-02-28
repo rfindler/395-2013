@@ -28,7 +28,10 @@
       "zip_with_3_bt_node_gen.v"
       "build.v" "build_gen.v"))
     ("to_list"
-     ("to_list_naive.v" "cinterleave_gen.v" "to_list_naive_gen.v"))))
+     ("to_list_naive.v" "cinterleave_gen.v" "to_list_naive_gen.v"))
+    ("size"
+     ("size_linear.v" "size_linear_gen.v")
+     ("size_log_sq.v" "diff_gen.v" "size_log_sq_gen.v"))))
 
 (define other-classification 
   '(("rbtrees"
@@ -56,9 +59,6 @@
       "fib_iter_gen.v"
       "fib_iter_loop_gen.v"
       "fib_rec_gen.v"))
-    ("size"
-     ("size_linear.v" "size_linear_gen.v")
-     ("size_log_sq.v" "diff_gen.v" "size_log_sq_gen.v"))
     ("zippers"
      ("zip.v" "from_zip_gen.v" "insert_at_gen.v" "minsert_at_gen.v" "minsertz_at_gen.v"
       "to_zip_gen.v" "zip_insert_gen.v" "zip_left_gen.v" "zip_leftn_gen.v"

@@ -144,6 +144,8 @@ Other cost functions
 are also possible to account for different cost semantics, as long
 as they map in a straight-forward way to the program's syntax.
 
+@raw-latex{\newpage}
+
 Here is the definition of @tt{insert_result}:
 @(apply inline-code (extract insert_log.v "insert_result"))
 Unlike the previous version, this one accounts for the 

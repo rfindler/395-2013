@@ -8,9 +8,9 @@ value (of type @tt{B}) with a natural number representing the
 computations current cost, and then ensure that this number is
 incremented appropriately at each stage of the computation.
 Unfortunately, this cost would be part of the dynamic behavior of the
-algorithm. In other words, @tt{insert x bt} would, return a new tree
-and a number.  Returning both violates our goal of having no
-complexity residue in extracted programs.
+algorithm. In other words, @tt{insert x bt} would return a new tree
+and a number, violating our goal of having no complexity residue in
+extracted programs.
 
 In Coq parlance, the problem is that we have a pair of two @tt{Set}
 values---the @tt{B} and the @tt{nat}---and @tt{Set}s are, by
@@ -32,9 +32,9 @@ of the natural number as the running time and @tt{P} as
 some function-specific specification of running time
 (and possibly also correctness). Importantly, the right-hand side of
 this pair is a proposition, so it contributes no
-computational content. 
+computational content when extracted into OCaml. 
 
-For our @tt{insert} function, we wrote 
+For our @tt{insert} function, we write the result type as:
 @inline-code|{
 : {! res !:! @bin_tree A !<! c !>!
      (forall n, 
@@ -42,9 +42,12 @@ For our @tt{insert} function, we wrote
         (Braun res (n+1) /\
          c = fl_log n + 1)) !}
 }|
-for the result type. This is a shorthand (using Coq's @tt{notation}
-construct) for the following call to @tt{C}, in order to avoid duplicating
-the type between @tt{!:!} and @tt{!<!}:
+
+@raw-latex{\newpage}
+
+This is a shorthand (using Coq's @tt{notation} construct) for the
+following call to @tt{C}, in order to avoid duplicating the type
+between @tt{!:!} and @tt{!<!}:
 @inline-code|{
 (C (@bin_tree A)
    (fun (res:@bin_tree A) (c:nat) =>
@@ -54,13 +57,12 @@ the type between @tt{!:!} and @tt{!<!}:
          c = fl_log n + 1))))
 }|
 
-One important aspect of these @tt{C} types is that the
-@tt{nat} is bound only by an existental, and thus is not 
-connected to the value or the computation. That is, 
-when we know an expression has the type @tt{C A P}, we
-don't know that its running time is really correct since
-the proof that the expression has that type can supply
-any @tt{nat} it wants to satisfy the existential.
+One important aspect of the @tt{C} type is that the @tt{nat} is bound
+only by an existential, and thus is not connected to the value or the
+computation. That is, when we know an expression has the type @tt{C A
+P}, we do not know that its running time is correct since the proof
+that the expression is that type can supply any @tt{nat} to satisfy
+the existential.
 
 Thus, in order to guarantee the correct running times,
 we treat types of the form @tt{C A P} as private to the
@@ -91,7 +93,7 @@ two computations in the monad, summing their running times, and
 @tt{inc} next.
 
 Suppose a program returns a value, @tt{a} with property @tt{P}, 
-that takes exactly one step to compute, and so we have some expression like this:
+that takes exactly one step to compute. We write this using the expression:
 @inline-code{
  += 1;
 <== a
@@ -123,6 +125,8 @@ shorthand for @tt{inc _ k _ e}.
 The key point in the definition is that the property in @tt{x}'s type
 is @emph{not} @tt{PA}, but a modified function that ensures the
 argument is at least @tt{k}.
+
+@raw-latex{\newpage}
 
 In principle, the logic for @tt{bind} is very similar. A @tt{bind}
 represents a composition of two computations: an @tt{A}-producing one
@@ -182,14 +186,16 @@ as a shorthand for
 
 Because all of the interesting aspects of these operations happen in
 their types, the extraction of these operations have no interesting
-dynamic content. Specifically @tt{ret} is simply the identity function,
-@tt{inc} is a function that just returns its second argument and @tt{bind}
-simply applies its second argument to its first.
-Furthermore, we have proven that they obey variants of the monad
-laws that incorporate the proof obligations (see the file @tt{monad/laws.v}
-in the supplementary material).
+dynamic content. Specifically @tt{ret} is simply the identity
+function, @tt{inc} is a function that just returns its second argument
+and @tt{bind} applies its second argument to its first.  Furthermore,
+we have proven that they obey variants of the monad laws that
+incorporate the proof obligations (see the file @tt{monad/laws.v} in
+the supplementary material).
 
 In summary, the monad works by requiring the verifier to predict the
-running-time with the @tt{PA} property and then provide evidence that
-the actual cost (that starts at @tt{0} and is incremented as the
-property passes down) is the same as this prediction.
+running-time in the @tt{PA} property and then prove that the actual
+cost (starting at @tt{0} and incrementing as the property passes down)
+matches the prediction.
+
+@raw-latex{\newpage}

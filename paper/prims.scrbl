@@ -9,18 +9,16 @@
 
 @title[#:tag "sec:sub1"]{Accounting for Language Primitives}
 
-@citet[automatic-complexity-analysis]'s cost function
-counts all primitive functions as constant (simply because
-it counts a call as unit time and then doesn't process the
-body). For most primitives, this is exactly what you want. For
-example, field selection functions (e.g., @tt{car} and
-@tt{cdr}) are certainly constant time. Structure allocation
-functions (e.g., @tt{cons}) are usually constant time, when
-using a two-space copying collector, as most
-garbage-collected languages do. Occasionally allocation
-triggers garbage collection which is probably amortized
-constant time but certainly something our framework does not
-handle.
+@citet[automatic-complexity-analysis]'s cost function counts all
+primitive functions as constant (simply because it counts a call as
+unit time and then doesn't process the body). For most primitives,
+this is exactly what you want. For example, field selection
+functions (e.g., @tt{car} and @tt{cdr}) are certainly constant
+time. Structure allocation functions (e.g., @tt{cons}) are usually
+constant time, when using a two-space copying collector, as most
+garbage-collected languages do. Occasionally allocation triggers
+garbage collection which is probably amortized constant time (but not
+something our framework handles).
 
 More interestingly and more often overlooked, however, are
 the numeric primitives. In a language implementation with
@@ -29,11 +27,10 @@ digits in some large base with grade-school arithmetic
 algorithms implementing the various operations. These
 operations are generally not all constant time. 
 
-Assuming that the base is a power of 2, division by 2,
-evenness testing, and checking to see if a number is equal
-to 0 are all constant-time operations. The algorithms
-discussed in @secref["sec:case-study"] use two
-operations on numbers besides those: @tt{+} and @tt{sub1}
+Assuming that the base is a power of 2, division by 2, evenness
+testing, and checking to see if a number is equal to 0 are all
+constant-time operations. The algorithms in our study use two other
+numeric operations @tt{+} and @tt{sub1}
 (not counting the abstract comparison in the sorting functions).
 
 In general, addition of bignums is not constant time. However, certain
@@ -44,31 +41,28 @@ bitstring. Fortunately, every time we use addition in one of the
 functions in our Braun library, the operation can be replaced by one
 of these efficient operations. 
 
-One of the more interesting uses is in the linear version of 
-@tt{size}, which has the sum @tt{lsize+rsize+1} where 
-@tt{lsize} and @tt{rsize} are the sizes of two subtrees
-of a Braun tree. This operation, at first glance, doesn't
-seem to be a constant-time. But the Braun invariant tells
-us that @tt{lsize} and @tt{rsize} are either equal, or
-that @tt{lsize} is @tt{rsize+1}. Accordingly, this operation
-can be replaced with either @tt{lsize*2+1} or @tt{lsize*2},
-both of which are constant-time operations. Also, checking
-to see which case applies is a constant time operation:
-if the numbers are the same the digits at the front of the respective
-lists will be the same and if they differ by @tt{1}, those 
-digits will be different.
+One of the more interesting uses is in the linear version of
+@tt{size}, which has the sum @tt{lsize+rsize+1} where @tt{lsize} and
+@tt{rsize} are the sizes of two subtrees of a Braun tree. This
+operation, at first glance, doesn't seem to be a constant-time. But
+the Braun invariant tells us that @tt{lsize} and @tt{rsize} are either
+equal, or that @tt{lsize} is @tt{rsize+1}. Accordingly, this operation
+can be replaced with either @tt{lsize*2+1} or @tt{lsize*2}, both of
+which are constant-time operations. Checking to see which case applies
+is also constant time: if the numbers are the same the digits at the
+front of the respective lists will be the same and if they differ by
+@tt{1}, those digits will be different.
 
-The uses of addition in @tt{fib}, however, are not constant time
-and so our analysis of @tt{fib} is not accurate at that level.
-We did not attempt to improve that treatment, but we did study
-@tt{sub1} more carefully. 
+The uses of addition in @tt{fib}, however, are not constant time and
+so our analysis of @tt{fib} is not accurate at that level.  We did not
+attempt to improve that treatment, but we did study @tt{sub1} more
+carefully.
 
-Subtracting 1 from a number in binary representation is not constant time. It some situations,
-it may need to traverse the entire number to compute its predecessor.
-To explore its behavior, we implemented it using only constant-time
-operations. Here's the result of our translation applied
-to its implementation:
-@(apply inline-code (extract sub1_gen.v cdr))
+Subtracting 1 from a number in binary representation is not constant
+time. In some situations, it may need to traverse the entire number to
+compute its predecessor.  To explore its behavior, we implemented it
+using only constant-time operations. Here's the implementation with
+explicit costs: @(apply inline-code (extract sub1_gen.v cdr))
 
 This function uses a number of primitive operations. 
 If we think the representation of numbers as a linked 
@@ -81,10 +75,6 @@ used by the function and their corresponding list operation:
            @item{@tt{n-1} in the case that n is odd: replace the lowest bit with @tt{0}}]
 So while each iteration of the list runs in constant time, @tt{sub1} is recursive
 and we do not know an a priori bound on the number of iterations.
-
-We can use our implementation of @tt{sub1} above to graph its running
-time against the value of its input as shown in
-@Figure-ref["fig:sub1-argument"].
 
 @figure["fig:sub1-argument"
         @list{Running time of @tt{sub1}}
@@ -102,6 +92,9 @@ time against the value of its input as shown in
             #:y-max (+ 2 (apply max (map (λ (x) (vector-ref x 1)) the-points)))
             the-points)))]
 
+We can use our implementation of @tt{sub1} above to graph its running
+time against the value of its input as shown in
+@Figure-ref["fig:sub1-argument"].
 Half of the time (on odd numbers) @tt{sub1}
 is cheap, terminating after only a single iteration. One quarter of the time, 
 @tt{sub1} terminates after two iterations. In general,

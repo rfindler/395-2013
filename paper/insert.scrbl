@@ -3,17 +3,15 @@
           "cite.rkt" 
           scriblib/figure)
 
-@title[#:tag "sec:insert"]{Introducing Our Library: Braun Tree Insert}
+@title[#:tag "sec:insert"]{Introduction}
 
-The core of our library is a monad that, as part of
-its types, tracks the running time of functions.
-To use the library, programs must be written using
-the usual return and bind monadic operations. In return,
-the result type of a function can use not only the argument
-values to give it a very precise specification, but the
-type also has access to an abstract step count describing
-how many primitive operations (function calls, matches, variable 
-references etc.) that the function executes.
+The core of our library is a monad that, as part of its types, tracks
+the running time of functions.  To use the library, programs must be
+written using the usual return and bind monadic operations. In return,
+the result type of a function can use not only the argument values to
+give it a very precise specification, but also an abstract step count
+describing how many primitive operations (function calls, matches,
+variable references etc.) that the function executes.
 
 To give a sense of how code using our library looks,
 we start with a definition of Braun trees@~cite[Braun]
@@ -49,10 +47,11 @@ are the sizes of two Braun trees @tt{s} @tt{t}, and if
 the @tt{s} and @tt{t} into a single tree produces
 a braun tree of size @tt{s_size+t_size+1}.
 
+@raw-latex{\newpage}
+
 @figure["fig:insert"
         @list{Braun tree insertion}
         @(apply inline-code (extract insert_no_gen.v "insert"))]
-
 
 @Figure-ref["fig:insert"] shows the insertion function.
 Let us dig into this function, one line at a time.
@@ -124,8 +123,7 @@ The assumption is saying that @tt{n} is the size of the empty
 Braun tree, which tells us than @tt{n} must be
 zero. So simplifying we are asked to prove that:
 @inline-code{
-Braun (bt_node i bt_mt bt_mt) 1
-/\
+Braun (bt_node i bt_mt bt_mt) 1 /\
 1 = fl_log 0 + 1
 }
 both of which follow immediately from the definitions. Note that this
@@ -143,20 +141,21 @@ forall i j s t bt an n,
   Braun (bt_node i bt s) (n + 1) /\ 
   an + 1 = fl_log n + 1
 }
-This is saying that we get to assume a slightly more general
+Thus we may assume a slightly more general
 inductive hypothesis (the inner @tt{forall}) than we need
-(it is specialized to the recursive
-call that @tt{insert} makes but not the size of the tree)
-and that the tree @tt{bt_node j s t}
-is a braun tree of size n. Given that, we must show that 
-@tt{bt_node i bt s} is a Braun tree of size @tt{n + 1} and that
-the running time is right.
+(it is specialized to the recursive call that @tt{insert} makes but
+not the size of the tree) and that the tree @tt{bt_node j s t} is a
+Braun tree of size n. So, we must show that @tt{bt_node i bt s} is a
+Braun tree of size @tt{n + 1} and that the running time is correct.
 
-Because the size information is not present in the actual
-insertion function, Coq does not know to specialize the
-inductive hypothesis to the size of @tt{t}. To clarify that
-we can replace @tt{m} with @tt{t_size} and specialize
-the first assumption to arrive at this theorem to prove
+@raw-latex{\newpage}
+
+Because the size information is not present in the actual insertion
+function, Coq does not know to specialize the inductive hypothesis to
+the size of @tt{t}. To clarify that, we can replace @tt{m} with
+@tt{t_size} and specialize the first assumption to arrive at this
+theorem to prove
+
 @inline-code{
  forall i j s t bt n t_size, 
   Braun bt (t_size + 1)
@@ -166,15 +165,14 @@ the first assumption to arrive at this theorem to prove
   Braun (bt_node i bt s) 
         (s_size + t_size + 1 + 1) /\ 
   an + 1 =
-  fl_log (s_size + t_size + 1) + 1
+   fl_log (s_size + t_size + 1) + 1
 }
 which we can prove by using facts about logarithms
 and the details of the definition of Braun trees.
 
-Note also that this theorem corresponds precisely to what we 
-need to know in order to prove that the recursive case
-of @tt{insert} works. That is, the assumptions correspond to
-the facts we gain from the input to the function and from
-the result of the recursive call and the final result corresponds
-to the facts we need to establish for this case, thanks to
-@tt{Program} and the structure of our monad.
+This theorem corresponds precisely to what we need to know in order to
+prove that the recursive case of @tt{insert} works. That is, the
+assumptions correspond to the facts we gain from the input to the
+function and from the result of the recursive call and the final
+result corresponds to the facts we need to establish for this case,
+thanks to @tt{Program} and the structure of our monad.

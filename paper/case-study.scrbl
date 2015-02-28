@@ -20,7 +20,7 @@ both lists and zippers, and all of the algorithms mentioned in
 Algorithms on Braun Trees}.  Okasaki's paper contains several versions
 of each of the three functions, each with different running times, in
 each case culminating with efficient versions.
-The three functions are
+The three functions are:
 @itemlist[@item{@tt{size}: computes the size of a Braun tree 
                  (a linear and a log squared version)}
           @item{@tt{copy}: builds a Braun tree a given size
@@ -38,12 +38,12 @@ Big Ω and Big O of itself, Big O(2@raw-latex{$^n$}), and Big
 that when @raw-latex{$m$} is positive, the zipper version is Big O of
 the list version (because the zipper version runs in Big
 O(@raw-latex{$m + n$}) while the list version runs in Big
-O(@raw-latex{$n * m$}). For all of the functions except for
-@tt{make_array_linear} and red-black insertion we proved they are
-correct as well; for those we proved only the running times.
+O(@raw-latex{$n * m$}). We also prove correctness, except for
+@tt{make_array_linear} and red-black tree insertion where we proved
+only the running times.
 
-The supplementary material contains all of the Coq code for
-the implementation and proofs of all of the functions in our case study.
+The supplementary material contains all of the Coq code for all of the
+functions in our case study.
 
 @section{Line Counts}
 
@@ -65,15 +65,13 @@ the proofs inside the obligations establish the correctness of the
 functions and establish a basic running time result, 
 but not one in terms of Big O. 
 
-For example, @Figure-ref["fig:copy_log_sq"] is the definition of the
-@tt{copy_log_sq} function, basically mirroring Okasaki's definition,
-but in Coq's notation.
-
 @figure["fig:copy_log_sq"
         @list{@tt{copy_log_sq}}
         @(apply inline-code (extract copy_log_sq_gen.v cdr))]
 
-The monadic result type is
+For example, @Figure-ref["fig:copy_log_sq"] is the definition of the
+@tt{copy_log_sq} function, basically mirroring Okasaki's definition,
+but in Coq's notation. The monadic result type is
 @(apply inline-code (extract copy_log_sq.v "copy_insert_result"))
 which says that the result is a Braun tree whose size matches the
 input natural number, that linearizing the resulting tree
@@ -81,15 +79,14 @@ produces the input list, and that the running time is given by
 the function @tt{copy_log_sq_time}.
 
 The running time function, however, is defined in parallel to
-@tt{log_sq} itself, not as the product of the logs:
-@(apply inline-code (extract copy_log_sq.v "copy_insert_time"))
-This makes it straightforward to prove that the running-time
-matches that function, but then leaves as a separate issue
-the proof that this function is Big O of the square of the log.
-That is, there are 56 lines of proof to guarantee the result 
-type of the function is correct and an additional 179 lines
-to prove that that @tt{copy_log_sq_time}
-is Big O of the square of the log.
+@tt{log_sq} itself, not as the product of the logs: @(apply
+inline-code (extract copy_log_sq.v "copy_insert_time")) This makes it
+straightforward to prove that the running-time matches that function,
+but leaves as a separate issue the proof that this function is Big O
+of the square of the log. There are 56 lines of proof to guarantee the
+result type of the function is correct and an additional 179 lines to
+prove that that @tt{copy_log_sq_time} is Big O of the square of the
+log.
 
 For the simpler functions (every one with linear running time
 except @tt{make_array_linear}), the running time can
@@ -101,26 +98,26 @@ running time is proven to correspond to some asymptotic
 complexity, as with @tt{copy_log_sq}. The precise line counts
 can be read off of the columns in @figure-ref["fig:line-counts"].
 
-The @tt{Monad} and @tt{Common} lines count the number of lines of
-code in our monad's implementation (including the proofs of the monad laws)
-and some libraries used in multiple algorithms, including
-a Big O library, a Log library, the Braun tree definition, and
-some common facts and definitions about Braun trees.
+The @tt{Monad} and @tt{Common} lines count the number of lines of code
+in our monad's implementation (including the proofs of the monad laws)
+and some libraries used in multiple algorithms, including a Big O
+library, a Log library, and some common facts and definitions about
+Braun trees.
 
 @section{Extraction}
 
 The extracted functions naturally fall into three categories.
 
 In the first category are functions that recur on the natural
-structure of their inputs, e.g., functions that process lists by
-walking down the list one element at a time, functions that process
-trees by processing the children and combine the result, etc.  In the
+structure of their inputs, e.g., functions that process lists from the
+front one element at a time, functions that process trees by
+processing the children and combining the result, and so on. In the
 second category are functions that recursively process numbers by
 counting down by ones from a given number.  In the third category are
-functions that ``skip'' over some of their inputs. For example, there
-are functions consuming natural numbers that recur by diving the
-number by 2 instead of subtracting one in Okasaki's algorithms, and
-merge sort recurs by dividing the list in half at each step.
+functions that ``skip'' over some of their inputs. For example, in
+Okasaki's algorithms functions recur on natural numbers by diving the
+number by 2 instead of subtracting one, and merge sort recurs by
+dividing the list in half at each step.
 
 Functions in the first category extract into precisely the OCaml code
 that you would expect, just like @tt{insert}, as discussed in
@@ -177,7 +174,7 @@ extracted version:
          (λ (all-lines)
            (trim-blank-from-end
             (chop-after #rx"to_list_naive"
-                        (keep-after #rx"let rec cinterleave" all-lines))))))
+                        (keep-after #rx"let cinterleave e" all-lines))))))
 
 All of the extra pieces beyond what was written in the original
 function are useless. In particular, the argument to
@@ -196,8 +193,11 @@ has an additional layer of strangeness in the form of applications of
 @tt{Obj.magic} which are used to uselessly coerce @tt{'a1 list}
 objects into @tt{'a1 list} objects. These coercions correspond to use
 of @tt{proj1_sig} in Coq to extract the value from a Sigma type and
-are useless and always successful in OCaml. All together, the OCaml
-program is equivalent to:
+are useless and always successful in OCaml. 
+
+@raw-latex{\newpage}
+
+All together, the OCaml program is equivalent to:
 
 @inline-code{
 let rec cinterleave e o =
@@ -217,7 +217,7 @@ abstract running-time count that is threaded throughout the program is
 much more difficult and unlikely to be within the grasp of compilers
 that support separate compilation like OCaml's.) In summary, the
 presence of these useless terms is unrelated to our running time
-monad, but is example of the sort of "verification cruft" we wish to
+monad, but is example of the sort of verification residue we wish to
 avoid and successfully avoid in the case of the running time
 obligations.
 

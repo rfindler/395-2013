@@ -3,16 +3,14 @@
 
 @title{The Monad}
 
-One way to account for cost is to use
-the monad to pair an actual value with
-a natural number representing the computations current
-cost, and then ensure that this number is incremented
-appropriately at each stage of the computation.
-Unfortunately, this cost would be part of the dynamic
-behavior of the algorithm. In other words,
-@tt{insert x bt} would, return a new tree and a number.
-Returning both violates our goal of having no complexity
-residue in extracted programs.
+One way to account for cost is to use the monad to pair an actual
+value (of type @tt{B}) with a natural number representing the
+computations current cost, and then ensure that this number is
+incremented appropriately at each stage of the computation.
+Unfortunately, this cost would be part of the dynamic behavior of the
+algorithm. In other words, @tt{insert x bt} would, return a new tree
+and a number.  Returning both violates our goal of having no
+complexity residue in extracted programs.
 
 In Coq parlance, the problem is that we have a pair of two @tt{Set}
 values---the @tt{B} and the @tt{nat}---and @tt{Set}s are, by
@@ -68,7 +66,7 @@ Thus, in order to guarantee the correct running times,
 we treat types of the form @tt{C A P} as private to the
 definition of the monad and built a set of operations that
 can be combined in arbitrary ways but such that their combination
-ensures that the @tt{nat} must be used as the running time.
+ensures that the @tt{nat} used must be the running time.
 
 The first of these operations is the monadic unit, @tt{ret}. Suppose a program
 returns an empty list, @tt{<== nil}. Such a program takes no steps to
@@ -83,8 +81,9 @@ This is the type of @tt{ret}:
 @(apply inline-code (extract monad.v "ret"))
 
 This specifies that @tt{ret} will construct a @tt{C A P} only when
-given a proof, @tt{Pa0}, that the correct/runtime property holds
-between the actual value return @tt{a} and the natural number @tt{0}.
+given a proof, @tt{Pa0}, that the correctness/runtime property holds
+between the actual value return @tt{a} and the natural number
+@tt{0}. In other words, when @tt{P} predicts the running time @tt{0}.
 
 There are two other operations in our monad: @tt{bind} that combines
 two computations in the monad, summing their running times, and
@@ -94,8 +93,8 @@ two computations in the monad, summing their running times, and
 Suppose a program returns a value, @tt{a} with property @tt{P}, 
 that takes exactly one step to compute, and so we have some expression like this:
 @inline-code{
-  += 1;
-   <== a
+ += 1;
+<== a
 }
 We would like our proof obligation for this expression to be @tt{P a 1}. 
 We know, however that the obligation on @tt{<==}, namely @tt{P a 0}, is irrelevant
@@ -120,6 +119,10 @@ We encapsulate this logic into a simple monadic operator,
 @(apply inline-code (extract monad.v "inc"))
 In programs using our monad, we write @tt{+= k; e}, a
 shorthand for @tt{inc _ k _ e}.
+
+The key point in the definition is that the property in @tt{x}'s type
+is @emph{not} @tt{PA}, but a modified function that ensures the
+argument is at least @tt{k}.
 
 In principle, the logic for @tt{bind} is very similar. A @tt{bind}
 represents a composition of two computations: an @tt{A}-producing one

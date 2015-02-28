@@ -221,3 +221,4 @@ The function in the third category are: @tt{copy_linear},
 @tt{make_array_td}, @tt{cinterleave}, @tt{merge}, @tt{mergesort}. Some
 of the function in the second category are also in the third category.
 
+XXX Cat 3 is a product of using Coq itself, not our monad.

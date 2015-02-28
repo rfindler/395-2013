@@ -60,7 +60,7 @@ between @tt{!:!} and @tt{!<!}:
 One important aspect of the @tt{C} type is that the @tt{nat} is bound
 only by an existential, and thus is not connected to the value or the
 computation. Therefore, when we know an expression has the type @tt{C
-A P}, we do not know that its running time is correct. This isbecause
+A P}, we do not know that its running time is correct. This is because
 the proof that the expression is that type can supply any @tt{nat} to
 satisfy the existential.
 

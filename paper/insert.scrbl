@@ -120,8 +120,8 @@ forall n,
    1 = fl_log n + 1
 }
 The assumption is saying that @tt{n} is the size of the empty
-Braun tree, which tells us than @tt{n} must be
-zero. So simplifying we are asked to prove that:
+Braun tree, which tells us that @tt{n} must be
+zero. So simplifying, we are asked to prove that:
 @inline-code{
 Braun (bt_node i bt_mt bt_mt) 1 /\
 1 = fl_log 0 + 1

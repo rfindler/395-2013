@@ -36,7 +36,7 @@ like Coq's, it does share a similar resemblance to our approach.
 Also like 
 @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s
 and unlike ours, it does not provide a place to carry an
-invariant of the datastructures that can be used to
+invariant of the data structures that can be used to
 establish running times.
 
 @citet[a-machine-checked-proof-of-the-average-case-complexity-of-quicksort-in-coq]

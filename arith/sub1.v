@@ -1,4 +1,4 @@
-Require Import Braun.monad.monad.
+Require Import Braun.monad.monad Braun.common.log.
 Require Import Braun.common.util Braun.common.big_oh Braun.common.le_util.
 Require Import Arith Arith.Even Arith.Div2.
 Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith Init.Wf.
@@ -115,3 +115,7 @@ Lemma sub1_time12 : big_oh sub1_time sub1_time2.
   apply IND; auto.
 Qed.
 
+Theorem sub1_log : big_oh sub1_time fl_log.
+Proof.
+  admit.
+Qed.

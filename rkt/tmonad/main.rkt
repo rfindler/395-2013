@@ -23,13 +23,15 @@
          nil
          pair fst snd
          left right
-         even_odd_dec
+         even_odd_dec even_oddb
          le_lt_dec
          div2
          S
          (rename-out [-:nat -])
          + * pred
+         double double_plus_one
          false true
+         andb orb xorb negb
          proj1_sig
          (rename-out [coq:_ _]))
 
@@ -369,6 +371,7 @@
 (struct right (val) #:transparent)
 
 (define (even_odd_dec n) (even? n))
+(define (even_oddb n) (even? n))
 (define (le_lt_dec n m) (if (<= n m) (left #f) (right #f)))
 (define (div2 n) (floor (/ n 2)))
 (define (fst p) (pair-l p))
@@ -380,6 +383,12 @@
     (error '- "negative result, ~a - ~a = ~a" n m ans))
   ans)
 (define (pred n) (-:nat n 1))
+(define (double n) (* n 2))
+(define (double_plus_one n) (+ 1 (* n 2)))
 
 (define false #f)
 (define true #t)
+(define-syntax-rule (andb a b) (and a b))
+(define-syntax-rule (orb a b) (or a b))
+(define (xorb a b) (not (equal? a b)))
+(define (negb a) (not a))

@@ -273,7 +273,7 @@
        1]))
 
   (define (check-match-pattern stx)
-    (syntax-case stx (nil bt_mt CT_leaf)
+    (syntax-case stx (nil bt_mt CT_leaf true false)
       [nil
        (raise-syntax-error #f "nil needs parens in a pattern position"
                            orig-stx stx)]
@@ -282,6 +282,12 @@
                            orig-stx stx)]
       [CT_leaf
        (raise-syntax-error #f "CT_leaf needs parens in a pattern position"
+                           orig-stx stx)]
+      [true
+       (raise-syntax-error #f "true needs parens in a pattern position"
+                           orig-stx stx)]
+      [false
+       (raise-syntax-error #f "false needs parens in a pattern position"
                            orig-stx stx)]
       [(id1 id2 ...)
        (and (identifier? #'id1)
@@ -339,6 +345,8 @@
 (r:define-match-expander nil (λ (stx) #''()) (λ (stx) #''()))
 (r:define-match-expander bt_mt (λ (stx) #'(bt_mt-struct)) (λ (stx) #'the-bt_mt))
 (r:define-match-expander CT_leaf (λ (stx) #'(CT_leaf-struct)) (λ (stx) #'the-CT_leaf))
+(r:define-match-expander true (λ (stx) #'#t) (λ (stx) #'#t))
+(r:define-match-expander false (λ (stx) #'#f) (λ (stx) #'#f))
 
 (struct BLACK-struct () #:transparent
         #:methods gen:custom-write
@@ -386,8 +394,8 @@
 (define (double n) (* n 2))
 (define (double_plus_one n) (+ 1 (* n 2)))
 
-(define false #f)
-(define true #t)
+;(define false #f)
+;(define true #t)
 (define-syntax-rule (andb a b) (and a b))
 (define-syntax-rule (orb a b) (or a b))
 (define (xorb a b) (not (equal? a b)))

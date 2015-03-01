@@ -5,44 +5,69 @@
  #:measure "(m+n)"
  #:returns @{nat}
  (match (n)
-   [0 
-    => 
+   [0
+    =>
     (match (m)
-      [0 => (if cin (<== 1) (<== 0))]
+      [0 => (match (cin)
+              [(true) => (<== 1)]
+              [(false) => (<== 0)])]
       [(S m′)
        => 
-       (bind ((ndiv2plusm (plus_cin 0
-                                    (div2 m)
-                                    (andb cin
-                                          (negb (even_oddb m))))))
-             (if (xorb (even_oddb m)
-                       cin)
-                 (<== (double ndiv2plusm))
-                 (<== (double_plus_one ndiv2plusm))))])]
+       (match (cin)
+         [(true)
+          =>
+          (match ((even_oddb m))
+            [(true)
+             =>
+             (bind ((mdiv2plusX (plus_cin 0
+                                          (div2 m)
+                                          false)))
+                   (<== (double_plus_one mdiv2plusX)))]
+            [(false)
+             =>
+             (bind ((mdiv2plusX (plus_cin 0
+                                          (div2 m)
+                                          true)))
+                   (<== (double mdiv2plusX)))])]
+         [(false) => (<== m)])])]
    [(S n′)
     =>
     (match (m)
       [0 
        => 
-       (bind ((ndiv2plusm (plus_cin (div2 n)
-                                    0
-                                    (andb cin
-                                          (negb (even_oddb n))))))
-             (if (xorb (even_oddb n)
-                       cin)
-                 (<== (double ndiv2plusm))
-                 (<== (double_plus_one ndiv2plusm))))]
+       (match (cin)
+         [(true)
+          =>
+          (match ((even_oddb n))
+            [(true)
+             =>
+             (bind ((mdiv2plusX (plus_cin (div2 n)
+                                          0
+                                          false)))
+                   (<== (double_plus_one mdiv2plusX)))]
+            [(false)
+             =>
+             (bind ((mdiv2plusX (plus_cin (div2 n)
+                                          0
+                                          true)))
+                   (<== (double mdiv2plusX)))])]
+         [(false) => (<== n)])]
       [(S m′)
        =>
-       (bind ((ndiv2plusm (plus_cin (div2 n)
-                                    (div2 m)
-                                    (orb (andb (negb (even_oddb n))
-                                               (negb (even_oddb m)))
-                                         (andb cin
-                                               (xorb (even_oddb n)
-                                                     (even_oddb m)))))))
-             (if (xorb (xorb (even_oddb n)
-                             (even_oddb m))
-                       cin)
-                 (<== (double_plus_one ndiv2plusm))
-                 (<== (double ndiv2plusm))))])]))
+       (bind ((ndiv2plusmdiv2plusX
+               (plus_cin (div2 n)
+                         (div2 m)
+                         (orb (andb (negb (even_oddb n))
+                                    (negb (even_oddb m)))
+                              (andb cin
+                                    (xorb (even_oddb n)
+                                          (even_oddb m)))))))
+             (match ((xorb (xorb (even_oddb n)
+                                 (even_oddb m))
+                           cin))
+               [(true)
+                =>
+                (<== (double_plus_one ndiv2plusmdiv2plusX))]
+               [(false)
+                =>
+                (<== (double ndiv2plusmdiv2plusX))]))])]))

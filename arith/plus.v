@@ -24,16 +24,31 @@ Program Fixpoint plus_cin_time (n:nat) (m:nat) {measure (m + n)} : nat :=
 Next Obligation.
 Proof.
   repeat (rewrite plus_0_r); auto.
-Qed.
+Defined.
 Next Obligation.
 Proof.
   rewrite plus_0_l; auto.
-Qed.  
+Defined.
 Next Obligation.
 Proof.
   apply plus_lt_compat; auto.
-Qed.
+Defined.
 
+Lemma plus_cin_time_0S : forall m',  plus_cin_time 0 (S m') = plus_cin_time 0 (div2 m') + 20.
+  intros m'.
+  remember (plus_cin_time 0 (div2 m') + 20) as res.
+
+  unfold plus_cin_time.
+  unfold plus_cin_time_func.
+  rewrite fix_sub_eq_ext.
+  fold plus_cin_time_func.
+  simpl proj1_sig.
+  unfold projT1.
+  unfold projT2.
+  (* got closer.... *)
+  admit.
+Qed.
+  
 Definition plus_cin_result (n:nat) (m:nat) (cin:bool) (res:nat) (c:nat) :=
   n+m+(if cin then 1 else 0)=res /\ c = plus_cin_time n m.
 Hint Unfold plus_cin_result.
@@ -66,6 +81,7 @@ Next Obligation.
   (*  why doesn't this work?
   unfold_sub plus_cin_time (plus_cin_time 0 (S m')).
 *)
+  rewrite plus_cin_time_0S.
   admit.
 Qed.
 

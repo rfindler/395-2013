@@ -1,5 +1,7 @@
 #lang at-exp s-exp tmonad
 
+(require "add1_gen.rkt")
+
 (Fixpoint
  plus_cin @n{nat} @m{nat} @cin{bool}
  #:measure "(m+n)"
@@ -16,19 +18,8 @@
        (match (cin)
          [(true)
           =>
-          (match ((even_oddb m))
-            [(true)
-             =>
-             (bind ((mdiv2plusX (plus_cin 0
-                                          (div2 m)
-                                          false)))
-                   (<== (double_plus_one mdiv2plusX)))]
-            [(false)
-             =>
-             (bind ((mdiv2plusX (plus_cin 0
-                                          (div2 m)
-                                          true)))
-                   (<== (double mdiv2plusX)))])]
+          (bind ((res (add1 m)))
+                (<== res))]
          [(false) => (<== m)])])]
    [(S n′)
     =>
@@ -38,19 +29,8 @@
        (match (cin)
          [(true)
           =>
-          (match ((even_oddb n))
-            [(true)
-             =>
-             (bind ((mdiv2plusX (plus_cin (div2 n)
-                                          0
-                                          false)))
-                   (<== (double_plus_one mdiv2plusX)))]
-            [(false)
-             =>
-             (bind ((mdiv2plusX (plus_cin (div2 n)
-                                          0
-                                          true)))
-                   (<== (double mdiv2plusX)))])]
+          (bind ((res (add1 n)))
+                (<== res))]
          [(false) => (<== n)])]
       [(S m′)
        =>
@@ -71,3 +51,4 @@
                [(false)
                 =>
                 (<== (double ndiv2plusmdiv2plusX))]))])]))
+

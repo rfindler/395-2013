@@ -13,7 +13,8 @@ Require Import Braun.make_array.make_array_nlogn2.
 Require Import Braun.to_list.to_list_naive.
 
 Require Import Braun.monad.monad.
-Require Import Braun.sub1.sub1.
+
+Require Import Braun.arith.sub1.
 
 Require Import Braun.sort.isort.
 Require Import Braun.sort.mergesort.
@@ -57,7 +58,7 @@ Extraction "post_extract.ml" insert_log.insert
            make_array_nlogn2.make_array_td
            to_list_naive.to_list_naive
            
-           sub1.sub1.sub1
+           arith.sub1.sub1
 
            sort.isort.isort
            sort.mergesort.mergesort

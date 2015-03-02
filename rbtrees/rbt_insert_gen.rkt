@@ -1,4 +1,4 @@
-#lang at-exp s-exp tmonad
+#lang at-exp s-exp tmonad/overly-specific
 (require "rbt_insert_inner_gen.rkt" "rbt_blacken_gen.rkt")
 
 (Fixpoint

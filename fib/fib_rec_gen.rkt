@@ -1,4 +1,4 @@
-#lang at-exp s-exp tmonad
+#lang at-exp s-exp tmonad/overly-specific
 
 (Fixpoint
  fib_rec @n{nat} 

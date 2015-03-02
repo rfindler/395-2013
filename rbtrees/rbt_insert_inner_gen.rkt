@@ -1,4 +1,4 @@
-#lang at-exp s-exp tmonad
+#lang at-exp s-exp tmonad/overly-specific
 (provide rbt_insert_inner)
 (require "rbt_balance_gen.rkt")
 

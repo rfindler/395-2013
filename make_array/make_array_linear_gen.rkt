@@ -1,4 +1,4 @@
-#lang at-exp s-exp tmonad
+#lang at-exp s-exp tmonad/overly-specific
 (require "rows1_gen.rkt" "../fold/fold_gen.rkt" "foldr_build_gen.rkt")
 
 (provide make_array_linear)

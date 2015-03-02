@@ -1,4 +1,4 @@
-#lang scribble/base
+#lang scribble/base/overly-specific
 @(require scriblib/figure
           "util.rkt"
           "cite.rkt"

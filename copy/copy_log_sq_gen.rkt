@@ -1,4 +1,4 @@
-#lang at-exp s-exp tmonad
+#lang at-exp s-exp tmonad/overly-specific
 (require "../insert/insert_log_gen.rkt")
 (provide copy_log_sq)
 (Fixpoint

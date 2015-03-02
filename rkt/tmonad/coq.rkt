@@ -131,7 +131,7 @@
 (define simple-coq-parser
   (parser 
    (grammar
-    [start ((defns) `(module ,(current-mod-name) tmonad ,@$1))]
+    [start ((defns) `(module ,(current-mod-name) tmonad/overly-specific ,@$1))]
     [defns
       ((defn) (list $1))
       ((defn defns) (cons $1 $2))]

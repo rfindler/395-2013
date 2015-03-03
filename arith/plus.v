@@ -9,11 +9,11 @@ Include WfExtensionality.
 
 Program Fixpoint plus_cin_time_lb (n:nat) (m:nat) {measure (m + n)} : nat :=
   match n with
-    | 0 => 7
+    | 0 => 1
     | S n' => 
       match m with
-        | 0 => 7
-        | S m' => plus_cin_time_lb (div2 n) (div2 m) + 34
+        | 0 => 1
+        | S m' => plus_cin_time_lb (div2 n) (div2 m) + 1
       end
   end.
 
@@ -24,11 +24,11 @@ Defined.
 
 Program Fixpoint plus_cin_time_ub (n:nat) (m:nat) {measure (m + n)} : nat :=
   match n with
-    | 0 => 9 + add1_time m
+    | 0 => 1 + add1_time m
     | S n' => 
       match m with
-        | 0 => 9 + add1_time n
-        | S m' => plus_cin_time_ub (div2 n) (div2 m) + 34
+        | 0 => 1 + add1_time n
+        | S m' => plus_cin_time_ub (div2 n) (div2 m) + 1
       end
   end.
 
@@ -37,7 +37,7 @@ Proof.
   apply plus_lt_compat;auto.
 Defined.
 
-Lemma plus_cin_time_lb_0n : forall n, plus_cin_time_lb 0 n = 7.
+Lemma plus_cin_time_lb_0n : forall n, plus_cin_time_lb 0 n = 1.
 Proof.
   intros n.
   unfold plus_cin_time_lb.
@@ -49,7 +49,7 @@ Proof.
   auto.
 Qed.
 
-Lemma plus_cin_time_lb_n0 : forall n, plus_cin_time_lb n 0 = 7.
+Lemma plus_cin_time_lb_n0 : forall n, plus_cin_time_lb n 0 = 1.
 Proof.
   intros n.
   unfold plus_cin_time_lb.
@@ -62,7 +62,7 @@ Proof.
 Qed.
 
 Lemma plus_cin_time_lb_SS : forall n' m', plus_cin_time_lb (S n') (S m') = 
-                                          plus_cin_time_lb (div2 (S n')) (div2 (S m')) + 34.
+                                          plus_cin_time_lb (div2 (S n')) (div2 (S m')) + 1.
 Proof.
   intros n' m'.
   remember (plus_cin_time_lb (div2 (S n')) (div2 (S m')) + 34) as res.
@@ -77,7 +77,7 @@ Proof.
   destruct n'; destruct m'; auto.
 Qed.
 
-Lemma plus_cin_time_ub_0n : forall n, plus_cin_time_ub 0 n = 9 + add1_time n.
+Lemma plus_cin_time_ub_0n : forall n, plus_cin_time_ub 0 n = 1 + add1_time n.
 Proof.
   intros n.
   unfold plus_cin_time_ub.
@@ -89,7 +89,7 @@ Proof.
   auto.
 Qed.
 
-Lemma plus_cin_time_ub_n0 : forall n, plus_cin_time_ub n 0 = 9 + add1_time n.
+Lemma plus_cin_time_ub_n0 : forall n, plus_cin_time_ub n 0 = 1 + add1_time n.
 Proof.
   intros n.
   unfold plus_cin_time_ub.
@@ -102,7 +102,7 @@ Proof.
 Qed.
 
 Lemma plus_cin_time_ub_SS : forall n' m', plus_cin_time_ub (S n') (S m') = 
-                                          plus_cin_time_ub (div2 (S n')) (div2 (S m')) + 34.
+                                          plus_cin_time_ub (div2 (S n')) (div2 (S m')) + 1.
 Proof.
   intros n' m'.
   remember (plus_cin_time_ub (div2 (S n')) (div2 (S m')) + 34) as res.

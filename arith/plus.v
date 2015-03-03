@@ -362,7 +362,8 @@ Qed.
 
 Theorem plus_log :
   forall f,
-    (forall n, plus_time_lb n n <= f n <= plus_time_ub n n) -> 
+    (forall n m, plus_time_lb n m <= f (min n m)
+                 /\ f (max n m) <= plus_time_ub n n) -> 
     big_theta f cl_log.
 Proof.
   intros f FACT.
@@ -370,7 +371,8 @@ Proof.
   apply (big_oh_trans f (fun n => plus_time_ub n n)).
   exists 0 1.
   intros n _.
-  remember (FACT n) as TWO.
+  remember (FACT n n) as TWO; clear HeqTWO.
+  rewrite Nat.max_id in TWO.
   omega.
   apply plus_big_oh_log.
   
@@ -379,6 +381,7 @@ Proof.
   apply plus_big_theta_log.
   exists 0 1.
   intros n _.
-  remember (FACT n) as TWO.
+  remember (FACT n n) as TWO; clear HeqTWO.
+  rewrite Nat.min_id in TWO.
   omega.
 Qed.

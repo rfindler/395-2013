@@ -15,16 +15,15 @@ Inductive Fib : nat -> nat -> Prop :=
     Fib (S (S n)) (a + b).
 Hint Constructors Fib.
 
-  Fixpoint fib n :=
-    match n with 
-      | 0 => 0
-      | S n' => 
-        match n' with
-          | 0 => 1
-          | S n'' => fib n''  + fib n'
-        end
-    end.
-
+Fixpoint fib n :=
+  match n with 
+    | 0 => 0
+    | S n' => 
+      match n' with
+        | 0 => 1
+        | S n'' => fib n''  + fib n'
+      end
+  end.
   
 Lemma Fib_fib:
   forall n, Fib n (fib n).
@@ -40,11 +39,11 @@ Defined.
 
 Fixpoint fib_rec_time (n:nat) :=
   match n with
-    | O => 3
+    | O => 1
     | S n' =>
       match n' with
-        | O => 5
-        | S n'' => (fib_rec_time n'') + (fib_rec_time n') + 11
+        | O => 1
+        | S n'' => (fib_rec_time n'') + (fib_rec_time n') + 1
       end
   end.
 
@@ -88,7 +87,7 @@ Proof.
   destruct n as [|n]. simpl. omega.
   destruct n as [|n]. simpl. auto.
   replace (fib_rec_time (S (S n))) with
-    ((fib_rec_time n) + (fib_rec_time (S n)) + 11); auto.
+    ((fib_rec_time n) + (fib_rec_time (S n)) + 1); auto.
 
   assert (fib n <= 1 * (fib_rec_time n)) as IHn.
   eapply IH. auto. omega.
@@ -129,7 +128,7 @@ Proof.
   simpl.
   omega.
   replace (fib_rec_time (S (S (S n)))) 
-  with (fib_rec_time (S n) + fib_rec_time (S (S n)) + 11);
+  with (fib_rec_time (S n) + fib_rec_time (S (S n)) + 1);
     [|unfold fib_rec_time;omega].
   replace (fib_rec_time2 (S (S (S n)))) 
   with (fib_rec_time2 (S n) + fib_rec_time2 (S (S n)) + 1);
@@ -237,7 +236,7 @@ Definition fib_iter_loop_result (fuel:nat) (target:nat) (a:nat) (b:nat)
     Fib (target - fuel - 1) a ->
     Fib (target - fuel) b ->
     Fib target res /\
-    c = 10 * fuel + 3.
+    c = fuel + 1.
 
 Load "fib_iter_loop_gen.v".
 
@@ -284,11 +283,11 @@ Qed.
 
 Fixpoint fib_iter_time (n:nat) :=
   match n with
-    | O => 3
+    | O => 1
     | S n' =>
       match n' with
-        | O => 5
-        | S n'' => 10 * n'' + 23
+        | O => 1
+        | S n'' => n'' + 3
       end
   end.
 
@@ -323,7 +322,6 @@ Proof.
   auto.
   subst an.
   replace (S target'') with (target'' + 1);[|omega].
-  rewrite mult_plus_distr_l.
   omega.
 Qed.
 

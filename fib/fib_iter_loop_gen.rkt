@@ -1,5 +1,5 @@
 #lang at-exp s-exp tmonad
-
+(require "../arith/plus_gen.rkt")
 (provide fib_iter_loop)
 
 (Fixpoint
@@ -9,5 +9,6 @@
    [0 => (<== b)]
    [(S fuel) 
     =>
-    (bind ((res (fib_iter_loop fuel target b (+ a b))))
-          (<== res))]))
+    (bind ((sum (tplus a b)))
+          (bind ((res (fib_iter_loop fuel target b sum)))
+                (<== res)))]))

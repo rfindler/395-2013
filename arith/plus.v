@@ -248,7 +248,7 @@ Qed.
 
 Definition plus_time_lb n m := plus_cin_time_lb n m + 1.
 Definition plus_time_ub n m := plus_cin_time_ub n m + 1.
-Definition plus_result n m res c :=
+Definition tplus_result n m res c :=
   res = n+m /\ plus_time_lb n m <= c <= plus_time_ub n m.
 
 Load "plus_gen.v".

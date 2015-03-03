@@ -1,6 +1,6 @@
 Require Import Braun.common.util Braun.common.le_util Braun.common.same_structure.
 Require Import Braun.common.log Braun.common.big_oh Braun.common.pow.
-Require Import Braun.monad.monad.
+Require Import Braun.monad.monad Braun.arith.plus.
 Require Import Program Div2 Omega.
 
 Inductive Fib : nat -> nat -> Prop :=
@@ -257,28 +257,32 @@ Qed.
 Next Obligation.
 Proof.
   unfold fib_iter_loop_result in *.
- rename fuel0 into fuel.
- clear am H1.
- rename H0 into IH.
- intros LT LE Fa Fb.
+  rename fuel0 into fuel.
+  clear am0 H2 am H3.
+  rename H0 into IH.
+  rename H1 into TPLUS_RESULT.
 
- destruct target.
- intuition.
- destruct target.
- intuition.
- edestruct IH as [Fab EQan];try omega.
- replace (S (S target) - fuel - 1) with (S (S target) - S fuel) in *;auto.
- omega.
- replace (S (S target) - S fuel - 1) with (S target - S fuel) in *;[|omega].
- replace (S (S target) - (S fuel)) with (S (S target - S fuel)) in *;[|omega].
- replace (S (S target) - fuel) with (S (S (target - fuel)));[|omega].
- auto.
+  intros LT LE Fa Fb.
+  destruct TPLUS_RESULT as [SUMEQAPLUSB PLUSTIME].
 
- split.
- 
- auto.
+  destruct target.
+  intuition.
+  destruct target.
+  intuition.
+  edestruct IH as [Fab EQan];try omega.
+  replace (S (S target) - fuel - 1) with (S (S target) - S fuel) in *;auto.
+  omega.
+  replace (S (S target) - S fuel - 1) with (S target - S fuel) in *;[|omega].
+  replace (S (S target) - (S fuel)) with (S (S target - S fuel)) in *;[|omega].
+  replace (S (S target) - fuel) with (S (S (target - fuel)));[|omega].
+  subst sum.
+  auto.
 
- omega.
+  split.
+  
+  auto.
+  
+  admit. (* running time *)
 Qed.
 
 Fixpoint fib_iter_time (n:nat) :=
@@ -311,9 +315,10 @@ Qed.
 
 Next Obligation.
 Proof.
-  unfold fib_iter_result, fib_iter_loop_result, fib_iter_time in *.
-  clear am H1.
+  clear H1 am.
   rename H0 into FIL.
+
+  unfold fib_iter_result, fib_iter_loop_result, fib_iter_time in *.
   edestruct FIL; [ | | | | split; auto]; clear FIL.
   omega. omega.
   replace (S (S target'') - S target'' - 1) with 0; [|omega].

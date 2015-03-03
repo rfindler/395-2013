@@ -2,8 +2,10 @@
 
 (require "plus_cin_gen.rkt")
 
+(provide tplus)
+
 (Fixpoint
- plus @n{nat} @m{nat}
+ tplus @n{nat} @m{nat}
  #:returns @{nat}
  (bind ((res (plus_cin n m false)))
        (<== res)))

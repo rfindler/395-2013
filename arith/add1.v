@@ -7,10 +7,10 @@ Include WfExtensionality.
 
 Program Fixpoint add1_time (n:nat) {measure n} :=
   match n with
-    | 0 => 3
+    | 0 => 1
     | S _ => if (even_odd_dec n)
-             then 8
-             else (add1_time (div2 n)) + 11
+             then 1
+             else (add1_time (div2 n)) + 1
   end.
 
 Definition add1_result (n:nat) (res:nat) (c:nat) := 

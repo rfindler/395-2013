@@ -1,5 +1,5 @@
 Require Import Program Div2 Omega.
-Require Import Arith Arith.Even Arith.Div2.
+Require Import Arith Arith.Even Arith.Div2 NPeano.
 Require Import Coq.Program.Wf Init.Wf.
 Require Import Coq.Arith.Max.
 Require Import Braun.common.util Braun.common.le_util.
@@ -246,8 +246,139 @@ Proof.
   omega.
 Qed.
 
-Theorem plus_cin_linear : 
+Definition plus_time_lb n m := plus_cin_time_lb n m + 1.
+Definition plus_time_ub n m := plus_cin_time_ub n m + 1.
+Definition plus_result n m res c :=
+  res = n+m /\ plus_time_lb n m <= c <= plus_time_ub n m.
+
+Load "plus_gen.v".
+
+Next Obligation.
+  clear H1 am.
+  rename H0 into PLUSCIN. 
+  
+  destruct PLUSCIN as [TIME CORRECT].
+  split.
+  omega.
+  unfold plus_time_lb, plus_time_ub.
+  omega.
+Qed.
+
+Lemma plus_big_oh_log : big_oh (fun n => plus_time_ub n n) cl_log.
+Proof.
+  exists 3 6.
+  intros n.
+  destruct n. intuition.
+  destruct n. intuition.
+  destruct n. intuition.
+  intros _.
+  unfold plus_time_ub.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => plus_cin_time_ub (S (S (S n))) (S (S (S n))) + 1 <=
+                     6 * cl_log (S (S (S n))))).
+  clear n; intros n IND.
+  rewrite plus_cin_time_ub_SS.
+  rewrite cl_log_div2'.
+  
+  apply (le_trans (plus_cin_time_ub (div2 (S (S (S n)))) (div2 (S (S (S n)))) + 1 + 1)
+                  (6 * cl_log (div2 (S (S (S n)))) + 1)).
+  apply plus_le_compat;auto.
+  destruct n.
+  simpl div2.
+  repeat (rewrite plus_cin_time_ub_SS; simpl div2).
+  simpl.
+  omega.
+  
+  destruct n.
+  simpl div2.
+  repeat (rewrite plus_cin_time_ub_SS; simpl div2).
+  simpl.
+  omega.
+
+  destruct n.
+  simpl div2.
+  repeat (rewrite plus_cin_time_ub_SS; simpl div2).
+  simpl.
+  omega.
+
+  simpl div2.
+  apply IND.
+  apply (lt_le_trans (div2 n) (S n));auto.
+  omega.
+Qed.
+
+Lemma plus_big_theta_log : big_oh cl_log (fun n => plus_time_lb n n).
+Proof.
+  unfold plus_time_lb.
+  exists 3 3.
+  intros n.
+  destruct n. intuition.
+  destruct n. intuition.
+  destruct n. intuition.
+  intros _.
+  rewrite mult_plus_distr_l.
+  rewrite mult_1_r.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => cl_log (S (S (S n))) <=
+                     3 * (plus_cin_time_lb (S (S (S n))) (S (S (S n)))) + 3)).
+  clear n; intros n IND.
+  rewrite plus_cin_time_lb_SS.
+  rewrite cl_log_div2'.
+  apply (le_trans 
+             (S (cl_log (div2 (S (S (S n))))))
+             (S (3 * plus_cin_time_lb (div2 (S (S (S n)))) (div2 (S (S (S n)))) + 3))).
+  apply le_n_S.
+  destruct n.
+  simpl.
+  unfold_sub cl_log (cl_log 1).
+  unfold_sub cl_log (cl_log 0).
+  omega.
+  simpl div2.
+  destruct n.
+  simpl div2.
+  repeat (rewrite plus_cin_time_lb_SS; simpl div2).
+  unfold_sub cl_log (cl_log 2).
+  unfold_sub cl_log (cl_log 1).
+  unfold_sub cl_log (cl_log 0).
+  simpl.
+  omega.
+
+  destruct n.
+  simpl div2.
+  repeat (rewrite plus_cin_time_lb_SS; simpl div2).
+  unfold_sub cl_log (cl_log 2).
+  unfold_sub cl_log (cl_log 1).
+  unfold_sub cl_log (cl_log 0).
+  simpl.
+  omega.
+
+  simpl div2.
+  apply IND.
+  apply (lt_le_trans (div2 n) (S n));auto.
+  omega.
+Qed.
+
+Theorem plus_log :
   forall f,
-    (forall n, plus_cin_time_lb n n <= f n <= plus_cin_time_ub n n) ->
-    big_oh f fl_log.
-Admitted.
+    (forall n, plus_time_lb n n <= f n <= plus_time_ub n n) -> 
+    big_theta f cl_log.
+Proof.
+  intros f FACT.
+  split.
+  apply (big_oh_trans f (fun n => plus_time_ub n n)).
+  exists 0 1.
+  intros n _.
+  remember (FACT n) as TWO.
+  omega.
+  apply plus_big_oh_log.
+  
+  apply big_oh_rev.
+  apply (big_oh_trans cl_log (fun n => plus_time_lb n n)).
+  apply plus_big_theta_log.
+  exists 0 1.
+  intros n _.
+  remember (FACT n) as TWO.
+  omega.
+Qed.

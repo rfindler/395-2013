@@ -1,6 +1,7 @@
 #lang at-exp s-exp tmonad
 
 (require "add1_gen.rkt")
+(provide plus_cin)
 
 (Fixpoint
  plus_cin @n{nat} @m{nat} @cin{bool}

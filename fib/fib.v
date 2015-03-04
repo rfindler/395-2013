@@ -229,6 +229,18 @@ Proof.
   apply fib_rec_time23.
 Qed.
 
+Fixpoint fib_iter_time_lb fuel a b :=
+  match fuel with
+    | 0 => 1
+    | S fuel' => plus_time_lb a b + fib_iter_time_lb fuel' b (a+b) + 1
+  end.
+
+Fixpoint fib_iter_time_ub fuel a b :=
+  match fuel with
+    | 0 => 1
+    | S fuel' => plus_time_ub a b + fib_iter_time_ub fuel' b (a+b) + 1
+  end.
+
 Definition fib_iter_loop_result (fuel:nat) (target:nat) (a:nat) (b:nat)
            (res:nat) (c:nat) :=
     1 < target ->
@@ -236,7 +248,7 @@ Definition fib_iter_loop_result (fuel:nat) (target:nat) (a:nat) (b:nat)
     Fib (target - fuel - 1) a ->
     Fib (target - fuel) b ->
     Fib target res /\
-    c = fuel + 1.
+    fib_iter_time_lb fuel a b <= c <= fib_iter_time_ub fuel a b.
 
 Load "fib_iter_loop_gen.v".
 
@@ -251,6 +263,7 @@ Proof.
   destruct target.
   intuition.
   eauto.
+  simpl.
   omega.
 Qed.
 
@@ -281,8 +294,10 @@ Proof.
   split.
   
   auto.
-  
-  admit. (* running time *)
+
+  simpl fib_iter_time_lb. simpl fib_iter_time_ub. 
+  rewrite <- SUMEQAPLUSB.
+  omega.
 Qed.
 
 Fixpoint fib_iter_time (n:nat) :=
@@ -325,9 +340,7 @@ Proof.
   auto.
   replace (S (S target'') - S target'') with 1;[|omega].
   auto.
-  subst an.
-  replace (S target'') with (target'' + 1);[|omega].
-  omega.
+  admit.
 Qed.
 
 Theorem fib_iter_linear: big_oh fib_iter_time (fun n => n).

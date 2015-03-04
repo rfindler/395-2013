@@ -229,16 +229,16 @@ Proof.
   apply fib_rec_time23.
 Qed.
 
-Fixpoint fib_iter_time_lb fuel a b :=
+Fixpoint fib_iter_loop_time_lb fuel a b :=
   match fuel with
     | 0 => 1
-    | S fuel' => plus_time_lb a b + fib_iter_time_lb fuel' b (a+b) + 1
+    | S fuel' => plus_time_lb a b + fib_iter_loop_time_lb fuel' b (a+b) + 1
   end.
 
-Fixpoint fib_iter_time_ub fuel a b :=
+Fixpoint fib_iter_loop_time_ub fuel a b :=
   match fuel with
     | 0 => 1
-    | S fuel' => plus_time_ub a b + fib_iter_time_ub fuel' b (a+b) + 1
+    | S fuel' => plus_time_ub a b + fib_iter_loop_time_ub fuel' b (a+b) + 1
   end.
 
 Definition fib_iter_loop_result (fuel:nat) (target:nat) (a:nat) (b:nat)
@@ -248,7 +248,7 @@ Definition fib_iter_loop_result (fuel:nat) (target:nat) (a:nat) (b:nat)
     Fib (target - fuel - 1) a ->
     Fib (target - fuel) b ->
     Fib target res /\
-    fib_iter_time_lb fuel a b <= c <= fib_iter_time_ub fuel a b.
+    fib_iter_loop_time_lb fuel a b <= c <= fib_iter_loop_time_ub fuel a b.
 
 Load "fib_iter_loop_gen.v".
 
@@ -295,24 +295,34 @@ Proof.
   
   auto.
 
-  simpl fib_iter_time_lb. simpl fib_iter_time_ub. 
+  simpl fib_iter_loop_time_lb. simpl fib_iter_loop_time_ub. 
   rewrite <- SUMEQAPLUSB.
   omega.
 Qed.
 
-Fixpoint fib_iter_time (n:nat) :=
+Fixpoint fib_iter_time_lb (n:nat) :=
   match n with
     | O => 1
     | S n' =>
       match n' with
         | O => 1
-        | S n'' => n'' + 3
+        | S n'' => fib_iter_loop_time_lb n' 0 1 + 1
+      end
+  end.
+
+Fixpoint fib_iter_time_ub (n:nat) :=
+  match n with
+    | O => 1
+    | S n' =>
+      match n' with
+        | O => 1
+        | S n'' => fib_iter_loop_time_ub n' 0 1 + 1
       end
   end.
 
 Definition fib_iter_result (target:nat) (res:nat) (c:nat) :=
   Fib target res /\
-  c = fib_iter_time target.
+  fib_iter_time_lb target <= c <= fib_iter_time_ub target.
 
 Load "fib_iter_gen.v".
 
@@ -333,26 +343,19 @@ Proof.
   clear H1 am.
   rename H0 into FIL.
 
-  unfold fib_iter_result, fib_iter_loop_result, fib_iter_time in *.
+  unfold fib_iter_result, fib_iter_loop_result, fib_iter_time_lb, fib_iter_time_ub in *.
   edestruct FIL; [ | | | | split; auto]; clear FIL.
   omega. omega.
   replace (S (S target'') - S target'' - 1) with 0; [|omega].
   auto.
   replace (S (S target'') - S target'') with 1;[|omega].
   auto.
-  admit.
-Qed.
-
-Theorem fib_iter_linear: big_oh fib_iter_time (fun n => n).
-Proof.
-  exists 2 20.
-  intros n LT.
-  destruct n;[intuition|].
-  destruct n;[intuition|].
-  clear LT.
-  unfold fib_iter_time.
   omega.
 Qed.
+
+Theorem fib_iter_nlogn: big_oh fib_iter_time_lb (fun n => n * fl_log n).
+Admitted.
+(* not sure I can prove this.... *)
   
 Lemma mle_2_and_3 : forall a b, 3 * a < 2 * b -> 3 * (b + a) < 2 * (b + a + b).
 Proof.

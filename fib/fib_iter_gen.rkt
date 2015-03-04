@@ -1,6 +1,7 @@
 #lang at-exp s-exp tmonad
 
 (require "fib_iter_loop_gen.rkt")
+(provide fib_iter)
 
 (Fixpoint
  fib_iter @target{nat} 

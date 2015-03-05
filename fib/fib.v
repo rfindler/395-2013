@@ -353,6 +353,45 @@ Proof.
   omega.
 Qed.
 
+Definition fib_iter_time_lb2 n := fib_iter_loop_time_lb n 0 1.
+
+Lemma fib_lb12 : big_oh fib_iter_time_lb2 fib_iter_time_lb.
+Proof.
+  exists 3.
+  exists 5.
+  intros n.
+  destruct n. intuition.
+  destruct n. intuition.
+  destruct n. intuition.
+  intros _.
+  unfold fib_iter_time_lb2.
+  unfold fib_iter_time_lb.
+  unfold fib_iter_loop_time_lb.
+  simpl plus_time_lb.
+  fold fib_iter_loop_time_lb.
+  simpl plus.
+  replace (S (S (S (S (S (S (S (S (fib_iter_loop_time_lb n 2 3 + 1 + 1 + 1)))))))))
+  with (fib_iter_loop_time_lb n 2 3 + 11);[|omega].
+  replace (5 * (S (S (S (S (S (fib_iter_loop_time_lb n 1 2 + 1 + 1 + 1)))))))
+  with (5 * fib_iter_loop_time_lb n 1 2 + 29 + 11);[|omega].
+  apply plus_le_compat; auto.
+
+  destruct n.
+  simpl.
+  omega.
+  replace (fib_iter_loop_time_lb (S n) 1 2) 
+  with (plus_time_lb 1 2 + fib_iter_loop_time_lb n 2 3 + 1);[|simpl fib_iter_loop_time_lb;auto].
+  unfold plus_time_lb.
+  rewrite plus_cin_time_lb_SS.
+  simpl div2.
+  rewrite plus_cin_time_lb_0n.
+  replace (5 * (1 + 1 + 1 + fib_iter_loop_time_lb n 2 3 + 1) + 29)
+  with (5 * fib_iter_loop_time_lb n 2 3 + 49);[|omega].
+
+  (* rats; this appears to not be true. *)
+  admit.
+Qed.
+
 Theorem fib_iter_nlogn: big_oh fib_iter_time_lb (fun n => n * fl_log n).
 Admitted.
 (* not sure I can prove this.... *)

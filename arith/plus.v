@@ -117,6 +117,31 @@ Proof.
   destruct n'; destruct m'; auto.
 Qed.
   
+
+Lemma plus_cin_time_lb_symmetric:
+  forall a b,
+    plus_cin_time_lb a b = plus_cin_time_lb b a.
+Proof.
+  intros a b.
+  generalize dependent b.
+  apply (well_founded_ind
+           lt_wf
+           (fun a => forall b : nat, plus_cin_time_lb a b = plus_cin_time_lb b a)).
+  clear a; intros a IND b.
+  destruct a.
+  rewrite plus_cin_time_lb_0n; rewrite plus_cin_time_lb_n0; auto.
+  destruct b.
+  rewrite plus_cin_time_lb_0n; rewrite plus_cin_time_lb_n0; auto.
+  rewrite plus_cin_time_lb_SS.
+  rewrite plus_cin_time_lb_SS.
+  rewrite plus_comm.
+  unfold plus at 1.
+  rewrite plus_comm.
+  unfold plus at 1.
+  apply f_equal.
+  apply IND; auto.
+Qed.
+
 Definition plus_cin_result (n:nat) (m:nat) (cin:bool) (res:nat) (c:nat) :=
   n+m+(if cin then 1 else 0)=res /\ plus_cin_time_lb n m <= c <= plus_cin_time_ub n m.
 Hint Unfold plus_cin_result.
@@ -250,6 +275,20 @@ Definition plus_time_lb n m := plus_cin_time_lb n m + 1.
 Definition plus_time_ub n m := plus_cin_time_ub n m + 1.
 Definition tplus_result n m res c :=
   res = n+m /\ plus_time_lb n m <= c <= plus_time_ub n m.
+
+Lemma plus_time_lb_symmetric :
+  forall a b,
+    plus_time_lb a b = plus_time_lb b a.
+Proof.
+  intros a b.
+  unfold plus_time_lb.
+  rewrite plus_comm.
+  unfold plus at 1.
+  rewrite plus_comm.
+  unfold plus.
+  rewrite plus_cin_time_lb_symmetric.
+  auto.
+Qed.
 
 Load "plus_gen.v".
 

@@ -24,7 +24,7 @@ Fixpoint fib n :=
         | S n'' => fib n''  + fib n'
       end
   end.
-  
+
 Lemma Fib_fib:
   forall n, Fib n (fib n).
 Proof.
@@ -229,11 +229,95 @@ Proof.
   apply fib_rec_time23.
 Qed.
 
+Lemma fib_lower_bound : 
+  forall n,
+    pow 2 (div2 (S n)) <= 2 * fib (S n).
+Proof.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => pow 2 (div2 (S n)) <= 2 * fib (S n))).
+  intros n IND.
+  destruct n;[simpl;auto|].
+  destruct n;[simpl;auto|].
+  replace (div2 (S (S (S n)))) with (S (div2 (S n)));[|unfold div2;auto].
+  unfold pow; fold pow.
+  apply (le_trans (2 * pow 2 (div2 (S n)))
+                  (2 * (2 * fib (S n)))).
+  apply mult_le_compat; auto.
+
+  clear IND.
+  apply mult_le_compat; auto.
+  replace (fib (S (S (S n)))) with (fib (S (S n)) + fib (S n));[|simpl fib;omega].
+  unfold mult.
+  rewrite plus_0_r.
+  apply plus_le_compat;auto.
+  apply fib_monotone; auto.
+Qed.
+
+Theorem fib_big_omega_2_to_the_div2_n : 
+  big_omega fib (fun n => pow 2 (div2 n)).
+Proof.
+  apply big_oh_rev.
+  exists 1 2.
+  intros n LT.
+  destruct n. intuition.
+  apply fib_lower_bound.
+Qed.
+
+Lemma fib_upper_bound : 
+  forall n,
+    fib n <= pow 2 n.
+Proof.
+  apply (well_founded_ind
+           lt_wf 
+           (fun n => fib n <= pow 2 n)).
+  intros n IND.
+  destruct n. simpl. auto.
+  destruct n. simpl. auto.
+  replace (fib (S (S n))) with (fib (S n) + fib n);[|unfold fib; omega].
+  replace (pow 2 (S (S n))) with (2 * pow 2 (S n));[|unfold pow; omega].
+  unfold mult; rewrite plus_0_r.
+  apply (le_trans (fib (S n) + fib n)
+                  (pow 2 (S n) + pow 2 n)).
+  apply plus_le_compat; apply IND; auto.
+  apply plus_le_compat; auto.
+  apply pow2_monotone; auto.
+Qed.
+
+Theorem fib_big_oh_2_to_the_n : 
+  big_oh fib (fun n => pow 2 n).
+Proof.
+  exists 0 1.
+  intros n _.
+  rewrite mult_1_l.
+  apply fib_upper_bound.
+Qed.
+
 Fixpoint fib_iter_loop_time_lb fuel a b :=
   match fuel with
     | 0 => 1
     | S fuel' => plus_time_lb a b + fib_iter_loop_time_lb fuel' b (a+b) + 1
   end.
+
+(*
+(*
+Started thinking about how to get rid of the 'a' and 'b' arguments in 
+fib_iter_loop_time_lb 
+*)
+Fixpoint fib_iter_loop_time_lb2 fuel n :=
+  match fuel with
+    | 0 => 1
+    | S fuel' => plus_time_lb (fib (n+1)) (fib n) +
+                 fib_iter_loop_time_lb2 fuel' (n+1) + 1
+  end.
+
+Lemma fib_iter_lb12 : 
+  forall starting_point n,
+    n < starting_point ->
+    fib_iter_loop_time_lb (starting_point-n) (fib n) (fib (n+1)) =
+    fib_iter_loop_time_lb2 (starting_point-n) (fib n).
+Admitted.
+*)
 
 Fixpoint fib_iter_loop_time_ub fuel a b :=
   match fuel with

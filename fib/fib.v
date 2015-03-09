@@ -299,26 +299,6 @@ Fixpoint fib_iter_loop_time_lb fuel a b :=
     | S fuel' => plus_time_lb a b + fib_iter_loop_time_lb fuel' b (a+b) + 1
   end.
 
-(*
-(*
-Started thinking about how to get rid of the 'a' and 'b' arguments in 
-fib_iter_loop_time_lb 
-*)
-Fixpoint fib_iter_loop_time_lb2 fuel n :=
-  match fuel with
-    | 0 => 1
-    | S fuel' => plus_time_lb (fib (n+1)) (fib n) +
-                 fib_iter_loop_time_lb2 fuel' (n+1) + 1
-  end.
-
-Lemma fib_iter_lb12 : 
-  forall starting_point n,
-    n < starting_point ->
-    fib_iter_loop_time_lb (starting_point-n) (fib n) (fib (n+1)) =
-    fib_iter_loop_time_lb2 (starting_point-n) (fib n).
-Admitted.
-*)
-
 Fixpoint fib_iter_loop_time_ub fuel a b :=
   match fuel with
     | 0 => 1
@@ -437,42 +417,55 @@ Proof.
   omega.
 Qed.
 
-Definition fib_iter_time_lb2 n := fib_iter_loop_time_lb n 0 1.
 
-Lemma fib_lb12 : big_oh fib_iter_time_lb2 fib_iter_time_lb.
+Fixpoint fib_iter_loop_time_lb2 fuel n :=
+  match fuel with
+    | 0 => 1
+    | S fuel' => plus_time_lb (fib n) (fib (n+1)) +
+                 fib_iter_loop_time_lb2 fuel' (n+1) + 1
+  end.
+
+Lemma fib_iter_loop_lb12 : 
+  forall n steps_taken,
+    fib_iter_loop_time_lb n (fib steps_taken) (fib (steps_taken+1)) =
+    fib_iter_loop_time_lb2 n steps_taken.
 Proof.
-  exists 3.
-  exists 5.
-  intros n.
-  destruct n. intuition.
-  destruct n. intuition.
-  destruct n. intuition.
-  intros _.
-  unfold fib_iter_time_lb2.
-  unfold fib_iter_time_lb.
-  unfold fib_iter_loop_time_lb.
-  simpl plus_time_lb.
-  fold fib_iter_loop_time_lb.
-  simpl plus.
-  replace (S (S (S (S (S (S (S (S (fib_iter_loop_time_lb n 2 3 + 1 + 1 + 1)))))))))
-  with (fib_iter_loop_time_lb n 2 3 + 11);[|omega].
-  replace (5 * (S (S (S (S (S (fib_iter_loop_time_lb n 1 2 + 1 + 1 + 1)))))))
-  with (5 * fib_iter_loop_time_lb n 1 2 + 29 + 11);[|omega].
-  apply plus_le_compat; auto.
+  induction n.
+  intros; simpl; auto.
+  intros.
+  simpl fib_iter_loop_time_lb.
+  simpl fib_iter_loop_time_lb2.
+  replace (fib steps_taken + fib (steps_taken + 1)) 
+  with (fib (steps_taken+2)).
+  
+  assert (fib_iter_loop_time_lb n (fib (steps_taken + 1)) (fib (steps_taken + 2)) =
+          fib_iter_loop_time_lb2 n (steps_taken + 1));auto.
+  replace (steps_taken + 2) with ((steps_taken+1)+1);[|omega].
+  apply IHn.
+  rewrite plus_comm.
+  unfold plus at 1.
+  rewrite fib_SS.
+  replace (S steps_taken) with (steps_taken+1);omega.
+Qed.
 
-  destruct n.
+Fixpoint fib_iter_loop_time_lb3 fuel :=
+  match fuel with
+    | 0 => 1
+    | S fuel' => plus_time_lb (fib fuel') (fib fuel) +
+                 fib_iter_loop_time_lb3 fuel' + 1
+  end.
+
+Lemma fib_iter_loop_lb23:
+  forall n,
+    fib_iter_loop_time_lb3 n = fib_iter_loop_time_lb2 n 0.
+Proof.
+  induction n.
   simpl.
-  omega.
-  replace (fib_iter_loop_time_lb (S n) 1 2) 
-  with (plus_time_lb 1 2 + fib_iter_loop_time_lb n 2 3 + 1);[|simpl fib_iter_loop_time_lb;auto].
-  unfold plus_time_lb.
-  rewrite plus_cin_time_lb_SS.
-  simpl div2.
-  rewrite plus_cin_time_lb_0n.
-  replace (5 * (1 + 1 + 1 + fib_iter_loop_time_lb n 2 3 + 1) + 29)
-  with (5 * fib_iter_loop_time_lb n 2 3 + 49);[|omega].
-
-  (* rats; this appears to not be true. *)
+  auto.
+  unfold fib_iter_loop_time_lb3, fib_iter_loop_time_lb2.
+  fold fib_iter_loop_time_lb3.
+  fold fib_iter_loop_time_lb2.
+  (* need a stronger induction hypothesis *)
   admit.
 Qed.
 

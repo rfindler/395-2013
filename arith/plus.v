@@ -375,56 +375,42 @@ Proof.
   omega.
 Qed.
 
-Lemma plus_big_theta_log : big_oh cl_log (fun n => plus_time_lb n n).
+Lemma log_below_plus_time_nn : forall n, cl_log n <= plus_time_lb n n.
 Proof.
   unfold plus_time_lb.
-  exists 3 3.
   intros n.
-  destruct n. intuition.
-  destruct n. intuition.
-  destruct n. intuition.
-  intros _.
-  rewrite mult_plus_distr_l.
-  rewrite mult_1_r.
   apply (well_founded_ind
            lt_wf
-           (fun n => cl_log (S (S (S n))) <=
-                     3 * (plus_cin_time_lb (S (S (S n))) (S (S (S n)))) + 3)).
+           (fun n => cl_log n <= plus_cin_time_lb n n + 1)).
   clear n; intros n IND.
+
+  destruct n.
+  simpl.
+  unfold_sub cl_log (cl_log 0).
+  omega.
+
+  destruct n.
+  simpl.
+  unfold_sub cl_log (cl_log 1).
+  unfold_sub cl_log (cl_log 0).
+  omega.
+
   rewrite plus_cin_time_lb_SS.
   rewrite cl_log_div2'.
   apply (le_trans 
-             (S (cl_log (div2 (S (S (S n))))))
-             (S (3 * plus_cin_time_lb (div2 (S (S (S n)))) (div2 (S (S (S n)))) + 3))).
+           (S (cl_log (div2 (S (S n)))))
+           (S (plus_cin_time_lb (div2 (S (S n))) (div2 (S (S n))) + 1))); [|omega].
   apply le_n_S.
-  destruct n.
-  simpl.
-  unfold_sub cl_log (cl_log 1).
-  unfold_sub cl_log (cl_log 0).
-  omega.
-  simpl div2.
-  destruct n.
-  simpl div2.
-  repeat (rewrite plus_cin_time_lb_SS; simpl div2).
-  unfold_sub cl_log (cl_log 2).
-  unfold_sub cl_log (cl_log 1).
-  unfold_sub cl_log (cl_log 0).
-  simpl.
-  omega.
-
-  destruct n.
-  simpl div2.
-  repeat (rewrite plus_cin_time_lb_SS; simpl div2).
-  unfold_sub cl_log (cl_log 2).
-  unfold_sub cl_log (cl_log 1).
-  unfold_sub cl_log (cl_log 0).
-  simpl.
-  omega.
-
-  simpl div2.
   apply IND.
-  apply (lt_le_trans (div2 n) (S n));auto.
-  omega.
+  auto.
+Qed.
+
+Lemma plus_big_theta_log : big_oh cl_log (fun n => plus_time_lb n n).
+Proof.
+  exists 0 1.
+  intros n _.
+  rewrite mult_1_l.
+  apply log_below_plus_time_nn.
 Qed.
 
 Theorem plus_log :

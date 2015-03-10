@@ -142,6 +142,34 @@ Proof.
   apply IND; auto.
 Qed.
 
+
+Lemma plus_cin_time_lb_right_arg_grows :
+  forall a b b',
+    b <= b' ->
+    plus_cin_time_lb a b <= plus_cin_time_lb a b'.
+Proof. 
+  intros a.
+  apply (well_founded_ind
+           lt_wf
+           (fun a => 
+              forall b b' : nat,
+                b <= b' -> plus_cin_time_lb a b <= plus_cin_time_lb a b')).
+  clear a; intros a IND b b' LT.
+  destruct a.
+  repeat (rewrite plus_cin_time_lb_0n); auto.
+  destruct b'.
+  replace b with 0;[|omega].
+  repeat (rewrite plus_cin_time_lb_n0); auto.
+  destruct b.
+  rewrite plus_cin_time_lb_n0.
+  rewrite plus_cin_time_lb_SS.
+  omega.
+  repeat (rewrite plus_cin_time_lb_SS).
+  apply plus_le_compat; auto.
+  apply IND; auto.
+  apply div2_monotone; auto.
+Qed.
+
 Definition plus_cin_result (n:nat) (m:nat) (cin:bool) (res:nat) (c:nat) :=
   n+m+(if cin then 1 else 0)=res /\ plus_cin_time_lb n m <= c <= plus_cin_time_ub n m.
 Hint Unfold plus_cin_result.

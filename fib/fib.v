@@ -639,8 +639,28 @@ Proof.
 Qed.
 
 Lemma plus_two_fibs_time_lb : 
-  big_oh div2 plus_two_fibs_time.
+  big_oh (fun n => n) plus_two_fibs_time.
 Proof.
+  apply (big_oh_trans (fun n => n) div2).
+  exists 2 4.
+  intros n LT.
+  destruct n. intuition.
+  destruct n. intuition.
+  clear LT.
+  apply (well_founded_ind lt_wf (fun n => S (S n) <= 4 * div2 (S (S n)))).
+  clear n; intros n IND.
+  destruct n.
+  simpl; auto.
+  destruct n.
+  simpl; auto.
+  replace (div2 (S (S (S (S n))))) with (S (div2 (S (S n))));[|simpl div2;auto].
+  replace (S (div2 (S (S n)))) with (div2 (S (S n)) + 1);[|omega].
+  rewrite mult_plus_distr_l.
+  rewrite mult_1_r.
+  apply (le_trans (S (S (S (S n)))) (S (S n) + 4)).
+  omega.
+  apply plus_le_compat; auto.
+
   apply (big_oh_trans div2 (fun n => (plus_cin_time_lb (fib n) (fib (n + 1))))).
   apply (big_oh_trans div2 (fun n => (plus_cin_time_lb (fib n) (fib n)))).
   apply (big_oh_trans div2 (fun n => (cl_log (2 * fib n)))).

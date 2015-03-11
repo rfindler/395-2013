@@ -515,6 +515,176 @@ Proof.
   induction n; simpl; auto.
 Qed.
 
+Lemma cl_log_square : 
+  forall n,
+    cl_log (n * n) <= 2 * cl_log n.
+Proof.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => cl_log (n * n) <= 2 * cl_log n)).
+  intros n IND.
+  destruct n;[compute;omega|].
+  replace (S n * S n) with (S (n*n + 2*n));
+    [|(replace (S n) with (n+1);[|omega]);
+       (rewrite mult_plus_distr_r);
+       (repeat (rewrite mult_plus_distr_l));
+       omega].
+  repeat (rewrite cl_log_div2').
+  replace (2 * S (cl_log (div2 (S n)))) with (2 * cl_log (div2 (S n))+2);[|omega].
+  apply (le_trans (S (cl_log (div2 (S (n * n + 2 * n)))))
+                  (cl_log (div2 (S n) * div2 (S n)) + 2));
+    [|apply plus_le_compat;auto].
+  replace (S (cl_log (div2 (S (n * n + 2 * n)))))
+  with (cl_log (div2 (S (n * n + 2 * n)))+1);[|omega].
+  replace (cl_log (div2 (S (n * n + 2 * n))) + 1)
+  with (S (cl_log (div2 (S (n * n + 2 * n)))));[|omega].
+  rewrite <- cl_log_div2'.
+  admit.
+Qed.
+
+Lemma fib_sum_less_than_fib_product:
+  forall n, 
+    n >= 4 ->
+    fib n + fib n <= fib n * fib n.
+Proof.
+  intros n LE.
+  destruct n;[intuition|].
+  destruct n;[intuition|].
+  destruct n;[intuition|].
+  destruct n;[intuition|].
+  clear LE.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => fib (S (S (S (S n)))) + fib (S (S (S (S n)))) <=
+                     fib (S (S (S (S n)))) * fib (S (S (S (S n)))))).
+  clear n; intros n IND.
+  destruct n.
+  compute; omega.
+  destruct n.
+  compute; omega.
+  
+  replace (fib (S (S (S (S (S (S n))))))) 
+  with (fib (S (S (S (S (S n))))) + (fib (S (S (S (S n))))));[|unfold fib;omega].
+  replace ((fib (S (S (S (S (S n))))) + fib (S (S (S (S n))))) +
+           (fib (S (S (S (S (S n))))) + fib (S (S (S (S n))))))
+  with ((fib (S (S (S (S n)))) + fib (S (S (S (S n))))) +
+        (fib (S (S (S (S (S n))))) + fib (S (S (S (S (S n)))))));[|omega].
+  apply (le_trans ((fib (S (S (S (S n)))) + fib (S (S (S (S n))))) +
+                   (fib (S (S (S (S (S n))))) + fib (S (S (S (S (S n)))))))
+                  ((fib (S (S (S (S n)))) * fib (S (S (S (S n))))) +
+                   (fib (S (S (S (S (S n))))) * fib (S (S (S (S (S n)))))))).
+  apply plus_le_compat; apply IND; auto.
+  rewrite mult_plus_distr_r.
+  repeat (rewrite mult_plus_distr_l).
+  remember (fib (S (S (S (S n)))) * fib (S (S (S (S n))))) as i.
+  remember (fib (S (S (S (S (S n))))) * fib (S (S (S (S (S n)))))) as j.
+  replace (j + fib (S (S (S (S (S n))))) * fib (S (S (S (S n)))) +
+           (fib (S (S (S (S n)))) * fib (S (S (S (S (S n))))) + i)) 
+  with (i + j + 
+        (fib (S (S (S (S (S n))))) * fib (S (S (S (S n)))) +
+         fib (S (S (S (S n)))) * fib (S (S (S (S (S n)))))));[|omega].
+  apply le_plus_trans.
+  omega.
+Qed.
+
+Lemma cl_log_big_oh_double : 
+  big_oh (fun n => cl_log (2 * fib n)) (fun n => cl_log (fib n)).
+Proof.
+  apply (big_oh_trans (fun n => cl_log (2 * fib n))
+                      (fun n => (cl_log (fib n * fib n)))).
+  exists 4 1.
+  intros n LE.
+  rewrite mult_1_l.
+  apply cl_log_monotone.
+  replace (2 * fib n) with (fib n + fib n);[|simpl mult;omega].
+  apply fib_sum_less_than_fib_product.
+  omega.
+
+  exists 0 2.
+  intros n _.
+  apply cl_log_square.
+Qed.
+
+Lemma plus_cin_time_lb_growth :
+  forall n,
+    plus_cin_time_lb n n + 1 <=
+    2 * plus_cin_time_lb n n.
+Proof.
+  intros n.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => plus_cin_time_lb n n + 1 <= 2 * plus_cin_time_lb n n)).
+  clear n; intros n IND.
+  destruct n; [compute; omega|].
+  destruct n; [compute; omega|].
+  rewrite plus_cin_time_lb_SS.
+  simpl div2.
+  apply (le_trans (plus_cin_time_lb (S (div2 n)) (S (div2 n)) + 1 + 1)
+                  (2 * plus_cin_time_lb (S (div2 n)) (S (div2 n)) + 1)).
+  apply plus_le_compat;auto.
+  apply (IND (S (div2 n))).
+  apply lt_n_S; auto.
+  rewrite mult_plus_distr_l.
+  omega.
+Qed.
+
+Lemma plus_time_lb_big_oh_plus_cin_time_lb :
+  big_oh (fun n : nat => plus_time_lb (fib n) (fib n))
+         (fun n : nat => plus_cin_time_lb (fib n) (fib n)).
+Proof.
+  unfold plus_time_lb.
+  exists 1 2.
+  intros n LE.
+  apply plus_cin_time_lb_growth.
+Qed.
+
+Lemma plus_two_fibs_time_lb : 
+  big_oh div2 plus_two_fibs_time.
+Proof.
+  apply (big_oh_trans div2 (fun n => (plus_cin_time_lb (fib n) (fib (n + 1))))).
+  apply (big_oh_trans div2 (fun n => (plus_cin_time_lb (fib n) (fib n)))).
+  apply (big_oh_trans div2 (fun n => (cl_log (2 * fib n)))).
+  apply (big_oh_trans div2 (fun n => (cl_log (pow 2 (div2 n))))).
+  
+  exists 0 1.
+  intros n _; rewrite mult_1_l.
+  rewrite pow2_log.
+  omega.
+
+  exists 1 1.
+  intros n LT. destruct n. intuition.
+  rewrite mult_1_l.
+  apply cl_log_monotone.
+  apply fib_lower_bound.
+
+  apply (big_oh_trans (fun n => cl_log (2 * fib n))
+                      (fun n => cl_log (fib n))).
+  apply cl_log_big_oh_double.
+
+  apply (big_oh_trans (fun n => cl_log (fib n))
+                      (fun n => plus_time_lb (fib n) (fib n))).
+  exists 0 1.
+  intros n _.
+  rewrite mult_1_l.
+  apply log_below_plus_time_nn.
+
+  apply plus_time_lb_big_oh_plus_cin_time_lb.
+
+  exists 0 1.
+  intros n _.
+  rewrite mult_1_l.
+  apply plus_cin_time_lb_right_arg_grows.
+  apply fib_monotone; omega.
+
+
+  exists 0 1.
+  intros n _.
+  unfold plus_two_fibs_time.
+  unfold plus_time_lb.
+  omega.
+Qed.
+
+
 Theorem fib_iter_nlogn: big_oh fib_iter_time_lb (fun n => n * fl_log n).
 Admitted.
 (* not sure I can prove this.... *)

@@ -1,7 +1,7 @@
 Require Import Braun.common.util Braun.common.le_util Braun.common.same_structure.
 Require Import Braun.common.log Braun.common.big_oh Braun.common.pow.
 Require Import Braun.monad.monad Braun.arith.plus.
-Require Import Program Div2 Omega.
+Require Import Program Div2 Omega Even.
 
 Inductive Fib : nat -> nat -> Prop :=
 | F_0 :
@@ -524,21 +524,20 @@ Proof.
            (fun n => cl_log (n * n) <= 2 * cl_log n)).
   intros n IND.
   destruct n;[compute;omega|].
-  replace (S n * S n) with (S (n*n + 2*n));
-    [|(replace (S n) with (n+1);[|omega]);
-       (rewrite mult_plus_distr_r);
-       (repeat (rewrite mult_plus_distr_l));
+  rewrite cl_log_div2'.
+  replace (2 * S (cl_log (div2 (S n)))) with (2 * (cl_log (div2 (S n))) + 2);
+    [|(replace (S (cl_log (div2 (S n)))) with ((cl_log (div2 (S n)))+1);[|omega]);
+       rewrite mult_plus_distr_l;
        omega].
-  repeat (rewrite cl_log_div2').
-  replace (2 * S (cl_log (div2 (S n)))) with (2 * cl_log (div2 (S n))+2);[|omega].
-  apply (le_trans (S (cl_log (div2 (S (n * n + 2 * n)))))
-                  (cl_log (div2 (S n) * div2 (S n)) + 2));
-    [|apply plus_le_compat;auto].
-  replace (S (cl_log (div2 (S (n * n + 2 * n)))))
-  with (cl_log (div2 (S (n * n + 2 * n)))+1);[|omega].
-  replace (cl_log (div2 (S (n * n + 2 * n))) + 1)
-  with (S (cl_log (div2 (S (n * n + 2 * n)))));[|omega].
-  rewrite <- cl_log_div2'.
+  apply (le_trans (cl_log (S n * S n))
+                  (cl_log (div2 (S n) * div2 (S n)) + 2));[|apply plus_le_compat;auto].
+  clear IND.
+  
+  destruct n. compute. omega.
+  destruct n. compute. omega.
+  destruct n. compute.
+
+  admit.
   admit.
 Qed.
 

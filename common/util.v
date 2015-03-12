@@ -317,3 +317,60 @@ Qed.
 Definition double_plus_one n := S (double n).
 
 Definition even_oddb n := if (even_odd_dec n) then true else false.
+
+Lemma move_inside_div2 :
+  forall n m, even m -> div2(n+m) = div2(n)+div2(m).
+Proof.
+  intros n m EVEN.
+  generalize dependent n.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => div2(n+m) = div2 n + div2 m)).
+  intros n IND.
+  destruct n.
+  simpl; auto.
+  destruct n.
+  simpl.
+  destruct m.
+  simpl; auto.
+  rewrite odd_div2; inversion EVEN; auto.
+  replace (S (S n) + m) with (S (S (n+m)));auto.
+  replace (div2 (S (S (n+m)))) with (S (div2 (n+m)));[|unfold div2;auto].
+  simpl div2.
+  replace (S (div2 n) + div2 m) with (S (div2 n + div2 m));[|omega].
+  assert (div2 (n + m) = div2 n + div2 m);auto.
+Qed.
+
+Lemma even_div_product :
+  forall n m, 
+    even n ->
+    div2 (n*m) = (div2 n) * m.
+Proof.
+  intros n m.
+  apply (well_founded_ind
+           lt_wf (fun n => even n -> div2 (n*m) = div2 n * m)).
+  clear n; intros n IND EVEN.
+  destruct n.
+  simpl; auto.
+
+  destruct n.
+  inversion EVEN as [|A B C]; inversion B.
+
+  destruct n.
+  simpl.
+  rewrite plus_0_r.
+  apply double_div2.
+
+  replace (div2 (S (S (S n)))) with ((div2 (S n))+1);[|unfold div2;omega].
+  rewrite mult_plus_distr_r.
+  rewrite <- IND;[|auto|inversion EVEN as [|A B C]; inversion B; auto].
+  rewrite mult_1_l.
+  replace m with (div2(double m)) at 3; [|unfold double; apply double_div2].
+  rewrite <- move_inside_div2; [|unfold double;apply double_is_even].
+  unfold double.
+  replace (S (S (S n))) with (S n + 2);[|omega].
+  rewrite mult_plus_distr_r.
+  replace (S n * m + 2 * m) with (S n * m + (m+m));[|omega].
+  omega.
+Qed.
+

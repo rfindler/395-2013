@@ -534,7 +534,6 @@ Proof.
     [|apply plus_le_compat;auto].
   clear IND.
 
-  (* cl_log (S n) = S (cl_log (div2 (S n))) *)
   destruct (even_odd_dec n).
   replace (div2 (S n)) with (div2 n);[|apply even_div2; auto].
   rewrite <- even_div_product; auto.
@@ -558,34 +557,12 @@ Proof.
   with (div2 (S (S (S (S (n * n + n * 2 + 2 * n))))));[|unfold div2;auto].
   rewrite <- cl_log_div2'.
 
-  rewrite <- (double_div2 (S (S (S (S (n * n + n * 2 + 2 * n)))))).
+  rewrite S_cl_log_doubles.
   replace (S (S (S (S (n * n + n * 2 + 2 * n)))) +
            S (S (S (S (n * n + n * 2 + 2 * n)))))
-  with (S (S ((S (S (S (n * n + n * 2 + 2 * n)))) +
-              (S (S (S (n * n + n * 2 + 2 * n)))))));[|omega].
-  rewrite <- cl_log_div2'.
-  rewrite <- (double_div2
-                (S
-                   (S
-                      (S (S (S (n * n + n * 2 + 2 * n))) +
-                       S (S (S (n * n + n * 2 + 2 * n))))))).
-  replace (S
-             (S
-                (S (S (S (n * n + n * 2 + 2 * n))) +
-                 S (S (S (n * n + n * 2 + 2 * n))))) +
-           S
-             (S
-                (S (S (S (n * n + n * 2 + 2 * n))) +
-                 S (S (S (n * n + n * 2 + 2 * n))))))
-  with (S
-          (S ((S
-             (S (S (S (n * n + n * 2 + 2 * n))) +
-              S (S (S (n * n + n * 2 + 2 * n))))) +
-       
-          (S
-             (S (S (S (n * n + n * 2 + 2 * n))) +
-              S (S (S (n * n + n * 2 + 2 * n))))))));[|omega].
-  rewrite <- cl_log_div2'.
+  with (S ((S (S (S (n * n + n * 2 + 2 * n)))) +
+           S (S (S (S (n * n + n * 2 + 2 * n))))));[|omega].
+  rewrite S_cl_log_doubles.
   apply cl_log_monotone.
   replace (S (S (S n))) with (n+3);[|omega].
   rewrite mult_plus_distr_r;

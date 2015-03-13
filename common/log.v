@@ -306,3 +306,13 @@ Proof.
   apply fl_log_monotone.
   auto.
 Qed.
+
+Lemma S_cl_log_doubles : 
+  forall n, S (cl_log (S n)) = cl_log (S n + S n).
+Proof.
+  intros.
+  rewrite <- (double_div2 (S n)) at 1.
+  replace (S n + S n) with (S (n+S n)) at 1;[|omega].
+  rewrite <- cl_log_div2'.
+  replace (S (n+S n)) with (S n + S n);omega.
+Qed.

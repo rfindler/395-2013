@@ -515,30 +515,116 @@ Proof.
   induction n; simpl; auto.
 Qed.
 
-Lemma cl_log_square : 
+Lemma cl_log_square_four : 
   forall n,
-    cl_log (n * n) <= 2 * cl_log n.
+    cl_log (n * n) <= 4 * cl_log n.
 Proof.
   apply (well_founded_ind
            lt_wf
-           (fun n => cl_log (n * n) <= 2 * cl_log n)).
+           (fun n => cl_log (n * n) <= 4 * cl_log n)).
   intros n IND.
   destruct n;[compute;omega|].
   rewrite cl_log_div2'.
-  replace (2 * S (cl_log (div2 (S n)))) with (2 * (cl_log (div2 (S n))) + 2);
+  replace (4 * S (cl_log (div2 (S n)))) with (4 * (cl_log (div2 (S n))) + 4);
     [|(replace (S (cl_log (div2 (S n)))) with ((cl_log (div2 (S n)))+1);[|omega]);
        rewrite mult_plus_distr_l;
        omega].
   apply (le_trans (cl_log (S n * S n))
-                  (cl_log (div2 (S n) * div2 (S n)) + 2));[|apply plus_le_compat;auto].
+                  (cl_log (div2 (S n) * div2 (S n)) + 4));
+    [|apply plus_le_compat;auto].
   clear IND.
-  
-  destruct n. compute. omega.
-  destruct n. compute. omega.
-  destruct n. compute.
 
-  admit.
-  admit.
+  (* cl_log (S n) = S (cl_log (div2 (S n))) *)
+  destruct (even_odd_dec n).
+  replace (div2 (S n)) with (div2 n);[|apply even_div2; auto].
+  rewrite <- even_div_product; auto.
+  replace (n * div2 n) with (div2 n * n);[|rewrite mult_comm;auto].
+  rewrite <- even_div_product; auto.
+  destruct n.
+  compute; auto.
+  destruct n.
+  compute; auto.
+  replace (S (S n)) with (n+2) at 3 4; [|omega].
+  rewrite mult_plus_distr_r;
+    repeat (rewrite mult_plus_distr_l);
+    rewrite plus_assoc.
+  replace (n * n + n * 2 + 2 * n + 2 * 2)
+  with (S (S (S (S (n * n + n * 2 + 2 * n)))));[|omega].
+  unfold div2 at 2; fold div2.
+  replace (cl_log (div2 (S (S (div2 (n * n + n * 2 + 2 * n))))) + 4)
+  with (S (S (S (S (cl_log (div2 (S (S (div2 (n * n + n * 2 + 2 * n))))))))));[|omega].
+  rewrite <- cl_log_div2'.
+  replace (S (S (div2 (n * n + n * 2 + 2 * n))))
+  with (div2 (S (S (S (S (n * n + n * 2 + 2 * n))))));[|unfold div2;auto].
+  rewrite <- cl_log_div2'.
+
+  rewrite <- (double_div2 (S (S (S (S (n * n + n * 2 + 2 * n)))))).
+  replace (S (S (S (S (n * n + n * 2 + 2 * n)))) +
+           S (S (S (S (n * n + n * 2 + 2 * n)))))
+  with (S (S ((S (S (S (n * n + n * 2 + 2 * n)))) +
+              (S (S (S (n * n + n * 2 + 2 * n)))))));[|omega].
+  rewrite <- cl_log_div2'.
+  rewrite <- (double_div2
+                (S
+                   (S
+                      (S (S (S (n * n + n * 2 + 2 * n))) +
+                       S (S (S (n * n + n * 2 + 2 * n))))))).
+  replace (S
+             (S
+                (S (S (S (n * n + n * 2 + 2 * n))) +
+                 S (S (S (n * n + n * 2 + 2 * n))))) +
+           S
+             (S
+                (S (S (S (n * n + n * 2 + 2 * n))) +
+                 S (S (S (n * n + n * 2 + 2 * n))))))
+  with (S
+          (S ((S
+             (S (S (S (n * n + n * 2 + 2 * n))) +
+              S (S (S (n * n + n * 2 + 2 * n))))) +
+       
+          (S
+             (S (S (S (n * n + n * 2 + 2 * n))) +
+              S (S (S (n * n + n * 2 + 2 * n))))))));[|omega].
+  rewrite <- cl_log_div2'.
+  apply cl_log_monotone.
+  replace (S (S (S n))) with (n+3);[|omega].
+  rewrite mult_plus_distr_r;
+    repeat (rewrite mult_plus_distr_l);
+    rewrite plus_assoc.
+  remember (n*n) as m; omega.
+
+  rewrite <- even_div_product; [|constructor;auto].
+  replace (S n * div2 (S n)) with (div2 (S n) * S n);[|rewrite mult_comm;auto].
+  rewrite <- even_div_product; [|constructor;auto].
+  destruct n.
+  compute; auto.
+  replace (S (S n)) with (n+2) at 3 4;[|omega].
+  rewrite mult_plus_distr_r;
+    repeat (rewrite mult_plus_distr_l);
+    rewrite plus_assoc.
+  replace (n * n + n * 2 + 2 * n + 2 * 2)
+  with (S (S (n * n + n * 2 + 2 * n + 2)));[|omega].
+  replace (div2 (S (S (n * n + n * 2 + 2 * n + 2))))
+  with (S (div2 (n * n + n * 2 + 2 * n + 2)));[|unfold div2;auto].
+  replace (cl_log (div2 (S (div2 (n * n + n * 2 + 2 * n + 2)))) + 4)
+  with (S (S (S (S (cl_log (div2 (S (div2 (n * n + n * 2 + 2 * n + 2)))))))));[|omega].
+  rewrite <- cl_log_div2'.
+  replace (S (div2 (n * n + n * 2 + 2 * n + 2))) 
+  with (div2 (S (S (n * n + n * 2 + 2 * n + 2))));[|unfold div2;auto].
+  rewrite <- cl_log_div2'.
+
+  rewrite S_cl_log_doubles.
+  replace (S (S (n * n + n * 2 + 2 * n + 2)) +
+           S (S (n * n + n * 2 + 2 * n + 2)))
+  with (S ((S (n * n + n * 2 + 2 * n + 2)) +
+           S (S (n * n + n * 2 + 2 * n + 2))));[|omega].
+  rewrite S_cl_log_doubles.
+  apply cl_log_monotone.
+  replace (S (S n)) with (n+2);[|omega].
+  rewrite mult_plus_distr_r;
+    repeat (rewrite mult_plus_distr_l);
+    rewrite plus_assoc.
+  remember (n*n) as m; omega.
 Qed.
 
 Lemma fib_sum_less_than_fib_product:
@@ -599,9 +685,9 @@ Proof.
   apply fib_sum_less_than_fib_product.
   omega.
 
-  exists 0 2.
+  exists 0 4.
   intros n _.
-  apply cl_log_square.
+  apply cl_log_square_four.
 Qed.
 
 Lemma plus_cin_time_lb_growth :

@@ -438,3 +438,26 @@ Proof.
   rewrite Nat.min_id in TWO.
   omega.
 Qed.
+
+Lemma plus_cin_time_lb_growth :
+  forall n,
+    plus_cin_time_lb n n + 1 <=
+    2 * plus_cin_time_lb n n.
+Proof.
+  intros n.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => plus_cin_time_lb n n + 1 <= 2 * plus_cin_time_lb n n)).
+  clear n; intros n IND.
+  destruct n; [compute; omega|].
+  destruct n; [compute; omega|].
+  rewrite plus_cin_time_lb_SS.
+  simpl div2.
+  apply (le_trans (plus_cin_time_lb (S (div2 n)) (S (div2 n)) + 1 + 1)
+                  (2 * plus_cin_time_lb (S (div2 n)) (S (div2 n)) + 1)).
+  apply plus_le_compat;auto.
+  apply (IND (S (div2 n))).
+  apply lt_n_S; auto.
+  rewrite mult_plus_distr_l.
+  omega.
+Qed.

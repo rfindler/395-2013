@@ -34,3 +34,19 @@
       (error 'fl_log "slow doesn't match for ~a"))
     (unless (= (cl_log-slow i) (cl_log i))
       (error 'cl_log "slow doesn't match for ~a"))))
+
+
+(define (cl_log_square n)
+  (<= (cl_log (* n n))
+      (* 2 (cl_log n))))
+
+(define (cl_log_square-lemma n)
+  (define (S n) (+ n 1))
+  (<= (cl_log (* (S n) (S n)))
+      (+ (cl_log (* (div2 (S n)) (div2 (S n)))) 4)))
+
+(time
+ (for ([x (in-range 10000000)])
+   (unless (cl_log_square-lemma x)
+     (error 'cl_log_square "uhoh: ~s" x))))
+(printf "holds\n")

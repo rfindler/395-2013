@@ -19,7 +19,7 @@ Require Import Braun.arith.sub1.
 Require Import Braun.sort.isort.
 Require Import Braun.sort.mergesort.
 
-Require Import Braun.fib.fib.
+Require Import Braun.fib.fib Braun.fib.fib_iter Braun.fib.fib_rec.
 Require Import Braun.zippers.zip.
 Require Import Braun.rbtrees.rbt_search.
 Require Import Braun.rbtrees.rbt_insert.
@@ -63,8 +63,8 @@ Extraction "post_extract.ml" insert_log.insert
            sort.isort.isort
            sort.mergesort.mergesort
 
-           fib.fib.fib_rec
-           fib.fib.fib_iter
+           fib.fib_rec.fib_rec
+           fib.fib_iter.fib_iter
 
            zippers.zip.minsert_at
            zippers.zip.minsertz_at

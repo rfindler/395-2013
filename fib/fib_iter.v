@@ -320,8 +320,39 @@ Proof.
   omega.
 Qed.
 
+Fixpoint fib_iter_loop_time_lb6 fuel :=
+  match fuel with
+    | 0 => 0
+    | S fuel' => fuel' +
+                 fib_iter_loop_time_lb6 fuel'
+  end.
 
-Theorem fib_iter_nlogn: big_oh fib_iter_time_lb (fun n => n * fl_log n).
+Lemma fib_iter_loop_lb56 : 
+  big_oh fib_iter_loop_time_lb6 fib_iter_loop_time_lb5.
+Proof.
+  destruct plus_two_fibs_time_lb as [plus_two_start [plus_two_factor PLUSTWO]].
+  exists plus_two_start plus_two_factor.
+  apply (well_founded_ind 
+           lt_wf 
+           (fun n => 
+              plus_two_start <= n -> 
+              fib_iter_loop_time_lb6 n <=
+              plus_two_factor * fib_iter_loop_time_lb5 n)).
+  intros n IND LT.
+  destruct n.
+  simpl; omega.
+
+  unfold fib_iter_loop_time_lb5, fib_iter_loop_time_lb6;
+  fold fib_iter_loop_time_lb5; fold fib_iter_loop_time_lb6.
+  rewrite mult_plus_distr_l.
+  apply plus_le_compat;auto.
+
+  apply PLUSTWO.
+  admit.
+
+  apply IND; auto.
+  admit. (* sigh.*)
+Qed.
+
+Theorem fib_iter_n_squared: big_oh fib_iter_time_lb (fun n => n * n).
 Admitted.
-(* not sure I can prove this.... *)
-  

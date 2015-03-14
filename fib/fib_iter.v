@@ -327,31 +327,59 @@ Fixpoint fib_iter_loop_time_lb6 fuel :=
                  fib_iter_loop_time_lb6 fuel'
   end.
 
+Lemma le_eq:
+  forall n m,
+    n <= m ->
+    { q | m = q + n }.
+Proof.
+  induction n; intros m LE.
+  exists m. omega.
+  destruct m.
+  omega.
+  destruct (IHn m) as [q EQ].
+  omega.
+  subst m.
+  exists q. auto.
+Qed.
+
 Lemma fib_iter_loop_lb56 : 
   big_oh fib_iter_loop_time_lb6 fib_iter_loop_time_lb5.
 Proof.
   destruct plus_two_fibs_time_lb as [plus_two_start [plus_two_factor PLUSTWO]].
   exists plus_two_start plus_two_factor.
-  apply (well_founded_ind 
-           lt_wf 
-           (fun n => 
-              plus_two_start <= n -> 
-              fib_iter_loop_time_lb6 n <=
-              plus_two_factor * fib_iter_loop_time_lb5 n)).
-  intros n IND LT.
-  destruct n.
-  simpl; omega.
 
+  intros n LE.
+  apply le_eq in LE.
+  destruct LE as [q EQ]; subst n.
+
+  induction q.
+
+  simpl plus.
+  (* XXX We know nothing about plus_two_start, so there's no way to
+  know what happens at this particular boundary point. It seems
+  pointless to try and prove this by induction on
+  plus_two_start. Interestingly, we know from the above proof the
+  plus_two_start is actually 2. *)
+  destruct plus_two_start.
+  (* 0 *) simpl. omega.
+  destruct plus_two_start.
+  (* 1 *) simpl. omega.
+  destruct plus_two_start.
+  (* 2 *) simpl.
+  (* Now we need to know that plus_two_factor isn't 0, which it isn't
+     because it's 4, but we can't know that here. *)
+  admit.
+  admit.
+
+  (* I think the correct thing to do here is expose the core of the
+  plus_two_fibs_time_lb so we know that the constants are 2 and 4. *)
+
+  simpl plus.
   unfold fib_iter_loop_time_lb5, fib_iter_loop_time_lb6;
   fold fib_iter_loop_time_lb5; fold fib_iter_loop_time_lb6.
   rewrite mult_plus_distr_l.
   apply plus_le_compat;auto.
-
-  apply PLUSTWO.
-  admit.
-
-  apply IND; auto.
-  admit. (* sigh.*)
+  apply PLUSTWO. omega.
 Qed.
 
 Theorem fib_iter_n_squared: big_oh fib_iter_time_lb (fun n => n * n).

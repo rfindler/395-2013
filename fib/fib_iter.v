@@ -136,7 +136,6 @@ Fixpoint fib_iter_loop_time_lb2 fuel n :=
                  fib_iter_loop_time_lb2 fuel' (n+1) + 1
   end.
 
-
 Lemma fib_iter_loop_lb12 : 
   forall n steps_taken,
     fib_iter_loop_time_lb n (fib steps_taken) (fib (steps_taken+1)) =
@@ -160,6 +159,22 @@ Proof.
   rewrite fib_SS.
   replace (S steps_taken) with (steps_taken+1);omega.
 Qed.
+
+
+Lemma fib_iter_loop_time_lb2_grows:
+  forall fuel n, 
+    fib_iter_loop_time_lb2 fuel n <= fib_iter_loop_time_lb2 fuel (n + 1).
+Proof.
+  intros fuel.
+  induction fuel.
+  intros; simpl;omega.
+  intros n.
+  unfold fib_iter_loop_time_lb2; fold fib_iter_loop_time_lb2.
+  repeat (apply plus_le_compat); auto.
+  clear IHfuel.
+  admit.
+Qed.
+
 
 Fixpoint fib_iter_loop_time_lb3 fuel n :=
   match fuel with
@@ -327,6 +342,81 @@ Fixpoint fib_iter_loop_time_lb6 fuel :=
                  fib_iter_loop_time_lb6 fuel'
   end.
 
+Lemma fib_iter_loop_lb56 : 
+  big_oh fib_iter_loop_time_lb6 fib_iter_loop_time_lb5.
+Proof.
+  destruct plus_two_fibs_time_lb as [plus_two_start [plus_two_factor PLUSTWO]].
+  exists (S plus_two_start) plus_two_factor.
+  apply (well_founded_ind 
+           lt_wf 
+           (fun n => 
+              (S plus_two_start) <= n -> 
+              fib_iter_loop_time_lb6 n <=
+              plus_two_factor * fib_iter_loop_time_lb5 n)).
+  intros n IND LT.
+  destruct n.
+  simpl; omega.
+
+  unfold fib_iter_loop_time_lb5, fib_iter_loop_time_lb6;
+  fold fib_iter_loop_time_lb5; fold fib_iter_loop_time_lb6.
+  rewrite mult_plus_distr_l.
+  apply plus_le_compat;auto.
+
+  apply PLUSTWO; omega.
+
+  apply IND; auto.
+  admit. (* sigh.*)
+Qed.
+
+Fixpoint fib_iter_loop_time_lb2' fuel n :=
+  match fuel with
+    | 0 => 1
+    | S fuel' => n +
+                 fib_iter_loop_time_lb2' fuel' n + 1
+  end.
+
+Lemma fib_iter_loop_lb22' : big_oh (fun fuel => fib_iter_loop_time_lb2' fuel fuel)
+                                   (fun fuel => fib_iter_loop_time_lb2 fuel fuel).
+Proof.
+  destruct plus_two_fibs_time_lb as [plus_two_start [plus_two_factor PLUSTWO]].
+  exists plus_two_start (S plus_two_factor).
+
+  assert (forall fuel n,
+            plus_two_start <= n ->
+             fib_iter_loop_time_lb2' fuel n <=
+             S plus_two_factor * fib_iter_loop_time_lb2 fuel n) as NEW;[|intros; remember (NEW n); auto].
+  apply (well_founded_ind
+           lt_wf
+           (fun fuel => 
+              forall n, 
+                plus_two_start <= n ->
+                fib_iter_loop_time_lb2' fuel n <=
+                (S plus_two_factor) * fib_iter_loop_time_lb2 fuel n)).
+  intros fuel IND n LE.
+  destruct fuel.
+  simpl; omega.
+  simpl fib_iter_loop_time_lb2'.
+  simpl fib_iter_loop_time_lb2.
+  repeat (rewrite mult_plus_distr_l).
+  repeat (apply plus_le_compat); try omega.
+
+  replace (S plus_two_factor) with (plus_two_factor+1);[|omega].
+  rewrite mult_plus_distr_r.
+  apply (le_trans n (plus_two_factor * plus_two_fibs_time n)).
+  apply PLUSTWO;auto.
+  replace (plus_two_factor * plus_two_fibs_time n) with (plus_two_factor * plus_two_fibs_time n + 0) at 1;
+    [|omega].
+  apply plus_le_compat; omega.
+
+  apply (le_trans (fib_iter_loop_time_lb2' fuel n)
+                  (S plus_two_factor * fib_iter_loop_time_lb2 fuel n)).
+  apply IND; auto.
+  apply mult_le_compat;auto.
+
+  clear.
+  apply fib_iter_loop_time_lb2_grows.
+Qed.
+
 Lemma le_eq:
   forall n m,
     n <= m ->
@@ -386,7 +476,7 @@ Proof.
   apply PLUSTWO. omega.
 Qed.
 
-Lemma fib_iter_loop_lb56 : 
+Lemma fib_iter_loop_lb56'' : 
   big_oh fib_iter_loop_time_lb6 fib_iter_loop_time_lb5.
 Proof.
   destruct plus_two_fibs_time_lb as [plus_two_start [plus_two_factor PLUSTWO]].

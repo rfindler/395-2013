@@ -172,9 +172,11 @@ Proof.
   unfold fib_iter_loop_time_lb2; fold fib_iter_loop_time_lb2.
   repeat (apply plus_le_compat); auto.
   clear IHfuel.
-  admit.
+  rewrite plus_cin_time_lb_symmetric at 1.
+  apply plus_cin_time_lb_right_arg_grows.
+  apply fib_monotone.
+  omega.
 Qed.
-
 
 Fixpoint fib_iter_loop_time_lb3 fuel n :=
   match fuel with

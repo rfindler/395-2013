@@ -342,10 +342,23 @@ Proof.
   exists q. auto.
 Qed.
 
-Lemma fib_iter_loop_lb56 : 
-  big_oh fib_iter_loop_time_lb6 fib_iter_loop_time_lb5.
+(* If we knew something about these numbers, then we'd be able to have
+a base case for the property, but we don't, so the "base case" is the
+entire proof. *)
+
+Lemma fib_iter_loop_lb56':
+  forall
+    (plus_two_start : nat)
+    (plus_two_factor : nat)
+    (PLUSTWO : forall n : nat,
+      plus_two_start <= n ->
+      n <= plus_two_factor * plus_two_fibs_time n),
+    2 <= plus_two_start <= 4 ->
+    1 <= plus_two_factor ->
+      big_oh fib_iter_loop_time_lb6 fib_iter_loop_time_lb5.
 Proof.
-  destruct plus_two_fibs_time_lb as [plus_two_start [plus_two_factor PLUSTWO]].
+  intros. rename H into LEs. rename H0 into LEf.
+
   exists plus_two_start plus_two_factor.
 
   intros n LE.
@@ -355,24 +368,42 @@ Proof.
   induction q.
 
   simpl plus.
-  (* XXX We know nothing about plus_two_start, so there's no way to
-  know what happens at this particular boundary point. It seems
-  pointless to try and prove this by induction on
-  plus_two_start. Interestingly, we know from the above proof the
-  plus_two_start is actually 2. *)
+  destruct plus_two_start. omega.
+  destruct plus_two_start. omega.
   destruct plus_two_start.
-  (* 0 *) simpl. omega.
+   simpl. omega.
   destruct plus_two_start.
-  (* 1 *) simpl. omega.
+   simpl. omega.
   destruct plus_two_start.
-  (* 2 *) simpl.
-  (* Now we need to know that plus_two_factor isn't 0, which it isn't
-     because it's 4, but we can't know that here. *)
-  admit.
-  admit.
+   simpl. omega.
+  omega.
 
-  (* I think the correct thing to do here is expose the core of the
-  plus_two_fibs_time_lb so we know that the constants are 2 and 4. *)
+  simpl plus.
+  unfold fib_iter_loop_time_lb5, fib_iter_loop_time_lb6;
+  fold fib_iter_loop_time_lb5; fold fib_iter_loop_time_lb6.
+  rewrite mult_plus_distr_l.
+  apply plus_le_compat;auto.
+  apply PLUSTWO. omega.
+Qed.
+
+Lemma fib_iter_loop_lb56 : 
+  big_oh fib_iter_loop_time_lb6 fib_iter_loop_time_lb5.
+Proof.
+  destruct plus_two_fibs_time_lb as [plus_two_start [plus_two_factor PLUSTWO]].
+  exists plus_two_start plus_two_factor.
+
+  intros n LE. (* Point A *)
+  apply le_eq in LE.
+  destruct LE as [q EQ]; subst n.
+
+  induction q.
+
+  simpl plus.
+  rename plus_two_start into n.
+  (* Notice that this proof context is the entire property we want to
+  prove, Point A, except we no longer have LE. This means that this
+  tactic can't work and is wrong. *)
+  admit.
 
   simpl plus.
   unfold fib_iter_loop_time_lb5, fib_iter_loop_time_lb6;

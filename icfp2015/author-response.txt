@@ -63,7 +63,8 @@ behavior.
 
 D: "Why not show the definition of the ret, inc and bind as well as
 their types?" -- they are in the git repo, linked from the paper, but
-the types are really the interesting part.
+the types are really the interesting part. (and the definitions are
+derived via proof scripts, so they are not directly given anyways.)
 
 D: "Perhaps the problem discussed in Section 4 more general than this
 paper describes. In particular, what about defining other monads
@@ -72,7 +73,8 @@ related to the extra information carried in the types not the running
 time component, but it is difficult to say anything for certain here.
 
 D: "Which functions in section 5 need the most expressive version of
-bind?" The ones in the third category.
+bind?" The ones in the third category. (which explicitly says this!
+arggh!)
 
 D: "What conclusions should we draw from the table in Figure 3?" we
 mostly wanted to give you a sense of the case-study, yes. The size of
@@ -100,9 +102,31 @@ the complexity information is erased during compilation, so that there
 is no overhead running the extracted functions and that our approach
 works even when the programmer separates the data type from its
 invariant. The second point is different from what we wrote in the
-related work and we apologize: what you wrote is our understand and
+related work and we apologize: what you wrote is our understanding and
 what we intended to communicate. It isn't that they cannot be
 expressed at all (after all, we both have dependently type programming
 languages!) but rather that they cannot be attached to the function's
-type. We will fix this problem with our writeup. 
+type. We will fix this problem with our writeup.
 
+E: The font spec is a min, not a max.
+
+E: "[Do the monad proofs preserve time]" - The monads actually
+preserve time, but the proofs do not prove that. Instead, they prove
+that a proof about monadic program X's running time implies the proof
+about monadic program Y's running time, and back. This is related to
+the way that you use P to make running time claims anyways, you need
+to have a prediction and then prove that the prediction matches what
+the monad produces.
+
+Thus, if P is something like "fun x m => m = K" for some constant K,
+then the transformed monadic program has to have the same running
+time. This is unavoidable (with this monadic type) because we can
+never extract the number out of the sigma type's exists (in fact,
+preventing our ability to do that is the whole point of the monad
+guaranteeing virtual running times.).
+
+E: "The proof scripts look quite brittle"... This would just be a
+matter of being more comfortable with proving things about arithmetic
+in Coq. Generally, when our goals are Big-Oh bounds, we have a big
+library of general results that allow us to basically just ignore the
+numbers in a lot of cases.

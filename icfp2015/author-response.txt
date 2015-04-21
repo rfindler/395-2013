@@ -1,0 +1,108 @@
+A D: re garbage collection: yes, we should connect to the related work
+on asymptotic complexity of garbage collection. Some pointers to the
+related work would be welcome. We are aware of a discussion by Hans
+Boehm that concludes "Thus the cost of the entire allocation cycle is
+proportional to the heap size, independent of the collection
+algorithm. The supposed difference in complexity affects at most one
+ill-defined section of the program that is not normally dominant. It
+can never affect the asymptotic complexity of an entire program unless
+that program allocates large amounts of memory that are never
+initialized.", which matches out intuition (and paper), but we are
+missing a more rigorous treatment.
+
+Also, a two-space copying collector does seem to be standard (ghc,
+racket, ocaml, and oracle's java runtime all use it for their small
+generation).
+
+A: re constant time of doubling and adding one: this works for any bignum
+representation that uses a base that is a power of 2, something that
+gnu gmp does (it uses either 2^32 or 2^64 as its base, depending on
+how it is configured I believe). And gmp is the standard in bignum
+libraries, we believe.
+
+B C D E: re scholarly context: on reflection we agree with the
+criticisms about seeing the context properly. We will write an
+introduction that clarifies this. In the meantime, we think that the
+characterization in review E is accurate and well-explained. (Thanks!)
+
+C: re why count precise steps: we think that verifying asymptotic
+complexity is as important as verifying correctness, but in a
+different way. In particular, it is much more difficult to test for
+asymptotic complexity than it is for correctness, so there is not
+really an effective "best effort" fallback approach. Also, complexity
+bugs can also lead to security exploits (see 
+http://www.usenix.org/legacy/publications/library/proceedings/sec03/tech/full_papers/crosby/crosby.pdf?CFID=504476681&CFTOKEN=20291396).
+That said, we do agree that work is at a high-effort high-guarantee point 
+in the space, overall.
+
+C: insert function constants changed; our program that automatically
+inserts the constants counts the number of primitive operations; we
+used a simplified version of that for the purposes of exposition in
+the figure 1 code.
+
+D: braun trees give you a growable vector (log time to extend the
+vector's size by one, log time lookup, and persistence); also they
+have an especially low constant overhead.
+
+D: re obligations: the discussion on the right-hand side of page 2 and
+the upper-left of page 3 is the full set of obligations.
+
+D: re Rosendahl's: it is the standard way to account for running
+time. 
+
+D: Showing that the tick-adding function is correct would require
+building a model of a (simple) processor and proving something about
+the relationship between a compiler that generates code for that to
+the ticks that get added. We seriously considered doing this, but
+judged that it would be quite tedious, at least relative to the
+additional assurance that it gives. Overall, it seems doable, however.
+
+D: re insert_result stricter condition: the translation isn't
+inserting more things, we just wanted to say more about insert's
+behavior.
+
+D: "Why not show the definition of the ret, inc and bind as well as
+their types?" -- they are in the git repo, linked from the paper, but
+the types are really the interesting part.
+
+D: "Perhaps the problem discussed in Section 4 more general than this
+paper describes. In particular, what about defining other monads
+besides those that track running time?" we believe the issue is
+related to the extra information carried in the types not the running
+time component, but it is difficult to say anything for certain here.
+
+D: "Which functions in section 5 need the most expressive version of
+bind?" The ones in the third category.
+
+D: "What conclusions should we draw from the table in Figure 3?" we
+mostly wanted to give you a sense of the case-study, yes. The size of
+the _gen files reflects the sizes of the definitions of the
+functions. The actual amount of generated code is just a line or two,
+here and there to add the "+= k"s. 
+
+D: "What proofs are in the 'other' category for proofs?": these are
+proofs of facts that can be (and often are) re-used in other
+places. This is not an absolute distinction, we agree, but it was
+natural for us to think about these separately as we worked on the proofs.
+
+D: "How did you decide which 17 algorithms to implement?" We started
+with the Braun trees in the seminar just because we thought Okasaki's
+paper was interesting. The others we picked by reading Cormen,
+Leiserson, Rivest, and Stein and picking everything we thought could
+fit. Our experience here is that algorithms that do not involve
+mutable state work great and those that do, don't. We conjecture that
+this is because working with mutable state in Coq is difficult and our
+monad is not the source of the problems, but we don't have evidence to
+support that.
+
+E: We agree about the high-level comparison to Danielsson, namely that
+the complexity information is erased during compilation, so that there
+is no overhead running the extracted functions and that our approach
+works even when the programmer separates the data type from its
+invariant. The second point is different from what we wrote in the
+related work and we apologize: what you wrote is our understand and
+what we intended to communicate. It isn't that they cannot be
+expressed at all (after all, we both have dependently type programming
+languages!) but rather that they cannot be attached to the function's
+type. We will fix this problem with our writeup. 
+

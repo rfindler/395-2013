@@ -327,7 +327,7 @@ Instead, the paper simply defines all the monad operations in a
 plausible way and doesn't comment on them further. That's not quite
 convincing enough. An example of why not is the monad laws.
 Take the two terms:
-  m >>= \x -> f x >>= g
+  m >>= (\x -> f x >>= g)
   (m >>= f) >>= g
 These are supposed to be equivalent but, if I understand correctly,
 the costs are assigned differently! In the first program, if P is the

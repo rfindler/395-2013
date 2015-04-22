@@ -125,6 +125,11 @@ never extract the number out of the sigma type's exists (in fact,
 preventing our ability to do that is the whole point of the monad
 guaranteeing virtual running times.).
 
+-- YOU'RE right that they aren't equal, BUT the numbers are the same,
+   ONLY the proofs are different, because g's knowledge is different.
+   BECAUSE you can prove a specific statement about the number, then
+   any rearrangment of the ()s still result in the same number
+
 E: "The proof scripts look quite brittle"... This would just be a
 matter of being more comfortable with proving things about arithmetic
 in Coq. Generally, when our goals are Big-Oh bounds, we have a big

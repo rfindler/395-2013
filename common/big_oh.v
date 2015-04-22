@@ -388,3 +388,104 @@ Proof.
   apply big_omega_rev. apply Tfg.
 Qed.
 
+(* because TT'FACT is hard to establish, this seems useless *)
+Lemma recurrence_that_sums :
+  forall k k' f f' T T',
+    (forall n, T 0 n = k) ->
+    (forall n, T' 0 n = k') ->
+    (forall fuel n, T (S fuel) n = f n + T fuel (n+1) + 1) ->
+    (forall fuel n, T' (S fuel) n = f' n + T' fuel (n+1) + 1) ->
+    k <= k' ->
+    big_oh f f' ->
+    (forall fuel n k,  T fuel n <= (S k) * T' fuel n -> 
+                       T fuel (n+1) <= (S k) * (T' fuel (n+1))) -> 
+    exists n,
+      forall n',
+        n <= n' ->
+        big_oh (fun fuel => T fuel n') (fun fuel => T' fuel n').
+Proof.
+  intros k k' f f' T T' T0 T'0 TR TR' LTkk' [fn0 [fc FF']] TT'FACT.
+  destruct fc.
+  exists fn0. intros n' NN'. exists 0. exists 1. 
+  intros fuel _.
+  rewrite mult_1_l.
+  induction fuel.
+  rewrite T0.
+  rewrite T'0.
+  omega.
+
+  rewrite TR.
+  rewrite TR'.
+  repeat (apply plus_le_compat); auto.
+
+  assert (f n' <= 0);[|omega].
+  replace 0 with (0 * f' n');[|omega].
+  apply FF'.
+  omega.
+  
+  replace (T' fuel (n' + 1)) with (1*(T' fuel (n' + 1)));[|omega].
+  apply TT'FACT;omega.
+
+  exists fn0. 
+  intros n' NN'. exists 0. exists (1+fc).
+  intros fuel _.
+  induction fuel.
+  rewrite T0.
+  rewrite T'0.
+  rewrite mult_plus_distr_r.
+  apply le_plus_trans.
+  omega.
+
+  rewrite TR.
+  rewrite TR'.
+  repeat (rewrite mult_plus_distr_l).
+  repeat (apply plus_le_compat); auto.
+  omega.
+Qed.
+
+Lemma recurrence_that_sums' :
+  forall k k' f f' T T',
+    (forall n, T 0 n = k) ->
+    (forall n, T' 0 n = k') ->
+    (forall fuel n, T (S fuel) n = f n + T fuel n) ->
+    (forall fuel n, T' (S fuel) n = f' n + T' fuel n) ->
+    k <= k' ->
+    big_oh f f' ->
+    exists n,
+      forall n',
+        n <= n' ->
+        big_oh (fun fuel => T fuel n') (fun fuel => T' fuel n').
+Proof.
+  intros k k' f f' T T' T0 T'0 TR TR' LTkk' [fn0 [fc FF']].
+  destruct fc.
+  exists fn0. intros n' NN'. exists 0. exists 1. 
+  intros fuel _.
+  rewrite mult_1_l.
+  induction fuel.
+  rewrite T0.
+  rewrite T'0.
+  omega.
+
+  rewrite TR.
+  rewrite TR'.
+  apply plus_le_compat; auto.
+  assert (f n' <= 0);[|omega].
+  replace 0 with (0 * f' n');[|omega].
+  apply FF'.
+  omega.
+
+  exists fn0. 
+  intros n' NN'. exists 0. exists (1+fc).
+  intros fuel _.
+  induction fuel.
+  rewrite T0.
+  rewrite T'0.
+  rewrite mult_plus_distr_r.
+  apply le_plus_trans.
+  omega.
+
+  rewrite TR.
+  rewrite TR'.
+  rewrite mult_plus_distr_l.
+  apply plus_le_compat; auto.
+Qed.

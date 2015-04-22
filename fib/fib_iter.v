@@ -267,43 +267,11 @@ Lemma fib_iter_loop_lb23 :
       big_oh (fun fuel => fib_iter_loop_time_lb3 fuel n')
              (fun fuel => fib_iter_loop_time_lb2 fuel n').
 Proof.
-  destruct plus_two_fibs_time_lb as [plus_two_start [plus_two_factor PLUSTWO]].
-  exists plus_two_start.
-  induction n'.
-  intros.
+  apply (recurrence_that_sums 1 1 (fun n => n) plus_two_fibs_time); 
+  intros; simpl; auto.
+
+  apply plus_two_fibs_time_lb.
   admit.
-
-  intros LT.
-
-  admit.
-(*
-  intros fuel _.
-  apply (well_founded_ind
-           lt_wf
-           (fun fuel => 
-              fib_iter_loop_time_lb3 fuel n' <=
-              (S plus_two_factor) * fib_iter_loop_time_lb2 fuel n')).
-  clear fuel; intros fuel IND.
-  destruct fuel.
-  simpl; omega.
-  
-  simpl fib_iter_loop_time_lb3.
-  simpl fib_iter_loop_time_lb2.
-  repeat (rewrite mult_plus_distr_l).
-  repeat (apply plus_le_compat); try omega.
-
-  replace (S plus_two_factor) with (plus_two_factor+1);[|omega].
-  rewrite mult_plus_distr_r.
-  apply (le_trans n' (plus_two_factor * plus_two_fibs_time n'));[|omega].
-  apply PLUSTWO; auto.
-
-  apply IND; auto.
-
-
-  exists fl_start fl_factor.
-  intros n.
-  apply FACT.
-*)
 Qed.
 
 Lemma fib_iter_loop_time_lb3_sq : 

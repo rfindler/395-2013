@@ -1,3 +1,74 @@
+With the exception of a technical misunderstanding (explained
+below), reviewer 38E has the best grasp of our paper, understands
+the related work well, has pointed out that we make a
+contribution to the state of knowledge (indeed, gives a more
+accurate characterization that ours (we will fix ours)), and
+writes "I did enjoy reading the paper".
+
+Nevertheless, the review score is a 1. What can we conclude from
+such a review, except that outsiders are not welcome to work on
+dependent types?
+
+Furthermore, reviews B and C are embarrassingly shallow.  For
+instance, B demonstrates their ignorance in their response to our
+comment, "Our code builds heavily on Program", by saying "Well,
+explain how and why" as if Program is related work that we are not
+appropriately explaining the connection. Program is just a language
+feature of Coq that is convenient for writing certified programs. Our
+statement is isomorphic to "Our code uses lots of algebraic
+data-types."
+
+-----
+
+The technical misunderstanding we allude to in review E is in the two
+comments about the associativity law and the use of sig_eqv in our
+proofs of the monad laws in the second section of the review.
+
+The reviewer claims that our paper assigns
+ (m >>= (\x -> f x >>= g)) and
+ ((m >>= f) >>= g)
+different costs. This is not correct. These two expressions are
+assigned the same costs. However, the proofs for those costs will have
+to be written differently. Simply put, one will be a proof about (n_m
++ (n_f + n_g)) and the other will be a proof about ((n_m + n_f) + n_g)
+where n_X is the running time of computation X. In Coq, these proofs
+are not equal, but they are equivalent, which we express through
+sig_eqv.
+
+The review claims that because sig_eqv does not check that `m` and `n`
+(the running times of two computations hidden under an existential)
+are not equal and thus we do not know that the monad laws preserve
+running time. First, the whole point of our work is to ensure that it
+is not possible to extract the values of `m` and `n` to compare them,
+so we cannot do that. However, we still prove that the running times
+are the same. The reason is that the monad laws are parameterized over
+an arbitrary running time property. This includes a property such as
+(fun result cost => cost = 27). Our monad law proofs show that even
+the proof of such a specific property can be "ported" from one monadic
+computation to another. In the case of associativity, this is almost
+as simple as using the associativity of addition.
+
+---
+
+Answers to other questions:
+
+C: We believe that verifying complexity is as important as
+correctness, especially because it is difficult to test and can lead
+to security exploits (see USENIX03 Crosby).
+
+D asks some useful small questions that we can use to make a few
+sections more clear, for instance:
++ Braun trees provide efficient growable vectors and are an
+  instructive example.
++ The definitions of everything are linked from the paper in the git
+  repository and supplemental repository. The types are the most
+  interesting part, however.
++ etc.
+
+-----------------------------------------------------------------
+
+---
+
 A D: re garbage collection: yes, we should connect to the related work
 on asymptotic complexity of garbage collection. Some pointers to the
 related work would be welcome. We are aware of a discussion by Hans

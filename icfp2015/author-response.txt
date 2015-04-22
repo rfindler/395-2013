@@ -135,3 +135,15 @@ matter of being more comfortable with proving things about arithmetic
 in Coq. Generally, when our goals are Big-Oh bounds, we have a big
 library of general results that allow us to basically just ignore the
 numbers in a lot of cases.
+
+E: Idle Thought - We did that in the beginning, but it has the
+programmer writing two properties for every computation, rather than a
+single property. This is mostly an aesthetic decision, because
+everything would go through with two properties as well as one,
+because the first could always be "True" and the second be what we
+have now. The only different would be in the type of bind... the pa
+argument, would it be the logical proof or would it be the running
+time proof? The motivation for adding it was certainly the logical
+side, so this suggests that some proofs may have simpler hypotheses
+because they could start ignoring the running time part of the
+property.

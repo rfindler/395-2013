@@ -1,217 +1,59 @@
-With the exception of a technical misunderstanding (explained
-below), reviewer 38E has the best grasp of our paper, understands
-the related work well, has pointed out that we make a
-contribution to the state of knowledge (indeed, gives a more
-accurate characterization that ours (we will fix ours)), and
-writes "I did enjoy reading the paper".
+Reviewer E seems to have a technical misunderstanding related to the
+comment about the associativity law and the use of sig_eqv in our
+proofs.
 
-Nevertheless, the review score is a 1. What can we conclude from
-such a review, except that outsiders are not welcome to work on
-dependent types?
+The reviewer writes that our paper assigns
 
-Furthermore, reviews B and C are embarrassingly shallow.  For
-instance, B demonstrates their ignorance in their response to our
-comment, "Our code builds heavily on Program", by saying "Well,
-explain how and why" as if Program is related work that we are not
-appropriately explaining the connection. Program is just a language
-feature of Coq that is convenient for writing certified programs. Our
-statement is isomorphic to "Our code uses lots of algebraic
-data-types."
-
------
-
-The technical misunderstanding we allude to in review E is in the two
-comments about the associativity law and the use of sig_eqv in our
-proofs of the monad laws in the second section of the review.
-
-The reviewer claims that our paper assigns
  (m >>= (\x -> f x >>= g)) and
  ((m >>= f) >>= g)
+
 different costs. This is not correct. These two expressions are
-assigned the same costs. However, the proofs for those costs will have
-to be written differently. Simply put, one will be a proof about (n_m
-+ (n_f + n_g)) and the other will be a proof about ((n_m + n_f) + n_g)
-where n_X is the running time of computation X. In Coq, these proofs
-are not equal, but they are equivalent, which we express through
-sig_eqv.
+assigned the same costs. The reviewer is correct that there is a
+difference between these two expressions, however: the proofs for
+those costs will have to be written differently. Simply put, one will
+be a proof about (n_m + (n_f + n_g)) and the other will be a proof
+about ((n_m + n_f) + n_g) where n_X is the running time of computation
+X. In Coq, these proofs are not equal, but they are equivalent, which
+we express through sig_eqv.
 
 The review claims that because sig_eqv does not check that `m` and `n`
-(the running times of two computations hidden under an existential)
-are not equal and thus we do not know that the monad laws preserve
-running time. First, the whole point of our work is to ensure that it
-is not possible to extract the values of `m` and `n` to compare them,
-so we cannot do that. However, we still prove that the running times
-are the same. The reason is that the monad laws are parameterized over
-an arbitrary running time property. This includes a property such as
-(fun result cost => cost = 27). Our monad law proofs show that even
-the proof of such a specific property can be "ported" from one monadic
-computation to another. In the case of associativity, this is almost
-as simple as using the associativity of addition.
+(the running times of two computations under an existential) are not
+equal and thus we do not know that the monad laws preserve running
+time. First, an essential part of our approach is to ensure that it is
+not possible to extract the values of `m` and `n` to compare them (or
+else we would lose the nice extraction). Despite that, we can still
+prove that the running times are the same. The reason is that the
+monad laws are parameterized over an arbitrary running time
+property. This includes a property that embeds a simple constant,
+e.g., (fun result cost => cost = 27). Our monad law proofs show that
+even the proof of such a specific property can be "ported" from one
+monadic computation to another. In the case of associativity, this is
+almost as simple as using the associativity of addition.
 
----
+Most of the reviewers suggest that scholarly context of the paper is
+poorly written: on reflection we agree with these criticisms. We will
+write an introduction that clarifies this. In the meantime, we think
+that the characterization in review E is accurate and
+well-explained. (Thanks!)
 
-Answers to other questions:
+Other questions:
+
+A: constant time of doubling works for any bignum representation that
+uses a base that is a power of 2, something that gnu gmp does, and gmp
+is the standard in bignum libraries.
+
+B: program is a standard part of Coq that we found especially useful
+in our work; it is worth investigating if you've not used it before.
 
 C: We believe that verifying complexity is as important as
 correctness, especially because it is difficult to test and can lead
 to security exploits (see USENIX03 Crosby).
 
-D asks some useful small questions that we can use to make a few
-sections more clear, for instance:
-+ Braun trees provide efficient growable vectors and are an
-  instructive example.
-+ The definitions of everything are linked from the paper in the git
-  repository and supplemental repository. The types are the most
-  interesting part, however.
-+ etc.
-
------------------------------------------------------------------
-
----
-
-A D: re garbage collection: yes, we should connect to the related work
-on asymptotic complexity of garbage collection. Some pointers to the
-related work would be welcome. We are aware of a discussion by Hans
-Boehm that concludes "Thus the cost of the entire allocation cycle is
-proportional to the heap size, independent of the collection
-algorithm. The supposed difference in complexity affects at most one
-ill-defined section of the program that is not normally dominant. It
-can never affect the asymptotic complexity of an entire program unless
-that program allocates large amounts of memory that are never
-initialized.", which matches out intuition (and paper), but we are
-missing a more rigorous treatment.
-
-Also, a two-space copying collector does seem to be standard (ghc,
-racket, ocaml, and oracle's java runtime all use it for their small
-generation).
-
-A: re constant time of doubling and adding one: this works for any bignum
-representation that uses a base that is a power of 2, something that
-gnu gmp does (it uses either 2^32 or 2^64 as its base, depending on
-how it is configured I believe). And gmp is the standard in bignum
-libraries, we believe.
-
-B C D E: re scholarly context: on reflection we agree with the
-criticisms about seeing the context properly. We will write an
-introduction that clarifies this. In the meantime, we think that the
-characterization in review E is accurate and well-explained. (Thanks!)
-
-C: re why count precise steps: we think that verifying asymptotic
-complexity is as important as verifying correctness, but in a
-different way. In particular, it is much more difficult to test for
-asymptotic complexity than it is for correctness, so there is not
-really an effective "best effort" fallback approach. Also, complexity
-bugs can also lead to security exploits (see 
-http://www.usenix.org/legacy/publications/library/proceedings/sec03/tech/full_papers/crosby/crosby.pdf?CFID=504476681&CFTOKEN=20291396).
-That said, we do agree that work is at a high-effort high-guarantee point 
-in the space, overall.
-
-C: insert function constants changed; our program that automatically
-inserts the constants counts the number of primitive operations; we
-used a simplified version of that for the purposes of exposition in
-the figure 1 code.
-
-D: braun trees give you a growable vector (log time to extend the
-vector's size by one, log time lookup, and persistence); also they
-have an especially low constant overhead.
-
-D: re obligations: the discussion on the right-hand side of page 2 and
-the upper-left of page 3 is the full set of obligations.
-
-D: re Rosendahl's: it is the standard way to account for running
-time. 
-
-D: Showing that the tick-adding function is correct would require
-building a model of a (simple) processor and proving something about
-the relationship between a compiler that generates code for that to
-the ticks that get added. We seriously considered doing this, but
-judged that it would be quite tedious, at least relative to the
-additional assurance that it gives. Overall, it seems doable, however.
-
-D: re insert_result stricter condition: the translation isn't
-inserting more things, we just wanted to say more about insert's
-behavior.
-
-D: "Why not show the definition of the ret, inc and bind as well as
-their types?" -- they are in the git repo, linked from the paper, but
-the types are really the interesting part (and the definitions are
-derived via proof scripts, so they are not directly given anyways).
-
-D: "Perhaps the problem discussed in Section 4 more general than this
-paper describes. In particular, what about defining other monads
-besides those that track running time?" we believe the issue is
-related to the extra information carried in the types not the running
-time component, but it is difficult to say anything for certain here.
-
-D: "Which functions in section 5 need the most expressive version of
-bind?" The ones in the third category.
-
-D: "What conclusions should we draw from the table in Figure 3?" we
-mostly wanted to give you a sense of the case-study, yes. The size of
-the _gen files reflects the sizes of the definitions of the
-functions. The actual amount of generated code is just a line or two,
-here and there to add the "+= k"s. 
-
-D: "What proofs are in the 'other' category for proofs?": these are
-proofs of facts that can be (and often are) re-used in other
-places. This is not an absolute distinction, we agree, but it was
-natural for us to think about these separately as we worked on the proofs.
-
-D: "How did you decide which 17 algorithms to implement?" We started
-with the Braun trees in the seminar just because we thought Okasaki's
-paper was interesting. The others we picked by reading Cormen,
-Leiserson, Rivest, and Stein and picking everything we thought could
-fit. Our experience here is that algorithms that do not involve
-mutable state work great and those that do, don't. We conjecture that
-this is because working with mutable state in Coq is difficult and our
-monad is not the source of the problems, but we don't have evidence to
-support that.
-
-E: We agree about the high-level comparison to Danielsson, namely that
-the complexity information is erased during compilation, so that there
-is no overhead running the extracted functions and that our approach
-works even when the programmer separates the data type from its
-invariant. The second point is different from what we wrote in the
-related work and we apologize: what you wrote is our understanding and
-what we intended to communicate. It isn't that they cannot be
-expressed at all (after all, we both have dependently type programming
-languages!) but rather that they cannot be attached to the function's
-type. We will fix this problem with our writeup.
-
-E: Do the monad proofs preserve time? - The monads actually do
-preserve time, but the proofs do not prove that. Instead, they prove
-that a proof about monadic program X's running time implies the proof
-about monadic program Y's running time, and back. This is related to
-the way that you use P to make running time claims anyway; you need
-to have a prediction and then prove that the prediction matches what
-the monad produces.
-
-Thus, if P is something like "fun x m => m = K" for some constant K,
-then the transformed monadic program has to have the same running
-time. This is unavoidable (with this monadic type) because we can
-never extract the number out of the sigma type's exists. In fact,
-preventing our ability to do is fundamentally tied to the way our
-monad guarantees virtual running times.
-
--- YOU'RE right that they aren't equal, BUT the numbers are the same,
-   ONLY the proofs are different, because g's knowledge is different.
-   BECAUSE you can prove a specific statement about the number, then
-   any rearrangment of the ()s still result in the same number
-
-E: "The proof scripts look quite brittle"... This would just be a
-matter of being more comfortable with proving things about arithmetic
-in Coq. Generally, when our goals are Big Oh bounds, we have a
-library of general results that allow us to basically just ignore the
-numbers in a lot of cases.
-
-E: Idle Thought - We did that in the beginning, but it has the
-programmer writing two properties for every computation, rather than a
-single property. This is mostly an aesthetic decision, because
-everything would go through with two properties as well as one,
-because the first could always be "True" and the second be what we
-have now. The only different would be in the type of bind... the pa
-argument, would it be the logical proof or would it be the running
-time proof? The motivation for adding it was certainly the logical
-side, so this suggests that some proofs may have simpler hypotheses
-because they could start ignoring the running time part of the
-property.
+D asks many useful questions that we plan in future writeups (thanks!); 
+  here are some short answers:
++ Braun trees provide growable vectors.
++ All the definitions are in the github repository and supplemental
+  repository. The types are the most interesting part, however.
++ We decided to implement Okasaki's Braun algorithms because his papers
+  are well-written and we started this project in a class; we generalized
+  to CLRS, searching for algorithms that would challenge the framework.

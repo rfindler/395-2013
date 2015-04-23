@@ -38,20 +38,20 @@ contribution in review E is well-explained. (Thanks!)
 Other questions:
 
 A: constant time of doubling works for any bignum representation that
-uses a base that is a power of 2, something that gnu gmp does, and gmp
+uses a base that is a power of 2, something that GNU GMP does, and GMP
 is the standard in bignum libraries.
 
-B: program is a standard part of Coq that we found especially useful
+B: "Program" is a standard part of Coq that we found especially useful
 in our work; it is worth investigating if you've not used it before.
 
 C: Are you saying that runtime-complexity is less interesting than
 correctness? Or that we have not established a good-enough connection
 to the machine? Thanks if you reply! (see also USENIX03 Crosby).
 
-D asks many useful questions that we plan in future writeups (thanks!); 
+D asks many useful questions that we plan in future write-ups (thanks!); 
   here are some short answers:
 + Braun trees provide growable vectors.
-+ All the definitions are in the github repository and supplemental
++ All the definitions are in the Github repository and supplemental
   repository. The types are the most interesting part, however.
 + We decided to implement Okasaki's Braun algorithms because his papers
   are well-written and we started this project in a class; we generalized

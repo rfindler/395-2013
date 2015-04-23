@@ -45,9 +45,9 @@ is the standard in bignum libraries.
 B: program is a standard part of Coq that we found especially useful
 in our work; it is worth investigating if you've not used it before.
 
-C: We believe that verifying complexity is as important as
-correctness, especially because it is difficult to test and can lead
-to security exploits (see USENIX03 Crosby).
+C: Are you saying that runtime-complexity is less interesting than
+correctness? Or that we have not established a good-enough connection
+to the machine? (Thanks if you reply!)
 
 D asks many useful questions that we plan in future writeups (thanks!); 
   here are some short answers:

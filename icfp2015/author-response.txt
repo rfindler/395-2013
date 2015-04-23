@@ -31,10 +31,9 @@ monadic computation to another. In the case of associativity, this is
 almost as simple as using the associativity of addition.
 
 Most of the reviewers suggest that scholarly context of the paper is
-poorly written: on reflection we agree with these criticisms. We will
-write an introduction that clarifies this. In the meantime, we think
-that the characterization in review E is accurate and
-well-explained. (Thanks!)
+poorly written: on reflection we agree. We will improve our write
+up. In the meantime, we think that the characterization in review E is
+accurate and well-explained. (Thanks!)
 
 Other questions:
 
@@ -47,7 +46,7 @@ in our work; it is worth investigating if you've not used it before.
 
 C: Are you saying that runtime-complexity is less interesting than
 correctness? Or that we have not established a good-enough connection
-to the machine? (Thanks if you reply!)
+to the machine? Thanks if you reply! (see also USENIX03 Crosby).
 
 D asks many useful questions that we plan in future writeups (thanks!); 
   here are some short answers:

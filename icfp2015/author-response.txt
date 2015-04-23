@@ -32,8 +32,8 @@ almost as simple as using the associativity of addition.
 
 Most of the reviewers suggest that scholarly context of the paper is
 poorly written: on reflection we agree. We will improve our write
-up. In the meantime, we think that the characterization in review E is
-accurate and well-explained. (Thanks!)
+up. In the meantime, we think that the characterization of our
+contribution in review E is well-explained. (Thanks!)
 
 Other questions:
 

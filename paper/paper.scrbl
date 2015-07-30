@@ -1,4 +1,4 @@
-#lang scribble/sigplan @10pt
+#lang scribble/lncs
 
 @(require "util.rkt" "cite.rkt" 
           scriblib/footnote
@@ -9,20 +9,22 @@
 @title[#:style (style #f (list (tex-addition extra-tex-code)))]{
   A Coq Library For Internal Verification of Running-Times
 }
-@doi{@hspace[4] @bold{Draft as of @(date->string (seconds->date (current-seconds)))}}
 
-@authorinfo["Jay McCarthy"
-            "Vassar College"
-            "jay.mccarthy@gmail.com"]
-@authorinfo["Burke Fetscher"
-            "Northwestern University"
-            "burke.fetscher@eecs.northwestern.edu"]
-@authorinfo["Max New"
-            "Northwestern University"
-            "max.new@eecs.northwestern.edu"]
-@authorinfo["Robert Bruce Findler"
-            "Northwestern University"
-            "robby@eecs.northwestern.edu"]
+@;@doi{@hspace[4] @bold{Draft as of @(date->string (seconds->date (current-seconds)))}}
+
+@authors[@author[#:inst "1"]{Jay McCarthy}
+         @author[#:inst "2"]{Burke Fetscher}
+         @author[#:inst "2"]{Max New}
+         @author[#:inst "2"]{Robert Bruce Findler}]
+
+@institutes[
+            @institute["University of Massachusetts at Lowell"
+                       @linebreak[]
+                       @email["jay.mccarthy@gmail.com"]]
+            @institute["Northwestern University"
+                       @linebreak[]
+                       @email["{burke.fetscher, max.new, robby}@eecs.northwestern.edu"]]
+]
 
 @abstract{
 

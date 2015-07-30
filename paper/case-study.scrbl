@@ -194,8 +194,6 @@ the identity function on values and in the types. These calls
 correspond to use of @tt{proj1_sig} in Coq to extract the value from a
 Sigma type and are useless and always successful in OCaml.
 
-@raw-latex{\newpage}
-
 All together, the OCaml program is equivalent to:
 
 @inline-code{

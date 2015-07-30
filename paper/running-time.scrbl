@@ -143,8 +143,6 @@ supplementary materials (@tt{add-plusses/check-stx-errs} in
 provided a function could map them to the program's syntax in a
 straight-forward way.
 
-@raw-latex{\newpage}
-
 Here is the definition of @tt{insert_result}:
 @(apply inline-code (extract insert_log.v "insert_result"))
 Unlike the previous version, this one accounts for the 

@@ -43,8 +43,6 @@ For our @tt{insert} function, we write the result type as:
          c = fl_log n + 1)) !}
 }|
 
-@raw-latex{\newpage}
-
 This is a shorthand (using Coq's @tt{notation} construct) for the
 following call to @tt{C}, in order to avoid duplicating the type
 between @tt{!:!} and @tt{!<!}:
@@ -128,8 +126,6 @@ The key point in the definition is that the property in @tt{x}'s type
 is @emph{not} @tt{PA}, but a modified function that ensures the
 argument is at least @tt{k}.
 
-@raw-latex{\newpage}
-
 In principle, the logic for @tt{bind} is very similar. A @tt{bind}
 represents a composition of two computations: an @tt{A}-producing one
 and an @tt{A}-consuming, @tt{B}-producing one. If we assume that
@@ -203,4 +199,3 @@ running-time in the @tt{PA} property and then prove that the actual
 cost (starting at @tt{0} and incrementing as the property passes down)
 matches the prediction.
 
-@raw-latex{\newpage}

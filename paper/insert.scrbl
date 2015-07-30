@@ -47,8 +47,6 @@ are the sizes of two Braun trees @tt{s} @tt{t}, and if
 the @tt{s} and @tt{t} into a single tree produces
 a braun tree of size @tt{s_size+t_size+1}.
 
-@raw-latex{\newpage}
-
 @figure["fig:insert"
         @list{Braun tree insertion}
         @(apply inline-code (extract insert_no_gen.v "insert"))]
@@ -147,8 +145,6 @@ inductive hypothesis (the inner @tt{forall}) than we need
 not the size of the tree) and that the tree @tt{bt_node j s t} is a
 Braun tree of size n. So, we must show that @tt{bt_node i bt s} is a
 Braun tree of size @tt{n + 1} and that the running time is correct.
-
-@raw-latex{\newpage}
 
 Because the size information is not present in the actual insertion
 function, Coq does not know to specialize the inductive hypothesis to

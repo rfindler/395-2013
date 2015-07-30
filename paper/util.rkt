@@ -88,4 +88,4 @@
   (bytes-append
    #"\\usepackage{pslatex}\n"
    #"\\usepackage{inconsolata}\n"
-   #"\\newenvironment{InlineCode}{\\begin{trivlist}\\item}{\\end{trivlist}}\n"))
+   #"\\newenvironment{InlineCode}{\\begin{trivlist}\\item\\footnotesize}{\\end{trivlist}}\n"))

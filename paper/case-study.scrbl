@@ -8,6 +8,7 @@
 
 @title[#:tag "sec:case-study"]{Case Study}
 
+@; XXX This table isn't formatted correctly for LNCS.
 @figure*["fig:line-counts" "Line Counts"]{@build-table[]}
 
 To better understand how applicable our monad is, we implemented the

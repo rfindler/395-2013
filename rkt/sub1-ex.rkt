@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require (prefix-in : "../sub1/sub1_gen.rkt") plot)
+(require (prefix-in : "../arith/sub1_gen.rkt") plot)
 
 (define (time-sub1-loop n)
   (let loop ([n n]

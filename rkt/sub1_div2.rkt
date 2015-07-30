@@ -1,6 +1,6 @@
 #lang at-exp s-exp tmonad/overly-specific
 (provide sub1_div2)
-(require "../sub1/sub1_gen.rkt")
+(require "../arith/sub1_gen.rkt")
 
 (Fixpoint
  sub1_div2 @n{nat}

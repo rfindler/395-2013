@@ -1,5 +1,5 @@
 #lang at-exp s-exp tmonad/overly-specific
-(require "../sub1/sub1_gen.rkt")
+(require "../arith/sub1_gen.rkt")
 (provide copy_linear_sub1)
 (Fixpoint
  copy_linear_sub1 @n{nat}

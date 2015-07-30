@@ -1,6 +1,6 @@
 #lang racket
 (require plot/pict
-         (prefix-in : "../sub1/sub1_gen.rkt")
+         (prefix-in : "../arith/sub1_gen.rkt")
          "sub1_linear.rkt"
          "sub1_div2.rkt"
          "copy_linear_sub1.rkt"

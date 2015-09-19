@@ -68,7 +68,8 @@ but not one in terms of Big O.
 
 @figure["fig:copy_log_sq"
         @list{@tt{copy_log_sq}}
-        @(apply inline-code (extract copy_log_sq_gen.v cdr))]
+        @(apply inline-code (extract copy_log_sq_gen.v cdr))
+        @raw-latex{\vspace{-3em}}]
 
 For example, @Figure-ref["fig:copy_log_sq"] is the definition of the
 @tt{copy_log_sq} function, basically mirroring Okasaki's definition,

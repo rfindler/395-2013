@@ -49,7 +49,8 @@ a braun tree of size @tt{s_size+t_size+1}.
 
 @figure["fig:insert"
         @list{Braun tree insertion}
-        @(apply inline-code (extract insert_no_gen.v "insert"))]
+        @(apply inline-code (extract insert_no_gen.v "insert"))
+        @raw-latex{\vspace{-3em}}]
 
 @Figure-ref["fig:insert"] shows the insertion function.
 Let us dig into this function, one line at a time.

@@ -110,6 +110,7 @@
     (map-append/blanks
      (apply hacked-verbatim (extract insert.rkt "insert"))
      (apply hacked-verbatim (extract insert_log_gen.v drop-leading-comment)))))
+@raw-latex{\vspace{-5em}}
 }
 
 One disadvantage to the code in the previous section

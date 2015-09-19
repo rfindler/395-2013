@@ -44,6 +44,21 @@ algorithms all have their expected running times.
 
 }
 
+@section{Introduction}
+
+For some algorithms, proving that they have correct input-output
+behavior is only part of the story. To avoid security vulnerabilities,
+they may also be required to have certain performance characteristics
+as well. Unfortunately, defining functions in Coq or other theorem
+proving systems does not provide enough information in the types
+to be able to state these more intentional properties.
+
+Our work provides a monad (implemented as a library in Coq) that
+enables us to include abstract running times in types. We use this
+library to prove several important algorithms have their expected
+running times. Our library also has the benefit that the extracted
+code reads like idiomatic OCaml code.
+
 @include-section["insert.scrbl"]
 
 @include-section["running-time.scrbl"]

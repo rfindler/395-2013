@@ -3,7 +3,7 @@
           "cite.rkt" 
           scriblib/figure)
 
-@title[#:tag "sec:insert"]{Introduction}
+@title[#:tag "sec:insert"]{Overview of Our Library}
 
 The core of our library is a monad that, as part of its types, tracks
 the running time of functions.  To use the library, programs must be

@@ -66,7 +66,7 @@
 
 (define (build-table)
   (tabular
-   #:sep @hspace[6]
+   #:sep @hspace[2]
    (list (list (build-one-side-of-table other-classification #f)
                (build-one-side-of-table braun-tree-classification #t)))))
 
@@ -94,54 +94,63 @@
           (cons 'Common (count-a-dir "common"))))
   (define all-rows 
     (append one-line-per-file common-lines))
+  (define (resize x)
+    (if (symbol? x) x (smaller x)))
+  (define (resize-row x)
+    (map resize x))
   (define (build-table-row row)
     (cond
       [row
        (define label (car row))
        (define inf (cdr row))
+       (resize-row
        (list (if (symbol? label)
                  @bold{@(format "~a" label)}
                  @tt{@(car row)})
              (format-number (line-info-non-proofs inf))
              (format-number (line-info-obligations inf))
-             (format-number (line-info-proofs inf)))]
+             (format-number (line-info-proofs inf))))]
       [else blank-row]))
   (tabular
+   #:column-properties '(left right right right)
    #:sep @hspace[1]
    (append
     (list
-     (list @bold{File} 
+     (resize-row
+      (list @bold{File} 
            @bold{Non-}
            @bold{Obligation}
-           @bold{Other})
-     (list @bold{} 
+           @bold{Other}))
+     (resize-row
+      (list @bold{} 
            @bold{Proof}
            @bold{Lines}
-           @bold{Proof})
-     (list @bold{} 
+           @bold{Proof}))
+     (resize-row
+      (list @bold{} 
            @bold{Lines}
            @bold{}
-           @bold{Lines}))
+           @bold{Lines})))
     (for/list ([row (in-list one-line-per-file)])
       (build-table-row row))
     (list blank-row)
     
     (if total?
         (list blank-row
-              blank-row
-              blank-row
-              (list @bold{Totals}
-                    (format-number (get-total all-rows line-info-non-proofs))
-                    (format-number (get-total all-rows line-info-obligations))
-                    (format-number (get-total all-rows line-info-proofs)))
-              (list (list @bold{Total number of lines:})
-                    (list (format-number (+ (get-total all-rows line-info-non-proofs)
-                                            (get-total all-rows line-info-obligations)
-                                            (get-total all-rows line-info-proofs))))
-                    'cont 'cont))
-        (append (for/list ([row (in-list common-lines)])
-                  (build-table-row row))
-                (list blank-row blank-row))))))
+              (resize-row
+               (list @bold{Totals}
+                     (format-number (get-total all-rows line-info-non-proofs))
+                     (format-number (get-total all-rows line-info-obligations))
+                     (format-number (get-total all-rows line-info-proofs))))
+              (resize-row
+               (list (list @bold{Total number of lines:})
+                     (list (format-number
+                            (+ (get-total all-rows line-info-non-proofs)
+                               (get-total all-rows line-info-obligations)
+                               (get-total all-rows line-info-proofs))))
+                     "" "")))
+        (for/list ([row (in-list common-lines)])
+          (build-table-row row))))))
 
 (define/contract (get-total one-line-per-file sel)
   (-> (listof (or/c (cons/c any/c line-info?) #f)) any/c any/c)

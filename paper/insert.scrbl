@@ -47,7 +47,7 @@ are the sizes of two Braun trees @tt{s} @tt{t}, and if
 the @tt{s} and @tt{t} into a single tree produces
 a braun tree of size @tt{s_size+t_size+1}.
 
-@figure["fig:insert"
+@figure*["fig:insert"
         @list{Braun tree insertion}
         @(apply inline-code (extract insert_no_gen.v "insert"))
         @raw-latex{\vspace{-3em}}]

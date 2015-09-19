@@ -14,21 +14,13 @@ Require Import Program.
 Require Import Omega.
 
 (* START: insert *)
-Program Fixpoint insert {A:Set} (i:A) 
-                        (b:@bin_tree A)
+Program Fixpoint insert {A:Set} (i:A) (b:@bin_tree A)
 : {! res !:! @bin_tree A !<! c !>!
-     (forall n, 
-        Braun b n ->
-        (Braun res (n+1) /\
-         c = fl_log n + 1)) !} :=
+     (forall n, Braun b n -> (Braun res (n+1) /\ c = fl_log n + 1)) !} :=
   match b with
-    | bt_mt => 
-      += 1; 
-      <== (bt_node i bt_mt bt_mt)
-    | bt_node j s t => 
-      bt <- insert j t;
-      += 1; 
-      <== (bt_node i bt s)
+    | bt_mt         => += 1; <== (bt_node i bt_mt bt_mt)
+    | bt_node j s t => bt <- insert j t;
+                       += 1; <== (bt_node i bt s)
   end.
 (* STOP: insert *)
 

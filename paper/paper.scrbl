@@ -54,7 +54,7 @@ algorithms all have their expected running times.
 
 @include-section["case-study.scrbl"]
 
-@include-section["prims.scrbl"]
+@;@include-section["prims.scrbl"]
 
 @include-section["related-work.scrbl"]
 	

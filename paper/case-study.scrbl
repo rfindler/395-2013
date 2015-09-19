@@ -199,9 +199,8 @@ All together, the OCaml program is equivalent to:
 
 @inline-code{
 let rec cinterleave e o =
- match e with
- | Nil -> o
- | Cons (x, xs) -> Cons (x, (cinterleave o xs))
+    match e with | Nil -> o
+                 | Cons (x, xs) -> Cons (x, (cinterleave o xs))
 }
 
 This is exactly the Coq program and idiomatic OCaml code.  Unlike the

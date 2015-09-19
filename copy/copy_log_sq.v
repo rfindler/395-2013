@@ -8,26 +8,18 @@ Require Import Program.Wf Init.Wf.
 Include WfExtensionality.
 
 (* START: copy_insert_time *)
-Program Fixpoint copy_log_sq_time (n:nat) 
-        {measure n} :=
+Program Fixpoint copy_log_sq_time (n:nat) {measure n} :=
   match n with
-    | 0 => 3
-    | S n' =>
-      if (even_odd_dec n')
-      then 13 + copy_log_sq_time (div2 n')
-      else 16 + 
-           copy_log_sq_time (div2 n') +
-           insert_time (div2 n')
+    | 0    => 3
+    | S n' => if (even_odd_dec n')
+              then 13 + copy_log_sq_time (div2 n')
+              else 16 + copy_log_sq_time (div2 n') + insert_time (div2 n')
   end.
 (* STOP: copy_insert_time *)
 
 (* START: copy_insert_result *)
-Definition copy_log_sq_result
-           (A:Set) (x:A) (n:nat)
-           (b:@bin_tree A) (c:nat):=
-  Braun b n /\ 
-  SequenceR b (mk_list x n) /\
-  c = copy_log_sq_time n.
+Definition copy_log_sq_result (A:Set) (x:A) (n:nat) (b:@bin_tree A) (c:nat) :=
+  Braun b n /\ SequenceR b (mk_list x n) /\ c = copy_log_sq_time n.
 (* STOP: copy_insert_result *)
 
 (* this correctness condition is different than the other  *)

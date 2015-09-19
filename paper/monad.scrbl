@@ -37,22 +37,15 @@ computational content when extracted into OCaml.
 For our @tt{insert} function, we write the result type as:
 @inline-code|{
 : {! res !:! @bin_tree A !<! c !>!
-     (forall n, 
-        Braun b n ->
-        (Braun res (n+1) /\
-         c = fl_log n + 1)) !}
+     (forall n, Braun b n -> (Braun res (n+1) /\ c = fl_log n + 1)) !}
 }|
 
 This is a shorthand (using Coq's @tt{notation} construct) for the
 following call to @tt{C}, in order to avoid duplicating the type
 between @tt{!:!} and @tt{!<!}:
 @inline-code|{
-(C (@bin_tree A)
-   (fun (res:@bin_tree A) (c:nat) =>
-     (forall n, 
-        Braun b n ->
-        (Braun res (n+1) /\
-         c = fl_log n + 1))))
+(C (@bin_tree A) (fun (res:@bin_tree A) (c:nat) =>
+   (forall n, Braun b n -> (Braun res (n+1) /\ c = fl_log n + 1))))
 }|
 
 One important aspect of the @tt{C} type is that the @tt{nat} is bound
@@ -94,8 +87,7 @@ two computations in the monad, summing their running times, and
 Suppose a program returns a value, @tt{a} with property @tt{P}, 
 that takes exactly one step to compute. We write this using the expression:
 @inline-code{
- += 1;
-<== a
+ += 1; <== a
 }
 We would like our proof obligation for this expression to be @tt{P a 1}. 
 We know, however that the obligation on @tt{<==}, namely @tt{P a 0}, is irrelevant
@@ -179,11 +171,9 @@ proposition argument that corresponds to the right-hand side of the
 monad.v "bind"))
 
 And finally, when writing programs we use the notation
-@inline-code{«x» <- «expr1» ; «expr2»}
+@tt{«x» <- «expr1» ; «expr2»}
 as a shorthand for
-@inline-code{
-bind _ _ _ _ expr1
- (fun (x : _) (am : _) => expr2)}
+@tt{bind _ _ _ _ expr1 (fun (x : _) (am : _) => expr2)}
 
 Because all of the interesting aspects of these operations happen in
 their types, the extraction of these operations have no interesting

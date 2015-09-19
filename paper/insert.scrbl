@@ -56,9 +56,7 @@ Let us dig into this function, one line at a time.
 It accepts an object @tt{i} (of type @tt{A}) to insert into
 the Braun tree @tt{b}. Its result type uses a new notation:
 @inline-code|{
-  {! «result variable» !:! «simple result type»
-    !<! «running time variable» !>!
-    «property of the function» !}
+  {! «result id» !:! «simple type» !<! «running time id !>! «property» !}
   }|
 where the braces, exclamation marks, colons, less than, and
 greater than are all fixed parts of the syntax and the 
@@ -112,17 +110,14 @@ these functions have their types. In this case, we are left with two
 proof obligations, one from each of the cases of the function. The first
 one is:
 @inline-code{
-forall n,
-  Braun bt_mt n ->
-   Braun (bt_node i bt_mt bt_mt) (n + 1) /\
-   1 = fl_log n + 1
+forall n, Braun bt_mt n ->
+  Braun (bt_node i bt_mt bt_mt) (n + 1) /\ 1 = fl_log n + 1
 }
 The assumption is saying that @tt{n} is the size of the empty
 Braun tree, which tells us that @tt{n} must be
 zero. So simplifying, we are asked to prove that:
 @inline-code{
-Braun (bt_node i bt_mt bt_mt) 1 /\
-1 = fl_log 0 + 1
+Braun (bt_node i bt_mt bt_mt) 1 /\ 1 = fl_log 0 + 1
 }
 both of which follow immediately from the definitions. Note that this
 proof request corresponds exactly to what we need to know in order
@@ -132,12 +127,9 @@ of size @tt{1} and the running time is correct when the input is empty.
 For the second case, we are asked to prove:
 @inline-code{
 forall i j s t bt an n, 
-  (forall m : nat, Braun t m -> 
-     Braun bt (m + 1) /\ an = fl_log m + 1)
-  Braun (bt_node j s t) n
-  ->
-  Braun (bt_node i bt s) (n + 1) /\ 
-  an + 1 = fl_log n + 1
+  (forall m : nat, Braun t m -> Braun bt (m + 1) /\ an = fl_log m + 1) ->
+  Braun (bt_node j s t) n ->
+  Braun (bt_node i bt s) (n + 1) /\ an + 1 = fl_log n + 1
 }
 Thus, we may assume a slightly more general
 inductive hypothesis (the inner @tt{forall}) than we need
@@ -154,14 +146,11 @@ theorem to prove
 
 @inline-code{
  forall i j s t bt n t_size, 
-  Braun bt (t_size + 1)
-  an = fl_log t_size + 1
-  Braun (bt_node j s t) (s_size + t_size + 1)
-  ->
-  Braun (bt_node i bt s) 
-        (s_size + t_size + 1 + 1) /\ 
-  an + 1 =
-   fl_log (s_size + t_size + 1) + 1
+  Braun bt (t_size + 1) ->
+  an = fl_log t_size + 1 ->
+  Braun (bt_node j s t) (s_size + t_size + 1) ->
+  Braun (bt_node i bt s) (s_size + t_size + 1 + 1) /\ 
+  an + 1 = fl_log (s_size + t_size + 1) + 1
 }
 which we can prove by using facts about logarithms
 and the details of the definition of Braun trees.

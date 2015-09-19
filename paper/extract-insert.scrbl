@@ -18,10 +18,8 @@ type 'a bin_tree =
 | Bt_node of 'a * 'a bin_tree * 'a bin_tree
 
  let rec insert i = function
-| Bt_mt -> 
-  Bt_node (i, Bt_mt, Bt_mt)
-| Bt_node (j, s, t) -> 
-  Bt_node (i, (insert j t), s)
+| Bt_mt             -> Bt_node (i, Bt_mt, Bt_mt)
+| Bt_node (j, s, t) -> Bt_node (i, (insert j t), s)
 }
 This is exactly the code that Coq produces, whitespace,
 newlines and all. The only declarations we added to

@@ -356,5 +356,3 @@
          line-count:obligations
          line-count:other-proofs)
 
-(module+ main
-  (build-data-file))

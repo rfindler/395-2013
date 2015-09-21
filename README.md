@@ -37,6 +37,10 @@ inserted. The Makefile collects printouts into the `_gen.v` files
 which are `Load`ed into the various coq scripts at the appropriate
 point.
 
+## line-counts.txt
+
+Displays line count information.
+
 ## insert/ 
 
 This directory contains the Braun tree insertion function.

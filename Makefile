@@ -10,7 +10,10 @@ admit:
 	@echo ""
 	@ ! grep -i admit $(VS)
 
-paper: paper/paper.pdf
+paper: line-counts.txt paper/paper.pdf
+
+line-counts.txt: paper/line-counts.rkt
+	racket -t $^ > $@
 
 supp: DNE
 	@echo

@@ -1,5 +1,6 @@
 #lang at-exp racket/base
 (require racket/runtime-path
+         racket/match
          racket/list
          scribble/base
          racket/format
@@ -31,7 +32,7 @@
      ("size_linear.v" "size_linear_gen.v")
      ("size_log_sq.v" "diff_gen.v" "size_log_sq_gen.v"))))
 
-(define other-classification 
+(define other-classification
   '(("rbtrees"
      ("rbtree.v"
       "rbt_search.v"
@@ -53,7 +54,7 @@
       "split2_gen.v"
       "clength_gen.v"))
     ("fib"
-     ("fib.v" 
+     ("fib.v"
       "fib_iter_gen.v"
       "fib_iter_loop_gen.v"
       "fib_rec_gen.v"))
@@ -63,6 +64,84 @@
      ("zip.v" "from_zip_gen.v" "insert_at_gen.v" "minsert_at_gen.v" "minsertz_at_gen.v"
       "to_zip_gen.v" "zip_insert_gen.v" "zip_left_gen.v" "zip_leftn_gen.v"
       "zip_minsert_gen.v" "zip_right_gen.v" "zip_rightn_gen.v"))))
+
+(define (build-data-file)
+  (define classes
+    (append other-classification
+            braun-tree-classification))
+  (define info (collect-info classes))
+  (define one-line-per-file
+    (apply append
+           (apply append info)))
+  (define common-lines
+    (list #f
+          (cons "Monad" (count-a-dir "monad"))
+          (cons "Common" (count-a-dir "common"))))
+  (define all-rows
+    (append one-line-per-file common-lines))
+  (define (get-total l sel)
+    (for/sum ([x (in-list l)])
+      (cond
+        [(pair? x)
+         (cond
+           [(string? (car x))
+            (sel (cdr x))]
+           [else 0])]
+        [else 0])))
+  (define line-count:non-proof (get-total all-rows line-info-non-proofs))
+  (define line-count:obligations (get-total all-rows line-info-obligations))
+  (define line-count:other-proofs (get-total all-rows line-info-proofs))
+  (define line-count:total
+    (+ line-count:non-proof line-count:obligations line-count:other-proofs))
+  (define total-lines
+    (list #f
+          (cons "Totals"
+                (line-info line-count:other-proofs
+                           line-count:obligations
+                           line-count:non-proof))
+          (cons "Total number of lines:"
+                line-count:total)))
+  (define every-row
+    (append all-rows
+            total-lines))
+  (define table
+    (cons
+     (list "File" "Non-Proof Lines" "Obligation Lines" "Other Proof Lines")
+     (for/list ([row (in-list every-row)])
+       (match row
+         [(cons label (line-info pr ob non))
+          (list (format "~a" label)
+                (format-number non)
+                (format-number ob)
+                (format-number pr))]
+         [(cons label num)
+          (list (format "~a" label)
+                (format-number num)
+                ""
+                "")]
+         [#f
+          (list "" "" "" "")]))))
+  (display-table table)
+  (values (format-number line-count:total)
+          (format-number line-count:non-proof)
+          (format-number line-count:obligations)
+          (format-number line-count:other-proofs)))
+
+(define (display-table t)
+  (define cols (length (first t)))
+  (define max-lens
+    (for/list ([c (in-range cols)])
+      (inexact->exact
+       (ceiling
+        (* (if (= c 0) 1.0 1.2)
+           (for/fold ([m 0])
+                         ([e (in-list t)])
+                 (max m (string-length (list-ref e c)))))))))
+  (for ([r (in-list t)])
+    (for ([c (in-list r)]
+          [l (in-list max-lens)])
+      (display (~a #:min-width l #:align 'right c)))
+    (displayln "")))
 
 (define (build-table)
   (tabular
@@ -85,14 +164,14 @@
            (apply append info)))
   (define blank-row (list "" 'cont 'cont 'cont))
   (define (make-a-row label info)
-    (list @bold{@label} 
+    (list @bold{@label}
           (format-number (line-info-non-proofs info))
           (format-number (line-info-obligations info))
           (format-number (line-info-proofs info))))
-  (define common-lines 
+  (define common-lines
     (list (cons 'Monad (count-a-dir "monad"))
           (cons 'Common (count-a-dir "common"))))
-  (define all-rows 
+  (define all-rows
     (append one-line-per-file common-lines))
   (define (resize x)
     (if (symbol? x) x (smaller x)))
@@ -104,12 +183,12 @@
        (define label (car row))
        (define inf (cdr row))
        (resize-row
-       (list (if (symbol? label)
-                 @bold{@(format "~a" label)}
-                 @tt{@(car row)})
-             (format-number (line-info-non-proofs inf))
-             (format-number (line-info-obligations inf))
-             (format-number (line-info-proofs inf))))]
+        (list (if (symbol? label)
+                  @bold{@(format "~a" label)}
+                  @tt{@(car row)})
+              (format-number (line-info-non-proofs inf))
+              (format-number (line-info-obligations inf))
+              (format-number (line-info-proofs inf))))]
       [else blank-row]))
   (tabular
    #:column-properties '(left right right right)
@@ -117,24 +196,24 @@
    (append
     (list
      (resize-row
-      (list @bold{File} 
-           @bold{Non-}
-           @bold{Obligation}
-           @bold{Other}))
+      (list @bold{File}
+            @bold{Non-}
+            @bold{Obligation}
+            @bold{Other}))
      (resize-row
-      (list @bold{} 
-           @bold{Proof}
-           @bold{Lines}
-           @bold{Proof}))
+      (list @bold{}
+            @bold{Proof}
+            @bold{Lines}
+            @bold{Proof}))
      (resize-row
-      (list @bold{} 
-           @bold{Lines}
-           @bold{}
-           @bold{Lines})))
+      (list @bold{}
+            @bold{Lines}
+            @bold{}
+            @bold{Lines})))
     (for/list ([row (in-list one-line-per-file)])
       (build-table-row row))
     (list blank-row)
-    
+
     (if total?
         (list blank-row
               (resize-row
@@ -159,11 +238,11 @@
       [(pair? x)
        (sel (cdr x))]
       [else 0])))
-      
+
 (define (collect-info classification)
   (for/list ([dir-list (in-list classification)])
     (define dir (list-ref dir-list 0))
-    (define all-files 
+    (define all-files
       (filter (λ (x) (regexp-match #rx"[.]v$" x))
               (map path->string (directory-list (build-path above dir)))))
     (define line-infos
@@ -188,13 +267,13 @@
 (define (format-number n)
   (cond
     [(< n 1000) (format "~a" n)]
-    [(< n 1000000) (format "~a,~a" (quotient n 1000) 
+    [(< n 1000000) (format "~a,~a" (quotient n 1000)
                            (~a (modulo n 1000)
                                #:pad-string "0"
                                #:min-width 3))]
     [else (error 'format-number "too big")]))
 
-(module+ test 
+(module+ test
   (require rackunit)
   (check-equal? (format-number 0) "0")
   (check-equal? (format-number 10) "10")
@@ -211,7 +290,7 @@
       (define state 'outside)
       (define line-counter 0)
       (define in-obligation? #f)
-      
+
       (define proof-line-count 0)
       (define obligation-line-count 0)
       (define total-line-count 0)
@@ -224,16 +303,16 @@
            (set! proof-line-count (+ proof-line-count line-counter))])
         (unless found-proof-line?
           (fail "Didn't find Proof. line for Qed. (or Defined.)")))
-      
+
       (define (fail msg)
         (define-values (line col pos) (port-next-location port))
         (error 'parse-file "~a on line ~a of ~a"
                msg
                (- line 1)
                fn))
-      
+
       (define qed-regexp #rx"(Qed[.])|(Defined[.])")
-      
+
       (for ([line (in-lines port)])
         (cond
           [(regexp-match #rx"^[ \t]*$" line)
@@ -260,13 +339,22 @@
               (set! found-proof-line? #f)]
              [else
               (set! line-counter (+ line-counter 1))])]))
-      
-      (line-info proof-line-count 
-                 obligation-line-count 
+
+      (line-info proof-line-count
+                 obligation-line-count
                  (- total-line-count
                     obligation-line-count
                     proof-line-count)))))
 
-(module+ main 
-  (void (build-table)))
+(define-values (line-count:total
+                line-count:non-proof
+                line-count:obligations
+                line-count:other-proofs)
+  (build-data-file))
+(provide line-count:total
+         line-count:non-proof
+         line-count:obligations
+         line-count:other-proofs)
 
+(module+ main
+  (build-data-file))

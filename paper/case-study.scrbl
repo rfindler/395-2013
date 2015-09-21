@@ -8,8 +8,7 @@
 
 @title[#:tag "sec:case-study"]{Case Study}
 
-@; XXX This table isn't formatted correctly for LNCS.
-@figure*["fig:line-counts" "Line Counts"]{@build-table[]}
+@; @figure*["fig:line-counts" "Line Counts"]{@build-table[]}
 
 To better understand how applicable our monad is, we implemented the
 search and insertion functions for red-black trees, insertion sort,
@@ -48,28 +47,30 @@ functions in our case study.
 
 @section{Line Counts}
 
-The line counts for the various implementations of the algorithms
-using our monad are shown in @figure-ref["fig:line-counts"].  The
-files whose names end in @tt{gen.v} are the output of the script that
-inserts @tt{+=} expressions, so they contain the definitions of the
-various functions, but without the correctness conditions (or any of
-the proofs or data structure definitions). There are more than @fun-count
-because a number of the functions needed helper functions that are in
-the monad (and thus require running time proofs).  As you can see, the
-functions are generally short. The proofs are typically much longer.
+Our supplementary material also contains a detailed account of the
+lines of Coq code produced for our study. We divide the line counts up
+into proofs that are inside obligations (and thus correspond to
+establishing that the monadic types are correct) and other lines of
+proofs. In all there are @line-count:total lines of code total. There
+are @line-count:non-proof lines that are not proofs. There
+@line-count:obligations lines of code related to obligations and
+@line-count:other-proofs lines of other proofs.
 
-We divided the line counts up into proofs that are inside obligations
-(and thus correspond to establishing that the monadic types are
-correct) and other lines of proofs. With the exception of the
-@tt{make_array_linear} and the red-black tree insertion function, 
-the proofs inside the obligations establish the correctness of the
-functions and establish a basic running time result, 
-but not one in terms of Big O. 
+We have built an extensive library of general proofs about the
+monad (such as the monad laws), a Big O library, a Log library, and
+some common facts and definitions about Braun trees. This library
+accounts for over a quarter (25%) of all lines of code of each
+category.
 
-@figure["fig:copy_log_sq"
-        @list{@tt{copy_log_sq}}
-        @(apply inline-code (extract copy_log_sq_gen.v cdr))
-        @raw-latex{\vspace{-3em}}]
+With the exception of the @tt{make_array_linear} and the red-black
+tree insertion function, the proofs inside the obligations establish
+the correctness of the functions and establish a basic running time
+result, but not one in terms of Big O.
+
+@figure*["fig:copy_log_sq"
+         @list{@tt{copy_log_sq}}
+         @(apply inline-code (extract copy_log_sq_gen.v cdr))
+         @raw-latex{\vspace{-3em}}]
 
 For example, @Figure-ref["fig:copy_log_sq"] is the definition of the
 @tt{copy_log_sq} function, basically mirroring Okasaki's definition,
@@ -96,14 +97,7 @@ the monadic result (with precise constants). However, for most of the
 functions the running time is first expressed precisely in a manner
 that matches the structure of the function and then that running time
 is proven to correspond to some asymptotic complexity, as with
-@tt{copy_log_sq}. The precise line counts can be read off of the
-columns in @figure-ref["fig:line-counts"].
-
-The @tt{Monad} and @tt{Common} lines count the number of lines of code
-in our monad's implementation (including the proofs of the monad laws)
-and some libraries used in multiple algorithms, including a Big O
-library, a Log library, and some common facts and definitions about
-Braun trees.
+@tt{copy_log_sq}. 
 
 @section{Extraction}
 

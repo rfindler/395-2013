@@ -34,7 +34,6 @@ some function-specific specification of running time
 (and possibly also correctness). Importantly, the right-hand side of
 this pair is a proposition, so it contributes no
 computational content when extracted into OCaml. 
-
 For our @tt{insert} function, we write the result type as:
 @inline-code|{
 : {! res !:! @bin_tree A !<! c !>!
@@ -89,14 +88,14 @@ that takes exactly one step to compute. We write this using the expression:
 @inline-code{
  += 1; <== a
 }
-We would like our proof obligation for this expression to be @tt{P a 1}. 
-We know, however that the obligation on @tt{<==}, namely @tt{P a 0}, is irrelevant
-or worse, wrong. There is a simple way out of this bind, however: what
-if the @tt{P} for the @tt{ret} were different than the property for
-of the entire expression? In code, what if the obligation were @tt{P' a 0}?
-At worst, such a change would be irrelevant because there may not be a
-connection between @tt{P'} and @tt{P}. With this in mind, we can
-choose a @tt{P'} such that @tt{P' a 0} is the same as @tt{P a 1}. 
+We would like our proof obligation for this expression to be @tt{P a
+1}.  We know, however that the obligation on @tt{<==}, namely @tt{P a
+0}, is irrelevant or worse, wrong. There is a simple way out of this
+bind: what if the @tt{P} for the @tt{ret} were different than the
+@tt{P} for of the entire expression? In code, what if the obligation
+were @tt{P' a 0}?  At worst, such a change would be irrelevant because
+there may not be a connection between @tt{P'} and @tt{P}. But, we can
+choose a @tt{P'} such that @tt{P' a 0} is the same as @tt{P a 1}.
 
 We previously described @tt{P} as a relation between @tt{A}s and
 @tt{nat}s, but in Coq this is just a function that accepts an @tt{A}
@@ -108,12 +107,10 @@ if the cost along a control-flow path to a @tt{ret} has @tt{k} units
 of cost, the proof will be @tt{P a k}. Thus, we accrue the cost inside
 of the property itself.
 
-We encapsulate this logic into a simple monadic operator,
-@tt{inc}, that introduces @tt{k} units of cost:
+The monadic operator @tt{inc} encapsulates this logic and introduces @tt{k} units of cost:
 @(apply inline-code (extract monad.v "inc"))
 In programs using our monad, we write @tt{+= k; e}, a
 shorthand for @tt{inc _ k _ e}.
-
 The key point in the definition is that the property in @tt{x}'s type
 is @emph{not} @tt{PA}, but a modified function that ensures the
 argument is at least @tt{k}.
@@ -170,7 +167,7 @@ proposition argument that corresponds to the right-hand side of the
 @tt{C A PA} value @tt{am}: @(apply inline-code (extract
 monad.v "bind"))
 
-And finally, when writing programs we use the notation
+When writing programs we use the notation
 @tt{«x» <- «expr1» ; «expr2»}
 as a shorthand for
 @tt{bind _ _ _ _ expr1 (fun (x : _) (am : _) => expr2)}

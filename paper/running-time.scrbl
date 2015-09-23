@@ -134,9 +134,7 @@ on the right. As well as adding @tt{+=} expressions, the
 translation process also generates a call to @tt{insert_result}
 in the monadic result type. This function must then be defined 
 separately and the translation's output must be used in that
-context.
-
-Here is the definition of @tt{insert_result}:
+context:
 @(apply inline-code (extract insert_log.v "insert_result"))
 Unlike the previous version, this one accounts for the 
 larger constant factors and it also includes a stricter

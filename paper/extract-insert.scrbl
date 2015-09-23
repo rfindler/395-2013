@@ -10,7 +10,6 @@ infrastructure affect Coq's extraction process.
 In particular, our monad extracts as the identity
 monad, which means that the OCaml code produced by Coq
 does not require any modifications.
-
 For example, here is how @tt{insert} extracts:
 @inline-code{
 type 'a bin_tree =

@@ -4,34 +4,55 @@
 (provide (except-out (all-defined-out) fpca jfp types icfem waaapl))
 (define-cite ~cite citet generate-bibliography)
 
-(define fpca
-  "Proc. Intl. Conference on Functional Programming Languages And Computer Architecture")
-(define jfp
+(define-syntax-rule (define-place i short long)
+  (define-short-place i short long))
+(define-syntax-rule (define-short-place i short long)
+  (define i short))
+(define-syntax-rule (define-long-place i short long)
+  (define i long))
+
+(define-long-place fpca
+  "FPCA"
+  "Intl. Conference on Functional Programming Languages And Computer Architecture")
+(define-place jfp
+  "JFP"
   "Journal of Functional Programming")
-(define icfp
-  "Proc. Intl. Conference on Functional Programming")
-(define types
-  "Proc. Workshop of the Working Group Types")
-(define icfem
-  "Proc. Intl. Conference on Formal Engineering Methods and Software Engineering")
-(define itp
-  "Proc. Intl. Conference on Interactive Theorem Proving")
-(define waaapl
-  "Proc. Workshop on Algorithmic Aspects of Advanced Programming Languages")
-(define esop
-  "Proc. European Symposium on Programming")
-(define tphols
-  "Proc. Theorem Proving in Higher Order Logics")
-(define popl
-  "Proc. Symposium on Principles of Programming Languages")
-(define pldi
-  "Proc. Conference on Programming Language Design and Implementation")
-(define plpv
-  "Proc. Workshop on Programming Languages meets Program Verification")
-(define fossacs
-  "Proc. Foundations of Software Science and Computation Structure")
-(define usenix-sec
-  "Proc. USENIX Security Symposium")
+(define-place icfp
+  "ICFP"
+  "Intl. Conference on Functional Programming")
+(define-place types
+  "TYPES"
+  "Workshop on Types for Proofs and Programs")
+(define-long-place icfem
+  "ICFEM"
+  "Intl. Conference on Formal Engineering Methods and Software Engineering")
+(define-place itp
+  "ITP"
+  "Intl. Conference on Interactive Theorem Proving")
+(define-long-place waaapl
+  "WAAAPL"
+  "Workshop on Algorithmic Aspects of Advanced Programming Languages")
+(define-place esop
+  "ESOP"
+  "European Symposium on Programming")
+(define-place tphols
+  "TPHOLS"
+  "Theorem Proving in Higher Order Logics")
+(define-place popl
+  "POPL"
+  "Symposium on Principles of Programming Languages")
+(define-place pldi
+  "PLDI"
+  "Conference on Programming Language Design and Implementation")
+(define-long-place plpv
+  "PLPV"
+  "Workshop on Programming Languages meets Program Verification")
+(define-long-place fossacs
+  "FOSSACS"
+  "Foundations of Software Science and Computation Structure")
+(define-long-place usenix-sec
+  "USENIXSec"
+  "USENIX Security Symposium")
 
 ;; need to check on this cite; just got it from Chris's paper
 (define Braun

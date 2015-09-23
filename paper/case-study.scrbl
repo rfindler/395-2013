@@ -10,33 +10,32 @@
 
 @; @figure*["fig:line-counts" "Line Counts"]{@build-table[]}
 
-To better understand how applicable our monad is, we implemented 
-search and insert for red-black trees, insertion sort,
-merge sort, both the naive recursive version of the nth Fibonacci
-number function and the iterative version, a function that inserts
-@raw-latex{$m$} times into a list at position @raw-latex{$n$} using
-both lists and zippers, BigNum @tt{add1} and @tt{plus}, and all of the
-algorithms mentioned in @citet[three-algorithms-on-braun-trees]'s
-paper, @italic{Three Algorithms on Braun Trees}. We chose these
-algorithms by first selecting Okasaki's algorithms, because the
-project originated in a class and we knew Okasaki's papers to be
-well-written and understandable to undergraduates. From that initial
-selection, we moved to an in-order traversal of @citet[clrs] looking
-for functional algorithms that would challenge the framework.
+To better understand how applicable our monad is, we implemented
+search and insert for red-black trees, insertion sort, merge sort,
+both the naive recursive version of the nth Fibonacci number function
+and the iterative version, a function that inserts @raw-latex{$m$}
+times into a list at position @raw-latex{$n$} using both lists and
+zippers, BigNum @tt{add1} and @tt{plus}, and all of the algorithms
+mentioned in @citet[three-algorithms-on-braun-trees]'s paper,
+@italic{Three Algorithms on Braun Trees}. We chose these algorithms by
+first selecting Okasaki's papers, because the project originated in a
+class and we knew them to be well-written and understandable to
+undergraduates. From that initial selection, we moved to an in-order
+traversal of @citet[clrs] looking for functional algorithms that would
+challenge the framework.
 
 To elaborate on the Braun tree algorithms, Okasaki's paper contains
 several versions of each of the three functions, each with different
 running times, in each case culminating with efficient versions.  The
 three functions are:
 @itemlist[@item{@tt{size}: computes the size of a Braun
-tree
-                 (a linear and a log squared version)}
-          @item{@tt{copy}: builds a Braun tree a given size
-                 filled entirely with a given element
-                 (a linear, a fib ∘ log, a log squared, and a log time version),
-                 and}
-          @item{@tt{make_array}: convert a list into a Braun tree
-                   (two n log n versions and a linear version).}]
+                tree (a linear and a log squared version)}
+          @item{@tt{copy}: builds a Braun tree of a given size
+                filled entirely with a given element
+                (a linear, a fib ∘ log, a log squared, and a log time version),
+                and}
+          @item{@tt{make_array}: converts a list into a Braun tree
+                (two n log n and a linear version).}]
 
 In total, we implemented @fun-count different functions using the
 monad.  For all of them, we proved the expected Big O running times.
@@ -53,7 +52,6 @@ is Big O(@raw-latex{$\log$}) and that @tt{plus} is Big
 Theta(@raw-latex{$\log$}). We also prove correctness on all
 algorithms, except for @tt{make_array_linear} and red-black tree
 insertion where we proved only the running times.
-
 The supplementary material contains all of the Coq code for all of the
 functions in our case study.
 
@@ -206,7 +204,7 @@ All together, the OCaml program is equivalent to:
 
 @inline-code{
 let rec cinterleave e o =
-    match e with | Nil -> o
+    match e with | Nil          -> o
                  | Cons (x, xs) -> Cons (x, (cinterleave o xs))
 }
 
@@ -222,12 +220,12 @@ we wish to avoid and do successfully avoid in the case of the running
 time obligations.
 
 The functions in the first category are: @tt{insert},
-@tt{size_linear}, @tt{size}, @tt{make_array_naive}, @tt{foldr},
+@tt{size_linear}, @tt{size}, @raw-latex{\\} @tt{make_array_naive}, @tt{foldr},
 @tt{make_array_naive_foldr}, @tt{unravel}, @tt{to_list_naive},
-@tt{isort}'s @tt{insert}, @tt{isort}, @tt{clength}, @tt{minsert_at},
-@tt{to_zip}, @tt{from_zip}, @tt{zip_right}, @tt{zip_left},
+@raw-latex{\\} @tt{isort}'s @tt{insert}, @tt{isort}, @tt{clength}, @tt{minsert_at},
+@tt{to_zip}, @tt{from_zip}, @tt{zip_right}, @raw-latex{\\} @tt{zip_left},
 @tt{zip_insert}, @tt{zip_minsert}, @tt{minsertz_at}, @tt{bst_search},
-@tt{rbt_blacken}, @tt{rbt_balance}, @tt{rbt_insert}.
+@tt{rbt_blacken}, @raw-latex{\\} @tt{rbt_balance}, @tt{rbt_insert}.
 
 The functions in the second category are: @tt{fib_rec}, @tt{fib_iter},
 @tt{sub1}, @tt{mergesort}'s @tt{split}, @tt{insert_at},

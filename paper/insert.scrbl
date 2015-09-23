@@ -55,8 +55,8 @@ a braun tree of size @tt{s_size+t_size+1}.
 @Figure-ref["fig:insert"] shows the insertion function.
 Let us dig into this function, one line at a time.
 It accepts an object @tt{i} (of type @tt{A}) to insert into
-the Braun tree @tt{b}. Its result type uses a new notation:
-@inline-code|{
+the Braun tree @tt{b}. Its result type uses a special notation:
+@tt|{
   {! «result id» !:! «simple type» !<! «running time id !>! «property» !}
   }|
 where the braces, exclamation marks, colons, less than, and
@@ -120,10 +120,10 @@ zero. So simplifying, we are asked to prove that:
 @inline-code{
 Braun (bt_node i bt_mt bt_mt) 1 /\ 1 = fl_log 0 + 1
 }
-both of which follow immediately from the definitions. Note that this
-proof request corresponds exactly to what we need to know in order
-for the base case to be correct: the singleton tree is a Braun tree
-of size @tt{1} and the running time is correct when the input is empty.
+both of which follow immediately from the definitions. This proof
+request corresponds exactly to what we need to know in order for the
+base case to be correct: the singleton tree is a Braun tree of size
+@tt{1} and the running time is correct on empty input.
 
 For the second case, we are asked to prove:
 @inline-code{
@@ -140,10 +140,9 @@ Braun tree of size n. So, we must show that @tt{bt_node i bt s} is a
 Braun tree of size @tt{n + 1} and that the running time is correct.
 
 Because the size information is not present in the actual insertion
-function, Coq does not know to specialize the inductive hypothesis to
-the size of @tt{t}. To clarify that, we can replace @tt{m} with
-@tt{t_size} and specialize the first assumption to arrive at this
-theorem to prove
+function, Coq does not specialize the inductive hypothesis to the size
+of @tt{t}. To clarify that, we can replace @tt{m} with @tt{t_size} and
+specialize the first assumption to arrive at this theorem:
 
 @inline-code{
  forall i j s t bt an t_size, 

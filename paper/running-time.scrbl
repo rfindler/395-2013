@@ -81,7 +81,7 @@
   (map make-line lines))
 @(define omitable-style (make-style 'omitable null))
 
-@title[#:tag "running-time"]{Implicit Running Times}
+@title[#:tag "sec:running-time"]{Implicit Running Times}
 
 @figure*["fig:translation" "Inserting += into insert"]{
 @(let ()

@@ -1,6 +1,6 @@
 #lang scribble/base
 @(require "cite.rkt" scribble/core)
-@title[#:tag "related-work"]{Related Work}
+@title[#:tag "sec:related-work"]{Related Work}
 
 @;{
 

@@ -70,9 +70,20 @@ complexity computations to the extracted code, so the
 extracted OCaml code and has no running time verification overhead.
 We elaborate these details and
 differences throughout the paper and, in particular, in
-@secref["related-work"].
+@secref["sec:related-work"].
 
-The rest of the paper XXX.
+The rest of the paper is structured as follows. In
+@secref["sec:insert"], we give an overview of how the library works
+and the style of proofs we support. In @secref["sec:running-time"], we
+discuss the cost model our proofs deal with. In
+@secref["sec:extract-insert"], we explain the extraction of our
+programs to OCaml. In these first three sections, we use a consistent
+example that is introduced in @secref["sec:insert"]. Following this
+preamble, @secref["sec:monad"] walks through the definition and design
+of the monad itself. @secref["sec:case-study"] describes the results
+of our case study, wherein we proved properties of a variety of
+different functions. Finally, @secref["sec:related-work"] provides a
+detailed account of our relation to similar projects.
 
 @include-section["insert.scrbl"]
 

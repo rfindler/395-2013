@@ -2,7 +2,7 @@
 @(require scriblib/footnote
           "util.rkt")
 
-@title{The Monad}
+@title[#:tag "sec:monad"]{The Monad}
 
 One way to account for cost is to use the monad to pair an actual
 value (of type @tt{B}) with a natural number representing the

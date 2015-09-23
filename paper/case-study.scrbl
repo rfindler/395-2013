@@ -4,7 +4,7 @@
           "cite.rkt"
           scriblib/figure)
 
-@(define fun-count "17")
+@(define fun-count "19")
 
 @title[#:tag "sec:case-study"]{Case Study}
 

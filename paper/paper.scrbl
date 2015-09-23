@@ -64,10 +64,10 @@ Unlike @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functio
 approach, our library has two benefits. First, it allows programmers to write
 idiomatic code without embedding invariants in
 the data type, so we can reason about a wider variety of
-programs. Second, and more significantly, we guarantee that no
-complexity computations are embedded in the extracted code, so the
-extracted program reads like idiomatic OCaml code and has no
-verification overhead at runtime. We elaborate these details and
+programs. Second, and more significantly, we guarantee that our monad adds no
+complexity computations to the extracted code, so the
+extracted OCaml code and has no running time verification overhead.
+We elaborate these details and
 differences throughout the paper and, in particular, in
 @secref["related-work"].
 

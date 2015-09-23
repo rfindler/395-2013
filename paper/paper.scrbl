@@ -47,9 +47,9 @@ algorithms all have their expected running times.
 @section{Introduction}
 
 For some programs, proving that they have correct input-output
-behavior is only part of the story. To avoid security vulnerabilities,
-they may also be required to have certain performance characteristics
-as well@~cite[complexity-dos]. Indeed, some programs and algorithms
+behavior is only part of the story. As @citet[complexity-dos]
+observed, incorrect performance characteristics can also lead
+to security vulnerabilities. Indeed, some programs and algorithms
 are valuable precisely because of their performance
 characteristics (for instance, compare mergesort and insertion
 sort). Unfortunately, defining functions in Coq or other theorem
@@ -59,9 +59,9 @@ able to state these intentional properties.
 Our work provides a monad (implemented as a library in Coq) that
 enables us to include abstract running times in types. We use this
 library to prove several important algorithms have their expected
-running times. Unlike past approaches to this
-problem@~cite[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures],
-our library has two benefits. First, it allows programmers to write
+running times.
+Unlike @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s
+approach, our library has two benefits. First, it allows programmers to write
 idiomatic code without embedding invariants in
 the data type, so we can reason about a wider variety of
 programs. Second, and more significantly, we guarantee that no

@@ -51,7 +51,7 @@ behavior is only part of the story. As @citet[complexity-dos]
 observed, incorrect performance characteristics can also lead
 to security vulnerabilities. Indeed, some programs and algorithms
 are valuable precisely because of their performance
-characteristics. For example mergesort is preferable to insertion
+characteristics. For example, mergesort is preferable to insertion
 sort only because of its improved running time.
 Unfortunately, defining functions in Coq or other theorem
 proving systems does not provide enough information in the types to be

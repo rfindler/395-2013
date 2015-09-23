@@ -321,6 +321,7 @@ Qed.
 Load "plus_gen.v".
 
 Next Obligation.
+Proof.
   clear H1 am.
   rename H0 into PLUSCIN. 
   

@@ -20,6 +20,7 @@ Hint Unfold add1_result.
 Load "add1_gen.v".
 
 Next Obligation.
+Proof.
   split;auto.
   unfold_sub add1_time (add1_time (S wildcard')).
   fold_sub add1_time.
@@ -29,6 +30,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+Proof.
   clear H2 am add1.
   rename H into EW.
   rename H1 into SR.
@@ -58,6 +60,7 @@ Program Fixpoint add1_time2 (n:nat) {measure n} :=
   end.
 
 Lemma add1_time12 : big_oh add1_time add1_time2.
+Proof.
   exists 1.
   exists 14.
   intros n LE.

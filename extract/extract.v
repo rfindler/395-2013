@@ -15,6 +15,8 @@ Require Import Braun.to_list.to_list_naive.
 Require Import Braun.monad.monad.
 
 Require Import Braun.arith.sub1.
+Require Import Braun.arith.add1.
+Require Import Braun.arith.plus.
 
 Require Import Braun.sort.isort.
 Require Import Braun.sort.mergesort.
@@ -59,6 +61,8 @@ Extraction "post_extract.ml" insert_log.insert
            to_list_naive.to_list_naive
            
            arith.sub1.sub1
+           arith.add1.add1
+           arith.plus.tplus
 
            sort.isort.isort
            sort.mergesort.mergesort

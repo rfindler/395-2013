@@ -15,14 +15,14 @@ search and insert for red-black trees, insertion sort,
 merge sort, both the naive recursive version of the nth Fibonacci
 number function and the iterative version, a function that inserts
 @raw-latex{$m$} times into a list at position @raw-latex{$n$} using
-both lists and zippers, and all of the algorithms mentioned in
-@citet[three-algorithms-on-braun-trees]'s paper, @italic{Three
-Algorithms on Braun Trees}. We chose these algorithms by first
-selecting Okasaki's algorithms, because the project originated in a
-class and we knew Okasaki's papers to be well-written and
-understandable to undergraduates. From that initial selection, we
-moved to an in-order traversal of @citet[clrs] looking for functional
-algorithms that would challenge the framework.
+both lists and zippers, BigNum @tt{add1} and @tt{plus}, and all of the
+algorithms mentioned in @citet[three-algorithms-on-braun-trees]'s
+paper, @italic{Three Algorithms on Braun Trees}. We chose these
+algorithms by first selecting Okasaki's algorithms, because the
+project originated in a class and we knew Okasaki's papers to be
+well-written and understandable to undergraduates. From that initial
+selection, we moved to an in-order traversal of @citet[clrs] looking
+for functional algorithms that would challenge the framework.
 
 To elaborate on the Braun tree algorithms, Okasaki's paper contains
 several versions of each of the three functions, each with different
@@ -48,9 +48,11 @@ For the list insertion functions, we prove
 that when @raw-latex{$m$} is positive, the zipper version is Big O of
 the list version (because the zipper version runs in Big
 O(@raw-latex{$m + n$}) while the list version runs in Big
-O(@raw-latex{$n * m$}). We also prove correctness, except for
-@tt{make_array_linear} and red-black tree insertion where we proved
-only the running times.
+O(@raw-latex{$n * m$}). For BigNum arithmetic, we prove that @tt{add1}
+is Big O(@raw-latex{$\log$}) and that @tt{plus} is Big
+Theta(@raw-latex{$\log$}). We also prove correctness on all
+algorithms, except for @tt{make_array_linear} and red-black tree
+insertion where we proved only the running times.
 
 The supplementary material contains all of the Coq code for all of the
 functions in our case study.
@@ -229,7 +231,7 @@ The functions in the first category are: @tt{insert},
 
 The functions in the second category are: @tt{fib_rec}, @tt{fib_iter},
 @tt{sub1}, @tt{mergesort}'s @tt{split}, @tt{insert_at},
-@tt{zip_rightn}, @tt{zip_leftn}.
+@tt{zip_rightn}, @tt{zip_leftn}, @tt{add1}, @tt{tplus}.
 
 The functions in the third category are: @tt{copy_linear},
 @tt{copy_fib}, @tt{copy_log_sq}, @tt{copy2}, @tt{diff},

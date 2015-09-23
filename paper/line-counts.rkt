@@ -58,6 +58,12 @@
       "fib_iter_gen.v"
       "fib_iter_loop_gen.v"
       "fib_rec_gen.v"))
+    ("arith"
+     ("add1.v"
+      "add1_gen.v"
+      "plus.v"
+      "plus_cin_gen.v"
+      "plus_gen.v"))
     ("to_list"
      ("to_list_naive.v" "cinterleave_gen.v" "to_list_naive_gen.v"))
     ("zippers"

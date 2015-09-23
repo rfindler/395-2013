@@ -140,12 +140,12 @@ Braun tree of size n. So, we must show that @tt{bt_node i bt s} is a
 Braun tree of size @tt{n + 1} and that the running time is correct.
 
 Because the size information is not present in the actual insertion
-function, Coq does not specialize the inductive hypothesis to the size
-of @tt{t}. To clarify that, we can replace @tt{m} with @tt{t_size} and
-specialize the first assumption to arrive at this theorem:
-
+function, Coq does not know to specialize the inductive hypothesis to
+the size of @tt{t}. To clarify that, we can replace @tt{m} with
+@tt{t_size} and, since we know that the tree is not empty, we can replace
+@tt{n} with @tt{s_size + t_size + 1} and simplify to arrive at this goal:
 @inline-code{
- forall i j s t bt an t_size, 
+ forall i j s t bt an s_size t_size, 
   Braun bt (t_size + 1) ->
   an = fl_log t_size + 1 ->
   Braun (bt_node j s t) (s_size + t_size + 1) ->

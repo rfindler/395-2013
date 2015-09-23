@@ -95,7 +95,7 @@ the right subtree and then builds a new tree with the sub-trees
 swapped. This swapping is what preserves the Braun invariant. 
 Since we know that the left subtree's size is either equal to or one
 larger than the right's, when we add an element to the right and swap
-the subtrees, we will also end up with a new tree whose left
+the subtrees, we end up with a new tree whose left
 subtree's size is either equal to or one greater than the right.
 
 The @tt{«var» <- «expr» ; «expr»} notation is the monadic bind
@@ -106,8 +106,8 @@ the result value is pulled out of the monad and bound to
 Then, as before, we return the new tree in the monad after treating
 this branch as a single abstract step of computation.
 
-We exploit @citet[Program-cite]'s @tt{Program} to smooth proving
-these functions have their types. In this case, we are left with two
+We exploit @citet[Program-cite]'s @tt{Program} to simplify proving
+that these functions have their types. In this case, we are left with two
 proof obligations, one from each of the cases of the function. The first
 one is:
 @inline-code{
@@ -154,7 +154,7 @@ theorem to prove
   an + 1 = fl_log (s_size + t_size + 1) + 1
 }
 which we can prove by using facts about logarithms
-and the details of the definition of Braun trees.
+and the definition of Braun trees.
 
 This theorem corresponds precisely to what we need to know in order to
 prove that the recursive case of @tt{insert} works. The assumptions

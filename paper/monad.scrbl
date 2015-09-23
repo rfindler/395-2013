@@ -52,14 +52,12 @@ between @tt{!:!} and @tt{!<!}:
 One important aspect of the @tt{C} type is that the @tt{nat} is bound
 only by an existential, and thus is not connected to the value or the
 computation. Therefore, when we know an expression has the type @tt{C
-A P}, we do not know that its running time is correct. This is because
-the proof that the expression is that type can supply any @tt{nat} to
-satisfy the existential.
-
+A P}, we do not know that its running time is correct, because
+the proof might supply any @tt{nat} to satisfy the existential.
 Thus, in order to guarantee the correct running times, we treat types
 of the form @tt{C A P} as private to the definition of the monad. We
 build a set of operations that can be combined in arbitrary ways but
-such that their combination ensures that the @tt{nat} used must be the
+subject to the restriction that the @tt{nat} must actually be the
 running time.
 
 The first of these operations is the monadic unit, @tt{ret}. Suppose a
@@ -70,13 +68,11 @@ applies to all places where a computation ends. To do this, we define
 @tt{ret}. The underscores ask Coq to fill in well-typed
 arguments (asking the user to provide proofs, if necessary, as we saw
 in @secref["sec:insert"]).
-
 This is the type@note{The definition of @tt{ret}, and all other
-monadic operations, are in our supplementary material and our public
-Github repository. The types are the most interesting part, however,
-so we focused on them in our prose.} of @tt{ret}:
+monadic operations, are in the supplementary material and our public
+Github repo. The types are the most interesting part, however,
+so we focus on them.} of @tt{ret}:
 @(apply inline-code (extract monad.v "ret"))
-
 This specifies that @tt{ret} will construct a @tt{C A P} only when
 given a proof, @tt{Pa0}, that the correctness/runtime property holds
 between the actual value returned @tt{a} and the natural number
@@ -129,7 +125,7 @@ property for @tt{A} is @tt{PA} and @tt{PB} for @tt{B}, then a first
 attempt at a type for @tt{bind} is:
 @(apply inline-code (extract binds.v "bind1"))
 
-This definition is incorrect from the perspective of cost, because it
+This definition is incorrect from the cost perspective, because it
 does not ensure that the cost for producing the @tt{A} is accounted
 for along with the cost of producing the @tt{B}.
 
@@ -166,7 +162,7 @@ performs non-structural recursion and must construct a well-foundness
 proof to perform the recursive call. These well-foundness proofs
 typically rely on the correctness of the @tt{a} value. Some of the
 functions we discuss in our case study in @secref["sec:case-study"]
-could not be written with this version of @tt{bind}.
+could not be written with this version of @tt{bind}, although some could.
 
 It is simple to incorporate the @tt{PA} proof into the type of
 @tt{bf}, once you realize the need for it, by adding an additional

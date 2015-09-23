@@ -127,17 +127,26 @@ monad without any @tt{+=} expressions and turns them into
 ones with @tt{+=} expressions in just the right places.
 
 Our translation function accepts a function written in the
-monad, but without the monadic type on its result and produces
+monad, but without the monadic type on its result, and produces
 one with it. For example, the @tt{insert} function shown on the
 left in @figure-ref["fig:translation"] is translated into the one
 on the right. As well as adding @tt{+=} expressions, the
 translation process also generates a call to @tt{insert_result}
 in the monadic result type. This function must then be defined 
 separately and the translation's output must be used in that
-context. 
+context.
+
+Here is the definition of @tt{insert_result}:
+@(apply inline-code (extract insert_log.v "insert_result"))
+Unlike the previous version, this one accounts for the 
+larger constant factors and it also includes a stricter
+correctness condition. Specifically, the new conjunct
+insists that if you linearize the resulting Braun tree into a
+list, then it is the same as linearizing the input
+and consing the new element onto the front of the list.
 
 Rather than develop a novel, and potentially controversial cost
-semantics, we show the utlity of our monad by adopt the
+semantics, we show the utility of our monad by adopt the
 @citet[automatic-complexity-analysis] cost model. This model treats
 each function call, variable lookup, and case-dispatch as a single
 unit of abstract time. Our translation function is straight-forward
@@ -154,14 +163,5 @@ machine and prove its soundness with respect to the machine's
 reduction lengths. Finally, we would show that our monadic types allow
 incremental proofs of their cost results. In some sense, this ``deep
 embedding'' would be a more direct study of cost and cost proofs, but
-it would be less directly connected with the running time of programs
-that we intend to run in OCaml via extraction.
-
-Here is the definition of @tt{insert_result}:
-@(apply inline-code (extract insert_log.v "insert_result"))
-Unlike the previous version, this one accounts for the 
-larger constant factors and it also includes a stricter
-correctness condition. Specifically, the new conjunct
-insists that if you linearize the resulting Braun tree into a
-list, then it is the same as linearizing the input
-and consing the new element onto the front of the list.
+it would be no more directly connected with the running time of the programs,
+unless we could establish a connection to the OCaml VM.

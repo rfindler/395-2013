@@ -82,12 +82,11 @@ techniques@~cite[speed auto-parallel auto-heap
 recursion-in-bounded-space] These approaches are all weaker than our
 approach, but provide more automation.
 
-Similarly others have explored different approaches for accounting for
+Similarly, others have explored different approaches for accounting for
 various resources bounds and costs, but we do not provide any
 contribution in this area. Instead, we take an off-the-shelf cost
 semantics (@citet[automatic-complexity-analysis]'s) and use it. We
-discuss in @secref["running-time"] how one might choose a different
-cost semantics and how little it would affect our work.
+believe our approach applies to other cost models.
 
 We have consistently used the word ``monad'' to describe what our
 library provides and believe that that is a usefully evocative word to
@@ -114,7 +113,7 @@ by combining our monad's types with a variation of the
 @citet[hoare-logic-state-monad] and @citet[dijkstra-monad] monads. The
 types and proofs work out, but are considerably more complicated, due
 in part to the complexity of proofs about imperative programs. We
-consider it future work to deeply study whether there is a more
+consider it future work to study whether there is a more
 elegant approach and develop a detailed case study.
 
 @; is this related?

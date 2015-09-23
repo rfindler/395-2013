@@ -10,10 +10,10 @@
 
 @; @figure*["fig:line-counts" "Line Counts"]{@build-table[]}
 
-To better understand how applicable our monad is, we implemented the
-search and insertion functions for red-black trees, insertion sort,
+To better understand how applicable our monad is, we implemented 
+search and insert for red-black trees, insertion sort,
 merge sort, both the naive recursive version of the nth Fibonacci
-number function and the linear time version, a function that inserts
+number function and the iterative version, a function that inserts
 @raw-latex{$m$} times into a list at position @raw-latex{$n$} using
 both lists and zippers, and all of the algorithms mentioned in
 @citet[three-algorithms-on-braun-trees]'s paper, @italic{Three
@@ -43,7 +43,8 @@ monad.  For all of them, we proved the expected Big O running times.
 For merge sort, we proved it is Big O(@raw-latex{$n \log(n)$}) and Big
 Ω(@raw-latex{$n \log(n)$}). For the naive fib, we proved that it is
 Big Ω and Big O of itself, Big O(2@raw-latex{$^n$}), and Big
-Ω(2@raw-latex{$^{n/2}$}). For the list insertion functions, we prove
+Ω(2@raw-latex{$^{n/2}$}), all assuming that the addition operation is constant time.
+For the list insertion functions, we prove
 that when @raw-latex{$m$} is positive, the zipper version is Big O of
 the list version (because the zipper version runs in Big
 O(@raw-latex{$m + n$}) while the list version runs in Big
@@ -56,19 +57,19 @@ functions in our case study.
 
 @section{Line Counts}
 
-Our supplementary material also contains a detailed account of the
-lines of Coq code produced for our study. We divide the line counts up
+Our supplementary material contains a detailed account of the
+lines of Coq code produced for our study. We separate the line counts
 into proofs that are inside obligations (and thus correspond to
 establishing that the monadic types are correct) and other lines of
-proofs. In all there are @line-count:total lines of code total. There
+proofs. In total there are @line-count:total lines of code. There
 are @line-count:non-proof lines that are not proofs. There
 @line-count:obligations lines of code related to obligations and
 @line-count:other-proofs lines of other proofs.
 
-We have built an extensive library of general proofs about the
+We have built an library of general proofs about the
 monad (such as the monad laws), a Big O library, a Log library, and
 some common facts and definitions about Braun trees. This library
-accounts for over a quarter (25%) of all lines of code of each
+accounts for over 25% of all lines of code of each
 category.
 
 With the exception of the @tt{make_array_linear} and the red-black
@@ -114,12 +115,12 @@ The extracted functions naturally fall into three categories.
 
 In the first category are functions that recur on the natural
 structure of their inputs, e.g., functions that process lists from the
-front--one element at a time, functions that process trees by
+front, functions that process trees by
 processing the children and combining the result, and so on. In the
 second category are functions that recursively process numbers by
 counting down by ones from a given number.  In the third category are
-functions that ``skip'' over some of their inputs. For example, in
-Okasaki's algorithms, functions recur on natural numbers by dividing the
+functions that ``skip'' over some of their inputs. For example,
+some functions recur on natural numbers by dividing the
 number by 2 instead of subtracting one, and merge sort recurs by
 dividing the list in half at each step.
 

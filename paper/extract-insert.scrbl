@@ -6,7 +6,7 @@
 
 One of the important benefits of our library is that
 none of the correctness conditions and running time
-infrastructure affects Coq's extraction process.
+infrastructure affect Coq's extraction process.
 In particular, our monad extracts as the identity
 monad, which means that the OCaml code produced by Coq
 does not require any modifications.
@@ -21,8 +21,7 @@ type 'a bin_tree =
 | Bt_mt             -> Bt_node (i, Bt_mt, Bt_mt)
 | Bt_node (j, s, t) -> Bt_node (i, (insert j t), s)
 }
-This is exactly the code that Coq produces, whitespace,
-newlines and all. The only declarations we added to
+The only declarations we added to
 aid Coq's extraction was the suggestion that it should
 inline the monad operations. And since the extracted
 version of our monad is the identity monad, the monad

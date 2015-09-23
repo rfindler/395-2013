@@ -20,12 +20,12 @@ are explicitly declared as part of the body of the function.
 In the next section, we make the running times implicit
 (and thus not trusted or spoofable).
 
-Braun trees are a form of balanced binary trees 
-where the balance condition allows only a single shape of
-trees for a given size. Specifically, for each interior
-node, either the two children are exactly the same size or
-the left child's size is one larger than the right child's
-size.
+Braun trees are a form of balanced binary trees where the balance
+condition allows only a single shape of trees for a given
+size. Specifically, for each interior node, either the two children
+are exactly the same size or the left child's size is one larger than
+the right child's size. Braun trees provide for efficient growable
+vectors.
 
 Because this invariant is so strong, explicit balance
 information is not needed in the data structure that
@@ -146,7 +146,7 @@ the size of @tt{t}. To clarify that, we can replace @tt{m} with
 theorem to prove
 
 @inline-code{
- forall i j s t bt n t_size, 
+ forall i j s t bt an t_size, 
   Braun bt (t_size + 1) ->
   an = fl_log t_size + 1 ->
   Braun (bt_node j s t) (s_size + t_size + 1) ->

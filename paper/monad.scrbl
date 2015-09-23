@@ -1,5 +1,6 @@
 #lang scribble/base
-@(require "util.rkt")
+@(require scriblib/footnote
+          "util.rkt")
 
 @title{The Monad}
 
@@ -70,7 +71,10 @@ applies to all places where a computation ends. To do this, we define
 arguments (asking the user to provide proofs, if necessary, as we saw
 in @secref["sec:insert"]).
 
-This is the type of @tt{ret}:
+This is the type@note{The definition of @tt{ret}, and all other
+monadic operations, are in our supplementary material and our public
+Github repository. The types are the most interesting part, however,
+so we focused on them in our prose.} of @tt{ret}:
 @(apply inline-code (extract monad.v "ret"))
 
 This specifies that @tt{ret} will construct a @tt{C A P} only when
@@ -179,10 +183,21 @@ Because all of the interesting aspects of these operations happen in
 their types, the extraction of these operations have no interesting
 dynamic content. Specifically @tt{ret} is simply the identity
 function, @tt{inc} is a function that just returns its second argument
-and @tt{bind} applies its second argument to its first.  Furthermore,
-we have proven that they obey variants of the monad laws that
-incorporate the proof obligations (see the file @tt{monad/laws.v} in
-the supplementary material).
+and @tt{bind} applies its second argument to its first.
+
+Furthermore, we have proven that they obey variants of the monad laws
+that incorporate the proof obligations (see the file @tt{monad/laws.v}
+in the supplementary material). Our versions of the monad law proofs
+use an auxiliary relation, written @tt{sig_eqv}, rather than
+equality. This relation ensures that the values returned by monadic
+commands are equal and that their proofs are equivalent. In practice,
+this means that the theorems proved by expressions such as @tt{(m
+>>= (\x -> f x >>= g))} and @tt{((m >>= f) >>= g)} are written
+differently, they imply each other. In particular, for that pair of
+expressions, one proves that @tt{(n_m + (n_f + n_g))} is an accurate
+prediction of running time and the other proves that @tt{((n_m + n_f)
++ n_g)} is an accurate prediction of running time, which are
+equivalant statements.
 
 In summary, the monad works by requiring the verifier to predict the
 running-time in the @tt{PA} property and then prove that the actual

@@ -46,18 +46,32 @@ algorithms all have their expected running times.
 
 @section{Introduction}
 
-For some algorithms, proving that they have correct input-output
+For some programs, proving that they have correct input-output
 behavior is only part of the story. To avoid security vulnerabilities,
 they may also be required to have certain performance characteristics
-as well. Unfortunately, defining functions in Coq or other theorem
-proving systems does not provide enough information in the types
-to be able to state these more intentional properties.
+as well @~cite[complexity-dos]. Indeed, some programs and algorithms
+are valuable precisely because of their performance
+characteristics (for instance, compare mergesort and insertion
+sort). Unfortunately, defining functions in Coq or other theorem
+proving systems does not provide enough information in the types to be
+able to state these more intentional properties.
 
 Our work provides a monad (implemented as a library in Coq) that
 enables us to include abstract running times in types. We use this
 library to prove several important algorithms have their expected
-running times. Our library also has the benefit that the extracted
-code reads like idiomatic OCaml code.
+running times. Unlike past approaches to this problem
+@~cite[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures],
+our library has two benefits. First, it allows programmers to write
+idiomatic code and does not require that invariants are embedded in
+the data type, so we can reason about a wider variety of
+programs. Second, and more significantly, we guarantee that no
+complexity computations are embedded in the extracted code, so the
+extracted program reads like idiomatic OCaml code and has no
+verification overhead during runtime. We elaborate these details and
+differences throughout the paper and, in particular, in
+@secref["related-work"].
+
+The rest of the paper XXX.
 
 @include-section["insert.scrbl"]
 

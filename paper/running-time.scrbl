@@ -81,7 +81,7 @@
   (map make-line lines))
 @(define omitable-style (make-style 'omitable null))
 
-@title{Implicit Running Times}
+@title[#:tag "running-time"]{Implicit Running Times}
 
 @figure*["fig:translation" "Inserting += into insert"]{
 @(let ()
@@ -136,13 +136,26 @@ in the monadic result type. This function must then be defined
 separately and the translation's output must be used in that
 context. 
 
-We follow @citet[automatic-complexity-analysis] and treat each
-function call, variable lookup, and case-dispatch as a single unit of
-abstract time. The function is straight-forward and is included in the
-supplementary materials (@tt{add-plusses/check-stx-errs} in
-@tt{rkt/tmonad/main.rkt}).  Different cost semantics are possible,
-provided a function could map them to the program's syntax in a
-straight-forward way.
+Rather than develop a novel, and potentially controversial cost
+semantics, we show the utlity of our monad by adopt the
+@citet[automatic-complexity-analysis] cost model. This model treats
+each function call, variable lookup, and case-dispatch as a single
+unit of abstract time. Our translation function is straight-forward
+and is included in the supplementary
+materials (@tt{add-plusses/check-stx-errs} in
+@tt{rkt/tmonad/main.rkt}). Our monad could support different cost
+semantics, without modification, provided a function could map them to
+the program's syntax in a straight-forward way.
+
+An alternative approach would be to follow
+@citet[static-cost-analysis] and build a Coq model of a machine and
+programming language. We would then define a cost judgement for this
+machine and prove its soundness with respect to the machine's
+reduction lengths. Finally, we would show that our monadic types allow
+incremental proofs of their cost results. In some sense, this ``deep
+embedding'' would be a more direct study of cost and cost proofs, but
+it would be less directly connected with the running time of programs
+that we intend to run in OCaml via extraction.
 
 Here is the definition of @tt{insert_result}:
 @(apply inline-code (extract insert_log.v "insert_result"))

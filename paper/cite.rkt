@@ -14,6 +14,8 @@
   "Proc. Workshop of the Working Group Types")
 (define icfem
   "Proc. Intl. Conference on Formal Engineering Methods and Software Engineering")
+(define itp
+  "Proc. Intl. Conference on Interactive Theorem Proving")
 (define waaapl
   "Proc. Workshop on Algorithmic Aspects of Advanced Programming Languages")
 (define esop
@@ -22,8 +24,14 @@
   "Proc. Theorem Proving in Higher Order Logics")
 (define popl
   "Proc. Symposium on Principles of Programming Languages")
+(define pldi
+  "Proc. Conference on Programming Language Design and Implementation")
+(define plpv
+  "Proc. Workshop on Programming Languages meets Program Verification")
 (define fossacs
   "Proc. Foundations of Software Science and Computation Structure")
+(define usenix-sec
+  "Proc. USENIX Security Symposium")
 
 ;; need to check on this cite; just got it from Chris's paper
 (define Braun
@@ -64,6 +72,13 @@
                #:institution "Université Paris Diderot (Paris 7)"
                #:degree "PhD")
    #:date 2010))
+
+(define machine-checked-union-find
+  (make-bib
+   #:title "Machine-checked verification of the correctness and amortized complexity of an efficient union-find implementation"
+   #:author (authors "Arthur Charguéraud" "François Pottier")
+   #:location (proceedings-location itp)
+   #:date 2015))
 
 (define correct-by-construction-model-transformations
   (make-bib
@@ -145,6 +160,13 @@
    #:location (proceedings-location popl)
    #:date 2009))
 
+(define static-cost-analysis
+  (make-bib 
+   #:title "A Static Cost Analysis for a Higher-order Language"
+   #:author (authors "Norman Danner" "Jennifer Paykin" "James S. Royer")
+   #:location (proceedings-location plpv)
+   #:date 2013))
+
 (define auto-parallel
   (make-bib
    #:title "Automatic Static Cost Analysis for Parallel Programs"
@@ -172,3 +194,26 @@
    #:title "Resource bound certification"
    #:location (proceedings-location popl)
    #:date 2000))
+
+(define dijkstra-monad
+  (make-bib
+   #:author (authors "Nikhil Swamy" "Joel Weinberger" "Cole Schlesinger"
+                     "Juan Chen" "Benjamin Livshits")
+   #:title "Verifying Higher-order Programs with the Dijkstra Monad"
+   #:location (proceedings-location pldi)
+   #:date 2013))
+
+(define clrs
+  (make-bib
+   #:author (authors "Thomas H. Cormen" "Charles E. Leiserson"
+                     "Ronald L. Rivest" "Clifford Stein")
+   #:title "Introduction to Algorithms (3rd Edition)"
+   #:location "MIT Press"
+   #:date 2009))
+
+(define complexity-dos
+  (make-bib
+   #:author (authors "Scott A. Crosby" "Dan S. Wallach")
+   #:title "Denial of Service via Algorithmic Complexity Attacks"
+   #:location (proceedings-location usenix-sec)
+   #:date 2003))

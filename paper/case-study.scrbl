@@ -17,21 +17,30 @@ number function and the linear time version, a function that inserts
 @raw-latex{$m$} times into a list at position @raw-latex{$n$} using
 both lists and zippers, and all of the algorithms mentioned in
 @citet[three-algorithms-on-braun-trees]'s paper, @italic{Three
-Algorithms on Braun Trees}.  Okasaki's paper contains several versions
-of each of the three functions, each with different running times, in
-each case culminating with efficient versions.
-The three functions are:
-@itemlist[@item{@tt{size}: computes the size of a Braun tree 
+Algorithms on Braun Trees}. We chose these algorithms by first
+selecting Okasaki's algorithms, because the project originated in a
+class and we knew Okasaki's papers to be well-written and
+understandable to undergraduates. From that initial selection, we
+moved to an in-order traversal of @citet[clrs] looking for functional
+algorithms that would challenge the framework.
+
+To elaborate on the Braun tree algorithms, Okasaki's paper contains
+several versions of each of the three functions, each with different
+running times, in each case culminating with efficient versions.  The
+three functions are:
+@itemlist[@item{@tt{size}: computes the size of a Braun
+tree
                  (a linear and a log squared version)}
           @item{@tt{copy}: builds a Braun tree a given size
                  filled entirely with a given element
                  (a linear, a fib ∘ log, a log squared, and a log time version),
                  and}
           @item{@tt{make_array}: convert a list into a Braun tree
-                 (two n log n versions and a linear version).}]  In
-total, we implemented @fun-count different functions using the monad.
-For all of them, we proved the expected Big O running times.  For
-merge sort, we proved it is Big O(@raw-latex{$n \log(n)$}) and Big
+                   (two n log n versions and a linear version).}]
+
+In total, we implemented @fun-count different functions using the
+monad.  For all of them, we proved the expected Big O running times.
+For merge sort, we proved it is Big O(@raw-latex{$n \log(n)$}) and Big
 Ω(@raw-latex{$n \log(n)$}). For the naive fib, we proved that it is
 Big Ω and Big O of itself, Big O(2@raw-latex{$^n$}), and Big
 Ω(2@raw-latex{$^{n/2}$}). For the list insertion functions, we prove

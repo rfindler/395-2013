@@ -1,6 +1,6 @@
 #lang scribble/base
 @(require "cite.rkt" scribble/core)
-@title{Related Work}
+@title[#:tag "related-work"]{Related Work}
 
 @;{
 
@@ -11,24 +11,23 @@ http://www.cs.yale.edu/homes/hoffmann/publications.html
 }
 
 
-The most closely related work to ours is 
+The most closely related work to ours is
 @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures].
-He presents a monad that, like ours, carries a
-notion of abstract time. Unlike our monad, his
-does not also carry an invariant -- in our terms
-his monad construction does not have the @tt{P} argument.
-In our opinion, figuring out the design of monad
-operations that support the @tt{P} argument is
-the major technical advance here.
-Accordingly, 
+He presents a monad that, like ours, carries a notion of abstract
+time. Unlike our monad, his does not also carry an invariant -- in our
+terms his monad construction does not have the @tt{P} argument.  In
+our opinion, figuring out the design of monad operations that support
+the @tt{P} argument is the major technical advance here.  Accordingly,
 @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s
-system cannot specify the
-running time of many of the Braun functions, since
-the size information is not available without the
-additional assumption of Braunness.
-Also, his monad would leave natural numbers in the
-extracted code; avoiding that is a major goal
-of this work.
+system cannot specify the running time of many of the Braun functions,
+since the size information is not available without the additional
+assumption of Braunness. Of course, one can bake the Braun invariants
+into the Braun data-structure itself, which would provide them to his
+monad via the function arguments, but this restricts the way the code
+is written, leaves residue in the extracted code, and moves the
+implementation away from an idiomatic style.  Also, his monad would
+leave natural numbers in the extracted code; avoiding that is a major
+goal of this work.
 
 While @citet[resource-bound-certification]'s work does not
 leverage the full expressiveness of a theorem proving system
@@ -72,27 +71,51 @@ make proof obligations visible at just the right moments. However,
 the state used in their monad has computational content and thus
 is not intended to be erased during extraction.
 
-@citet[characteristic-formulae-for-mechanized-program-verification]'s
-characteristic formula generator seems to produce Coq
-code with obligations similar to what our monad produces, but
-it does not consider running time.
+@citet[characteristic-formulae-for-mechanized-program-verification]
+and @citet[machine-checked-union-find]'s characteristic formula
+generator seems to produce Coq code with obligations similar to what
+our monad produces, but it does not consider running time.
 
-Others have explored automatic techniques for proving 
-that programs have particular resource bounds using
-a variety of techniques@~cite[speed auto-parallel auto-heap recursion-in-bounded-space]
-These approaches are all weaker than our approach, but
-provide more automation.
+Others have explored automatic techniques for proving that programs
+have particular resource bounds using a variety of
+techniques@~cite[speed auto-parallel auto-heap
+recursion-in-bounded-space] These approaches are all weaker than our
+approach, but provide more automation.
 
-We have consistently used the word ``monad'' to describe 
-what our library provides and believe that that is a
-usefully evocative word to capture the essence of our
-library. It probably is not, however, technically accurate
-because the proof information changes the types of the
-operations, making it some kind of generalized form of monad,
-perhaps a specialization of @citet[Atkey-generalized-monad]'s
-or @citet[ACU-generalized-monad]'s.
+Similarly others have explored different approaches for accounting for
+various resources bounds and costs, but we do not provide any
+contribution in this area. Instead, we take an off-the-shelf cost
+semantics (@citet[automatic-complexity-analysis]'s) and use it. We
+discuss in @secref["running-time"] how one might choose a different
+cost semantics and how little it would affect our work.
 
-Our code builds heavily on @citet[Program-cite]'s @tt{Program} facility in Coq.
+We have consistently used the word ``monad'' to describe what our
+library provides and believe that that is a usefully evocative word to
+capture the essence of our library. However, they are not technically
+monads for two reasons. First, the monad laws are written using an
+equality, but we use equivalence relation appropriate to our
+type. Second, our types have more parameters than the single parameter
+used in monads, due to the proof information residing in the types, so
+our ``monad'' is actually a generalized form of a monad, a
+specialization of @citet[Atkey-generalized-monad]'s or
+@citet[ACU-generalized-monad]'s. @citet[hoare-logic-state-monad] and
+@citet[dijkstra-monad] follow this same evocative naming convention.
+
+Our code uses @citet[Program-cite]'s @tt{Program} facility in Coq for
+writing dependently-typed programs by separating idiomatic code and
+detail-oriented proofs in the program source. Without @tt{Program},
+our programs would have to mix the running time proofs in with the
+program, which would greatly obscure the code's connection to the
+original algorithm, as one does in
+@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures].
+
+We have experimented with supporting proofs about imperative programs
+by combining our monad's types with a variation of the
+@citet[hoare-logic-state-monad] and @citet[dijkstra-monad] monads. The
+types and proofs work out, but are considerably more complicated, due
+in part to the complexity of proofs about imperative programs. We
+consider it future work to deeply study whether there is a more
+elegant approach and develop a detailed case study.
 
 @; is this related?
 @;@citet[correct-by-construction-model-transformations]

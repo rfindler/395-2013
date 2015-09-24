@@ -45,7 +45,7 @@ This says that the empty binary tree is a Braun tree of size
 are the sizes of two Braun trees @tt{s} @tt{t}, and if
 @tt{s_size <= t_size <= s_size + 1}, then combining
 the @tt{s} and @tt{t} into a single tree produces
-a braun tree of size @tt{s_size+t_size+1}.
+a Braun tree of size @tt{s_size+t_size+1}.
 
 @figure*["fig:insert"
         @list{Braun tree insertion}

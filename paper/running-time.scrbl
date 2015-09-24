@@ -144,7 +144,7 @@ list, then it is the same as linearizing the input
 and consing the new element onto the front of the list.
 
 Rather than develop a novel, and potentially controversial cost
-semantics, we show the utility of our monad by adopt the
+semantics, we show the utility of our monad by adopting the
 @citet[automatic-complexity-analysis] cost model. This model treats
 each function call, variable lookup, and case-dispatch as a single
 unit of abstract time. In @figure-ref["fig:translation"], the first

@@ -65,7 +65,7 @@ idiomatic code without embedding invariants in
 the data type, so we can reason about a wider variety of
 programs. Second, and more significantly, we guarantee that our monad adds no
 complexity computations to the extracted code, so the
-extracted OCaml code and has no running time verification overhead.
+extracted OCaml code has no running time verification overhead.
 We elaborate these details and
 differences throughout the paper and, in particular, in
 @secref["sec:related-work"].
@@ -78,10 +78,12 @@ discuss the cost model our proofs deal with. In
 programs to OCaml. In these first three sections, we use a consistent
 example that is introduced in @secref["sec:insert"]. Following this
 preamble, @secref["sec:monad"] walks through the definition and design
-of the monad itself. @secref["sec:case-study"] describes the results
+of the monad itself. @Secref["sec:case-study"] describes the results
 of our case study, wherein we proved properties of a variety of
 different functions. Finally, @secref["sec:related-work"] provides a
-detailed account of our relation to similar projects.
+detailed account of our relation to similar projects. Our source code
+and other supplementary material is available at
+@url{http://github.com/rfindler/395-2013}.
 
 @include-section["insert.scrbl"]
 

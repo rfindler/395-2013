@@ -34,7 +34,7 @@ some function-specific specification of running time
 (and possibly also correctness). Importantly, the right-hand side of
 this pair is a proposition, so it contributes no
 computational content when extracted into OCaml. 
-For our @tt{insert} function, we write the result type as:
+For our @tt{insert} function, we wrote the result type as:
 @inline-code|{
 : {! res !:! @bin_tree A !<! c !>!
      (forall n, Braun b n -> (Braun res (n+1) /\ c = fl_log n + 1)) !}
@@ -54,7 +54,7 @@ computation. Therefore, when we know an expression has the type @tt{C
 A P}, we do not know that its running time is correct, because
 the proof might supply any @tt{nat} to satisfy the existential.
 Thus, in order to guarantee the correct running times, we treat types
-of the form @tt{C A P} as private to the definition of the monad. We
+of the form @tt{C A P} as private to the monad's defining module. We
 build a set of operations that can be combined in arbitrary ways but
 subject to the restriction that the @tt{nat} must actually be the
 running time.
@@ -102,7 +102,7 @@ We previously described @tt{P} as a relation between @tt{A}s and
 and a @tt{nat} and returns a proposition. So, we can make @tt{P'} be
 the function @tt{fun a an => P a (an+1)}. This has the effect of
 transforming the runtime obligation on @tt{ret} from what was
-described above. The proof @tt{P a 0} becomes @tt{P a 1}. In general,
+described above. The proof @tt{P' a 0} becomes @tt{P a 1}. In general,
 if the cost along a control-flow path to a @tt{ret} has @tt{k} units
 of cost, the proof will be @tt{P a k}. Thus, we accrue the cost inside
 of the property itself.
@@ -184,8 +184,8 @@ in the supplementary material). Our versions of the monad law proofs
 use an auxiliary relation, written @tt{sig_eqv}, rather than
 equality. This relation ensures that the values returned by monadic
 commands are equal and that their proofs are equivalent. In practice,
-this means that the theorems proved by expressions such as @tt{(m
->>= (\x -> f x >>= g))} and @tt{((m >>= f) >>= g)} are written
+this means that although the theorems proved by expressions such as
+@tt{(m >>= (\x -> f x >>= g))} and @tt{((m >>= f) >>= g)} are written
 differently, they imply each other. In particular, for that pair of
 expressions, one proves that @tt{(n_m + (n_f + n_g))} is an accurate
 prediction of running time and the other proves that @tt{((n_m + n_f)

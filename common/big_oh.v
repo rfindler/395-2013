@@ -65,6 +65,35 @@ Proof.
   omega.
 Qed.
 
+Lemma big_oh_k_1: forall k, 1 <= k -> big_oh (fun n => 1) (fun n => k).
+Proof.
+  intros k LE.
+  unfold big_oh.
+  exists 0.
+  exists 1.
+  intros n.
+  omega.
+Qed.
+
+Lemma big_omega_k_1: forall k, 1 <= k -> big_omega (fun n => 1) (fun n => k).
+Proof.
+  intros k LE.
+  unfold big_omega.
+  exists 0.
+  exists 1.
+  exists k.
+  split. auto.
+  intros n.
+  omega.
+Qed.
+
+Lemma big_theta_k_1: forall k, 1 <= k -> big_theta (fun n => 1) (fun n => k).
+Proof.
+  intros k LE. split.
+  apply big_oh_k_1. auto.
+  apply big_omega_k_1. auto.
+Qed.
+
 Lemma big_oh_fl_log_plus_1 : big_oh (fun n => (fl_log n + 1)) fl_log.
 Proof.
   exists 1.

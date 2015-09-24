@@ -54,8 +54,7 @@ O(@raw-latex{$\log$}) and that @tt{plus} is Big
 except for @tt{make_array_linear} and red-black tree insertion where
 we proved only the running times. Finally, in the proofs for BigNum
 arithmetic and about the fibonacci functions, we use a simplified cost
-model that reduces all @tt{inc} constants to @raw-latex{$1$}, which is
-justified given that our proofs are only about asymptotic complexity.
+model that reduces all @tt{inc} constants to @raw-latex{$1$}.
 The supplementary material contains all of the Coq code for all of the
 functions in our case study.
 
@@ -223,21 +222,19 @@ running time monad, but is an example of the sort of verification residue
 we wish to avoid and do successfully avoid in the case of the running
 time obligations.
 
-The functions in the first category are: @tt{insert},
-@tt{size_linear}, @tt{size}, @raw-latex{\\} @tt{make_array_naive}, @tt{foldr},
+The functions in the first category are: @smaller{@tt{insert},
+@tt{size_linear}, @tt{size}, @tt{make_array_naive}, @tt{foldr},
 @tt{make_array_naive_foldr}, @tt{unravel}, @tt{to_list_naive},
-@raw-latex{\\} @tt{isort}'s @tt{insert}, @tt{isort}, @tt{clength}, @tt{minsert_at},
-@tt{to_zip}, @tt{from_zip}, @tt{zip_right}, @raw-latex{\\} @tt{zip_left},
-@tt{zip_insert}, @tt{zip_minsert}, @tt{minsertz_at}, @tt{bst_search},
-@tt{rbt_blacken}, @raw-latex{\\} @tt{rbt_balance}, @tt{rbt_insert}.
-
-The functions in the second category are: @tt{fib_rec}, @tt{fib_iter},
+ @tt{isort}'s @tt{insert}, @tt{isort}, @tt{clength}, @raw-latex{\\} @tt{minsert_at},
+@tt{to_zip}, @tt{from_zip}, @tt{zip_right}, @tt{zip_left},
+@tt{zip_insert}, @tt{zip_minsert}, @tt{minsertz_at}, @raw-latex{\\} @tt{bst_search},
+@tt{rbt_blacken}, @tt{rbt_balance}, @tt{rbt_insert}}.
+The functions in the second category are: @smaller{@tt{fib_rec}, @tt{fib_iter},
 @tt{sub1}, @tt{mergesort}'s @tt{split}, @tt{insert_at},
-@tt{zip_rightn}, @tt{zip_leftn}, @tt{add1}, @tt{tplus}.
-
-The functions in the third category are: @tt{copy_linear},
+@tt{zip_rightn}, @tt{zip_leftn}, @tt{add1}, @tt{tplus}}.
+The functions in the third category are: @smaller{@tt{copy_linear},
 @tt{copy_fib}, @tt{copy_log_sq}, @tt{copy2}, @tt{diff},
-@tt{make_array_td}, @tt{cinterleave}, @tt{merge}, @tt{mergesort}. Some
+@tt{make_array_td}, @tt{cinterleave}, @tt{merge}, @tt{mergesort}}. Some
 of the functions in the second category are also in the third
 category.
 

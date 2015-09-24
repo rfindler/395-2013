@@ -12,22 +12,21 @@ http://www.cs.yale.edu/homes/hoffmann/publications.html
 
 
 The most closely related work to ours is
-@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures].
-He presents a monad that, like ours, carries a notion of abstract
-time. Unlike our monad, his does not also carry an invariant -- in our
-terms his monad construction does not have the @tt{P} argument.  In
-our opinion, figuring out the design of monad operations that support
-the @tt{P} argument is the major technical advance here.  Accordingly,
-@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s
-system cannot specify the running time of many of the Braun functions,
-since the size information is not available without the additional
+@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures],
+which presents a monad that carries a notion of abstract time. Unlike
+our monad, his does not carry an invariant -- in our terms his
+construction does not have the @tt{P} argument.  In our opinion,
+figuring out the design of monad operations that support the @tt{P}
+argument is our major technical advance.  Accordingly, his system
+cannot specify the running time of many of the Braun functions, since
+the size information is not available without the additional
 assumption of Braunness. Of course, one can bake the Braun invariants
 into the Braun data-structure itself, which would provide them to his
 monad via the function arguments, but this restricts the way the code
 is written, leaves residue in the extracted code, and moves the
-implementation away from an idiomatic style.  Also, his monad would
-leave natural numbers in the extracted code; avoiding that is a major
-goal of this work.
+implementation away from an idiomatic style.  Also, his monad leaves
+natural numbers in the extracted code; avoiding that is a major goal
+of this work.
 
 While @citet[resource-bound-certification]'s work does not
 leverage the full expressiveness of a theorem proving system
@@ -67,9 +66,9 @@ more complex.
 
 @citet[hoare-logic-state-monad]'s Hoare state monad is like our
 monad in that it exploits monadic structure to 
-make proof obligations visible at just the right moments. However,
+make proof obligations visible at the right moments. However,
 the state used in their monad has computational content and thus
-is not intended to be erased during extraction.
+is not erased during extraction.
 
 @citet[characteristic-formulae-for-mechanized-program-verification]
 and @citet[machine-checked-union-find]'s characteristic formula

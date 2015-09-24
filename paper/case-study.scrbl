@@ -12,17 +12,17 @@
 
 To better understand how applicable our monad is, we implemented
 search and insert for red-black trees, insertion sort, merge sort,
-both the naive recursive version of the nth Fibonacci number function
-and the iterative version, a function that inserts @raw-latex{$m$}
-times into a list at position @raw-latex{$n$} using both lists and
-zippers, BigNum @tt{add1} and @tt{plus}, and all of the algorithms
-mentioned in @citet[three-algorithms-on-braun-trees]'s paper,
-@italic{Three Algorithms on Braun Trees}. We chose these algorithms by
-first selecting Okasaki's papers, because the project originated in a
-class and we knew them to be well-written and understandable to
-undergraduates. From that initial selection, we moved to an in-order
-traversal of @citet[clrs] looking for functional algorithms that would
-challenge the framework.
+both the naive recursive version of the @raw-latex{$n$}th Fibonacci
+number function and the iterative version, a function that inserts
+@raw-latex{$m$} times into a list at position @raw-latex{$n$} using
+both lists and zippers, BigNum @tt{add1} and @tt{plus}, and all of the
+algorithms mentioned in @citet[three-algorithms-on-braun-trees]'s
+paper, @italic{Three Algorithms on Braun Trees}. We chose these
+algorithms by first selecting Okasaki's papers, because the project
+originated in a class and we knew them to be well-written and
+understandable to undergraduates. From that initial selection, we
+moved to an in-order traversal of @citet[clrs] looking for functional
+algorithms that would challenge the framework.
 
 To elaborate on the Braun tree algorithms, Okasaki's paper contains
 several versions of each of the three functions, each with different
@@ -40,18 +40,22 @@ three functions are:
 In total, we implemented @fun-count different functions using the
 monad.  For all of them, we proved the expected Big O running times.
 For merge sort, we proved it is Big O(@raw-latex{$n \log(n)$}) and Big
-Ω(@raw-latex{$n \log(n)$}). For the naive fib, we proved that it is
-Big Ω and Big O of itself, Big O(2@raw-latex{$^n$}), and Big
-Ω(2@raw-latex{$^{n/2}$}), all assuming that the addition operation is constant time.
-For the list insertion functions, we prove
-that when @raw-latex{$m$} is positive, the zipper version is Big O of
-the list version (because the zipper version runs in Big
-O(@raw-latex{$m + n$}) while the list version runs in Big
-O(@raw-latex{$n * m$}). For BigNum arithmetic, we prove that @tt{add1}
-is Big O(@raw-latex{$\log$}) and that @tt{plus} is Big
-Theta(@raw-latex{$\log$}). We also prove correctness on all
-algorithms, except for @tt{make_array_linear} and red-black tree
-insertion where we proved only the running times.
+Ω(@raw-latex{$n \log(n)$}). For the naive @tt{fib}, we proved that it
+is Big Ω and Big O of itself, Big O(@raw-latex{$2^n$}), and Big
+Ω(@raw-latex{$2^{n/2}$}), all assuming that the addition operation is
+constant time. For the iterative @tt{fib}, we prove that it is Big
+O(@raw-latex{$n^2$}).  For the list insertion functions, we prove that
+when @raw-latex{$m$} is positive, the zipper version is Big O of the
+list version (because the zipper version runs in Big O(@raw-latex{$m +
+n$}) while the list version runs in Big O(@raw-latex{$n * m$}). For
+BigNum arithmetic, we prove that @tt{add1} is Big
+O(@raw-latex{$\log$}) and that @tt{plus} is Big
+Θ(@raw-latex{$\log$}). We also prove correctness on all algorithms,
+except for @tt{make_array_linear} and red-black tree insertion where
+we proved only the running times. Finally, in the proofs for BigNum
+arithmetic and about the fibonacci functions, we use a simplified cost
+model that reduces all @tt{inc} constants to @raw-latex{$1$}, which is
+justified given that our proofs are only about asymptotic complexity.
 The supplementary material contains all of the Coq code for all of the
 functions in our case study.
 

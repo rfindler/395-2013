@@ -147,9 +147,16 @@ Rather than develop a novel, and potentially controversial cost
 semantics, we show the utility of our monad by adopt the
 @citet[automatic-complexity-analysis] cost model. This model treats
 each function call, variable lookup, and case-dispatch as a single
-unit of abstract time. Our translation function is straight-forward
-and is included in the supplementary
-materials (@tt{add-plusses/check-stx-errs} in
+unit of abstract time. In @figure-ref["fig:translation"], the first
+return is annotated with a cost of @raw-latex{$6$} because it
+references @raw-latex{$4$} variables, calls @raw-latex{$1$} function,
+and does @raw-latex{$1$} case-dispatch. The second return is annotated
+with a cost of @raw-latex{$9$} because it references @raw-latex{$6$}
+variables (the self-reference is not counted), calls @raw-latex{$2$}
+functions, and does @raw-latex{$1$} case-dispatch.
+
+Our translation function is straight-forward and is included in the
+supplementary materials (@tt{add-plusses/check-stx-errs} in
 @tt{rkt/tmonad/main.rkt}). Our monad could support different cost
 semantics, without modification, provided a function could map them to
 the program's syntax in a straight-forward way.

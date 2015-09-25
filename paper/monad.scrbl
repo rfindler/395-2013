@@ -32,9 +32,9 @@ and @tt{an} are related by @tt{P}. The intention is to think
 of the natural number as the running time and @tt{P} as
 some function-specific specification of running time
 (and possibly also correctness). Importantly, the right-hand side of
-this pair is a proposition, so it contributes no
-computational content when extracted into OCaml. 
-For our @tt{insert} function, we wrote the result type as:
+this pair is a proposition, so it contributes no computational content
+when extracted into OCaml.  To see this in practice, consider
+@tt{insert}'s result type:
 @inline-code|{
 : {! res !:! @bin_tree A !<! c !>!
      (forall n, Braun b n -> (Braun res (n+1) /\ c = fl_log n + 1)) !}
@@ -49,15 +49,15 @@ between @tt{!:!} and @tt{!<!}:
 }|
 
 One important aspect of the @tt{C} type is that the @tt{nat} is bound
-only by an existential, and thus is not connected to the value or the
-computation. Therefore, when we know an expression has the type @tt{C
-A P}, we do not know that its running time is correct, because
-the proof might supply any @tt{nat} to satisfy the existential.
-Thus, in order to guarantee the correct running times, we treat types
-of the form @tt{C A P} as private to the monad's defining module. We
-build a set of operations that can be combined in arbitrary ways but
-subject to the restriction that the @tt{nat} must actually be the
-running time.
+only by an existential, and thus is not necessarily connected to the
+value or the runtime. Therefore, when we know an expression has the
+type @tt{C A P}, we do not know that its running time is correct,
+because the property might be about anything and the proof might
+supply any @tt{nat} to satisfy the existential.  Thus, in order to
+guarantee the correct running times, we treat types of the form @tt{C
+A P} as private to the monad's defining module. We build a set of
+operations that can be combined in arbitrary ways but subject to the
+restriction that the @tt{nat} must actually be the running time.
 
 The first of these operations is the monadic unit, @tt{ret}. Suppose a
 program returns an empty list, @tt{<== nil}. Such a program takes no
@@ -150,7 +150,7 @@ function @tt{bf} has access to the value @tt{a}, but it does not have
 access to the correctness part of the property @tt{PA}. At first
 blush, the missing @tt{PA} appears not to matter because the proof of
 correctness for the result of @tt{bf} @emph{does} have access through
-the hypothesis @tt{PA a an}. But, that proof context is not available
+the hypothesis @tt{PA a an}, but that proof context is not available
 when producing the @tt{b} result. Instead, @tt{bind} assumes that
 @tt{b} has already been computed. That assumption means if the proof
 of @tt{PA} is needed to compute @tt{b}, then we will be stuck. The

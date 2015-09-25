@@ -132,7 +132,7 @@ one with it. For example, the @tt{insert} function shown on the
 left in @figure-ref["fig:translation"] is translated into the one
 on the right. As well as adding @tt{+=} expressions, the
 translation process also generates a call to @tt{insert_result}
-in the monadic result type. This function must then be defined 
+in the monadic result type. The user must define this function 
 separately and the translation's output must be used in that
 context:
 @(apply inline-code (extract insert_log.v "insert_result"))

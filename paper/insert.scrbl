@@ -7,11 +7,12 @@
 
 The core of our library is a monad that, as part of its types, tracks
 the running time of functions.  To use the library, programs must be
-written using the usual return and bind monadic operations. In return,
-the result type of a function can use not only the argument values to
-give it a very precise specification, but also an abstract step count
-describing how many primitive operations (function calls, matches,
-variable references etc.) that the function executes.
+explicitly written using the usual return and bind monadic
+operations. In return, the result type of a function can use not only
+the argument values to give it a very precise specification, but also
+an abstract step count describing how many primitive
+operations (function calls, matches, variable references etc.) that
+the function executes.
 
 To give a sense of how code using our library looks,
 we start with a definition of Braun trees@~cite[Braun]
@@ -20,12 +21,11 @@ are explicitly declared as part of the body of the function.
 In the next section, we make the running times implicit
 (and thus not trusted or spoofable).
 
-Braun trees are a form of balanced binary trees where the balance
-condition allows only a single shape of trees for a given
-size. Specifically, for each interior node, either the two children
-are exactly the same size or the left child's size is one larger than
-the right child's size. Braun trees provide for efficient growable
-vectors.
+Braun trees, which provide for efficient growable vectors, are a form
+of balanced binary trees where the balance condition allows only a
+single shape of trees for a given size. Specifically, for each
+interior node, either the two children are exactly the same size or
+the left child's size is one larger than the right child's size.
 
 Because this invariant is so strong, explicit balance
 information is not needed in the data structure that

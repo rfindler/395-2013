@@ -1,5 +1,5 @@
 Require Import Braun.common.log Braun.common.le_util.
-Require Import Arith Arith.Mult.
+Require Import Arith Coq.Arith.Mult.
 
 (* big_oh and big_omega definitions based on _Introduction to           *)
 (* Algorithms_, 3rd Edition by Thomas H. Cormen, Charles E. Leiserson,  *)
@@ -16,6 +16,12 @@ Definition big_oh f g :=
     forall n,
       n0 <= n ->
       f(n) <= c * g(n).
+
+Definition big_O2 f g :=
+  exists l c,
+    forall n m,
+      l <= n -> l <= m ->
+      f n m <= c * g n m.
 
 Definition big_omega f g :=
   exists n0 c_num c_den,
@@ -62,6 +68,29 @@ Proof.
   rewrite <- mult_assoc.
   apply le_mult_right.
   apply GHP.
+  omega.
+Qed.
+
+Lemma big_O2_trans :
+  forall f g h,
+    big_O2 f g ->
+    big_O2 g h ->
+    big_O2 f h.
+Proof.
+  intros f g h [FGn [FGm FGP]] [GHn [GHm GHP]].
+  exists (FGn+GHn).
+  exists (FGm*GHm).
+  intros n m LEn LEm.
+  apply (le_trans (f n m)
+                  (FGm * g n m)
+                  (FGm * GHm * h n m)).
+  apply FGP.
+  omega.
+  omega.
+  rewrite <- mult_assoc.
+  apply le_mult_right.
+  apply GHP.
+  omega.
   omega.
 Qed.
 
@@ -180,7 +209,23 @@ Proof.
 Qed.
 Hint Resolve big_oh_mult.
 
-Lemma big_oh_plus : 
+Lemma big_O2_mult :
+  forall f g h,
+    big_O2 f g ->
+    big_O2 (fun n m => (h n m) * (f n m)) (fun n m => (h n m) * (g n m)).
+  intros f g h [k [l FG]].
+  exists k.
+  exists l.
+  intros n1 m1 LTN LTM.
+  apply FG with (n:=n1)(m:=m1) in LTN; auto.
+  rewrite mult_assoc.
+  replace (l* h n1 m1) with (h n1 m1 * l); try (apply mult_comm).
+  rewrite <- mult_assoc.
+  apply le_mult_right.
+  auto.
+Qed.
+
+Lemma big_oh_plus :
   forall f g h,
     big_oh f h -> big_oh g h -> big_oh (fun n => f n + g n) h.
 Proof.

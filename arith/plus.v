@@ -7,6 +7,7 @@ Require Import Braun.common.log Braun.common.big_oh Braun.common.pow.
 Require Import Braun.monad.monad Braun.arith.add1.
 Include WfExtensionality.
 
+
 Program Fixpoint plus_cin_time_lb (n:nat) (m:nat) {measure (m + n)} : nat :=
   match n with
     | 0 => 1
@@ -142,6 +143,28 @@ Proof.
   apply IND; auto.
 Qed.
 
+Lemma plus_time_ub_symmetric :
+  forall a b,
+    plus_cin_time_ub a b = plus_cin_time_ub b a.
+  intros a b.
+  generalize dependent b.
+   apply (well_founded_ind
+           lt_wf
+           (fun a => forall b : nat, plus_cin_time_ub a b = plus_cin_time_ub b a)).
+   clear a; intros a IND b.
+   destruct a.
+   rewrite plus_cin_time_ub_0n; rewrite plus_cin_time_ub_n0; auto.
+   destruct b.
+   rewrite plus_cin_time_ub_0n; rewrite plus_cin_time_ub_n0; auto.
+   rewrite plus_cin_time_ub_SS.
+   rewrite plus_cin_time_ub_SS.
+   rewrite plus_comm.
+   unfold plus at 1.
+   rewrite plus_comm.
+   unfold plus at 1.
+   apply f_equal.
+   apply IND; auto.
+Qed.
 
 Lemma plus_cin_time_lb_right_arg_grows :
   forall a b b',
@@ -169,6 +192,84 @@ Proof.
   apply IND; auto.
   apply div2_monotone; auto.
 Qed.
+
+Lemma div2_1 : forall n, 2 <= n -> 1 <= div2 n.
+Proof.
+  intros.
+  induction n.
+  intuition.
+  simpl.
+  destruct n.
+  intuition.
+  omega.
+Qed.
+
+
+Lemma lt_implies_le : forall n m, n < m -> n <=m.
+Proof.
+  intros.
+  omega.
+Qed.
+
+Lemma le_1_implies_S : forall n, 1<=n -> exists k, n = S k.
+Proof.
+  intros.
+  inversion H.
+  exists 0; auto.
+  exists m ; auto.
+Qed.
+
+Lemma plus_cin_time_cl_log : forall n m,
+                               plus_cin_time_ub n m <= 2*cl_log n + 2 * cl_log m + 2.
+Proof.
+  intros.
+  apply (well_founded_induction
+         lt_wf
+         (fun n => forall m, plus_cin_time_ub n m <= 2*cl_log n + 2*cl_log m + 2)).
+  intros.
+  destruct x as [| x'].
+  rewrite plus_cin_time_ub_0n.
+  rewrite cl_log_zero.
+  simpl (2*0).
+  rewrite plus_0_l.
+  destruct m0 as [| m0'].
+  auto.
+  rewrite plus_comm.
+  apply plus_le_compat; auto.
+  apply cl_log_bnd_add1_time.
+  omega.
+  destruct m0 as [| m0'].
+  rewrite plus_cin_time_ub_n0.
+  rewrite cl_log_zero.
+  simpl (2*0).
+  rewrite plus_comm.
+  rewrite plus_0_r.
+  apply plus_le_compat ; auto.
+  apply cl_log_bnd_add1_time.
+  omega.
+  rewrite plus_cin_time_ub_SS.
+  apply plus_le_compat ; auto.
+  eapply le_trans.
+  apply H.
+  apply lt_div2.
+  omega.
+  replace (cl_log (S m0')) with (cl_log (div2 (S m0')) +1).
+  rewrite mult_plus_distr_l.
+  simpl (2*1).
+  rewrite plus_assoc.
+  apply plus_le_compat; auto.
+  apply plus_le_compat; auto.
+  apply mult_le_compat; auto.
+  apply cl_log_monotone.
+  apply lt_implies_le.
+  apply lt_div2.
+  omega.
+  rewrite plus_comm.
+  replace (1+ cl_log (div2 (S m0'))) with (S (cl_log (div2 (S m0')))).
+  rewrite cl_log_div2'; auto.
+  omega.
+Qed.
+
 
 Definition plus_cin_result (n:nat) (m:nat) (cin:bool) (res:nat) (c:nat) :=
   n+m+(if cin then 1 else 0)=res /\ plus_cin_time_lb n m <= c <= plus_cin_time_ub n m.
@@ -303,6 +404,22 @@ Definition plus_time_lb n m := plus_cin_time_lb n m + 1.
 Definition plus_time_ub n m := plus_cin_time_ub n m + 1.
 Definition tplus_result n m res c :=
   res = n+m /\ plus_time_lb n m <= c <= plus_time_ub n m.
+
+Lemma plus_cin_time_log : forall n m,
+                            plus_time_ub n m <= 2*cl_log n + 2*cl_log m + 3.
+Proof.
+  intros.
+  unfold plus_time_ub.
+  eapply le_trans.
+  apply plus_le_compat.
+  apply plus_cin_time_cl_log.
+  auto.
+  rewrite <- plus_assoc.
+  apply plus_le_compat.
+  apply le_refl.
+  apply le_refl.
+  Qed.
+
 
 Lemma plus_time_lb_symmetric :
   forall a b,

@@ -13,6 +13,28 @@ Program Fixpoint add1_time (n:nat) {measure n} :=
              else (add1_time (div2 n)) + 1
   end.
 
+Lemma add1_time_0 : add1_time 0 = 1.
+Proof.
+  unfold_sub add1_time (add1_time 0); auto.
+Qed.
+
+Lemma add1_time_S : forall n, 1 <= add1_time (S n).
+Proof.
+  intros n.
+  apply (well_founded_ind
+           lt_wf
+           (fun n =>
+              1 <= add1_time n)).
+  intros.
+  destruct x.
+  rewrite add1_time_0;auto.
+  unfold_sub add1_time (add1_time (S x)).
+  dispatch_if EW' EW';auto.
+  fold_sub add1_time.
+  destruct x; auto.
+  omega.
+Qed.
+
 Definition add1_result (n:nat) (res:nat) (c:nat) := 
   n+1 = res /\ c = add1_time n.
 Hint Unfold add1_result.
@@ -58,6 +80,17 @@ Program Fixpoint add1_time2 (n:nat) {measure n} :=
              then 1
              else (add1_time2 (div2 n)) + 1
   end.
+
+Lemma  add1_time_Sn : forall n,
+                        add1_time (S n) <= (add1_time (div2 (S n))) + 1.
+Proof.
+  intros.
+  unfold_sub add1_time (add1_time (S n)).
+  fold_sub add1_time.
+  dispatch_if EW EW.
+  omega.
+  destruct n; auto.
+Qed.
 
 Lemma add1_time12 : big_oh add1_time add1_time2.
 Proof.
@@ -119,6 +152,60 @@ Proof.
   auto.
 
   replace (cl_log (S (S n))) with (S (cl_log (div2 (S (S n)))));[|rewrite cl_log_div2';auto].
+  simpl div2.
+  omega.
+Qed.
+
+Lemma cl_log_bnd_add1_time : forall n,
+                               1 <= n ->
+                               add1_time n <= 2 * cl_log n.
+Proof.
+  intros.
+  apply le_trans with (2*add1_time2 n).
+  destruct n ; intuition.
+  apply (well_founded_induction
+           lt_wf
+           (fun n => add1_time (S n) <= 2 * add1_time2 (S n))).
+  intros.
+  unfold_sub add1_time (add1_time (S x)); fold_sub add1_time.
+  unfold_sub add1_time2 (add1_time2 (S x)); fold add1_time2.
+  dispatch_if COND1 COND1'; try omega.
+  destruct x.
+  simpl; omega.
+  rewrite mult_plus_distr_l.
+  apply plus_le_compat;[|omega].
+  apply H0; auto.
+  apply mult_le_compat_l.
+  apply (well_founded_induction
+           lt_wf
+           (fun n => add1_time2 n <= cl_log n)).
+  intros.
+  destruct x.
+  unfold_sub add1_time2 (add1_time2 0).
+  omega.
+
+  unfold_sub add1_time2 (add1_time2 (S x)).
+  fold add1_time2.
+
+  dispatch_if COND1 COND1'.
+  rewrite <- fl_log_cl_log_relationship.
+  apply le_n_S.
+  omega.
+
+  destruct x.
+  simpl.
+  rewrite cl_log_div2'.
+  apply le_n_S.
+  omega.
+
+  apply (le_trans (add1_time2 (S (div2 x)) + 1)
+                  (cl_log (S (div2 x)) + 1)).
+  apply plus_le_compat;auto.
+  apply H0.
+  apply lt_n_S.
+  auto.
+
+  replace (cl_log (S (S x))) with (S (cl_log (div2 (S (S x)))));[|rewrite cl_log_div2';auto].
   simpl div2.
   omega.
 Qed.

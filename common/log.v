@@ -2,6 +2,8 @@ Require Import Arith Arith.Even Arith.Div2 Omega.
 Require Import Coq.Logic.JMeq Coq.Program.Wf.
 Require Import Program.Syntax List.
 Require Import Braun.common.util.
+Require Import Coq.Relations.Relation_Operators.
+Require Import Coq.Wellfounded.Lexicographic_Product.
 
 Set Implicit Arguments.
 
@@ -317,93 +319,124 @@ Proof.
   replace (S (n+S n)) with (S n + S n);omega.
 Qed.
 
-
-Lemma cl_log_square_four : 
-  forall n,
-    cl_log (n * n) <= 4 * cl_log n.
+Lemma cl_log_product : forall n m, cl_log (n*m) <= 2*cl_log n + 2*cl_log m.
 Proof.
-  apply (well_founded_ind
-           lt_wf
-           (fun n => cl_log (n * n) <= 4 * cl_log n)).
-  intros n IND.
-  destruct n;[compute;omega|].
-  rewrite cl_log_div2'.
-  replace (4 * S (cl_log (div2 (S n)))) with (4 * (cl_log (div2 (S n))) + 4);
-    [|(replace (S (cl_log (div2 (S n)))) with ((cl_log (div2 (S n)))+1);[|omega]);
-       rewrite mult_plus_distr_l;
-       omega].
-  apply (le_trans (cl_log (S n * S n))
-                  (cl_log (div2 (S n) * div2 (S n)) + 4));
-    [|apply plus_le_compat;auto].
-  clear IND.
-
+  intros.
+  apply (lt_wf_double_ind (fun n m => cl_log (n*m) <= 2*cl_log n + 2*cl_log m)).
+  clear.
+  intros.
+  destruct n.
+  rewrite mult_0_l.
+  rewrite cl_log_zero.
+  omega.
+  destruct m.
+  rewrite mult_0_r.
+  rewrite cl_log_zero.
+  omega.
   destruct (even_odd_dec n).
-
-  (* even case *)
-  replace (div2 (S n)) with (div2 n);[|apply even_div2; auto].
+  destruct (even_odd_dec m).
+  destruct n. rewrite mult_1_l. omega.
+  destruct m. rewrite mult_1_r. omega.
+  apply (le_trans (cl_log (S (S n) * S (S m)))
+                  (cl_log (div2 (S (S n)) * div2 (S (S m))) + 4)).
+  replace (div2 (S (S n))) with (div2 (S n));[|apply even_div2; auto].
+  replace (div2 (S (S m))) with (div2 (S m));[|apply even_div2; auto].
   rewrite <- even_div_product; auto.
-  replace (n * div2 n) with (div2 n * n);[|rewrite mult_comm;auto].
+  replace ((S n) * div2 (S m)) with (div2 (S m) * (S n));[|rewrite mult_comm;auto].
   rewrite <- even_div_product; auto.
   destruct n.
-  compute; auto.
-  destruct n.
-  compute; auto.
-  replace (S (S n)) with (n+2) at 3 4; [|omega].
+  inversion e.
+  inversion H2.
+  destruct m.
+  inversion e0.
+  inversion H2.
+  replace (S (S n)) with (n+2) at 2;[|omega].
+  replace (S (S m)) with (m+2) at 2;[|omega].
   rewrite mult_plus_distr_r;
     repeat (rewrite mult_plus_distr_l);
     rewrite plus_assoc.
-  replace (n * n + n * 2 + 2 * n + 2 * 2)
-  with (S (S (S (S (n * n + n * 2 + 2 * n)))));[|omega].
+  replace (m * n + m * 2 + 2 * n + 2 * 2)
+  with (S (S (S (S (m * n + m * 2 + 2 * n)))));[|omega].
   unfold div2 at 2; fold div2.
-  replace (cl_log (div2 (S (S (div2 (n * n + n * 2 + 2 * n))))) + 4)
-  with (S (S (S (S (cl_log (div2 (S (S (div2 (n * n + n * 2 + 2 * n))))))))));[|omega].
+  replace (cl_log (div2 (S (S (div2 (m * n + m * 2 + 2 * n))))) + 4)
+  with (S (S (S (S (cl_log (div2 (S (S (div2 (m * n + m * 2 + 2 * n))))))))));[|omega].
   rewrite <- cl_log_div2'.
-  replace (S (S (div2 (n * n + n * 2 + 2 * n))))
-  with (div2 (S (S (S (S (n * n + n * 2 + 2 * n))))));[|unfold div2;auto].
+  replace (S (S (div2 (m * n + m * 2 + 2 * n))))
+  with (div2 (S (S (S (S (m * n + m * 2 + 2 * n))))));[|unfold div2;auto].
   rewrite <- cl_log_div2'.
   rewrite S_cl_log_doubles.
-  replace (S (S (S (S (n * n + n * 2 + 2 * n)))) +
-           S (S (S (S (n * n + n * 2 + 2 * n)))))
-  with (S ((S (S (S (n * n + n * 2 + 2 * n)))) +
-           S (S (S (S (n * n + n * 2 + 2 * n))))));[|omega].
+  replace (S (S (S (S (m * n + m * 2 + 2 * n)))) +
+           S (S (S (S (m * n + m * 2 + 2 * n)))))
+  with (S ((S (S (S (m * n + m * 2 + 2 * n)))) +
+           S (S (S (S (m * n + m * 2 + 2 * n))))));[|omega].
   rewrite S_cl_log_doubles.
   apply cl_log_monotone.
   replace (S (S (S n))) with (n+3);[|omega].
+  replace (S (S (S m))) with (m+3);[|omega].
   rewrite mult_plus_distr_r;
     repeat (rewrite mult_plus_distr_l);
     rewrite plus_assoc.
-  remember (n*n) as m; omega.
+  rewrite mult_comm at 1.
+  remember (m*n) as l.
+  omega.
+  repeat rewrite cl_log_div2'.
+  replace ( 2 * S (cl_log (div2 (S (S n)))) + 2 * S (cl_log (div2 (S (S m)))))
+  with ( 2 * (cl_log (div2 (S (S n)))) + 2 * (cl_log (div2 (S (S m)))) + 4);[|omega].
+  apply plus_le_compat; auto.
+  replace (S n) with (n + 1); try omega.
+  replace (S m) with (m + 1); try omega.
+  assert (((n+1)*(m+1)) = (n*m + m + n + 1)); try omega.
+  rewrite mult_plus_distr_r.
+  rewrite mult_plus_distr_l.
+  rewrite mult_plus_distr_l.
+  omega.
+  rewrite H1.
+  replace (n*m+m+n+1) with (S(n*m+m+n));[|omega].
+  rewrite cl_log_div2'.
+  replace (S(n*m+m+n)) with (n*m+m+n+1);[|omega].
+  rewrite <- H1.
+  rewrite mult_comm.
+  rewrite even_div_product;[|apply odd_even_plus; auto; repeat constructor].
+  apply (le_trans (S (cl_log (div2 (m + 1) * (n + 1))))
+                  (2*cl_log(div2(m+1)) + 2*cl_log(n+1) + 1)).
+  replace (S (cl_log (div2 (m + 1) * (n + 1))))
+  with (cl_log (div2 (m + 1) * (n + 1)) +1);[|omega].
+  apply plus_le_compat;auto.
+  rewrite mult_comm.
+  replace ( 2 * cl_log (div2 (m + 1)) + 2 * cl_log (n + 1))
+  with  (2 * cl_log (n + 1) + 2 * cl_log (div2 (m + 1)));[|apply plus_comm].
+  replace (n+1) with (S n); [auto|omega].
+  replace (m+1) with (S m);[auto|omega].
+  replace (cl_log (S m)) with (S (cl_log (div2 (S m))));[|
+                                                        apply eq_sym;
+                                                          apply cl_log_div2']; omega.
+   replace (S n) with (n + 1); try omega.
+  replace (S m) with (m + 1); try omega.
+  assert (((n+1)*(m+1)) = (n*m + m + n + 1)); try omega.
+  rewrite mult_plus_distr_r.
+  rewrite mult_plus_distr_l.
+  omega.
+  rewrite H1.
+  replace (n*m+m+n+1) with (S(n*m+m+n));[|omega].
+  rewrite cl_log_div2'.
+  replace (S(n*m+m+n)) with (n*m+m+n+1);[|omega].
+  rewrite <- H1.
+  rewrite even_div_product;[|apply odd_even_plus; auto; repeat constructor].
+  apply (le_trans (S (cl_log (div2 (n + 1) * (m + 1))))
+                  (2*cl_log(div2(n+1)) + 2*cl_log(m+1) + 1)).
+  replace  (S (cl_log ((div2 (n+1)) * (m+1)))) with  (cl_log ((div2 (n+1)) * (m+1)) + 1).
+  apply plus_le_compat; auto.
+  omega.
+  replace (n+1) with (S n);[|omega].
+  rewrite cl_log_div2'.
+  omega.
+Qed.
 
-  (* odd case *)
-  rewrite <- even_div_product; [|constructor;auto].
-  replace (S n * div2 (S n)) with (div2 (S n) * S n);[|rewrite mult_comm;auto].
-  rewrite <- even_div_product; [|constructor;auto].
-  destruct n.
-  compute; auto.
-  replace (S (S n)) with (n+2) at 3 4;[|omega].
-  rewrite mult_plus_distr_r;
-    repeat (rewrite mult_plus_distr_l);
-    rewrite plus_assoc.
-  replace (n * n + n * 2 + 2 * n + 2 * 2)
-  with (S (S (n * n + n * 2 + 2 * n + 2)));[|omega].
-  replace (div2 (S (S (n * n + n * 2 + 2 * n + 2))))
-  with (S (div2 (n * n + n * 2 + 2 * n + 2)));[|unfold div2;auto].
-  replace (cl_log (div2 (S (div2 (n * n + n * 2 + 2 * n + 2)))) + 4)
-  with (S (S (S (S (cl_log (div2 (S (div2 (n * n + n * 2 + 2 * n + 2)))))))));[|omega].
-  rewrite <- cl_log_div2'.
-  replace (S (div2 (n * n + n * 2 + 2 * n + 2))) 
-  with (div2 (S (S (n * n + n * 2 + 2 * n + 2))));[|unfold div2;auto].
-  rewrite <- cl_log_div2'.
-  rewrite S_cl_log_doubles.
-  replace (S (S (n * n + n * 2 + 2 * n + 2)) +
-           S (S (n * n + n * 2 + 2 * n + 2)))
-  with (S ((S (n * n + n * 2 + 2 * n + 2)) +
-           S (S (n * n + n * 2 + 2 * n + 2))));[|omega].
-  rewrite S_cl_log_doubles.
-  apply cl_log_monotone.
-  replace (S (S n)) with (n+2);[|omega].
-  rewrite mult_plus_distr_r;
-    repeat (rewrite mult_plus_distr_l);
-    rewrite plus_assoc.
-  remember (n*n) as m; omega.
+Lemma cl_log_square_four :
+  forall n, cl_log (n * n) <= 4 * cl_log n.
+Proof.
+  intros.
+  eapply le_trans.
+  apply cl_log_product.
+  omega.
 Qed.

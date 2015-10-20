@@ -440,3 +440,77 @@ Proof.
   apply cl_log_product.
   omega.
 Qed.
+
+Definition monotone (f : nat -> nat) := forall n m, n<=m -> f n <= f m.
+
+Theorem log_prod_time :
+  forall (n k:nat) (f g : nat -> nat),
+    monotone g ->
+    f 0 = k /\ (forall n, f (S n) = f (div2 (S n)) + g (S n)) ->
+    f n <= (cl_log n)*(g n) + k.
+Proof.
+  intros n k f g Mono_g H.
+  destruct H.
+  apply (well_founded_ind
+           lt_wf
+           (fun n =>  f n <= cl_log n * g n + k)).
+  clear n.
+  intros n IH.
+  destruct n.
+  rewrite H.
+  rewrite cl_log_zero. omega.
+  rewrite H0.
+  rewrite cl_log_div2'.
+  replace (S (cl_log (div2 (S n)))) with ((cl_log (div2 (S n)))+1);[|omega].
+  rewrite mult_plus_distr_r.
+  rewrite mult_1_l.
+  rewrite <- plus_assoc.
+  replace (g (S n) + k) with (k + g (S n));[|omega].
+  rewrite plus_assoc.
+  apply plus_le_compat; auto.
+  eapply le_trans.
+  apply IH.
+  apply lt_div2. omega.
+  apply plus_le_compat; auto.
+  apply mult_le_compat.
+  auto.
+  apply Mono_g.
+  assert (div2 (S n) < S n).
+  auto. omega.
+Qed.
+
+Theorem log_prod_time2 :
+  forall (n m k:nat) (f g : nat -> nat -> nat),
+    (forall m, monotone (fun n => g n m)) ->
+    (forall m, f 0 m = k) /\ (forall n m, f (S n) m = f (div2 (S n)) m + g (S n) m) ->
+    f n m <= (cl_log n)*(g n m) + k.
+  intros n m k f g Mono_g H.
+  destruct H.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => forall m, f n m <= (cl_log n)*(g n m) + k)).
+  clear n m.
+  intros n IH.
+  intros m.
+  destruct n.
+  rewrite H.
+  rewrite cl_log_zero. omega.
+  rewrite H0.
+  rewrite cl_log_div2'.
+  replace (S (cl_log (div2 (S n)))) with ((cl_log (div2 (S n)))+1);[|omega].
+  rewrite mult_plus_distr_r.
+  rewrite mult_1_l.
+  rewrite <- plus_assoc.
+  replace (g (S n) m + k) with (k + g (S n) m);[|omega].
+  rewrite plus_assoc.
+  apply plus_le_compat; auto.
+  eapply le_trans.
+  apply IH.
+  apply lt_div2. omega.
+  apply plus_le_compat; auto.
+  apply mult_le_compat.
+  auto.
+  apply Mono_g.
+  assert (div2 (S n) < S n).
+  auto. omega.
+Qed.

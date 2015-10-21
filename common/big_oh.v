@@ -1,5 +1,5 @@
 Require Import Braun.common.log Braun.common.le_util.
-Require Import Arith Coq.Arith.Mult.
+Require Import Arith Coq.Arith.Mult Arith.Even Arith.Div2.
 
 (* big_oh and big_omega definitions based on _Introduction to           *)
 (* Algorithms_, 3rd Edition by Thomas H. Cormen, Charles E. Leiserson,  *)
@@ -562,4 +562,24 @@ Proof.
   rewrite TR'.
   rewrite mult_plus_distr_l.
   apply plus_le_compat; auto.
+Qed.
+
+Theorem cl_log_O_fl_log : big_oh cl_log fl_log.
+Proof.
+  exists 2.
+  exists 2.
+  intros.
+  destruct n.
+  intuition.
+  rewrite <- fl_log_cl_log_relationship.
+  replace (S (fl_log n)) with (fl_log n + 1);[|omega].
+  replace (2*(fl_log (S n))) with (fl_log (S n) + fl_log (S n));[|omega].
+  apply plus_le_compat.
+  apply fl_log_monotone.
+  auto.
+  replace 1 with (fl_log 1).
+  apply fl_log_monotone.
+  omega.
+  compute.
+  auto.
 Qed.

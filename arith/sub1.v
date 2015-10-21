@@ -115,7 +115,91 @@ Lemma sub1_time12 : big_oh sub1_time sub1_time2.
   apply IND; auto.
 Qed.
 
+Program Fixpoint sub1_time3 (n:nat) {measure n} :=
+  match n with
+    | 0 => 0
+    | S _ => (sub1_time3 (div2 n)) + 1
+  end.
+
+Lemma sub1_time23 : big_oh sub1_time2 sub1_time3.
+Proof.
+exists 0.
+exists 1.
+intros.
+rewrite mult_1_l.
+apply (well_founded_ind
+         lt_wf
+         (fun n => sub1_time2 n <= sub1_time3 n)).
+clear.
+intros n IH.
+destruct n.
+compute.
+auto.
+assert (forall n, sub1_time3 (S n) = (sub1_time3 (div2 (S n)) + 1)).
+intros.
+unfold_sub sub1_time3 (sub1_time3 (S n0)).
+simpl.
+auto.
+rewrite H.
+unfold_sub sub1_time2 (sub1_time2 (S n)).
+fold_sub sub1_time2.
+dispatch_if EW EW.
+simpl.
+destruct n.
+simpl.
+auto.
+apply plus_le_compat;auto.
+apply IH.
+inversion EW.
+inversion H1.
+rewrite even_div2.
+apply lt_n_S.
+repeat auto.
+auto.
+omega.
+Qed.
+
+Lemma sub1_time3_is_cl_log : forall n, sub1_time3 n = cl_log n.
+Proof.
+intros.
+apply (well_founded_ind
+         lt_wf
+         (fun n => sub1_time3 n = cl_log n)).
+intros.
+destruct x.
+auto.
+unfold_sub sub1_time3 (sub1_time3 (S x)).
+unfold_sub cl_log (cl_log (S x)).
+destruct x.
+auto.
+replace ( S (cl_log (S (div2 x)))) with  (cl_log (S (div2 x)) + 1);[|omega].
+rewrite plus_comm at 1.
+replace (cl_log (S (div2 x)) + 1) with (1+cl_log (S (div2 x)));[|omega].
+assert ( sub1_time3 (S (div2 x)) =  cl_log (S (div2 x))).
+apply H.
+apply lt_n_S.
+auto.
+rewrite H0.
+auto.
+Qed.
+
+Lemma sub1_time3_O_cl_log : big_oh sub1_time3 cl_log.
+  Proof.
+exists 0.
+exists 1.
+intros.
+rewrite mult_1_l.
+rewrite sub1_time3_is_cl_log.
+auto.
+Qed.
+
 Theorem sub1_log : big_oh sub1_time fl_log.
 Proof.
-  admit.
+  eapply big_oh_trans.
+  apply sub1_time12.
+  eapply big_oh_trans.
+  apply sub1_time23.
+  eapply big_oh_trans.
+  apply sub1_time3_O_cl_log.
+  apply cl_log_O_fl_log.
 Qed.

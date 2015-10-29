@@ -136,6 +136,35 @@ Fixpoint fib_iter_loop_time_lb2 fuel n :=
                  fib_iter_loop_time_lb2 fuel' (n+1) + 1
   end.
 
+Lemma fib_iter_loop_time_lb_monotone :
+  forall a b n n',
+    n <= n' ->
+    fib_iter_loop_time_lb n a b <= fib_iter_loop_time_lb n' a b.
+Proof.
+  intros.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => forall a b n', n<=n'-> fib_iter_loop_time_lb n a b <= fib_iter_loop_time_lb n' a b));[|auto].
+  intros.
+  destruct x.
+  simpl.
+  inversion H1.
+  simpl.
+  auto.
+  simpl.
+  omega.
+  inversion H1.
+  simpl.
+  auto.
+  simpl.
+  apply plus_le_compat; auto.
+  apply plus_le_compat.
+  auto.
+  apply H0.
+  auto.
+  omega.
+Qed.
+
 Lemma fib_iter_loop_lb12 : 
   forall n steps_taken,
     fib_iter_loop_time_lb n (fib steps_taken) (fib (steps_taken+1)) =
@@ -260,6 +289,22 @@ Fixpoint fib_iter_loop_time_lb3 fuel n :=
                  fib_iter_loop_time_lb3 fuel' (n+1) + 1
   end.
 
+Lemma fib_iter_loop_time_lb3_Sn :
+  forall fuel n,
+    fib_iter_loop_time_lb3 fuel (S n) = fib_iter_loop_time_lb3 fuel n + fuel.
+Proof.
+  intro fuel.
+  apply (well_founded_ind
+           lt_wf
+           (fun fuel => forall n,  fib_iter_loop_time_lb3 fuel (S n) = fib_iter_loop_time_lb3 fuel n + fuel)).
+  intros.
+  destruct x.
+  simpl. auto.
+  simpl.
+  rewrite H; auto.
+  omega.
+Qed.
+
 Lemma fib_iter_loop_lb23 : 
   exists n,
     forall n',
@@ -274,12 +319,96 @@ Proof.
   admit.
 Qed.
 
+Lemma fib_iter_loop_time_lb3_mono_2 :
+  forall fuel, monotone (fib_iter_loop_time_lb3 fuel).
+  intros.
+  unfold monotone.
+  induction fuel.
+  intros.
+  simpl. auto.
+  intros.
+  simpl.
+  apply plus_le_compat;auto.
+  apply plus_le_compat;auto.
+  apply IHfuel.
+  apply plus_le_compat;auto.
+Qed.
+
+Lemma closed_form_fib_iter_loop_time_lb3 :
+  forall n,
+    fib_iter_loop_time_lb3 n 0 = div2 (n*(n+1)) + 1.
+Proof.
+intros.
+induction n.
+simpl. auto.
+simpl fib_iter_loop_time_lb3.
+rewrite fib_iter_loop_time_lb3_Sn.
+rewrite IHn.
+destruct (even_odd_dec n).
+assert (even (S n +1 )).
+simpl.
+constructor.
+replace (n+1) with (S n);[|omega].
+constructor.
+auto.
+rewrite even_div_product; auto.
+replace (S n * (S n + 1)) with ((S n + 1) * S n);[|rewrite mult_comm;auto].
+rewrite even_div_product; auto.
+replace (S n + 1) with (S (S n));[|omega].
+simpl.
+replace (n+1) with (S n);[|omega].
+omega.
+replace (n+1) with (S n);[|omega].
+replace (n* S n) with (S n * n);[|rewrite mult_comm;auto].
+rewrite even_div_product;[|constructor;auto].
+rewrite even_div_product;[|constructor;auto].
+replace (S n + 1) with (n+2);[|omega].
+rewrite mult_plus_distr_l.
+replace 2 with (1+1);[|omega].
+rewrite mult_plus_distr_l.
+rewrite mult_1_r.
+replace  (div2 (S n) + div2 (S n)) with (S n).
+omega.
+replace (S n) with (double (div2 (S n))) at 1.
+auto.
+apply eq_sym.
+apply even_double.
+constructor.
+auto.
+Qed.
+
 Lemma fib_iter_loop_time_lb3_sq : 
   exists n,
     forall n',
       n <= n' ->
       big_oh (fun n => n*n) (fun fuel => fib_iter_loop_time_lb3 fuel n').
-Admitted.
+Proof.
+  exists 0.
+  intros.
+  exists 0.
+  exists 2.
+  intros.
+  apply (le_trans (n*n)
+                  (2*fib_iter_loop_time_lb3 n 0)).
+  rewrite closed_form_fib_iter_loop_time_lb3.
+  rewrite mult_plus_distr_l.
+  simpl.
+  rewrite plus_0_r.
+  replace (div2 (n * (n + 1)) + div2 (n * (n + 1))) with (n*(n+1)).
+  rewrite mult_plus_distr_l.
+  omega.
+  apply even_double.
+  destruct (even_odd_dec n).
+  apply even_mult_l.
+  auto.
+  apply even_mult_r.
+  replace (n+1) with (S n);[|omega].
+  constructor.
+  auto.
+  apply mult_le_compat;auto.
+  apply  fib_iter_loop_time_lb3_mono_2.
+  auto.
+Qed.
 
 Lemma fib_iter_time_lb_big_oh_fib_iter_loop_time_lb : 
   big_oh (fun n => fib_iter_loop_time_lb n 0 1) fib_iter_time_lb.

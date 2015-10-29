@@ -101,6 +101,29 @@ Proof.
   apply fib_monotone; auto.
 Qed.
 
+Lemma fib_log_lower_bound:
+  forall n,
+    (div2 n) <= cl_log (fib ((S (S n)))).
+Proof.
+  intros.
+  destruct n.
+  simpl;omega.
+  rewrite fib_SS.
+  apply (le_trans ((div2 (S n)))
+                  (cl_log (fib (S n) + fib (S n)))).
+  replace (fib (S n) + fib (S n)) with (2*fib (S n));[|omega].
+  apply (le_trans  ((div2 (S n)))
+                   (cl_log ( pow 2 (div2 (S n))))).
+  rewrite pow2_log.
+  auto.
+  apply cl_log_monotone.
+  apply fib_lower_bound.
+  apply cl_log_monotone.
+  apply plus_le_compat; auto.
+  apply fib_monotone.
+  auto.
+Qed.
+
 Theorem fib_big_omega_2_to_the_div2_n : 
   big_omega fib (fun n => pow 2 (div2 n)).
 Proof.

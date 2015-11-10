@@ -5,6 +5,8 @@ Require Import Coq.Arith.Max.
 Require Import Coq.Arith.Mult.
 Require Import Coq.Lists.List.
 
+Notation "x ?= y" := (nat_compare x y).
+
 Fixpoint listfrom_acc (i count : nat) : list nat :=
   match count with
     | 0 => []
@@ -49,7 +51,9 @@ Fixpoint sum (i j : nat) (f : nat -> nat) : nat :=
   | Eq => f i
   | Gt => 0
   end.
- 
+
+SearchAbout nat_compare.
+
 Lemma sum_gt : forall i j f, i > j -> sum i j f = 0.
 Proof.
   intros.
@@ -127,7 +131,7 @@ rewrite HeqH. destruct j. simpl. auto. simpl.
 SearchAbout nat_compare.
 assert ( (j ?= j) = Eq). 
 SearchAbout nat_compare.
-apply Nat.compare_eq_iff. auto. rewrite H. auto.
+apply nat_compare_eq_iff. auto. rewrite H. auto.
 
 assert (i < j).
 apply nat_compare_lt. auto.
@@ -215,7 +219,7 @@ Proof.
   assert (i < j); try omega.
   rewrite sum_adds; auto.
   rewrite mult_plus_distr_r. rewrite mult_1_l.
-  rewrite H with (y:= x); try omega. replace (x+1) with (S x); omega.
+  rewrite H with (y:= x); try omega. replace (x+1) with (S x); omega. omega.
 Qed.
 
 Definition fplus (f g: nat -> nat) := fun n => f n + g n.

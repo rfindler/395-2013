@@ -4,6 +4,7 @@ Require Import Coq.Program.Wf Init.Wf.
 Require Import Coq.Arith.Max.
 Require Import Coq.Arith.Mult.
 Require Import Coq.Lists.List.
+Require Import Braun.common.log.
 
 Notation "x ?= y" := (nat_compare x y).
 
@@ -52,7 +53,6 @@ Fixpoint sum (i j : nat) (f : nat -> nat) : nat :=
   | Gt => 0
   end.
 
-SearchAbout nat_compare.
 
 Lemma sum_gt : forall i j f, i > j -> sum i j f = 0.
 Proof.
@@ -81,7 +81,6 @@ Lemma sum_S_j :
 Proof.
 intros.
 simpl.
-SearchAbout nat_compare.
 rewrite nat_compare_lt in H.
 rewrite H.
 auto.
@@ -123,14 +122,11 @@ Proof.
 intros.
 remember (nat_compare i j) as H.
 destruct H. 
-apply eq_sym in HeqH.
-SearchAbout nat_compare. simpl. 
+apply eq_sym in HeqH. simpl.
 rewrite HeqH.
 apply nat_compare_eq in HeqH.
 rewrite HeqH. destruct j. simpl. auto. simpl. 
-SearchAbout nat_compare.
 assert ( (j ?= j) = Eq). 
-SearchAbout nat_compare.
 apply nat_compare_eq_iff. auto. rewrite H. auto.
 
 assert (i < j).
@@ -141,7 +137,6 @@ intros. destruct H1.
 rewrite sum_S_j; try omega.
 assert  ((i0 ?= i0) = Eq). apply nat_compare_eq_iff. auto. simpl. rewrite H1. 
 assert ((i0 ?= S i0) = Lt). apply nat_compare_lt. auto. rewrite H2. simpl.
-SearchAbout nat_compare.
 simpl. rewrite sum_eq. auto.
 rewrite sum_S_j; try omega.
 rewrite H0; try omega; auto. 
@@ -149,24 +144,17 @@ rewrite sum_S_j; try omega.
 auto.
 
 apply eq_sym in HeqH.
-SearchAbout nat_compare.
 simpl. rewrite HeqH.
  destruct i. destruct j.
 inversion HeqH. inversion HeqH. destruct j.
 simpl. auto. simpl.
 assert (S i > S j);try  apply nat_compare_gt; auto.
 assert (i > j); try omega.
-SearchAbout nat_compare.
 assert ((i ?= j) = Gt); try apply nat_compare_gt; auto.
 rewrite H1. auto.
 Qed.
 
 
-(* the formulation of shift_by seems to make this harder than it should be *)
-Lemma sum_shifts_k :
-  forall i j f k, sum i j f = sum (i+k) (j+k) (shift_by k f).
-Proof.
-Admitted.
 
 Lemma sum_adds :
   forall i j f, i <= j -> sum i j f = f i + sum (S i) j f.
@@ -222,6 +210,7 @@ Proof.
   rewrite H with (y:= x); try omega. replace (x+1) with (S x); omega. omega.
 Qed.
 
+Definition const (n: nat) : nat -> nat := (fun m => n).
 Definition fplus (f g: nat -> nat) := fun n => f n + g n.
 Definition smult (k : nat) (f : nat -> nat) := fun n => k*f n.
 
@@ -258,20 +247,44 @@ Proof.
   assert (i > j). apply nat_compare_gt. auto. repeat (rewrite sum_gt; auto).
 Qed.
 
-Lemma split_sum : forall i j k f, i < j -> j < k -> sum i j f + sum (S j) k f = sum i k f.
+Lemma split_sum : forall i j k f, i <= j -> j < k -> sum i j f + sum (S j) k f = sum i k f.
 Proof.
   intros.
-  apply (well_founded_ind lt_wf (fun j => forall i k, i < j -> j < k -> sum i j f + sum (S j) k f = sum i k f)); auto.
+  apply (well_founded_ind lt_wf (fun j => forall i k, i <= j -> j < k -> sum i j f + sum (S j) k f = sum i k f)); auto.
   clear.
   intros.
   destruct x.
   inversion H0.
-  repeat (rewrite sum_S_j; try omega).
+  repeat (rewrite sum_S_j; try omega). rewrite sum_eq.
+  replace (sum 0 k f) with (f 0 + sum 1 k f). auto.
+  rewrite <- sum_adds. auto. omega.
+  inversion H0. rewrite sum_eq. rewrite <- sum_adds; omega.
+  rewrite sum_S_j; try omega.
   rewrite <- plus_assoc.
   replace  (f (S x) + sum (S (S x)) k f) with (sum (S x) k f);[|rewrite sum_adds; omega].
-  inversion H0. rewrite sum_eq. rewrite <- sum_adds. auto. omega.
-  rewrite H; omega.
-Qed.
+  inversion H0. rewrite sum_gt.
+  rewrite plus_0_l. auto.
+  auto.
+  rewrite H; auto. omega.
+ Qed.
+
+
+Lemma sum_splits_inc :
+  forall i j k f,
+    i < k -> k < j ->
+    sum k j f <= sum i j f.
+Proof.
+  intros.
+  replace (sum i j f) with (sum i (k-1) f + sum (k) j f).
+  replace (sum k j f) with (0 + sum k j f);[|omega].
+  apply plus_le_compat;auto. inversion H. omega. omega.
+  destruct k. inversion H.
+  replace (S k - 1) with k;[|omega].
+  inversion H.
+  rewrite split_sum; auto. omega.
+  rewrite split_sum; omega.
+Qed.  
+
 
 Lemma sum_preserves_order :
   forall i j f g, (forall n, i <= n -> f n <= g n) -> sum i j f <= sum i j g.
@@ -289,6 +302,38 @@ Proof.
   repeat (rewrite sum_S_j; auto). apply plus_le_compat; auto. apply H0. omega.
   assert (j < i);[apply nat_compare_gt; auto|]. repeat (rewrite sum_gt); auto.
 Qed.
+
+
+Lemma sum_preserves_order_in_range :
+  forall i j f g, (forall n, i<=n -> n<=j -> f n <= g n) -> sum i j f <= sum i j g.
+Proof.
+  intros.
+  remember (nat_compare i j) as C.
+  destruct C.
+  assert (i = j);[apply nat_compare_eq_iff; auto|]. subst.
+  repeat (rewrite sum_eq). apply H; auto.
+
+  assert (i < j). apply nat_compare_lt. auto.
+  apply (well_founded_ind
+           lt_wf
+           (fun j => forall i f g,
+                       (forall n, i <= n -> n <= j -> f n <= g n) ->
+                       i < j ->
+                       sum i j f <= sum i j g)); auto.
+  clear.
+  intros.
+  destruct x. inversion H1.
+  destruct H1. repeat (rewrite sum_S_j ; auto).
+  apply plus_le_compat. repeat (rewrite sum_eq). apply H0. auto. auto.
+  apply H0. auto. auto.
+  repeat (rewrite sum_S_j); try omega.
+  apply plus_le_compat.
+  apply H; auto. apply H0; try omega.
+  assert (j < i);[apply nat_compare_gt; auto|]. repeat (rewrite sum_gt); auto.
+Qed.
+  
+  
+  
 
 Theorem sum_is_sumlist_map : forall i j f, sum i j f = sumlist (map f (listfrom i j)).
 Proof.
@@ -310,5 +355,92 @@ Proof.
 Qed.
 
 
+Lemma sum_extensionality :
+  forall i j f g,
+    (forall n, f n = g n) ->
+    sum i j f = sum i j g.
+Proof.
+  intros.
+  remember (nat_compare i j) as C.
+  destruct C.
+  assert (i=j). apply nat_compare_eq_iff. auto.
+  rewrite H0. repeat (rewrite sum_eq). apply H.
 
+  assert (i<j). apply nat_compare_lt. auto.
+  apply (well_founded_ind lt_wf (fun j => forall i, i < j -> sum i j f = sum i j g)); auto.
+  intros.
+  destruct x. intuition.
+  rewrite sum_S_j; auto.
+  rewrite sum_S_j; auto.
+  inversion H2. repeat (rewrite sum_eq). auto.
+  rewrite H1; auto.    
+  assert (i > j). apply nat_compare_gt. auto.
+  repeat (rewrite sum_gt); auto.
+Qed.
+  
+  
+Theorem function_is_a_sum :
+  forall fuel n f g,
+    (forall n, f 0 n = 1) ->
+    (forall fuel n, f (S fuel) n = g n + f fuel (S n)) ->
+    0 < fuel ->
+    f fuel n = 1 + sum 0 (fuel - 1) (fun m => g (n+m)).
+Proof.
+  intros.
+  apply (well_founded_ind
+           lt_wf
+           (fun fuel => forall n, 0 < fuel -> f fuel n = 1 + sum 0 (fuel - 1) (fun m => g (n + m)))); auto.
+  intros.
+  destruct x. inversion H3.
+  destruct x. simpl.
+  rewrite H0.  rewrite H. rewrite plus_0_r. omega.
+  rewrite H0. rewrite sum_adds.
+  replace (S (S x) - 1) with (S x);[|omega].
+  rewrite plus_0_r.
+  rewrite H2; try omega.
+  rewrite sum_shifts.
+  unfold shift.
+  replace (S x - 1) with x;[|omega].
+  assert ((sum 0 x (fun m : nat => g (S n0 + m))) = (sum 0 x (fun n1 : nat => g (n0 + S n1)))).
+  apply sum_extensionality.
+  intros. replace (S n0 + n1) with (n0 + S n1). auto. omega.
+  rewrite H4.  
+  omega.
+  omega.
+Qed.
 
+(* the formulation of shift_by seems to make this harder than it should be *)
+Lemma sum_shifts_k :
+  forall i j f k, sum i j (shift_by k f) = sum (i+k) (j+k) f.
+Proof.
+  intros.
+  apply (well_founded_ind lt_wf (fun k => forall f,
+                                            sum i j (shift_by k f) = sum (i + k) (j + k) f)).
+  clear.
+  intros.
+  destruct x.
+  unfold shift_by.
+  repeat (rewrite plus_0_r). apply sum_extensionality.
+  intros. rewrite plus_0_r. auto.
+  replace (i + S x) with (S (i+x));[|omega].
+  replace (j + S x) with (S(j+x));[|omega].
+  rewrite sum_shifts.
+  rewrite <- H; auto.
+  apply sum_extensionality.
+  intros.
+  rewrite shift_by_S.
+  unfold shift.
+  unfold shift_by. simpl. auto.
+Qed.
+
+Lemma monotone_sum :
+  forall i j f,
+    monotone f ->
+    sum i j (const (f i)) <= sum i j f.
+Proof.
+  intros.
+  apply sum_preserves_order.
+  intros.
+  unfold const.
+  apply H. auto.
+Qed.

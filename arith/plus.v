@@ -523,6 +523,27 @@ Proof.
   auto.
 Qed.
 
+Lemma plus_time_lb_below_log_nn :
+  forall n,
+    plus_time_lb n n = cl_log n + 2.
+Proof.
+  intros.
+  unfold plus_time_lb.
+  replace (cl_log n + 2) with (cl_log n + 1 + 1);[|omega].
+  assert (plus_cin_time_lb n n = cl_log n + 1).
+  apply (well_founded_ind
+           lt_wf
+           (fun n => plus_cin_time_lb n n = cl_log n + 1)).
+  clear. intros. destruct x. compute. auto.
+  rewrite plus_cin_time_lb_SS.
+  rewrite cl_log_div2'.
+  rewrite H. omega.
+  apply lt_div2.
+  omega.
+  rewrite H.
+  auto.
+Qed.
+  
 Lemma plus_big_theta_log : big_oh cl_log (fun n => plus_time_lb n n).
 Proof.
   exists 0 1.

@@ -102,6 +102,7 @@ Proof.
   destruct n; auto.
 Qed.
 
+
 Lemma plus_cin_time_ub_SS : forall n' m', plus_cin_time_ub (S n') (S m') = 
                                           plus_cin_time_ub (div2 (S n')) (div2 (S m')) + 1.
 Proof.
@@ -117,8 +118,24 @@ Proof.
   unfold projT2.
   destruct n'; destruct m'; auto.
 Qed.
-  
 
+Lemma plus_cin_time_ub_as_log :
+  forall n, plus_cin_time_ub n n = 2 + cl_log n.
+Proof.  
+  apply (well_founded_ind
+           lt_wf
+           (fun n => plus_cin_time_ub n n = 2 + cl_log n)).
+  intros.
+  destruct x. compute. auto.
+  rewrite plus_cin_time_ub_SS.
+  rewrite cl_log_div2'.
+  rewrite H.
+  omega.
+  apply lt_div2.
+  omega.
+Qed.
+  
+  
 Lemma plus_cin_time_lb_symmetric:
   forall a b,
     plus_cin_time_lb a b = plus_cin_time_lb b a.
@@ -269,6 +286,8 @@ Proof.
   rewrite cl_log_div2'; auto.
   omega.
 Qed.
+
+
 
 
 Definition plus_cin_result (n:nat) (m:nat) (cin:bool) (res:nat) (c:nat) :=

@@ -84,7 +84,7 @@ Fixpoint fib_iter_time_lb (n:nat) :=
       end
   end.
 
-Lemma relate_fib_iter_fib_iter_loop :
+Lemma relate_fib_iter_fib_iter_loop_lb :
   forall n,
     1 < n ->
     fib_iter_time_lb n = 1 + fib_iter_loop_time_lb (n-1) 0 1.
@@ -94,8 +94,8 @@ Proof.
   destruct n. intuition.
   unfold fib_iter_time_lb.
   replace (S (S n) - 1) with (S n); try omega.
-Qed.  
-  
+Qed.
+
 
 Fixpoint fib_iter_time_ub (n:nat) :=
   match n with
@@ -106,6 +106,19 @@ Fixpoint fib_iter_time_ub (n:nat) :=
         | S n'' => fib_iter_loop_time_ub n' 0 1 + 1
       end
   end.
+
+
+Lemma relate_fib_iter_fib_iter_loop_ub :
+  forall n,
+    1 < n ->
+    fib_iter_time_ub n = 1 + fib_iter_loop_time_ub (n-1) 0 1.
+Proof.  
+  intros.
+  destruct n. inversion H.
+  destruct n. intuition.
+  unfold fib_iter_time_ub.
+  replace (S (S n) - 1) with (S n); try omega.
+Qed.  
 
 Definition fib_iter_result (target:nat) (res:nat) (c:nat) :=
   Fib target res /\
@@ -170,6 +183,13 @@ Fixpoint fib_iter_loop_time_lb2 fuel n :=
                  fib_iter_loop_time_lb2 fuel' (n+1) + 1
   end.
 
+Fixpoint fib_iter_loop_time_ub2 fuel n :=
+  match fuel with
+    | 0 => 1
+    | S fuel' => plus_time_ub (fib n) (fib (n+1)) +
+                 fib_iter_loop_time_ub2 fuel' (n+1) + 1
+  end.
+
 
 Theorem fib_iter_loop_lb2_is_a_sum :
   forall fuel n,
@@ -184,6 +204,20 @@ Proof.
   intros. simpl. replace (n0+1) with (S n0); omega.
 Qed.
 
+Theorem fib_iter_loop_ub2_is_a_sum :
+  forall fuel n,
+    0 < fuel ->
+    fib_iter_loop_time_ub2 fuel n =
+    1 + sum 0 (fuel - 1) (fun m => 1 + plus_time_ub (fib (n+m)) (fib (n+m+1))).
+Proof.
+  intros.
+  apply function_is_a_sum with (f := fib_iter_loop_time_ub2)
+                                 (fuel := fuel)
+                                 (n := n)
+                                 (g := (fun m => 1 + plus_time_ub (fib m) (fib (m+1)))).
+  intros. auto. intros. simpl. replace (n0+1) with (S n0); omega. omega.
+Qed.  
+  
 Lemma fib_iter_loop_lb2_sum2 :
   forall fuel n,
     0 < fuel ->
@@ -192,8 +226,18 @@ Lemma fib_iter_loop_lb2_sum2 :
 Proof.
   intros.
   rewrite fib_iter_loop_lb2_is_a_sum; auto.
-Qed.  
+Qed.
 
+Lemma fib_iter_loop_ub2_sum2 :
+  forall fuel n,
+    0 < fuel ->
+    fib_iter_loop_time_ub2 fuel n =
+    1 + sum 0 (fuel-1) (fplus (const 1) (fun m => plus_time_ub (fib (n+m)) (fib (n+m+1)))).
+Proof.
+  intros.
+  rewrite fib_iter_loop_ub2_is_a_sum;auto.
+Qed.  
+  
 Lemma fib_iter_loop_lb2_sum3 :
   forall fuel n,
     0 < fuel ->
@@ -207,6 +251,83 @@ Proof.
   rewrite sum_constant with (k:=fuel-1); try omega.
 Qed.
 
+Lemma fib_iter_loop_ub2_sum3 :
+  forall fuel n,
+    0 < fuel ->
+    fib_iter_loop_time_ub2 fuel n =
+    1 + fuel + sum 0 (fuel - 1) (fun m => plus_time_ub (fib (n+m)) (fib (n+m+1))).
+Proof.
+  intros.
+  rewrite fib_iter_loop_ub2_sum2; auto.
+  rewrite <- sum_over_fns.
+  unfold const.
+  rewrite sum_constant with (k:=fuel-1); try omega.
+Qed.
+  
+
+Lemma fib_iter_loop_ub2_upper_bound1 :
+  forall fuel n,
+    0 < fuel ->
+    fib_iter_loop_time_ub2 fuel n <=
+    1 + fuel +
+    sum 0 (fuel-1) (const (2*cl_log (fib (n+fuel+1))+ 2*cl_log (fib (n+fuel+1)) + 3)).
+Proof.
+  intros.
+  rewrite fib_iter_loop_ub2_sum3;auto.
+  apply plus_le_compat;auto.
+  apply sum_preserves_order_in_range.
+  intros.
+  unfold const.
+  eapply le_trans.
+  apply plus_cin_time_log.
+  apply plus_le_compat; auto.
+  apply plus_le_compat.
+  apply mult_le_compat; auto. 
+  apply cl_log_monotone.
+  apply fib_monotone.
+  omega.
+  apply mult_le_compat;auto.
+  apply cl_log_monotone.
+  apply fib_monotone.
+  omega.
+Qed.
+
+Lemma fib_iter_loop_ub2_upper_bound2 :
+  forall fuel n,
+    0 < fuel ->
+    fib_iter_loop_time_ub2 fuel n <=
+    1 + fuel +
+    sum 0 (fuel-1) (const (4*(n+fuel+2) + 3)).
+Proof.
+  intros.
+  rewrite fib_iter_loop_ub2_upper_bound1; auto.
+  apply plus_le_compat; auto.
+  apply sum_preserves_order_in_range.
+  intros.
+  unfold const.
+  replace (2 * cl_log (fib (n + fuel + 1)) + 2 * cl_log (fib (n + fuel + 1)))
+  with (4*cl_log (fib (n+fuel+1)));[|omega].
+  apply plus_le_compat; auto.
+  apply mult_le_compat; auto.
+  replace 2 with (1+1);[|omega].
+  rewrite plus_assoc.
+  apply fib_log_upper_bound.
+Qed.  
+
+Lemma fib_iter_loop_ub2_closed_upper_bound :
+  forall fuel n,
+    0 < fuel ->
+    fib_iter_loop_time_ub2 fuel n <=
+    1 + fuel +
+    fuel*(4*(n+fuel+2)+3).
+Proof.
+  intros.
+  rewrite fib_iter_loop_ub2_upper_bound2; auto.
+  apply plus_le_compat; auto.
+  unfold const.
+  rewrite sum_constant with (k:=fuel-1); try omega.
+  replace (fuel-1+1) with fuel; try omega.
+Qed.  
   
 Lemma fib_iter_loop_lb2_lower_bound1 :
   forall fuel n,
@@ -318,9 +439,28 @@ Proof.
   replace (S steps_taken) with (steps_taken+1);omega.
 Qed.
 
-
-
-
+Lemma fib_iter_loop_ub12 :
+  forall n steps_taken,
+    fib_iter_loop_time_ub n (fib steps_taken) (fib (steps_taken+1)) =
+    fib_iter_loop_time_ub2 n steps_taken.
+Proof.
+  induction n.
+  intros; simpl; auto.
+  intros.
+  simpl fib_iter_loop_time_ub.
+  simpl fib_iter_loop_time_ub2.
+  replace (fib steps_taken + fib (steps_taken + 1)) 
+  with (fib (steps_taken+2)).
+  assert (fib_iter_loop_time_ub n (fib (steps_taken + 1)) (fib (steps_taken + 2)) =
+          fib_iter_loop_time_ub2 n (steps_taken + 1));auto.
+  replace (steps_taken + 2) with ((steps_taken+1)+1);[|omega].
+  apply IHn.
+  rewrite plus_comm.
+  unfold plus at 1.
+  rewrite fib_SS.
+  replace (S steps_taken) with (steps_taken+1);omega.
+Qed. 
+  
 Lemma div2_inc1 : forall n, div2 n <= div2 (S n).
 Proof.
   intros.
@@ -409,31 +549,6 @@ Proof.
   omega.
 Qed.
   
-
-Lemma mult_cancel_l :
-  forall m n p,
-    p > 0 -> n = m -> p*m = p*n.
-Proof.
-  intros m n p H.
-  assert ((p * n = p * m <-> n = m)).
-  apply NPeano.Nat.mul_cancel_l.
-  omega.
-  destruct H0.
-  auto.
-Qed.
-
-Lemma mult_cancel_r :
-  forall m n p,
-    p > 0 -> n = m -> m*p = n*p.
-Proof.
-  intros m n p H.
-  assert (( n*p = m*p <-> n = m)).
-  apply NPeano.Nat.mul_cancel_r.
-  omega.
-  destruct H0.
-  auto.
-Qed.
-
 Lemma mult_4_div2 : forall n, 2 < n -> n <= 4*div2 n.
 Proof.
   intros.
@@ -453,15 +568,49 @@ Proof.
   apply div2_monotone.
   omega.
 Qed.
-  
 
+
+Lemma fib_iter_time_ub_big_O_n_squared :
+  big_oh fib_iter_time_ub (fun n => n*n).
+Proof.
+  exists 2.
+  exists 8.
+  intros.
+  rewrite relate_fib_iter_fib_iter_loop_ub; try omega.
+  replace 0 with (fib 0) at 3;[|simpl;auto].
+  replace 1 with (fib 1) at 3;[|simpl;auto].
+  rewrite fib_iter_loop_ub12.
+  remember (n-1) as N.
+  replace n with (N+1); try omega.
+  repeat (rewrite mult_plus_distr_l).
+  repeat (rewrite mult_plus_distr_r).
+  repeat (rewrite mult_plus_distr_l).
+  repeat (rewrite mult_1_l).
+  repeat (rewrite mult_1_r).
+  replace ( 8 * (N * N) + 8 * N + (8 * N + 8))
+  with (1+8*(N*N) +16*N +7);try omega.
+  repeat (rewrite <- plus_assoc).
+  apply plus_le_compat; auto.
+  rewrite fib_iter_loop_ub2_closed_upper_bound; try omega.
+  rewrite plus_0_l.
+  repeat (rewrite mult_plus_distr_l).
+  repeat (rewrite plus_assoc).
+  replace (1 + N + N * (4 * N) + N * (4 * 2) + N * 3)
+  with (1 + 12*N + N*(4*N));[|omega].
+  replace (N*(4*N)) with (4*N*N).
+  repeat (rewrite <- mult_assoc).
+  remember (N*N) as M.
+  omega.
+  apply mult_comm.
+Qed.
+  
 Lemma n_squared_big_O_fib_iter_time_lb:
   big_oh (fun n => n*n) fib_iter_time_lb.
 Proof.
   exists 10.
   exists 64.
   intros.
-  rewrite relate_fib_iter_fib_iter_loop; try omega.
+  rewrite relate_fib_iter_fib_iter_loop_lb; try omega.
   rewrite mult_plus_distr_l. rewrite mult_1_r.
    replace 0 with (fib 0) at 4;[|simpl; auto].
    replace 1 with (fib 1) at 4;[|simpl;auto].

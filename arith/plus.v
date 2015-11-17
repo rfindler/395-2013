@@ -163,6 +163,7 @@ Qed.
 Lemma plus_time_ub_symmetric :
   forall a b,
     plus_cin_time_ub a b = plus_cin_time_ub b a.
+Proof.
   intros a b.
   generalize dependent b.
    apply (well_founded_ind

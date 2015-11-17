@@ -38,11 +38,6 @@ Fixpoint sumlist (l : list nat) : nat :=
     | h :: t => h + sumlist t
   end.
 
-(*
-Lemma listfrom_splits : forall i j k, i <= j -> j < k -> listfrom i k = listfrom i j ++ listfrom (S j) k.
-*)
-
-
 Fixpoint sum (i j : nat) (f : nat -> nat) : nat :=
   match (nat_compare i j) with
   | Lt => match j with

@@ -484,6 +484,7 @@ Theorem log_prod_time2 :
     (forall m, monotone (fun n => g n m)) ->
     (forall m, f 0 m = k) /\ (forall n m, f (S n) m = f (div2 (S n)) m + g (S n) m) ->
     f n m <= (cl_log n)*(g n m) + k.
+Proof.
   intros n m k f g Mono_g H.
   destruct H.
   apply (well_founded_ind

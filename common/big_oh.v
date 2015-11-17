@@ -213,6 +213,7 @@ Lemma big_O2_mult :
   forall f g h,
     big_O2 f g ->
     big_O2 (fun n m => (h n m) * (f n m)) (fun n m => (h n m) * (g n m)).
+Proof.
   intros f g h [k [l FG]].
   exists k.
   exists l.

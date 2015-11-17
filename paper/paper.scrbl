@@ -15,6 +15,7 @@
 @authors[@author[#:inst "1"]{Jay McCarthy}
          @author[#:inst "2"]{Burke Fetscher}
          @author[#:inst "2"]{Max New}
+         @author[#:inst "2"]{Daniel Feltey}
          @author[#:inst "2"]{Robert Bruce Findler}]
 
 @institutes[

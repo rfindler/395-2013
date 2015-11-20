@@ -82,7 +82,7 @@ recursion-in-bounded-space] These approaches are all weaker than our
 approach, but provide more automation.
 
 Similarly, others have explored different approaches for accounting for
-various resources bounds and costs, but we do not provide any
+various resource bounds and costs, but we do not provide any
 contribution in this area. Instead, we take an off-the-shelf cost
 semantics (@citet[automatic-complexity-analysis]'s) and use it. We
 believe our approach applies to other cost models.
@@ -91,7 +91,7 @@ We have consistently used the word ``monad'' to describe what our
 library provides and believe that that is a usefully evocative word to
 capture the essence of our library. However, they are not technically
 monads for two reasons. First, the monad laws are written using an
-equality, but we use equivalence relation appropriate to our
+equality, but we use an equivalence relation appropriate to our
 type. Second, our types have more parameters than the single parameter
 used in monads, due to the proof information residing in the types, so
 our ``monad'' is actually a generalized form of a monad, a

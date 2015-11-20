@@ -25,16 +25,15 @@ we define @tt{C}:
 
 @(apply inline-code (extract monad.v "C"))
 
-For a given @tt{A} and @tt{P}, @tt{C A P} is a dependent
-pair of @tt{a}, a value of type @tt{A}, and a proof that
-there exists some natural number @tt{an} for which @tt{a}
-and @tt{an} are related by @tt{P}. The intention is to think
-of the natural number as the running time and @tt{P} as
-some function-specific specification of running time
-(and possibly also correctness). Importantly, the right-hand side of
-this pair is a proposition, so it contributes no computational content
-when extracted into OCaml.  To see this in practice, consider
-@tt{insert}'s result type:
+For a given @tt{A} and @tt{P}, @tt{C A P} is a dependent pair of
+@tt{a}, a value of type @tt{A}, and a proof that there exists some
+natural number @tt{an} for which @tt{a} and @tt{an} are related by
+@tt{P}. The intention is to think of the natural number as the running
+time and @tt{P} as some specification of running time (and possibly
+also correctness) specific to the particular function
+typed. Importantly, the right-hand side of this pair is a proposition,
+so it contributes no computational content when extracted into OCaml.
+To see this in practice, consider @tt{insert}'s result type:
 @inline-code|{
 : {! res !:! @bin_tree A !<! c !>!
      (forall n, Braun b n -> (Braun res (n+1) /\ c = fl_log n + 1)) !}
@@ -78,9 +77,9 @@ between the actual value returned @tt{a} and the natural number
 @tt{0}. In other words, @tt{ret} requires @tt{P} to predict the
 running time as @tt{0}.
 
-There are two other operations in our monad: @tt{bind} that combines
-two computations in the monad, summing their running times, and
-@tt{inc} that adds to the count of the running time. We tackle
+There are two other operations in our monad: @tt{inc} that adds to the
+count of the running time, and @tt{bind} that combines two
+computations in the monad, summing their running times. We tackle
 @tt{inc} next.
 
 Suppose a program returns a value, @tt{a} with property @tt{P}, 
@@ -173,7 +172,7 @@ as a shorthand for
 @tt{bind _ _ _ _ expr1 (fun (x : _) (am : _) => expr2)}
 
 Because all of the interesting aspects of these operations happen in
-their types, the extraction of these operations have no interesting
+their types, the extractions of these operations have no interesting
 dynamic content. Specifically @tt{ret} is simply the identity
 function, @tt{inc} is a function that just returns its second argument
 and @tt{bind} applies its second argument to its first.

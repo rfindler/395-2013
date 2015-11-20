@@ -54,7 +54,7 @@ characteristics. For example, mergesort is preferable to insertion
 sort only because of its improved running time.
 Unfortunately, defining functions in Coq or other theorem
 proving systems does not provide enough information in the types to be
-able to state these intentional properties.
+able to state these intensional properties.
 
 Our work provides a monad (implemented as a library in Coq) that
 enables us to include abstract running times in types. We use this

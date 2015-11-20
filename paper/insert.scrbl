@@ -91,7 +91,7 @@ computation in the monad just like the second argument,
 except that the running time is @tt{n+k}.
 
 In the non-empty case, the insertion function recurs with
-the right subtree and then builds a new tree with the sub-trees
+the right subtree and then builds a new tree with the subtrees
 swapped. This swapping is what preserves the Braun invariant. 
 Since we know that the left subtree's size is either equal to or one
 larger than the right's, when we add an element to the right and swap

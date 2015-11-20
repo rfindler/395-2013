@@ -10,7 +10,7 @@ match b with
  | bt_mt => 
    <== bt_node i bt_mt bt_mt
  | bt_node j s t => 
-   bt <- insert j t;
-   <== bt_node i bt s
+   t' <- insert j t;
+   <== bt_node i t' s
 end.
 (* STOP: insert *)

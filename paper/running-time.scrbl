@@ -113,13 +113,12 @@
 @raw-latex{\vspace{-5em}}
 }
 
-One disadvantage to the code in the previous section
-is that the running times are tangled with the body
-of the insertion function and, even worse, making a mistake
-when writing the @tt{+=} expressions can cause our
-proofs about the running times to be useless, as they will
-prove facts that aren't actually relevant to the functions
-we are using.
+One disadvantage to the code in the previous section is that the
+running times are tangled with the body of the insertion function and,
+even worse, making a mistake when writing the @tt{+=} expressions can
+produce un-provable claims or cause our proofs about the running times
+to be useless, as they will prove facts that aren't actually relevant
+to the functions we are using.
 
 To handle this situation, we've written a simple Coq-to-Coq
 translation function that accepts functions written in our
@@ -136,11 +135,11 @@ in the monadic result type. The user must define this function
 separately and the translation's output must be used in that
 context:
 @(apply inline-code (extract insert_log.v "insert_result"))
-Unlike the previous version, this one accounts for the 
-larger constant factors and it also includes a stricter
-correctness condition. Specifically, the new conjunct
-insists that if you linearize the resulting Braun tree into a
-list, then it is the same as linearizing the input
+Unlike the previous version, this one accounts for the larger constant
+factors and it also includes a stricter correctness
+condition. Specifically, the new conjunct uses @tt{SequenceR} (a
+proposition we wrote) to insist that if you linearize the resulting
+Braun tree into a list, then it is the same as linearizing the input
 and consing the new element onto the front of the list.
 
 Rather than develop a novel, and potentially controversial cost
@@ -155,11 +154,11 @@ with a cost of @raw-latex{$9$} because it references @raw-latex{$6$}
 variables (the self-reference is not counted), calls @raw-latex{$2$}
 functions, and does @raw-latex{$1$} case-dispatch.
 
-Our translation function is straight-forward and is included in the
+Our translation function is straightforward and is included in the
 supplementary materials (@tt{add-plusses/check-stx-errs} in
 @tt{rkt/tmonad/main.rkt}). Our monad could support different cost
 semantics, without modification, provided a function could map them to
-the program's syntax in a straight-forward way.
+the program's syntax in a straightforward way.
 
 An alternative approach would be to follow
 @citet[static-cost-analysis] and build a Coq model of a machine and

@@ -1,0 +1,333 @@
+
+
+----------------------- REVIEW 1 ---------------------
+PAPER: 7
+TITLE: A Coq Library For Internal Verification of Running-Times
+AUTHORS: Jay McCarthy, Burke Fetscher, Max New and Robert Bruce Findler
+
+OVERALL EVALUATION: 2 (accept)
+REVIEWER'S CONFIDENCE: 4 (high)
+
+----------- REVIEW -----------
+This paper presents a Coq library whose central component is a monad
+for proving that the running time of a program is a given function.
+The monad does not only keep track of time counts but also correctness
+properties, making it possible to verify the running time of more
+programs than previous work by Danielsson (2008).
+
+The paper is well written, and the results are solid. In particular,
+Section 6 lists an impressive number of case studies, and these alone,
+I think, constitute an important contribution. Special attention is
+paid to the efficiency of extracted code, which makes the result more
+meaningful in practice. (We definitely do not like the situation where
+a program is proved to have a nice running time but actually runs
+slower because of the proof.)
+
+The authors use only simple datatypes and place invariants in the
+monad (rather than in the datatypes themselves), "allow[ing]
+programmers to write idiomatic code". I do not think programs dealing
+with more precisely defined data structures are necessarily very
+different from (or more difficult to write than) "idiomatic code", nor
+is the code extracted from them necessarily less efficient (as
+explained in Conor McBride's and Edwin Brady's work). In this case, I
+would guess that baking the invariants into the datatypes might
+simplify the overall structure. I am not against the authors'
+decision, though — it might be easier to separate programs and proofs
+in Coq as much as possible (according to my limited knowledge of Coq).
+
+A more serious flaw is that the running time function has to be
+"predicted" accurately, down to the constants. This is simply too much
+for most people (with the notable exception of Knuth), and severely
+restricts the usability of the library. Not being able to reason just
+asymptotically is already a problem with Danielsson's 2008 work, and
+it is kind of disappointing to see that the authors do not try to
+tackle it. That being said, the problem is difficult enough, so it is
+understandable that the authors do not confront it in this paper.
+
+Some typos:
+
+p1 "intentional properties" -> intensional
+
+p3 "sub-trees" -> subtrees  (a form which you use in other places)
+
+p5 "straight-forward" -> straightforward  (twice)
+
+p10 (& p11) Big \Theta, Big O: delete 'Big'  (\Theta and O are already
+  big themselves)
+
+p10 O(log), \Theta(log) -> log n
+
+p10 "There 1,797 lines of code" -> There are
+
+p10 "an library" -> a
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 7
+TITLE: A Coq Library For Internal Verification of Running-Times
+AUTHORS: Jay McCarthy, Burke Fetscher, Max New and Robert Bruce Findler
+
+OVERALL EVALUATION: 1 (weak accept)
+REVIEWER'S CONFIDENCE: 3 (medium)
+
+----------- REVIEW -----------
+The paper presents a technique for verifying programmers' assertions
+that calls to a given function have the expected cost, in a cost model
+chosen by the programmer. Despite the title, the cost model may count
+memory consumed, operations performed, or both.
+
+I am not an expert in program verification or fluent in Coq, so I cannot
+evaluate whether the paper's technique is novel, but the paper is well
+written, and I believe I understand the outlines of how the system works.
+I can also understand most, not all of the technical details, and they
+seem fine.
+
+So far, the technique has been tried only on small pieces of code.
+For these, computing the *exact* cost of a call, and then trivially
+classifying the cost as to complexity class (linear, quadratic, n log n etc)
+works, as shown by the results in the paper. I wonder whether for larger
+pieces of code, for which authors care only about the complexity class,
+would the overhead of computing the cost *exactly* be too much work?
+(This is not a criticism of this paper; I am fully aware that you
+have to be able to walk before you can try running.)
+
+The authors are frank about the limitations of the technique,
+with respect to e.g. the presence of irrelevant code in the OCaml
+extracted from Coq, and propose mitigation strategies, strategies
+that I (as a compiler writer) think will probably work.
+
+I commend the authors for making public the software involved in the project.
+
+--------------------------------------------------
+
+Detailed comments:
+
+Page 1:
+In the body of the paper, it becomes clear that your talk in the title
+and the abstract about "time" is really talking about a cost model
+that is effectively a parameter of your technique, but before readers
+get there, it looks wrong. A count of operations is different from running
+time. Due to things like cache effects, when comparing two algorithms,
+the one with the higher operation count may actually have the LOWER runtime.
+Talking about "time" is thus misleading, since predicting actual
+execution time would require a microarchitectural model of the CPU.
+
+Page 2:
+"to give it a very precise specification": it is unclear what kind of
+"precision" you mean. If you mean that the return type can express
+not only the value to be returned but also the cost of computing that value,
+as the second half of the sentence is trying to say, then talking about
+"precision" is more likely to misdirect readers than to help them.
+
+"mt" is a strange abbreviation for "empty".
+
+Things like "!<!" are strange choices for syntax.
+
+Page 3:
+Showing the correct parenthesization of the code in figure 1 involving
++= and <== would help; I expect few readers will know their precedence.
+Choosing better syntax would probably help even more.
+
+Why do you use "bt" to denote the version of t with j inserted? bt can
+be confused with "braun tree". Something like "jt" or "tj" would be better.
+
+Page 4:
+Wouldn't it be more common for mistakes when writing += expressions
+to yield assertions about running times that CANNOT be proven because
+they are false?
+
+Page 5:
+Where do the "larger constant factors" come from? Don't put the mention
+of linearization into the MIDDLE of your discussion of the cost model.
+
+Where does the S in "(S n)" come from? How does "SequenceR" know HOW
+to turn the tree into a sequence? Not all readers are experts in Coq.
+
+Page 6:
+"For a given A and P...": don't use "a" and "an" as variable names.
+They are FAR too easy to mistake it for the English words. Having them
+in a different font doesn't help enough.
+
+"function-specific specification": there is more than one function
+in this discussion. Say which one you mean.
+
+Page 7:
+Mention inc before bind, since you describe it first, and because without inc,
+bind can only ever add 0+0.
+
+Page 8:
+"that ensures the argument is at least": why emphasize this "at least"?
+It is only a *consequence* of the property you care about, NOT the property
+itself.
+
+Page 9:
+"... as a shorthand for ...": the "am" is not in the shorthand notation.
+
+"the extraction ... have no dynamic content": I don't undestand what this
+is trying to say, and the noun/verb disagreement doesn't help.
+
+"values returned by monadic commands are equal": what values, which monadic
+commands, and what does their equality imply? Are you talking about the
+associativity of the rest of the paragraph, or something else?
+
+Page 10:
+Why is iterative fib O(n^2)?
+
+Why no n in O(log)?
+
+Would you care to say why you didn't prove the correctness of those two
+algorithms? (I see you do, three paragraphs later.) I would say "In all cases
+except make_array_linear and red/black tree insertion, the proofs of
+the running time include proof of the correctness of the algorithm".
+
+Page 11:
+I can guess when a function named "is_even" would return true,
+but this wouldn't be true for a function named "even_odd_dec".
+
+Page 12:
+You could try to make the extracted version readable by adding redundant
+parentheses.
+
+Page 13:
+I would list the functions in each category when I *introduce* the categories.
+
+"leaves natural numbers in the extracted code": playing what role, if any?
+If they are ignored, it should be possible to optimize them away, as you talk
+about for the output of your system, just above. If they are not, how come they
+don't screw up the output of the program?
+
+Page 14:
+"resources bounds and costs": I think this is missing a word or two.
+
+"we use AN equivalence relation"
+
+--------------------------------------------------
+
+Comments about another review:
+
+Not being a Coq expert, I actually appreciated being shown bind1 and bind2
+before bind3. Without them, I would have thought that bind3 was
+needlessly overcomplicated, and I can't think of a shorter way
+to explain why the extra complexity is in fact needed than the example
+of bind1 and bind2. Maybe you can.
+
+As for the list of function names in section 6, I can guess what those
+functions do and therefore how big they are. When looking at system
+evaluations, knowing how well the system scales is always important.
+Those function names give me a pretty good idea of the answer to that
+question, even though I did not look up the github repo.
+
+While I agree that open access principles make long-term storage of
+supplementary materials extremely desirable, I don't think the absence
+of a standard mechanism for that is fault of the authors of this paper,
+and including even a significant portion of the relevant code in the paper
+would have blown away the page limits.
+
+On the other hand, I agree about += and <== being less than optimal notations.
+
+
+----------------------- REVIEW 3 ---------------------
+PAPER: 7
+TITLE: A Coq Library For Internal Verification of Running-Times
+AUTHORS: Jay McCarthy, Burke Fetscher, Max New and Robert Bruce Findler
+
+OVERALL EVALUATION: 1 (weak accept)
+REVIEWER'S CONFIDENCE: 3 (medium)
+
+----------- REVIEW -----------
+The authors provide a method to reason about the running time of
+functional programs by enriching post-conditions with a notion of time
+spent.  At the heart on there method lies a monad-like structure
+
+  C (A : Set) (P : A -> Nat -> Prop)
+
+which enriches a return value of type A with a postcondition on A and
+a natural number, which is interpreted as running time.  Using a
+"tick" operation the programmer can annotate the program with time
+usage of the individual operations.  In that, it likens Danielsson's
+(2008) approach, only that the presence of an arbitrary post-condition
+P gives extra flexibility in specifying and processing run-times.
+
+The work described in the article is mostly practical, there is a Coq
+library for this monad-like structure, and one for reasoning about
+run-times with big-O-notation.
+
+I am sympathetic to their approach although I do not know how the
+great flexibility (arbitrary P) leads to a large number of proof
+obligations, and I do not know how original the approach is.
+
+Unfortunately, the paper misses a bit the style for a conference
+publication.  Instead of giving technical details of their "monad",
+the authors slowly approach the formulation they ended up with, giving
+incorrect formulations on the way which they refine.  The experienced
+researcher, who is the target of FLOPS, might be easily bored by the
+slow pace.  Further, a lot of the text reads like a commentary on the
+supplementary material which is not meaningful without going through
+all of it.  I cannot fight the feeling that this paper reads more like
+a final report of a student project rather than a conference paper.
+
+I wonder what the worth of this paper without access to the
+supplementary material is in its current write-up.  Is it ensured that
+the github repo will be live long enough?  Will FLOPS ensure the
+availability of the supplementary material, and for how many decades?
+The availability of the paper is ensured by national library systems,
+but I do not know anything for github repos.  Thus, I think the paper
+should make sense but itself, rather than being mostly a commentary on
+the supplementary material.  It should be self-contained to the extend
+that the necessary technical details can be reconstructed, ideally
+without too much effort.
+
+While I welcome the approach of the authors and the serious effort
+spent on a practical evaluation, I can only weakly recommend
+acceptance for FLOPS, for the reasons given above.
+
+DETAILS
+
+Please supply page numbers in submission versions!
+
+Section 2
+
+Use of infix operations += and <==.
+
+  I would suggest "tick" and "return" instead of += and <==.
+  The operators you use are commonly used as infix operators, so the
+  reader of the programs might be confused.
+
+Section 5
+
+"The Monad"
+
+  C is not really a monad, and bind is a curried version of an
+  application operation.
+
+Definition of "ret"
+
+  ... is simply a triple (a, 0, Pa0) using the appropriate pairing
+  constructions.  Somehow your argument that you do not give the
+  definition here is longer than actually giving the definition.
+
+bind1/bind2/bind3
+
+  Why dragging the reader through your complete thought process,
+  rather than giving the solution?
+
+  You could save a lot of space, and invest it into giving the
+  definitions of return and bind and prove properties about them in
+  the paper (rather than just in the supplementary material).
+
+Section 6
+
+"The functions in the first category are: <<long list>>"
+
+  Who wants to read this?
+  The reader knows nothing of these functions, unless he has read all
+  of your code.
+
+Section 7
+
+"Danielsson ... leaves residue in the extracted code"
+
+  Using Coq's current extraction.  There are more aggressive
+  extractors, like the one of Idris, which can get rid of
+  computationally irrelevant parts without needing a static Prop/Type
+  distinction.

@@ -1,0 +1,9 @@
+* TODO Re-add deleted section on arithmetic operations
+* TODO Add mention of Dan's contributions
+* TODO Think about how to clarify time vs instruction counts
+  [[../flops2015-reviews.txt::106]]
+* TODO Attempt to clarify monadic properties
+  [[../flops2015-reviews.txt::169]]
+* TODO Consider explaining why iter fib is n^2 
+  [[../flops2015-reviews.txt::174]]
+

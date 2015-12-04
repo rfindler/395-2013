@@ -53,95 +53,82 @@ is also constant time: if the numbers are the same, the digits at the
 front of the respective lists will be the same and if they differ by
 @tt{1}, those digits will be different.
 
-The uses of addition in @tt{fib}, however, are not constant time and
-so our analysis of @tt{fib} is not accurate at that level.  We did not
-attempt to improve that treatment, but we did study @tt{sub1} more
-carefully.
+The uses of addition in @tt{fib}, however, are not constant time. We
+did not account for the time of additions in the recursive implementation
+of @tt{fib}. On the other hand, we proved that the iterative @tt{fib} function,
+which requires O(@raw-latex{$n$}) time when additions are not counted, requires
+Θ(@raw-latex{$n^2$}) time  when we properly account for primitive operations.
 
-Subtracting 1 from a number in binary representation is not constant
-time. In some situations, @tt{sub1} may need to traverse the entire number to
-compute its predecessor.  To explore @tt{sub1}'s behavior, we implemented it
-using only constant-time operations. Here's the implementation with
-explicit costs: @(apply inline-code (extract sub1_gen.v cdr))
+@;{
+The recursive looping function that we use to implement the iterative @tt{fib}
+function is @tt{fib_iter_loop}. This function, reproduced below, is what we analyze to
+determine the asymptotic runtime of the iterative Fibonacci function.
+@(apply inline-code (extract fib_iter_loop_gen.v cdr))
+}
 
-This function uses a number of primitive operations. 
-If we think of the representation of numbers as a linked 
-listed of binary digits, then these are the operations
-used by the function and their corresponding list operation:
-@itemlist[@item{zero testing: empty list check,}
-           @item{evenness testing: extract the first bit in the number}
-           @item{floor of division by 2 (@tt{div2}): cdr}
-           @item{double and add 1 (@tt{sd2+sd2+1}): cons @tt{1} onto the list}
-           @item{@tt{n-1} in the case that n is odd: replace the lowest bit with @tt{0}}]
-So while each iteration of the list runs in constant time, @tt{sub1} is recursive
-and we do not know an a priori bound on the number of iterations.
+Our implementation of addition has a runtime that is linear in the
+number of bits of its input. Under this assumption it is straightforward to
+prove that iterative @tt{fib} will run in Θ(@raw-latex{$n^2$}) time.
+To prove that @tt{fib} is O(@raw-latex{$n^2$}), we first observe that forall
+@raw-latex{$n$}, @raw-latex{$fib(n) \leq 2^n$}. At step @raw-latex{$n$} in the
+iteration, the @tt{fib} function performs addition on numbers on the order of
+@raw-latex{$2^n$}. Because these numbers have @raw-latex{$n$} bits in their binary
+representations, the runtime of their addition is also @raw-latex{$n$}. This implies
+that the total runtime of the addition operations in the iterative @tt{fib} function
+is less than the sum @raw-latex{$1 + 2 + \cdots + n$}. Since the other primitives used
+in calculating @tt{fib} run in constant time, the runtime is dominated by the additions
+at each iteration of the loop, thus it is clear that the runtime of @tt{fib} is
+O(@raw-latex{$n^2$}).
 
-@figure["fig:sub1-argument"
-        @list{Running time of @tt{sub1}}
-        (p:plot-pict
-         #:width 300
-         #:height 140
-         #:x-label "Sub1's Argument"
-         #:y-label "Number of Abstract Steps"
-         (let ([the-points
-                (for/list ([i (in-range 1 255)])
-                  (define-values (ans time) (:sub1 i))
-                  (vector i time))])
-           (p:points
-            #:y-min 0
-            #:y-max (+ 2 (apply max (map (λ (x) (vector-ref x 1)) the-points)))
-            the-points)))]
+To prove that @tt{fib} is Ω(@raw-latex{$n^2$}), we recall that for @raw-latex{$ n \geq 6$}
+we have that @raw-latex{$ 2^{n/2} \leq fib(n)$}. Following a similar argument to that of
+the upper bound we find that asymptotically the sum
+@raw-latex{$\frac{1}{2}(6 + 7 + \cdots + n$}) is a lower bound for the runtime of
+@tt{fib}. It is easy to show that this sum is Ω(@raw-latex{$n^2$}). Putting this result
+together with the upper bound, we have shown that the runtime of the iterative version of
+@tt{fib} is Θ(@raw-latex{$n^2$}) when we account for primitive operations.
 
-We can use our implementation of @tt{sub1} above to graph its running
-time against the value of its input as shown in
-@Figure-ref["fig:sub1-argument"].
-Half of the time (on odd numbers) @tt{sub1}
-is cheap, terminating after only a single iteration. One quarter of the time, 
-@tt{sub1} terminates after two iterations. In general,
-there is a 
+We must be careful when computing asymptotic runtimes that we have actually
+taken all language primitives into account. Specifically, the above analysis
+of the @tt{fib} function seems to ignore the subtraction operation that occurs
+in each iteration of the loop. For example, in the extracted OCaml code  for
+@tt{fib}, pattern matching against @tt{S n} becomes a call to
+the @tt{pred_big_int} function. Subtracting 1 from a number in binary representation
+is not constant time. In some situations, @tt{sub1} may need to traverse the entire
+number to compute its predecessor.
+
+To be certain that the non-constant runtime of @tt{sub1} does not affect our
+calculation of @tt{fib}'s runtime, we argue that the implicit subtractions
+in the implementation of @tt{fib} take amortized constant time.
+Although subtraction by 1 is not always a constant time operation, it requires
+only constant time on half of its possible inputs. On any odd number represented
+in binary, it is a constant time operation to subtract by 1. It then follows
+that any number equivalent to 2 modulo 4 will require 2 units of time
+to perform the @tt{sub1} operation because @tt{sub1} will terminate after two
+iterations. In general, there is a
 @(c:element (c:style "relax" '(exact-chars)) '("\\(\\frac{1}{2^n}\\)"))
 chance that @tt{sub1} terminates after 
 @(c:element (c:style "relax" '(exact-chars)) '("\\(n\\)"))
-iterations. 
+iterations. To account for all uses of @tt{sub1} in the implementation of
+@tt{fib}, we note that we will perform the @tt{sub1} operation on each number
+from 1 to @raw-latex{$n$}. This gives a cost in terms of the iterations required by
+@tt{sub1} that is bounded above by
+@raw-latex{$n*(\frac{1}{2} + \frac{2}{4} + \frac{3}{8} + \cdots + \frac{n}{2^n} + \cdots$)}.
+Using elementary techniques from calculus, one can show that this infinite sum converges
+to @raw-latex{$2*n$}, for a sequence of @raw-latex{$n$} @tt{sub1} operations this shows
+that subtraction implicit in the definition of @tt{fib} requires amortized constant time.
+Overall, the time required by the additions performed in the implementation of @tt{fib}
+will dwarf the time required by subtraction which justifies the fact that we have not
+explicitly considered the time taken by @tt{sub1} operations.
 
-There are four different recursion patterns using @tt{sub1}
-in our library. The first and simplest is a function with a
-loop counting down from @tt{n} to @tt{0}. This pattern is
-found in the functions @tt{take}, @tt{drop} and
-@tt{pad-drop} in the library. In this case, @tt{sub1} will
-be called once for each different number in that range and
-the total running time is proportional to the
-number of iterations.
+Although we can account for the recursion pattern using @tt{sub1} described above that
+counts down from @tt{n} to @tt{0}, there are several other recursive uses of @tt{sub1}
+found in our library. For example, our implementations of @tt{copy2} and @tt{copy_insert}
+loop by subtracting @tt{1} then dividing by @tt{2}. As for @tt{fib}, we have not explicitly
+accounted for these other uses of @tt{sub1}. We do, however, believe that the overhead of
+using @tt{sub1} in these functions does not change their asymptotic complexity, but we have
+verified this only by testing and informal arguments.
 
-Second is a function that loops by subtracting @tt{1} and then
-dividing by @tt{2}.  This pattern is found in our functions @tt{copy2}
-and @tt{copy_insert}, and has a logarithmic overhead.
-
-Third is the pattern used by @tt{diff}, which recurs with
-either @tt{(n-1)/2} or @tt{(n-2)/2} depending on the parity of the
-index. This is again a logarithmic overhead to @tt{diff}, which has
-logarithmic complexity.
-
-Finally, the most complicated is the pattern used by @tt{copy_linear},
-which recursively calls itself on @tt{n/2} and
-@tt{(n-1)/2}. @Figure-ref["fig:copy_linear-input"] is a plot of the
-running time of the @tt{sub1} calls that @tt{copy_linear} makes. In
-gray is a plot of @raw-latex{$\lambda x. 31x + 29$}, which we believe
-is an upper bound for the function.
-
-@figure["fig:copy_linear-input"
-        @list{Running time of @tt{copy_linear}}
-        (parameterize ([p:plot-width 275]
-                       [p:plot-height 275]
-                       [p:plot-x-label "Copy_linear's Input"]
-                       [p:plot-y-label "Sub1 Calls' Running Time"])
-          ;; this plot takes a long time, but I like that last steep jump...
-          (plot-with-bound 10000
-                           copy_linear_sub1_points
-                           copy_linear_sub1_bound))]
-
-Accordingly, we believe that the overhead of using
-@tt{sub1} in these functions does not change their
-asymptotic complexity, but we have verified this only by
-testing (and, in the first case, by a pencil-and-paper
-proof).
+@;{
+TODO: Add appendix with the justifications described above and refer to the appendix as
+      part of the supplemental materials}

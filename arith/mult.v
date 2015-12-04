@@ -76,6 +76,7 @@ Proof.
 Qed.
 
 Lemma plus_succ : forall n, S n = n + 1.
+Proof.
   intros.
   rewrite plus_comm.
   auto.

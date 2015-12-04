@@ -24,7 +24,7 @@
                        @email["jay.mccarthy@gmail.com"]]
             @institute["Northwestern University"
                        @linebreak[]
-                       @email["{burke.fetscher, max.new, robby}@eecs.northwestern.edu"]]
+                       @email["{burke.fetscher, max.new, daniel.feltey, robby}@eecs.northwestern.edu"]]
 ]
 
 @abstract{
@@ -95,7 +95,7 @@ and other supplementary material is available at
 
 @include-section["case-study.scrbl"]
 
-@;@include-section["prims.scrbl"]
+@include-section["prims.scrbl"]
 
 @include-section["related-work.scrbl"]
 	

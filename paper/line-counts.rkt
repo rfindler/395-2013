@@ -55,6 +55,7 @@
       "clength_gen.v"))
     ("fib"
      ("fib.v"
+      "fib_iter.v"
       "fib_iter_gen.v"
       "fib_iter_loop_gen.v"
       "fib_rec_gen.v"))
@@ -63,7 +64,9 @@
       "add1_gen.v"
       "plus.v"
       "plus_cin_gen.v"
-      "plus_gen.v"))
+      "plus_gen.v"
+      "mult.v"
+      "mult_gen.v"))
     ("to_list"
      ("to_list_naive.v" "cinterleave_gen.v" "to_list_naive_gen.v"))
     ("zippers"

@@ -101,6 +101,30 @@ Proof.
   apply fib_monotone; auto.
 Qed.
 
+Lemma fib_lower_bound2 :
+  forall n, 6 <= n ->
+            pow 2 (div2 n) <= fib n.
+Proof.
+  apply (well_founded_ind
+           lt_wf
+           (fun n => 6 <= n -> pow 2 (div2 n) <= fib n)).
+  intros.
+  destruct x; inversion H0;[compute;auto|].
+  clear H0 H1 m.
+  destruct x; inversion H2;[compute;omega|].
+  clear m H2 H0.
+  replace (div2 (S (S x))) with (S (div2 x));[|unfold div2; auto].
+  unfold pow; fold pow.
+  apply (le_trans (2 * pow 2 (div2 x))
+                  (2 * fib x)).
+  apply mult_le_compat; auto.
+  replace (fib (S (S x))) with (fib (S x) + fib x);[|simpl fib; omega].
+  unfold mult.
+  rewrite plus_0_r.
+  apply plus_le_compat; auto.
+  apply fib_monotone; auto.
+Qed.
+
 Lemma fib_log_lower_bound :
   forall n,
     (div2 n) <= cl_log (fib ((S (S n)))).

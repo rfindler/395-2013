@@ -17,6 +17,7 @@
 (define-runtime-path insert_log_gen.v "../insert/insert_log_gen.v")
 (define-runtime-path insert_no_gen.v "../insert/insert_nogen.v")
 (define-runtime-path sub1_gen.v "../arith/sub1_gen.v")
+(define-runtime-path fib_iter_loop_gen.v "../fib/fib_iter_loop_gen.v")
 (define-runtime-path copy_log_sq_gen.v "../copy/copy_log_sq_gen.v")
 (define-runtime-path copy_log_sq.v "../copy/copy_log_sq.v")
 (define-runtime-path extract.ml "../extract/extract.ml")

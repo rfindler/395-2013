@@ -27,8 +27,8 @@ we define @tt{C}:
 
 For a given @tt{A} and @tt{P}, @tt{C A P} is a dependent pair of
 @tt{a}, a value of type @tt{A}, and a proof that there exists some
-natural number @tt{an} for which @tt{a} and @tt{an} are related by
-@tt{P}. The intention is to think of the natural number as the running
+natural number @tt{an} related to @tt{a} by @tt{P}.
+The intention is to think of the natural number as the running
 time and @tt{P} as some specification of running time (and possibly
 also correctness) specific to the particular function
 typed. Importantly, the right-hand side of this pair is a proposition,

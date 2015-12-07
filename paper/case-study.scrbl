@@ -65,13 +65,13 @@ into proofs that are inside obligations (and thus correspond to
 establishing that the monadic types are correct) and other lines of
 proofs. In total there are @line-count:total lines of code. There
 are @line-count:non-proof lines that are not proofs. There are
-@line-count:obligations lines of code related to obligations and
+@line-count:obligations lines of code in obligations and
 @line-count:other-proofs lines of other proofs.
 
 We have built a library of general proofs about the monad (such as
 the monad laws), an asymptotic complexity library, a Log library, and
 some common facts and definitions about Braun trees. This library
-accounts for over 25% of all lines of code of each category.
+accounts for over 25% of the code of each category.
 
 With the exception of the @tt{make_array_linear} and the red-black
 tree insertion function, the proofs inside the obligations establish
@@ -95,14 +95,14 @@ the function @tt{copy_log_sq_time}.
 The running time function, however, is defined in parallel to
 @tt{log_sq} itself, not as the product of the logs: @(apply
 inline-code (extract copy_log_sq.v "copy_insert_time")) This parallel
-definition makes it straightforward to prove that @tt{copy_log_sq}'s
-running time equals @tt{copy_log_sq_time}, but leaves as a separate
-issue the proof that @tt{copy_log_sq_time} is O of the square of
-the log. There are 56 lines of proof to guarantee the result type of
+definition allows a straightforward proof that @tt{copy_log_sq}'s
+running time is @tt{copy_log_sq_time}, but leaves as a separate
+issue the proof that @tt{copy_log_sq_time} is O(@raw-latex{$\log^2n$}).
+There are 56 lines of proof to guarantee the result type of
 the function is correct and an additional 179 lines to prove that that
-@tt{copy_log_sq_time} is O of the square of the log.
+@tt{copy_log_sq_time} is O(@raw-latex{$\log^2n$}).
 
-For the simpler functions (every one with linear running time except
+For simple functions (those with linear running time except
 @tt{make_array_linear}), the running time can be expressed directly in
 the monadic result (with precise constants). However, for most of the
 functions the running time is first expressed precisely in a manner

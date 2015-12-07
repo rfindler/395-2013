@@ -59,42 +59,34 @@ of @tt{fib}. On the other hand, we proved that the iterative @tt{fib} function,
 which requires O(@raw-latex{$n$}) time when additions are not counted, requires
 Θ(@raw-latex{$n^2$}) time  when we properly account for primitive operations.
 
-@;{
-The recursive looping function that we use to implement the iterative @tt{fib}
-function is @tt{fib_iter_loop}. This function, reproduced below, is what we analyze to
-determine the asymptotic runtime of the iterative Fibonacci function.
-@(apply inline-code (extract fib_iter_loop_gen.v cdr))
-}
-
 Our implementation of addition has a runtime that is linear in the
-number of bits of its input. Under this assumption it is straightforward to
-prove that iterative @tt{fib} will run in Θ(@raw-latex{$n^2$}) time.
-To prove that @tt{fib} is O(@raw-latex{$n^2$}), we first observe that forall
-@raw-latex{$n$}, @raw-latex{$fib(n) \leq 2^n$}. At step @raw-latex{$n$} in the
-iteration, the @tt{fib} function performs addition on numbers on the order of
-@raw-latex{$2^n$}. Because these numbers have @raw-latex{$n$} bits in their binary
-representations, the runtime of their addition is also @raw-latex{$n$}. This implies
-that the total runtime of the addition operations in the iterative @tt{fib} function
-is less than the sum @raw-latex{$1 + 2 + \cdots + n$}. Since the other primitives used
-in calculating @tt{fib} run in constant time, the runtime is dominated by the additions
-at each iteration of the loop, thus it is clear that the runtime of @tt{fib} is
-O(@raw-latex{$n^2$}).
+number of bits of its input. Using this fact, we can prove
+that iterative @tt{fib} runs in Θ(@raw-latex{$n^2$}) time.
+To prove that @tt{fib} is Ω(@raw-latex{$n^2$}), we first observe that for all
+@raw-latex{$ n \geq 6$} we have that @raw-latex{$ 2^{n/2} \leq fib(n)$}.
+In the @tt{n}th iteration of the loop, @tt{fib} adds numbers with
+@raw-latex{$\frac{n}{2}$} bits in their binary representation, this
+takes time on the order of @raw-latex{$\frac{n}{2}$}.
+For large enough @raw-latex{$n$}, this implies that the runtime of the
+additions in the iterative @tt{fib} function are bounded below by
+@raw-latex{$\frac{1}{2}(6 + 7 + \cdots + n$}). This sum is Ω(@raw-latex{$n^2$}).
+Since the other primitives used in calculating @tt{fib}
+run in constant time, the runtime is dominated by the addition operations,
+thus the runtime of @tt{fib} is Ω(@raw-latex{$n^2$}).
 
-To prove that @tt{fib} is Ω(@raw-latex{$n^2$}), we recall that for @raw-latex{$ n \geq 6$}
-we have that @raw-latex{$ 2^{n/2} \leq fib(n)$}. Following a similar argument to that of
-the upper bound we find that asymptotically the sum
-@raw-latex{$\frac{1}{2}(6 + 7 + \cdots + n$}) is a lower bound for the runtime of
-@tt{fib}. It is easy to show that this sum is Ω(@raw-latex{$n^2$}). Putting this result
-together with the upper bound, we have shown that the runtime of the iterative version of
-@tt{fib} is Θ(@raw-latex{$n^2$}) when we account for primitive operations.
+A similar argument shows that the runtime of @tt{fib} is O(@raw-latex{$n^2$}).
+Combining these two results proves the runtime of the iterative version of @tt{fib}
+is Θ(@raw-latex{$n^2$}) when we account for primitive operations.
+We have proved all of these facts in Coq and included them
+in the supplemental materials (@tt{fib/fib_iter.v}).
 
 We must be careful when computing asymptotic runtimes that we have actually
 taken all language primitives into account. Specifically, the above analysis
-of the @tt{fib} function seems to ignore the subtraction operation that occurs
+of the @tt{fib} function ignores the subtraction that occurs
 in each iteration of the loop. For example, in the extracted OCaml code  for
 @tt{fib}, pattern matching against @tt{S n} becomes a call to
-the @tt{pred_big_int} function. Subtracting 1 from a number in binary representation
-is not constant time. In some situations, @tt{sub1} may need to traverse the entire
+the @tt{pred_big_int} function. Subtracting 1 from a number represented in binary
+is not constant time, @tt{sub1} may need to traverse the entire
 number to compute its predecessor.
 
 To be certain that the non-constant runtime of @tt{sub1} does not affect our
@@ -102,7 +94,7 @@ calculation of @tt{fib}'s runtime, we argue that the implicit subtractions
 in the implementation of @tt{fib} take amortized constant time.
 Although subtraction by 1 is not always a constant time operation, it requires
 only constant time on half of its possible inputs. On any odd number represented
-in binary, it is a constant time operation to subtract by 1. It then follows
+in binary, it is a constant time operation to subtract by 1. It follows
 that any number equivalent to 2 modulo 4 will require 2 units of time
 to perform the @tt{sub1} operation because @tt{sub1} will terminate after two
 iterations. In general, there is a
@@ -114,8 +106,8 @@ iterations. To account for all uses of @tt{sub1} in the implementation of
 from 1 to @raw-latex{$n$}. This gives a cost in terms of the iterations required by
 @tt{sub1} that is bounded above by
 @raw-latex{$n*(\frac{1}{2} + \frac{2}{4} + \frac{3}{8} + \cdots + \frac{n}{2^n} + \cdots$)}.
-Using elementary techniques from calculus, one can show that this infinite sum converges
-to @raw-latex{$2*n$}, for a sequence of @raw-latex{$n$} @tt{sub1} operations this shows
+One can show that this infinite sum converges to @raw-latex{$2*n$}, thus for a sequence of
+@raw-latex{$n$} @tt{sub1} operations this shows
 that subtraction implicit in the definition of @tt{fib} requires amortized constant time.
 Overall, the time required by the additions performed in the implementation of @tt{fib}
 will dwarf the time required by subtraction which justifies the fact that we have not
@@ -128,7 +120,3 @@ loop by subtracting @tt{1} then dividing by @tt{2}. As for @tt{fib}, we have not
 accounted for these other uses of @tt{sub1}. We do, however, believe that the overhead of
 using @tt{sub1} in these functions does not change their asymptotic complexity, but we have
 verified this only by testing and informal arguments.
-
-@;{
-TODO: Add appendix with the justifications described above and refer to the appendix as
-      part of the supplemental materials}

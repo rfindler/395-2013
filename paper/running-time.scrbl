@@ -114,10 +114,10 @@
 }
 
 One disadvantage to the code in the previous section is that the
-running times are tangled with the body of the insertion function and,
-even worse, making a mistake when writing the @tt{+=} expressions can
+running times are tangled with the body of the insertion function.
+Even worse, making mistakes when writing @tt{+=} expressions can
 produce un-provable claims or cause our proofs about the running times
-to be useless, as they will prove facts that aren't actually relevant
+to be useless, as they will prove facts that are irrelevant
 to the functions we are using.
 
 To handle this situation, we've written a simple Coq-to-Coq

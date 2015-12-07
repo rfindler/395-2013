@@ -140,7 +140,7 @@ factors and it also includes a stricter correctness
 condition. Specifically, the new conjunct uses @tt{SequenceR} (a
 proposition we wrote) to insist that if you linearize the resulting
 Braun tree into a list, then it is the same as linearizing the input
-and consing the new element onto the front of the list.
+and consing the new element onto the list.
 
 Rather than develop a novel, and potentially controversial cost
 semantics, we show the utility of our monad by adopting the

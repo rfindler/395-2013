@@ -109,9 +109,9 @@ from 1 to @raw-latex{$n$}. This gives a cost in terms of the iterations required
 One can show that this infinite sum converges to @raw-latex{$2*n$}, thus for a sequence of
 @raw-latex{$n$} @tt{sub1} operations this shows
 that subtraction implicit in the definition of @tt{fib} requires amortized constant time.
-Overall, the time required by the additions performed in the implementation of @tt{fib}
-will dwarf the time required by subtraction which justifies the fact that we have not
-explicitly considered the time taken by @tt{sub1} operations.
+Overall, the runtime of the additions performed by @tt{fib}
+will dwarf the time required by subtraction. This justifies the fact that we do not
+explicitly consider the time taken by @tt{sub1} operations.
 
 Although we can account for the recursion pattern using @tt{sub1} described above that
 counts down from @tt{n} to @tt{0}, there are several other recursive uses of @tt{sub1}

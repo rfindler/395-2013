@@ -80,10 +80,11 @@ example that is introduced in @secref["sec:insert"]. Following this
 preamble, @secref["sec:monad"] walks through the definition and design
 of the monad itself. @Secref["sec:case-study"] describes the results
 of our case study, wherein we proved properties of a variety of
-different functions. Finally, @secref["sec:related-work"] provides a
-detailed account of our relation to similar projects. Our source code
-and other supplementary material is available at
-@url{http://github.com/rfindler/395-2013}.
+different functions. @Secref["sec:sub1"] discusses accounting for
+the runtimes of various language primitives. Finally,
+@secref["sec:related-work"] provides a detailed account of our relation
+to similar projects. Our source code and other supplementary material
+is available at @url{http://github.com/rfindler/395-2013}.
 
 @include-section["insert.scrbl"]
 

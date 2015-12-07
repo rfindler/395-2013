@@ -93,7 +93,7 @@ produces the input list, and that the running time is given by
 the function @tt{copy_log_sq_time}.
 
 The running time function, however, is defined in parallel to
-@tt{log_sq} itself, not as the product of the logs: @(apply
+@tt{copy_log_sq} itself, not as the product of the logs: @(apply
 inline-code (extract copy_log_sq.v "copy_insert_time")) This parallel
 definition allows a straightforward proof that @tt{copy_log_sq}'s
 running time is @tt{copy_log_sq_time}, but leaves as a separate

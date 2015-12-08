@@ -64,7 +64,7 @@ number of bits of its input. Using this fact, we can prove
 that iterative @tt{fib} runs in Θ(@raw-latex{$n^2$}) time.
 To prove that @tt{fib} is Ω(@raw-latex{$n^2$}), we first observe that for all
 @raw-latex{$ n \geq 6$} we have that @raw-latex{$ 2^{n/2} \leq fib(n)$}.
-In the @tt{n}th iteration of the loop, @tt{fib} adds numbers with
+In the @raw-latex{$n$}th iteration of the loop, @tt{fib} adds numbers with
 @raw-latex{$\frac{n}{2}$} bits in their binary representation, this
 takes time on the order of @raw-latex{$\frac{n}{2}$}.
 For large enough @raw-latex{$n$}, this implies that the runtime of the

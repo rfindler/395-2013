@@ -41,9 +41,7 @@ Due Diligence for Primitive Operations by function:
 
 TODO:
 
-1. Edits to the prims section to discuss fib instead of sub1 and remove claims
-   that now seem to be false.
-2. Turn due diligence regarding prim ops such as sub1 into an appendix that
+1. Turn due diligence regarding prim ops such as sub1 into an appendix that
    discussed why it is ok to not explicitly account for these situations.
 
 

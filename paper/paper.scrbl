@@ -59,9 +59,9 @@ able to state these intensional properties.
 Our work provides a monad (implemented as a library in Coq) that
 enables us to include abstract running times in types. We use this
 library to prove several important algorithms have their expected
-running times.  Unlike
-@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s
-approach, our library has two benefits. First, it allows programmers
+running times.  Our library has two benefits over
+@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s.
+First, it allows programmers
 to write idiomatic code without embedding invariants in data types,
 so we can reason about a wider variety of programs. Second, and more
 significantly, our monad adds no complexity

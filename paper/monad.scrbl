@@ -30,8 +30,8 @@ For a given @tt{A} and @tt{P}, @tt{C A P} is a dependent pair of
 natural number @tt{an} related to @tt{a} by @tt{P}.
 The intention is to think of the natural number as the running
 time and @tt{P} as some specification of running time (and possibly
-also correctness) specific to the particular function
-typed. Importantly, the right-hand side of this pair is a proposition,
+also correctness) specific to the particular function.
+Importantly, the right-hand side of this pair is a proposition,
 so it contributes no computational content when extracted into OCaml.
 To see this in practice, consider @tt{insert}'s result type:
 @inline-code|{
@@ -82,8 +82,8 @@ count of the running time, and @tt{bind} that combines two
 computations in the monad, summing their running times. We tackle
 @tt{inc} next.
 
-Suppose a program returns a value, @tt{a} with property @tt{P}, 
-that takes exactly one step to compute. We write this using the expression:
+Suppose a program returns a value @tt{a}, with property @tt{P}, 
+that takes exactly one step to compute. We represent such a program with the expression:
 @inline-code{
  += 1; <== a
 }

@@ -20,7 +20,7 @@ a function that inserts @raw-latex{$m$} times into a list at position
 @citet[three-algorithms-on-braun-trees]'s paper, @italic{Three
 Algorithms on Braun Trees}. We chose these algorithms by first
 selecting Okasaki's papers, because the project originated in a class
-and we knew them to be well-written and understandable to
+and we knew Okasaki's paper to be well-written and understandable to
 undergraduates. From that initial selection, we moved to an in-order
 traversal of @citet[clrs] looking for functional algorithms that would
 challenge the framework.
@@ -119,7 +119,7 @@ structure of their inputs, e.g., functions that process lists from the
 front, functions that process trees by
 processing the children and combining the result, and so on. In the
 second category are functions that recursively process numbers by
-counting down by ones from a given number.  In the third category are
+counting down by one from a given number.  In the third category are
 functions that ``skip'' over some of their inputs. For example,
 some functions recur on natural numbers by dividing the
 number by 2 instead of subtracting one, and merge sort recurs by

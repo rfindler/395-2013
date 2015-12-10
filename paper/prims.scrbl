@@ -22,7 +22,7 @@ something our framework handles).
 
 More interestingly and more often overlooked, however, are
 the numeric primitives. In a language implementation with
-bignums, numbers are generally represented as a list of
+BigNums, numbers are generally represented as a list of
 digits in some large base with grade-school arithmetic
 algorithms implementing the various operations. These
 operations are generally not all constant time. 
@@ -30,10 +30,10 @@ operations are generally not all constant time.
 Assuming that the base is a power of 2, division by 2, evenness
 testing, and checking to see if a number is equal to 0 are all
 constant-time operations. The algorithms in our study use two other
-numeric operations @tt{+} and @tt{sub1}
+numeric operations: @tt{+} and @tt{sub1}
 (not counting the abstract comparison in the sorting functions).
 
-In general, addition of bignums is not constant time. However, certain
+In general, addition of BigNums is not constant time. However, certain
 uses of addition can be replaced by constant-time bit operations. For
 instance, doubling and adding 1 can be replaced by a specialized
 operation that conses a @tt{1} on the front of the
@@ -55,33 +55,33 @@ front of the respective lists will be the same and if they differ by
 
 The uses of addition in @tt{fib}, however, are not constant time. We
 did not account for the time of additions in the recursive implementation
-of @tt{fib}. On the other hand, we proved that the iterative @tt{fib} function,
-which requires O(@raw-latex{$n$}) time when additions are not counted, requires
-Θ(@raw-latex{$n^2$}) time  when we properly account for primitive operations.
+of @tt{fib}. We have proved, however, that the iterative @tt{fib} function,
+which requires linear time when additions are not counted, requires
+quadratic time when we properly account for primitive operations.
 
 Our implementation of addition has a runtime that is linear in the
 number of bits of its input. Using this fact, we can prove
-that iterative @tt{fib} runs in Θ(@raw-latex{$n^2$}) time.
-To prove that @tt{fib} is Ω(@raw-latex{$n^2$}), we first observe that for all
+that iterative @tt{fib} has runtime that is quadratic in its input.
+To prove that @tt{fib}'s runtime is bounded below by @raw-latex{$n^2$}, we first observe that for all
 @raw-latex{$ n \geq 6$} we have that @raw-latex{$ 2^{n/2} \leq fib(n)$}.
 In the @raw-latex{$n$}th iteration of the loop, @tt{fib} adds numbers with
 @raw-latex{$\frac{n}{2}$} bits in their binary representation, this
 takes time on the order of @raw-latex{$\frac{n}{2}$}.
 For large enough @raw-latex{$n$}, this implies that the runtime of the
 additions in the iterative @tt{fib} function are bounded below by
-@raw-latex{$\frac{1}{2}(6 + 7 + \cdots + n$}). This sum is Ω(@raw-latex{$n^2$}).
+@raw-latex{$\frac{1}{2}(6 + 7 + \cdots + n$}). This sum has a quadratic lower bound.
 Since the other primitives used in calculating @tt{fib}
 run in constant time, the runtime is dominated by the addition operations,
-thus the runtime of @tt{fib} is Ω(@raw-latex{$n^2$}).
+thus the runtime of @tt{fib} is bounded below by a factor of @raw-latex{$n^2$}.
 
-A similar argument shows that the runtime of @tt{fib} is O(@raw-latex{$n^2$}).
+A similar argument shows that the runtime of @tt{fib} has a quadratic upper bound.
 Combining these two results proves the runtime of the iterative version of @tt{fib}
-is Θ(@raw-latex{$n^2$}) when we account for primitive operations.
-We have proved all of these facts in Coq and included them
+is asymptotically @raw-latex{$n^2$} when we account for primitive operations.
+We have proved these facts in Coq and included them
 in the supplemental materials (@tt{fib/fib_iter.v}).
 
-We must be careful when computing asymptotic runtimes that we have actually
-taken all language primitives into account. Specifically, the above analysis
+Although our analysis of @tt{fib} properly accounts for addition, it
+does not consider all language primitives. Specifically, the above analysis
 of the @tt{fib} function ignores the subtraction that occurs
 in each iteration of the loop. For example, in the extracted OCaml code  for
 @tt{fib}, pattern matching against @tt{S n} becomes a call to

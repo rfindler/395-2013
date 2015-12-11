@@ -21,6 +21,10 @@
 (define-runtime-path copy_log_sq_gen.v "../copy/copy_log_sq_gen.v")
 (define-runtime-path copy_log_sq.v "../copy/copy_log_sq.v")
 (define-runtime-path extract.ml "../extract/extract.ml")
+(define-runtime-path size_linear_gen.v "../size/size_linear_gen.v")
+(define-runtime-path size_log_sq_gen.v "../size/size_log_sq_gen.v")
+(define-runtime-path copy_linear_gen.v "../copy/copy_linear_gen.v")
+(define-runtime-path diff_gen.v "../size/diff_gen.v")
 
 (define (keep-range reg lines)
 

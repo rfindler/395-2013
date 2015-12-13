@@ -103,3 +103,5 @@ is available at @url{http://github.com/rfindler/395-2013}.
 @;@section{Conclusion}
 
 @generate-bibliography[]
+
+@;include-section["appendix.scrbl"]

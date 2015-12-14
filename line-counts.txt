@@ -22,17 +22,20 @@
             split2_gen.v                18                   0                    0
            clength_gen.v                12                   0                    0
                 Subtotal               606                 400                  813
-                   fib.v                77                   0                  158
+                   fib.v                92                   0                  200
+              fib_iter.v               213                  48                  351
           fib_iter_gen.v                18                   0                    0
      fib_iter_loop_gen.v                13                   0                    0
            fib_rec_gen.v                19                   0                    0
-                Subtotal               127                   0                  158
-                  add1.v                35                  21                   50
+                Subtotal               355                  48                  551
+                  add1.v                50                  21                  113
               add1_gen.v                15                   0                    0
-                  plus.v               129                  77                  196
+                  plus.v               160                  77                  309
           plus_cin_gen.v                50                   0                    0
               plus_gen.v                 6                   0                    0
-                Subtotal               235                  98                  246
+                  mult.v               156                  50                  321
+              mult_gen.v                17                   0                    0
+                Subtotal               454                 148                  743
          to_list_naive.v                58                  53                   22
        cinterleave_gen.v                12                   0                    0
      to_list_naive_gen.v                14                   0                    0
@@ -96,7 +99,7 @@ zip_with_3_bt_node_gen.v                24                   0                  
                 Subtotal               115                 100                  155
                                                                                    
                    Monad               229                   0                  114
-                  Common               890                   4                1,272
+                  Common             1,670                   4                1,686
                                                                                    
-                  Totals             4,697               1,797                4,350
-  Total number of lines:            10,844                                         
+                  Totals             5,321               1,895                5,654
+  Total number of lines:            12,870                                         

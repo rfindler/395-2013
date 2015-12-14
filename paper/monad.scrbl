@@ -116,9 +116,9 @@ argument is at least @tt{k}.
 
 In principle, the logic for @tt{bind} is very similar. A @tt{bind}
 represents a composition of two computations: an @tt{A}-producing one
-and an @tt{A}-consuming, @tt{B}-producing one. If we assume that
-property for @tt{A} is @tt{PA} and @tt{PB} for @tt{B}, then a first
-attempt at a type for @tt{bind} is:
+and an @tt{A}-consuming, @tt{B}-producing one. If we assume that the
+property for @tt{A} is @tt{PA} and @tt{PB} for @tt{B}, then an attempt
+at a type for @tt{bind} is:
 @(apply inline-code (extract binds.v "bind1"))
 
 This definition is incorrect from the cost perspective, because it

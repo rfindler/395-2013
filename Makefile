@@ -27,7 +27,10 @@ DNE:
 code: coq extract/extract
 
 paper/paper.pdf: paper/paper.scrbl paper/util.rkt paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl paper/related-work.scrbl paper/appendix.scrbl */*.v
-	(cd paper; raco make -v paper.scrbl && scribble --pdf paper.scrbl; cd ..)
+	(cd paper; raco make -v paper.scrbl && scribble --pdf paper.scrbl && scribble --latex paper.scrbl; cd ..)
+
+paper-final.zip: paper/paper.tex
+	zip $@ $^
 
 .PHONY: coq clean clean-ml tmonad-gen
 

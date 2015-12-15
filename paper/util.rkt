@@ -6,6 +6,8 @@
          scribble/core
          scribble/manual
          "extract.rkt")
+(require (for-syntax racket/base))
+
 (module+ test
   (require rackunit))
 
@@ -25,6 +27,12 @@
 (define-runtime-path size_log_sq_gen.v "../size/size_log_sq_gen.v")
 (define-runtime-path copy_linear_gen.v "../copy/copy_linear_gen.v")
 (define-runtime-path diff_gen.v "../size/diff_gen.v")
+
+(define-syntax (include-appendix stx)
+  (syntax-case stx ()
+    [_ (getenv "BUILD-WITH-APPENDIX") #'(include-section "appendix.scrbl")]
+    [_ #'(void)]))
+    
 
 (define (keep-range reg lines)
 

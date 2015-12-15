@@ -104,4 +104,4 @@ is available at @url{http://github.com/rfindler/395-2013}.
 
 @generate-bibliography[]
 
-@;include-section["appendix.scrbl"]
+@(include-appendix)

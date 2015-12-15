@@ -122,3 +122,6 @@ loop by subtracting @tt{1} then dividing by @tt{2}. As for @tt{fib}, we have not
 accounted for these other uses of @tt{sub1}. We do, however, believe that the overhead of
 using @tt{sub1} in these functions does not change their asymptotic complexity, but we have
 verified this only by testing and informal arguments.
+@(if (getenv "BUILD-WITH-APPENDIX")
+@"See the appendix for further details on accounting for language primitives."
+@"")

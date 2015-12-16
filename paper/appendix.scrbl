@@ -20,9 +20,13 @@ over natural numbers. In the context of the @tt{fib} function, as discussed in
 not explicitly consider do not affect our calculations of
 asymptotic complexity. Overall, our case studies present five classes of
 recursion patterns, including that of @tt{fib}, involving language primitives whose running
-times we have not accounted for within our monadic framework. 
+times we have not accounted for within our monadic framework.
 In this section we present an informal argument to justify the claim that these
 uses of language primitives have no affect on our complexity analysis.
+For the first three classes of recursion patterns we present informal proofs and for
+the remaining two we discuss their complications and suggest directions that
+may lead to formal proofs.
+
 
 @section[#:style 'unnumbered]{A.1 @raw-latex{$\ \ $} The First Category: Linear Addition and Subtraction}
 
@@ -42,11 +46,11 @@ that @tt{sub1} takes amortized constant time applies to @tt{add1}.
 Examples from the second category
 include functions that operate on Braun trees, such as @tt{size_linear} and
 @tt{size_log_sq}. In @tt{size_linear}, reproduced below, the addition
-@raw-latex{$lsize + rsize + 1$} is not necessarily a constant time operation.
+@raw-latex{$lsize + rsize + 1$} is not obviously a constant time operation.
 The Braun tree invariant, however, allows for an efficient implementation
 of this addition. The invariant requires either that @raw-latex{$lsize = rsize$}
 or @raw-latex{$lsize = rsize + 1$}. In the former case, the addition corresponds
-to doubling followed by adding 1. If numbers are represented as lists of bits with
+to doubling followed by adding 1. If numbers are represented by lists of bits with
 least significant bits at the front of the list, then this corresponds to consing
 a 1 onto the front of the list. In the second case, the addition is equivalent to
 doubling @raw-latex{$lsize$}, which can be implemented by consing a 0 onto the front
@@ -87,23 +91,27 @@ runtime of performing @tt{sub1} and @tt{div2} operations on a binary number
 bits in @raw-latex{$b$}.
 
 For the proof, consider a binary number @raw-latex{$b$}.
-If @raw-latex{$b$} is zero the result is trivial. If @raw-latex{$b$} is odd then there exists
-some @raw-latex{$b' < b$} such that @raw-latex{$b = b'\cdot1$}, that is @raw-latex{$b = 2*b'+1$}
-or equivalently @raw-latex{$b$} is @raw-latex{$b'$} with a 1 appended. Performing @tt{sub1} and
-@tt{div2} on @raw-latex{$b$} takes 2 units of time (1 each for @tt{sub1} and @tt{div2}) plus the
-time to perform the operation on @raw-latex{$b'$}. By induction, we have that performing @tt{sub1}
-and @tt{div2} operations on @raw-latex{$b'$} will take at most @raw-latex{$3*(n-1)$} units of time.
-Adding these together, the sequence of operations takes no more than @raw-latex{$3n$} units of time
-in total.
+If @raw-latex{$b$} is zero the result is trivial. If @raw-latex{$b$} is odd then
+there exists some @raw-latex{$b' < b$} such that @raw-latex{$b = 2*b'+1$}. As a list
+of bits, @raw-latex{$b$} is represented by a 1 followed by the bits in @raw-latex{$b'$}.
+We write this representation as @raw-latex{$b = 1 \cdot b'$} to make the lower order bits, upon which
+subtraction and division operate, explicit. Performing a sequence of @tt{sub1} and @tt{div2} operations on
+@raw-latex{$b = 1 \cdot b'$} takes 2 units of time (1 each for @tt{sub1} and @tt{div2}) to reduce to
+@raw-latex{$b'$} plus the time to perform the sequence of operations on @raw-latex{$b'$}.
+By induction, we have that performing @tt{sub1} and @tt{div2} operations on @raw-latex{$b'$} will take
+at most @raw-latex{$3*(n-1)$} units of time. Adding these together, the sequence of operations takes
+no more than @raw-latex{$3n$} units of time in total.
 
-In the even case, for a non-zero binary number @raw-latex{$b$} of @raw-latex{$n$} bits, there exists a
-@raw-latex{$b'$} such that @raw-latex{$b = b'\cdot1\cdot0\cdots0$} with @raw-latex{$k \leq n$}
-zeros at the end of the number. Subtracting 1 from this number takes @raw-latex{$k+1$} units of time,
+In the even case, for a non-zero binary number @raw-latex{$b$} of @raw-latex{$n$} bits, the
+list representation of @raw-latex{$b$} must begin with some number, @raw-latex{$k$}, of zeros followed
+by a 1 and then the representation of some smaller binary number. Therefore, there exists a
+@raw-latex{$b'$} such that @raw-latex{$b = 0 \cdots 0 \cdot 1 \cdot b'$} with @raw-latex{$k \leq n$}
+zeros at the front of the number. Subtracting 1 from this number takes @raw-latex{$k+1$} units of time,
 therefore one combination of subtraction and division takes @raw-latex{$k+2$} units of time and results
-in a number of the form @raw-latex{$ b'\cdot0\cdot1\cdots1$} with @raw-latex{$k-1$} ones in the tail.
+in a number of the form @raw-latex{$1 \cdots 1 \cdot 0 \cdot b'$} with @raw-latex{$k-1$} ones at the front of the list.
 It is clear that the next @raw-latex{$k-1$} iterations will each take 2 units of time. Thus,
-to reduce to the number @raw-latex{$b'\cdot0$} of length @raw-latex{$n-k$} takes @raw-latex{$3k$} units of time.
-Finally, applying the induction hypothesis to the smaller number @raw-latex{$b'\cdot0$} completes the proof.
+to reduce to the number @raw-latex{$0 \cdot b'$} of length @raw-latex{$n-k$} takes @raw-latex{$3k$} units of time.
+Finally, applying the induction hypothesis to the smaller number @raw-latex{$0 \cdot b'$} completes the proof.
 
 This proof shows that repeatedly subtracting by 1 and dividing by 2 in each recursive call and terminating at 0
 requires time that is linear in the number of recursive calls. Therefore, each use of subtraction followed by

@@ -120,8 +120,7 @@ counts down from @tt{n} to @tt{0}, there are several other recursive uses of @tt
 found in our library. For example, our implementations of @tt{copy2} and @tt{copy_insert}
 loop by subtracting @tt{1} then dividing by @tt{2}. As for @tt{fib}, we have not explicitly
 accounted for these other uses of @tt{sub1}. We do, however, believe that the overhead of
-using @tt{sub1} in these functions does not change their asymptotic complexity, but we have
-verified this only by testing and informal arguments.
+using @tt{sub1} in these functions does not change their asymptotic
 @(if (getenv "BUILD-WITH-APPENDIX")
-@"See the appendix for further details on accounting for language primitives."
-@"")
+@"complexity. Appendix A presents an informal argument in support of this claim. "
+@"complexity, but we have verified this only by testing and informal arguments.")

@@ -112,11 +112,15 @@ in a number of the form @raw-latex{$1 \cdots 1 \cdot 0 \cdot b'$} with @raw-late
 It is clear that the next @raw-latex{$k-1$} iterations will each take 2 units of time. Thus,
 to reduce to the number @raw-latex{$0 \cdot b'$} of length @raw-latex{$n-k$} takes @raw-latex{$3k$} units of time.
 Finally, applying the induction hypothesis to the smaller number @raw-latex{$0 \cdot b'$} completes the proof.
-
+	
 This proof shows that repeatedly subtracting by 1 and dividing by 2 in each recursive call and terminating at 0
 requires time that is linear in the number of recursive calls. Therefore, each use of subtraction followed by
 division takes amortized constant time in functions such as @tt{copy_log_sq}, and ignoring these
 primitive operations does not affect our analysis of their running time.
+
+@figure["fig:diff-sub-div"
+	@list{Average running time of @tt{sub1} and @tt{div2}}
+	@diff-sub/div-plot]
 
 @section[#:style 'unnumbered]{A.4 @raw-latex{$\ \ $} The Fourth Category: Branching with Subtraction and Division}
 
@@ -141,9 +145,6 @@ be possible.
 
 @(apply inline-code (extract diff_gen.v cdr))
 
-@figure["fig:diff-sub-div"
-	@list{Running time of ... }
-	@diff-sub/div-plot]
 
 @;{
 I was wrong about the recursion pattern for copy_linear, so that is still unaddressed,
@@ -153,6 +154,17 @@ might be the best thing to do
 
 The following is the old paragraph about copy_linear
 }
+
+@figure["fig:copy_linear-input"
+        @list{Running time of @tt{copy_linear}}
+        (parameterize ([p:plot-width 275]
+                       [p:plot-height 275]
+                       [p:plot-x-label "Copy_linear's Input"]
+                       [p:plot-y-label "Sub1 Calls' Running Time"])
+          ;; this plot takes a long time, but I like that last steep jump...
+          (plot-with-bound 10000
+                           copy_linear_sub1_points
+                           copy_linear_sub1_bound))]
 
 @section[#:style 'unnumbered]{A.5 @raw-latex{$\ \ $} The Fifth Category: A Tree of Subtraction and Division}
 
@@ -173,16 +185,6 @@ of operations to reach the next expensive computation regardless of the path tak
 down the tree, however, we have not attempted a formal proof of this claim.
 
 @(apply inline-code (extract copy_linear_gen.v cdr))
-@figure["fig:copy_linear-input"
-        @list{Running time of @tt{copy_linear}}
-        (parameterize ([p:plot-width 275]
-                       [p:plot-height 275]
-                       [p:plot-x-label "Copy_linear's Input"]
-                       [p:plot-y-label "Sub1 Calls' Running Time"])
-          ;; this plot takes a long time, but I like that last steep jump...
-          (plot-with-bound 10000
-                           copy_linear_sub1_points
-                           copy_linear_sub1_bound))]
 
 @section[#:style 'unnumbered]{A.6 @raw-latex{$\ \ $} Conclusion}
 

@@ -46,7 +46,11 @@ Extract Inductive sigT => "(*)" [ "(,)" ].
 Extraction Inline ret bind inc.
 Extraction Inline projT1 projT2.
 
-Extraction "post_extract.ml" insert_log.insert
+Extraction "post_extract.ml"
+
+           ret bind inc
+           
+           insert_log.insert
            size_linear.size_linear
            size_log_sq.size
 

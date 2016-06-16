@@ -1,4 +1,52 @@
                     File   Non-Proof Lines    Obligation Lines    Other Proof Lines
+     make_array_nlogn1.v                43                  12                   79
+ make_array_nlogn1_gen.v                13                   0                    0
+                Subtotal                56                  12                   79
+make_array_nlogn1_fold.v                43                  13                   59
+                Subtotal                43                  13                   59
+     make_array_nlogn2.v                64                  57                   64
+ make_array_nlogn2_gen.v                17                   0                    0
+           unravel_gen.v                15                   0                    0
+                Subtotal                96                  57                   64
+     make_array_linear.v               180                  39                  241
+ make_array_linear_gen.v                13                   0                    0
+                  rows.v               120                 115                  145
+             rows1_gen.v                 6                   0                    0
+              rows_gen.v                20                   0                    0
+       take_drop_split.v                78                  91                   26
+              drop_gen.v                18                   0                    0
+              take_gen.v                18                   0                    0
+          pad_drop_gen.v                19                   0                    0
+             split_gen.v                 7                   0                    0
+       foldr_build_gen.v                13                   0                    0
+zip_with_3_bt_node_gen.v                24                   0                    0
+                 build.v                48                  41                    2
+             build_gen.v                14                   0                    0
+                Subtotal               578                 286                  414
+           copy_linear.v                21                  22                    1
+       copy_linear_gen.v                13                   0                    0
+                Subtotal                34                  22                    1
+          copy_fib_log.v               146                  90                  313
+      copy_fib_log_gen.v                17                   0                    0
+                Subtotal               163                  90                  313
+           copy_log_sq.v                67                  56                  179
+       copy_log_sq_gen.v                16                   0                    0
+                Subtotal                83                  56                  179
+              copy_log.v                39                  28                   21
+          copy_log_gen.v                 9                   0                    0
+             copy2_gen.v                18                   0                    0
+                Subtotal                66                  28                   21
+           size_linear.v                19                  16                    1
+       size_linear_gen.v                13                   0                    0
+                Subtotal                32                  16                    1
+           size_log_sq.v                83                 100                  155
+              diff_gen.v                19                   0                    0
+       size_log_sq_gen.v                13                   0                    0
+                Subtotal               115                 100                  155
+         to_list_naive.v                58                  53                   22
+       cinterleave_gen.v                12                   0                    0
+     to_list_naive_gen.v                14                   0                    0
+                Subtotal                84                  53                   22
                 rbtree.v               155                   0                  126
             rbt_search.v                56                 106                    6
         bst_search_gen.v                26                   0                    0
@@ -9,6 +57,19 @@
         rbt_insert_gen.v                 8                   0                    0
   rbt_insert_inner_gen.v                28                   0                    0
                 Subtotal               565                  54                  179
+                   zip.v               235                 270                   70
+          from_zip_gen.v                 5                   0                    0
+         insert_at_gen.v                18                   0                    0
+        minsert_at_gen.v                13                   0                    0
+       minsertz_at_gen.v                10                   0                    0
+            to_zip_gen.v                 5                   0                    0
+        zip_insert_gen.v                 5                   0                    0
+          zip_left_gen.v                11                   0                    0
+         zip_leftn_gen.v                13                   0                    0
+       zip_minsert_gen.v                13                   0                    0
+         zip_right_gen.v                11                   0                    0
+        zip_rightn_gen.v                13                   0                    0
+                Subtotal               352                 270                   70
                sorting.v                20                   0                    5
                 Subtotal                20                   0                    5
                  isort.v                62                 132                   53
@@ -36,70 +97,9 @@
                   mult.v               156                  50                  321
               mult_gen.v                17                   0                    0
                 Subtotal               454                 148                  743
-         to_list_naive.v                58                  53                   22
-       cinterleave_gen.v                12                   0                    0
-     to_list_naive_gen.v                14                   0                    0
-                Subtotal                84                  53                   22
-                   zip.v               235                 270                   70
-          from_zip_gen.v                 5                   0                    0
-         insert_at_gen.v                18                   0                    0
-        minsert_at_gen.v                13                   0                    0
-       minsertz_at_gen.v                10                   0                    0
-            to_zip_gen.v                 5                   0                    0
-        zip_insert_gen.v                 5                   0                    0
-          zip_left_gen.v                11                   0                    0
-         zip_leftn_gen.v                13                   0                    0
-       zip_minsert_gen.v                13                   0                    0
-         zip_right_gen.v                11                   0                    0
-        zip_rightn_gen.v                13                   0                    0
-                Subtotal               352                 270                   70
-           copy_linear.v                21                  22                    1
-       copy_linear_gen.v                13                   0                    0
-                Subtotal                34                  22                    1
-          copy_fib_log.v               146                  90                  313
-      copy_fib_log_gen.v                17                   0                    0
-                Subtotal               163                  90                  313
-           copy_log_sq.v                67                  56                  179
-       copy_log_sq_gen.v                 9                   0                    0
-                Subtotal                76                  56                  179
-              copy_log.v                39                  28                   21
-          copy_log_gen.v                 9                   0                    0
-             copy2_gen.v                18                   0                    0
-                Subtotal                66                  28                   21
-     make_array_nlogn1.v                43                  12                   79
- make_array_nlogn1_gen.v                13                   0                    0
-                Subtotal                56                  12                   79
-make_array_nlogn1_fold.v                43                  13                   59
-                Subtotal                43                  13                   59
-     make_array_nlogn2.v                64                  57                   64
- make_array_nlogn2_gen.v                17                   0                    0
-           unravel_gen.v                15                   0                    0
-                Subtotal                96                  57                   64
-     make_array_linear.v               180                  39                  241
- make_array_linear_gen.v                13                   0                    0
-                  rows.v               120                 115                  145
-             rows1_gen.v                 6                   0                    0
-              rows_gen.v                20                   0                    0
-       take_drop_split.v                78                  91                   26
-              drop_gen.v                18                   0                    0
-              take_gen.v                18                   0                    0
-          pad_drop_gen.v                19                   0                    0
-             split_gen.v                 7                   0                    0
-       foldr_build_gen.v                13                   0                    0
-zip_with_3_bt_node_gen.v                24                   0                    0
-                 build.v                48                  41                    2
-             build_gen.v                14                   0                    0
-                Subtotal               578                 286                  414
-           size_linear.v                19                  16                    1
-       size_linear_gen.v                13                   0                    0
-                Subtotal                32                  16                    1
-           size_log_sq.v                83                 100                  155
-              diff_gen.v                19                   0                    0
-       size_log_sq_gen.v                13                   0                    0
-                Subtotal               115                 100                  155
                                                                                    
                    Monad               229                   0                  114
                   Common             1,670                   4                1,686
                                                                                    
-                  Totals             5,321               1,895                5,654
-  Total number of lines:            12,870                                         
+                  Totals             5,328               1,895                5,654
+  Total number of lines:            12,877                                         

@@ -1,16 +1,15 @@
 #lang scribble/base
 @(require "util.rkt" "cite.rkt"
           "../rkt/sub1-plot.rkt"
-	  "../rkt/diff-sub-div-plot.rkt"
+          "../rkt/diff-sub-div-plot.rkt"
           (prefix-in : "../arith/sub1_gen.rkt")
           (prefix-in p: plot/pict)
           scriblib/figure
-	  scriblib/footnote
+          scriblib/footnote
           pict 
           (prefix-in c: scribble/core))
 
-
-@title[#:style 'unnumbered #:tag "sec:appendix"]{A @raw-latex{$\ \ $} Appendix}
+@title[#:tag "sec:appendix"]{Accounting for Other Numeric Primitives}
 
 Although we have proved the asymptotic time complexity of a number
 of functions, we have not always properly accounted for language
@@ -28,7 +27,7 @@ the remaining two we discuss their complications and suggest directions that
 may lead to formal proofs.
 
 
-@section[#:style 'unnumbered]{A.1 @raw-latex{$\ \ $} The First Category: Linear Addition and Subtraction}
+@section{Linear Addition and Subtraction}
 
 The first of category of recursion patterns includes functions that perform a single @tt{add1} or @tt{sub1}
 operation in each recursive call that count up or down in a completely
@@ -41,7 +40,7 @@ on every even number adding 1 is a constant time operation whereas subtracting 1
 is constant time on odd numbers. Therefore the same argument we apply to show
 that @tt{sub1} takes amortized constant time applies to @tt{add1}.
 
-@section[#:style 'unnumbered]{A.2 @raw-latex{$\ \ $} The Second Category: Operations on Braun Trees}
+@section{Operations on Braun Trees}
 
 Examples from the second category
 include functions that operate on Braun trees, such as @tt{size_linear} and
@@ -72,7 +71,7 @@ the time complexity of the addition operation does not affect our analysis of th
 
 @(apply inline-code (extract size_log_sq_gen.v cdr))
 
-@section[#:style 'unnumbered]{A.3 @raw-latex{$\ \ $} The Third Category: Subtraction and Division Together}
+@section{Subtraction and Division Together}
 
 The copy functions, such as @tt{copy_log_sq}, exhibit a more complicated recursion pattern.
 These functions apply two primitives
@@ -122,7 +121,7 @@ primitive operations does not affect our analysis of their running time.
 	@list{Average running time of @tt{sub1} and @tt{div2}}
 	@diff-sub/div-plot]
 
-@section[#:style 'unnumbered]{A.4 @raw-latex{$\ \ $} The Fourth Category: Branching with Subtraction and Division}
+@section{Branching with Subtraction and Division}
 
 The fourth problematic recursion pattern appears in the implementation of
 @tt{diff}, reproduced below. In the body of the last pattern match, (@tt{bt_node x s t, S m'}),
@@ -147,12 +146,13 @@ be possible.
 
 
 @;{
+
 I was wrong about the recursion pattern for copy_linear, so that is still unaddressed,
 I need to think a bit more about whether or not it is covered by one of the cases
 discussed here, if not bringing back the plot and discussion from the old prims section
 might be the best thing to do
 
-The following is the old paragraph about copy_linear
+The following is the old paragraph about copy_linear.
 }
 
 @figure["fig:copy_linear-input"
@@ -166,7 +166,7 @@ The following is the old paragraph about copy_linear
                            copy_linear_sub1_points
                            copy_linear_sub1_bound))]
 
-@section[#:style 'unnumbered]{A.5 @raw-latex{$\ \ $} The Fifth Category: A Tree of Subtraction and Division}
+@section{A Tree of Subtraction and Division}
 
 Finally, the most complicated pattern is that used by @tt{copy_linear},
 which recursively calls itself on @tt{n/2} and
@@ -175,7 +175,7 @@ running time of the @tt{sub1} calls that @tt{copy_linear} makes. In
 gray is a plot of @raw-latex{$\lambda x. 31x + 29$}, which we believe
 is an upper bound for the function. Proving that the uses of @tt{div2}
 and @tt{sub1} in this function contribute only a linear factor to the
-overall runtime is a significant challenge. Comparing to our proof that
+overall runtime is a significant challenge. Compared to our proof that
 the primitive operations in functions like @tt{copy_log_sq} which deals with
 a linear sequence of operations, a proof for the primitive operations in
 @tt{copy_linear} must consider a tree of all possible sequences of the operations
@@ -186,7 +186,7 @@ down the tree, however, we have not attempted a formal proof of this claim.
 
 @(apply inline-code (extract copy_linear_gen.v cdr))
 
-@section[#:style 'unnumbered]{A.6 @raw-latex{$\ \ $} Conclusion}
+@section{Conclusion}
 
 The informal analysis presented above suggests that, although we have not
 accounted for all language primitives, our calculations of asymptotic run times

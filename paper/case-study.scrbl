@@ -8,8 +8,6 @@
 
 @title[#:tag "sec:case-study"]{Case Study}
 
-@; @figure*["fig:line-counts" "Line Counts"]{@build-table[]}
-
 To better understand how applicable our monad is, we implemented a
 variety of functions: search and insert for red-black trees, insertion
 sort, merge sort, both the naive recursive version of the
@@ -59,14 +57,18 @@ code for all of the functions in our case study.
 
 @section{Line Counts}
 
-Our supplementary material contains a detailed account of the
-lines of Coq code produced for our study. We separate the line counts
-into proofs that are inside obligations (and thus correspond to
-establishing that the monadic types are correct) and other lines of
-proofs. In total there are @line-count:total lines of code. There
-are @line-count:non-proof lines that are not proofs. There are
-@line-count:obligations lines of code in obligations and
-@line-count:other-proofs lines of other proofs.
+@figure*["fig:line-counts1" "Line Counts"]{@build-table[0]}
+@figure*["fig:line-counts2" "Line Counts (continued)"]{@build-table[1]}
+
+
+@Figure-ref["fig:line-counts1"] and @figure-ref["fig:line-counts2"]
+show a detailed account of the lines of Coq code produced for our
+study. We separate the line counts into proofs that are inside
+obligations (and thus correspond to establishing that the monadic
+types are correct) and other lines of proofs. In total there are
+@line-count:total lines of code. There are @line-count:non-proof lines
+that are not proofs. There are @line-count:obligations lines of code
+in obligations and @line-count:other-proofs lines of other proofs.
 
 We have built a library of general proofs about the monad (such as
 the monad laws), an asymptotic complexity library, a Log library, and

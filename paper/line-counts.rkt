@@ -12,72 +12,79 @@
 ;;  (listof <dir>)
 ;;  <dir> = (cons/c string?[dirname] (listof <problem>))
 ;;  <problem> = (cons/c <main-file> (listof <file>))
-(define braun-tree-classification
-  '(("copy"
-     ("copy_linear.v" "copy_linear_gen.v")
-     ("copy_fib_log.v" "copy_fib_log_gen.v")
-     ("copy_log_sq.v" "copy_log_sq_gen.v")
-     ("copy_log.v" "copy_log_gen.v" "copy2_gen.v"))
-    ("make_array"
-     ("make_array_nlogn1.v" "make_array_nlogn1_gen.v")
-     ("make_array_nlogn1_fold.v")
-     ("make_array_nlogn2.v" "make_array_nlogn2_gen.v" "unravel_gen.v")
-     ("make_array_linear.v" "make_array_linear_gen.v"
-      "rows.v" "rows1_gen.v" "rows_gen.v"
-      "take_drop_split.v" "drop_gen.v" "take_gen.v" "pad_drop_gen.v" "split_gen.v"
-      "foldr_build_gen.v"
-      "zip_with_3_bt_node_gen.v"
-      "build.v" "build_gen.v"))
-    ("size"
-     ("size_linear.v" "size_linear_gen.v")
-     ("size_log_sq.v" "diff_gen.v" "size_log_sq_gen.v"))))
 
-(define other-classification
-  '(("rbtrees"
-     ("rbtree.v"
-      "rbt_search.v"
-      "bst_search_gen.v")
-     ("rbt_insert.v"
-      "rbt_balance_gen.v"
-      "rbt_blacken_gen.v"
-      "rbt_insert_gen.v"
-      "rbt_insert_inner_gen.v"))
-    ("sort"
-     ("sorting.v")
-     ("isort.v"
-      "insert_gen.v"
-      "isort_gen.v")
-     ("merge_gen.v"
-      "mergesort.v"
-      "mergesort_gen.v"
-      "mergesortc_gen.v"
-      "split2_gen.v"
-      "clength_gen.v"))
-    ("fib"
-     ("fib.v"
-      "fib_iter.v"
-      "fib_iter_gen.v"
-      "fib_iter_loop_gen.v"
-      "fib_rec_gen.v"))
-    ("arith"
-     ("add1.v"
-      "add1_gen.v"
-      "plus.v"
-      "plus_cin_gen.v"
-      "plus_gen.v"
-      "mult.v"
-      "mult_gen.v"))
-    ("to_list"
-     ("to_list_naive.v" "cinterleave_gen.v" "to_list_naive_gen.v"))
-    ("zippers"
-     ("zip.v" "from_zip_gen.v" "insert_at_gen.v" "minsert_at_gen.v" "minsertz_at_gen.v"
-      "to_zip_gen.v" "zip_insert_gen.v" "zip_left_gen.v" "zip_leftn_gen.v"
-      "zip_minsert_gen.v" "zip_right_gen.v" "zip_rightn_gen.v"))))
+(define (line-count-class i j)
+  (match* (i j)
+    [(0 0)
+     '(("make_array"
+        ("make_array_nlogn1.v" "make_array_nlogn1_gen.v")
+        ("make_array_nlogn1_fold.v")
+        ("make_array_nlogn2.v" "make_array_nlogn2_gen.v" "unravel_gen.v")
+        ("make_array_linear.v" "make_array_linear_gen.v"
+         "rows.v" "rows1_gen.v" "rows_gen.v"
+         "take_drop_split.v" "drop_gen.v" "take_gen.v" "pad_drop_gen.v" "split_gen.v"
+         "foldr_build_gen.v"
+         "zip_with_3_bt_node_gen.v"
+         "build.v" "build_gen.v")))]
+    [(0 1)
+     '(("copy"
+        ("copy_linear.v" "copy_linear_gen.v")
+        ("copy_fib_log.v" "copy_fib_log_gen.v")
+        ("copy_log_sq.v" "copy_log_sq_gen.v")
+        ("copy_log.v" "copy_log_gen.v" "copy2_gen.v"))
+       ("size"
+        ("size_linear.v" "size_linear_gen.v")
+        ("size_log_sq.v" "diff_gen.v" "size_log_sq_gen.v"))    
+       ("to_list"
+        ("to_list_naive.v" "cinterleave_gen.v" "to_list_naive_gen.v")))]
+    [(1 0)
+     '(("rbtrees"
+        ("rbtree.v"
+         "rbt_search.v"
+         "bst_search_gen.v")
+        ("rbt_insert.v"
+         "rbt_balance_gen.v"
+         "rbt_blacken_gen.v"
+         "rbt_insert_gen.v"
+         "rbt_insert_inner_gen.v"))
+       ("zippers"
+        ("zip.v" "from_zip_gen.v" "insert_at_gen.v" "minsert_at_gen.v" "minsertz_at_gen.v"
+         "to_zip_gen.v" "zip_insert_gen.v" "zip_left_gen.v" "zip_leftn_gen.v"
+         "zip_minsert_gen.v" "zip_right_gen.v" "zip_rightn_gen.v"))
+       ("sort"
+        ("sorting.v")))]
+    [(1 1)
+     '(("sort"
+        ("isort.v"
+         "insert_gen.v"
+         "isort_gen.v")
+        ("merge_gen.v"
+         "mergesort.v"
+         "mergesort_gen.v"
+         "mergesortc_gen.v"
+         "split2_gen.v"
+         "clength_gen.v"))
+       ("fib"
+        ("fib.v"
+         "fib_iter.v"
+         "fib_iter_gen.v"
+         "fib_iter_loop_gen.v"
+         "fib_rec_gen.v"))
+       ("arith"
+        ("add1.v"
+         "add1_gen.v"
+         "plus.v"
+         "plus_cin_gen.v"
+         "plus_gen.v"
+         "mult.v"
+         "mult_gen.v")))]))
 
 (define (build-data-file)
   (define classes
-    (append other-classification
-            braun-tree-classification))
+    (append*
+     (for*/list ([i (in-range 2)]
+                 [j (in-range 2)])
+       (line-count-class i j))))
   (define info (collect-info classes))
   (define one-line-per-file
     (apply append
@@ -152,11 +159,13 @@
       (display (~a #:min-width l #:align 'right c)))
     (displayln "")))
 
-(define (build-table)
+(define (build-table i)
   (tabular
    #:sep @hspace[2]
-   (list (list (build-one-side-of-table other-classification #f)
-               (build-one-side-of-table braun-tree-classification #t)))))
+   (list (list (build-one-side-of-table (line-count-class i 0)
+                                        (and (= i 1) 'common))
+               (build-one-side-of-table (line-count-class i 1)
+                                        (and (= i 1) 'total))))))
 
 (define (count-a-dir dir)
   (compute-subtotal
@@ -166,7 +175,7 @@
 
 (struct line-info (proofs obligations non-proofs) #:transparent)
 
-(define (build-one-side-of-table classification total?)
+(define (build-one-side-of-table classification extra)
   (define info (collect-info classification))
   (define one-line-per-file
     (apply append
@@ -183,7 +192,7 @@
   (define all-rows
     (append one-line-per-file common-lines))
   (define (resize x)
-    (if (symbol? x) x (smaller x)))
+    (if (symbol? x) x (smaller (smaller x))))
   (define (resize-row x)
     (map resize x))
   (define (build-table-row row)
@@ -223,22 +232,27 @@
       (build-table-row row))
     (list blank-row)
 
-    (if total?
-        (list blank-row
-              (resize-row
-               (list @bold{Totals}
-                     (format-number (get-total all-rows line-info-non-proofs))
-                     (format-number (get-total all-rows line-info-obligations))
-                     (format-number (get-total all-rows line-info-proofs))))
-              (resize-row
-               (list (list @bold{Total number of lines:})
-                     (list (format-number
-                            (+ (get-total all-rows line-info-non-proofs)
-                               (get-total all-rows line-info-obligations)
-                               (get-total all-rows line-info-proofs))))
-                     "" "")))
-        (for/list ([row (in-list common-lines)])
-          (build-table-row row))))))
+    (match extra
+      ['total
+       (list blank-row
+             (resize-row
+              (list @bold{Totals}
+                    (format-number (get-total all-rows line-info-non-proofs))
+                    (format-number (get-total all-rows line-info-obligations))
+                    (format-number (get-total all-rows line-info-proofs))))
+             (resize-row
+              (list (list @bold{Total number of lines:})
+                    (list (format-number
+                           (+ (get-total all-rows line-info-non-proofs)
+                              (get-total all-rows line-info-obligations)
+                              (get-total all-rows line-info-proofs))))
+                    "" "")))]
+      ['common
+       (cons blank-row
+             (for/list ([row (in-list common-lines)])
+               (build-table-row row)))]
+      [_
+       (list)]))))
 
 (define/contract (get-total one-line-per-file sel)
   (-> (listof (or/c (cons/c any/c line-info?) #f)) any/c any/c)

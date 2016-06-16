@@ -121,9 +121,9 @@ property for @tt{A} is @tt{PA} and @tt{PB} for @tt{B}, then an attempt
 at a type for @tt{bind} is:
 @(apply inline-code (extract binds.v "bind1"))
 
-This definition is incorrect from the cost perspective, because it
-does not ensure that the cost for producing the @tt{A} is accounted
-for along with the cost of producing the @tt{B}.
+This definition is incorrect from the cost perspective, as it does not
+ensure that the cost for producing the @tt{A} is accounted for along
+with the cost of producing the @tt{B}.
 
 Suppose that the cost of generating the @tt{A} was @tt{7}, then we
 should transform the property of the @tt{B} computation to be @tt{fun
@@ -137,9 +137,12 @@ Unfortunately, this is far too strong of a statement because there are
 some costs @tt{an} that are too much. The only @tt{an} costs that our
 @tt{bind} proof must be concerned with are those that respect the
 @tt{PA} property given the @emph{actual} value of @tt{a} that the
-@tt{A} computation produced.  We can use a dependent type on @tt{bf}
-to capture the connection between the costs in a third attempt at the
-type for @tt{bind}.
+@tt{A} computation produced, rather than any possible result and cost.
+
+@raw-latex{\newpage}
+
+We can use a dependent type on @tt{bf} to capture the connection
+between the costs in a third attempt at the type for @tt{bind}.
 
 @(apply inline-code (extract binds.v "bind3"))
 

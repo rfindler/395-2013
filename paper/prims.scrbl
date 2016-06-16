@@ -115,12 +115,13 @@ Overall, the run time of the additions performed by @tt{fib}
 will dwarf the time required by subtraction. This justifies the fact that we do not
 explicitly consider the time taken by @tt{sub1} operations.
 
-Although we can account for the recursion pattern using @tt{sub1} described above that
-counts down from @tt{n} to @tt{0}, there are several other recursive uses of @tt{sub1}
-found in our library. For example, our implementations of @tt{copy2} and @tt{copy_insert}
-loop by subtracting @tt{1} then dividing by @tt{2}. As for @tt{fib}, we have not explicitly
-accounted for these other uses of @tt{sub1}. We do, however, believe that the overhead of
-using @tt{sub1} in these functions does not change their asymptotic
-@(if (getenv "BUILD-WITH-APPENDIX")
-@"complexity. Appendix A presents an informal argument in support of this claim. "
-@"complexity, but we have verified this only by testing and informal arguments.")
+Although we can account for the recursion pattern using @tt{sub1}
+described above that counts down from @tt{n} to @tt{0}, there are
+several other recursive uses of @tt{sub1} found in our library. For
+example, our implementations of @tt{copy2} and @tt{copy_insert} loop
+by subtracting @tt{1} then dividing by @tt{2}. As for @tt{fib}, we
+have not explicitly accounted for these other uses of @tt{sub1}. We
+do, however, believe that the overhead of using @tt{sub1} in these
+functions does not change their asymptotic complexity.  The following
+section (@secref["sec:appendix"]) presents an informal argument in
+support of this claim.

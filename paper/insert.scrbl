@@ -73,7 +73,7 @@ base 2 logarithm).
 
 These new @tt|{{! ... !}}| types are the types of
 computations in the monad. The monad tracks the running
-time as well as tracking the correctness property of the
+time and verifies the correctness property of the
 function.
 
 The body of the @tt{insert} function begins with the
@@ -90,13 +90,13 @@ steps, say @tt{n}. The result of @tt{+=} is also a
 computation in the monad just like the second argument,
 except that the running time is @tt{n+k}.
 
-In the non-empty case, the insertion function recurs with
-the right subtree and then builds a new tree with the subtrees
-swapped. This swapping is what preserves the Braun invariant. 
-Since we know that the left subtree's size is either equal to or one
-larger than the right's, when we add an element to the right and swap
-the subtrees, we end up with a new tree whose left
-subtree's size is either equal to or one greater than the right.
+In the non-empty case, the insertion function recurs with the right
+subtree and then builds a new tree with the subtrees swapped. This
+swapping preserves the Braun invariant: Since we know that the left
+subtree's size is either equal to or one larger than the right's, when
+we add an element to the right and swap the subtrees, we end up with a
+new tree whose left subtree's size is either equal to or one greater
+than the right.
 
 The @tt{«var» <- «expr» ; «expr»} notation is the monadic bind
 operator; using a @tt{let}-style notation. The first,
@@ -105,6 +105,8 @@ the result value is pulled out of the monad and bound to
 @tt{var} for use in the body expression.
 Then, as before, we return the new tree in the monad after treating
 this branch as a single abstract step of computation.
+
+@raw-latex{\newpage}
 
 We exploit @citet[Program-cite]'s @tt{Program} to simplify proving
 that these functions have their types. In this case, we are left with two
@@ -132,11 +134,11 @@ forall i j s t bt an n,
   Braun (bt_node j s t) n ->
   Braun (bt_node i bt s) (n + 1) /\ an + 1 = fl_log n + 1
 }
-Thus, we may assume a slightly more general
+Thus, we may assume a more general
 inductive hypothesis (the inner @tt{forall}) than we need
 (it is specialized to the recursive call that @tt{insert} makes, but
 not the size of the tree) and that the tree @tt{bt_node j s t} is a
-Braun tree of size n. So, we must show that @tt{bt_node i bt s} is a
+Braun tree of size @tt{n}. So, we must show that @tt{bt_node i bt s} is a
 Braun tree of size @tt{n + 1} and that the running time is correct.
 
 Because the size information is not present in the actual insertion

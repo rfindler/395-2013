@@ -1,4 +1,4 @@
-#lang scribble/lncs
+#lang scribble/elsarticle
 
 @(require "util.rkt" "cite.rkt" 
           scriblib/footnote
@@ -12,42 +12,43 @@
 
 @;@doi{@hspace[4] @bold{Draft as of @(date->string (seconds->date (current-seconds)))}}
 
-@authors[@author[#:inst "1"]{Jay McCarthy}
-         @author[#:inst "2"]{Burke Fetscher}
-         @author[#:inst "2"]{Max New}
-         @author[#:inst "2"]{@linebreak[] Daniel Feltey}
-         @author[#:inst "2"]{Robert Bruce Findler}]
+@frontmatter[
+             #:authors
+             (list @author{Jay McCarthy}
+                   @email["jay.mccarthy@gmail.com"]
+                   @address["University of Massachusetts at Lowell"]
+                   @author{Burke Fetscher}
+                   @email["burke.fetscher@eecs.northwestern.edu"]
+                   @author{Max New}
+                   @email["max.new@eecs.northwestern.edu"]
+                   @author{Daniel Feltey}
+                   @email["daniel.feltey@eecs.northwestern.edu"]
+                   @author{Robert Bruce Findler}
+                   @email["robby@eecs.northwestern.edu"]
+                   @address["Northwestern University"])
+             #:abstract
+             @abstract{
 
-@institutes[
-            @institute["University of Massachusetts at Lowell"
-                       @linebreak[]
-                       @email["jay.mccarthy@gmail.com"]]
-            @institute["Northwestern University"
-                       @linebreak[]
-                       @email["{burke.fetscher, max.new, daniel.feltey, robby}@eecs.northwestern.edu"]]
-]
-
-@abstract{
-
-This paper presents a Coq library that lifts an abstract yet precise
-notion of running-time into the type of a function. Our library is
-based on a monad that counts abstract steps, controlled by one of the
-monadic operations. The monad's computational content, however, is
-simply that of the identity monad so programs written in our
-monad (that recur on the natural structure of their arguments) extract
-into idiomatic OCaml code. We evaluated the expressiveness of the
-library by proving that red-black tree insertion and search, merge
-sort, insertion sort, Fibonacci, iterated list insertion, BigNum
-addition, and Okasaki's Braun Tree algorithms all have their expected
-running times.
+                       This paper presents a Coq library that lifts an
+abstract yet precise notion of running-time into the type of a
+function. Our library is based on a monad that counts abstract steps,
+controlled by one of the monadic operations. The monad's computational
+content, however, is simply that of the identity monad so programs
+written in our monad (that recur on the natural structure of their
+arguments) extract into idiomatic OCaml code. We evaluated the
+expressiveness of the library by proving that red-black tree insertion
+and search, merge sort, insertion sort, Fibonacci, iterated list
+insertion, BigNum addition, and Okasaki's Braun Tree algorithms all
+have their expected running times.
 
 }
+             ]
 
 @section{Introduction}
 
 For some programs, proving that they have correct input-output
 behavior is only part of the story. As @citet[complexity-dos]
-observed, incorrect performance characteristics can also lead
+observed, incorrect performance characteristics can lead
 to security vulnerabilities. Indeed, some programs and algorithms
 are valuable precisely because of their performance
 characteristics. For example, mergesort is preferable to insertion
@@ -80,11 +81,17 @@ example that is introduced in @secref["sec:insert"]. Following this
 preamble, @secref["sec:monad"] walks through the definition and design
 of the monad itself. @Secref["sec:case-study"] describes the results
 of our case study, wherein we proved properties of a variety of
-different functions. @Secref["sec:sub1"] discusses accounting for
-the runtimes of various language primitives. Finally,
-@secref["sec:related-work"] provides a detailed account of our relation
-to similar projects. Our source code and other supplementary material
-is available at @url{http://github.com/rfindler/395-2013}.
+different functions. @Secref["sec:sub1"] and @secref["sec:appendix"]
+discuss accounting for the runtimes of various language
+primitives. Finally, @secref["sec:related-work"] provides a detailed
+account of our relation to similar projects. Our source code and other
+supplementary material is available at
+@url{http://github.com/rfindler/395-2013}.
+
+@bold{Extended material:} Compared to the conference proceedings
+version of this paper, the present version contains more elaborate and
+detailed figures and proofs throughout, as well as the extended
+discussion of language primitive runtime of @secref["sec:appendix"].
 
 @include-section["insert.scrbl"]
 
@@ -97,6 +104,8 @@ is available at @url{http://github.com/rfindler/395-2013}.
 @include-section["case-study.scrbl"]
 
 @include-section["prims.scrbl"]
+
+@include-section["appendix.scrbl"]
 
 @include-section["related-work.scrbl"]
 	

@@ -3,8 +3,8 @@
 Provide insert.
 
 (* START: insert *)
-Program Fixpoint
-  insert {A:Set} (i:A) (b:@bin_tree A) 
+Program Fixpoint insert
+  {A:Set} (i:A) (b:@bin_tree A) 
 : @bin_tree A :=
 match b with
  | bt_mt => 

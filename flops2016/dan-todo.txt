@@ -1,0 +1,49 @@
+Due Diligence for Primitive Operations by function:
+
+1. copy2, copy_log_sq, copy_linear, copy_fib_log
+   - These all alternate performing sub1, div2, sub1, div2 ... in recursive
+     calls. Plotting and an informal argument suggest that these work out to
+     amortized constant time for each (div2 (sub1 _)) operation.
+
+2. size_linear
+   - Because of the braun invariant, the additions in this function should be
+     constant time operations
+
+3. fib, drop/take, pad_drop, insert_at, zip_leftn, zip_rightn
+   - These all decrease their argument linearly by one, always performing
+     sub1 on the argument results in amortized constant time for each sub1
+     operation
+
+4. clength
+   - this performs an addition at each iteration which should result in an
+     amortized constant time operation over all 
+
+5. mergesortc
+   - calls pred on the length of the list, but only when the length is
+     odd so this is a constant time operation
+
+6. size_log_sq
+   - The (+ 1 (* 2 m) zo) term does not take constant time when zo is 1, but
+     in the worst case that zo is 1 in every recursive call it would contribute
+     a cost on the order of (log m), because a factor of (log m) is already
+     accounted for in the time to compute (diff s m) at worst this would change
+     the constant factor of the runtime, the big_oh calculation should remanin
+     valid.
+
+7. diff
+   - diff has a complicated recursion pattern. When given an even number it
+     subtracts 2 then divides by 2. When given an odd number it subtracts 1 and
+     divides by 2 (both constant time operations in this case). Plots as well
+     as a similar argument to that for copy_linear suggests that this operation
+     is also amortized constant time.
+
+
+
+TODO:
+
+1. Turn due diligence regarding prim ops such as sub1 into an appendix that
+   discussed why it is ok to not explicitly account for these situations.
+
+
+   
+           

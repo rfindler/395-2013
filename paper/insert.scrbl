@@ -1,6 +1,7 @@
 #lang scribble/base
 @(require "util.rkt"
-          "cite.rkt" 
+          "cite.rkt"
+          scriblib/footnote
           scriblib/figure)
 
 @title[#:tag "sec:insert"]{Overview of Our Library}
@@ -34,18 +35,18 @@ definition.
 
 @(apply inline-code (extract braun.v "bin_tree"))
 
-To be able to state facts about Braun trees, however,
-we need the inductive @tt{Braun} to specify which binary trees
-are Braun trees (at a given size @tt{n}).
+To be able to state facts about Braun trees, however, we need the
+inductive @tt{Braun} to specify which binary trees are Braun trees (at
+a given size @tt{n})@note{The @tt{@"@"} in @tt{bin_tree} is to
+specify the implicit type argument.}.
 
 @(apply inline-code (extract braun.v "Braun"))
 
-This says that the empty binary tree is a Braun tree of size
-@tt{0}, and that if two numbers @tt{s_size}, @tt{t_size}
-are the sizes of two Braun trees @tt{s} @tt{t}, and if
-@tt{s_size <= t_size <= s_size + 1}, then combining
-the @tt{s} and @tt{t} into a single tree produces
-a Braun tree of size @tt{s_size+t_size+1}.
+This says that the empty binary tree is a Braun tree of size @tt{0},
+and that if two numbers @tt{s_size}, @tt{t_size} are the sizes of two
+Braun trees @tt{s} and @tt{t}, and if @tt{t_size <= s_size <= t_size +
+1}, then combining @tt{s} and @tt{t} into a single tree produces a
+Braun tree of size @tt{s_size+t_size+1}.
 
 @figure*["fig:insert"
         @list{Braun tree insertion}
@@ -69,7 +70,7 @@ Braun tree of size @tt{n}, then the result is a Braun tree
 of size
 @tt{n+1} and the function takes @tt{fl_log n + 1} steps
 of computation (where @tt{fl_log} computes the floor of the
-base 2 logarithm).
+base 2 logarithm and is defined as zero at zero).
 
 These new @tt|{{! ... !}}| types are the types of
 computations in the monad. The monad tracks the running
@@ -105,8 +106,6 @@ the result value is pulled out of the monad and bound to
 @tt{var} for use in the body expression.
 Then, as before, we return the new tree in the monad after treating
 this branch as a single abstract step of computation.
-
-@raw-latex{\newpage}
 
 We exploit @citet[Program-cite]'s @tt{Program} to simplify proving
 that these functions have their types. In this case, we are left with two

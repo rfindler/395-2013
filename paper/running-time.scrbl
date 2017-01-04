@@ -117,13 +117,13 @@ One disadvantage to the code in the previous section is that the
 running times are tangled with the body of the insertion function.
 Even worse, making mistakes when writing @tt{+=} expressions can
 produce un-provable claims or cause our proofs about the running times
-to be useless, as they will prove facts that are irrelevant
-to the functions we are using.
+to be incorrect and useless, as they will prove facts that are
+irrelevant to the functions we are using.
 
-To handle this situation, we've written a simple Coq-to-Coq
-translation function that accepts functions written in our
-monad without any @tt{+=} expressions and turns them into
-ones with @tt{+=} expressions in just the right places.
+To handle this situation, we have written a simple Coq-to-Coq
+translation function that accepts functions written in our monad
+without any @tt{+=} expressions and turns them into ones with @tt{+=}
+expressions in just the right places.
 
 Our translation function accepts a function written in the
 monad, but without the monadic type on its result, and produces
@@ -135,12 +135,14 @@ in the monadic result type. The user must define this function
 separately and the translation's output must be used in that
 context:
 @(apply inline-code (extract insert_log.v "insert_result"))
+
 Unlike the previous version, this one accounts for the larger constant
-factors and it also includes a stricter correctness
-condition. Specifically, the new conjunct uses @tt{SequenceR} (a
-proposition from our library) to insist that if you linearize the resulting
-Braun tree into a list, then it is the same as linearizing the input
-and consing the new element onto the front of the list.
+factors and it also includes a stricter correctness condition to show
+that we establish complete functional correctness. Specifically, the
+new conjunct uses @tt{SequenceR} (a proposition from our library) to
+insist that if you linearize the resulting Braun tree into a list,
+then it is the same as linearizing the input and consing the new
+element onto the front of the list.
 
 Rather than develop a novel, and potentially controversial cost
 semantics, we show the utility of our monad by adopting the
@@ -158,7 +160,17 @@ Our translation function is straightforward and is included in the
 supplementary materials (@tt{add-plusses/check-stx-errs} in
 @tt{rkt/tmonad/main.rkt}). Our monad could support different cost
 semantics, without modification, provided a function could map them to
-the program's syntax in a straightforward way.
+the program's syntax in a straightforward way and provided they met
+certain constraints. Specifically, we assume that costs are
+compositionally additive. This means that a live heap consumption
+cost, such as @citet[albert-heap] or @citet[montenegro-space] could
+not be used. However, a semantics like
+@citet[machine-checked-union-find]'s that only counts unit cost at
+function entry would be simple. We implement a simplified semantics
+like this. It is particularly interesting because the default,
+specific semantics treats all arithmetic operations as having unit
+cost, which may not be the most reliable measure as we discuss in
+@secref["sec:sub1"].
 
 An alternative approach would be to follow
 @citet[static-cost-analysis] and build a Coq model of a machine and
@@ -167,5 +179,6 @@ machine and prove its soundness with respect to the machine's
 reduction lengths. Finally, we would show that our monadic types allow
 incremental proofs of their cost results. In some sense, this ``deep
 embedding'' would be a more direct study of cost and cost proofs, but
-it would be no more directly connected with the running time of the programs,
-unless we could establish a connection to the OCaml VM.
+it would be no more directly connected with the running time of the
+programs, unless we could establish a connection to the OCaml VM and
+the hardware itself.

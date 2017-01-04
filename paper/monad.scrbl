@@ -27,13 +27,13 @@ we define @tt{C}:
 
 For a given @tt{A} and @tt{P}, @tt{C A P} is a dependent pair of
 @tt{a}, a value of type @tt{A}, and a proof that there exists some
-natural number @tt{an} related to @tt{a} by @tt{P}.
-The intention is to think of the natural number as the running
-time and @tt{P} as some specification of running time (and possibly
-also correctness) specific to the particular function.
-Importantly, the right-hand side of this pair is a proposition,
-so it contributes no computational content when extracted into OCaml.
-To see this in practice, consider @tt{insert}'s result type:
+natural number @tt{an} related to @tt{a} by @tt{P}.  The intention is
+to think of the natural number as the running time and @tt{P} as like
+a post-condition that includes some specification of running time (and
+also correctness) specific to the particular function.  Importantly,
+the right-hand side of this pair is a proposition, so it contributes
+no computational content when extracted into OCaml.  To see this in
+practice, consider @tt{insert}'s result type:
 @inline-code|{
 : {! res !:! @bin_tree A !<! c !>!
      (forall n, Braun b n -> (Braun res (n+1) /\ c = fl_log n + 1)) !}
@@ -88,10 +88,11 @@ that takes exactly one step to compute. We represent such a program with the exp
  += 1; <== a
 }
 We would like our proof obligation for this expression to be @tt{P a
-1}.  We know, however that the obligation on @tt{<==}, namely @tt{P a
-0}, is irrelevant or worse, wrong. There is a simple way out of this
-bind: what if the @tt{P} for the @tt{ret} were different than the
-@tt{P} for of the entire expression? In code, what if the obligation
+1}.  We know, however, that the obligation on @tt{<==}, namely @tt{P a
+0}, is irrelevant or worse, wrong, because one unit of cost should be
+accounted for and it accounts for none. There is a simple way out of
+this bind: what if the @tt{P} for the @tt{ret} were different than the
+@tt{P} for the entire expression? In code, what if the obligation
 were @tt{P' a 0}?  At worst, such a change would be irrelevant because
 there may not be a connection between @tt{P'} and @tt{P}. But, we can
 choose a @tt{P'} such that @tt{P' a 0} is the same as @tt{P a 1}.
@@ -138,8 +139,6 @@ some costs @tt{an} that are too much. The only @tt{an} costs that our
 @tt{bind} proof must be concerned with are those that respect the
 @tt{PA} property given the @emph{actual} value of @tt{a} that the
 @tt{A} computation produced, rather than any possible result and cost.
-
-@raw-latex{\newpage}
 
 We can use a dependent type on @tt{bf} to capture the connection
 between the costs in a third attempt at the type for @tt{bind}.
@@ -192,7 +191,7 @@ differently, they imply each other. In particular, for that pair of
 expressions, one proves that @tt{(n_m + (n_f + n_g))} is an accurate
 prediction of running time and the other proves that @tt{((n_m + n_f)
 + n_g)} is an accurate prediction of running time, which are
-equivalant statements.
+equivalent statements.
 
 In summary, the monad works by requiring the verifier to predict the
 running-time in the @tt{PA} property and then prove that the actual

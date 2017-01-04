@@ -238,3 +238,36 @@
    #:title "Denial of Service via Algorithmic Complexity Attacks"
    #:location (proceedings-location usenix-sec)
    #:date 2003))
+
+(define albert-heap
+  (make-bib
+   #:author (authors "Elvira Albert" "Samir Genaim"
+                     "Miguel Gomez-Zamalloa")
+   #:title "Heap space analysis for garbage collected languages"
+   #:location (journal-location "Science of Computer Programming" #:volume 78)
+   #:date 2013))
+
+(define montenegro-space
+  (make-bib
+   #:author (authors "Manuel Montenegro" "Ricardo Peña"
+                     "Clara Segura")
+   #:title "Space consumption analysis by abstract interpretation: Inference of recursive functions"
+   #:location (journal-location "Science of Computer Programming" #:volume 111)
+   #:date 2014))
+
+(define jost-carbon
+  (make-bib
+   #:author (authors "Steffan Jost" "Hans-Wolfgang Loidl"
+                     "Kevin Hammond" "Normal Scaife" "Martin Hofmann")
+   #:title "Carbon Credits for Resource-Bounded Computations Using
+Amortised Analysis"
+   #:location "Formal Methods"
+   #:date 2009))
+
+(define aspinall-program
+  (make-bib
+   #:author (authors "David Aspinall" "Lennart Beringer" "Martin Hofmann"
+                     "Hans-Wolfgang Loidl" "Alberto Momigliano")
+   #:title "A Program Logic for Resources"
+   #:location (journal-location "Journal of Theoretical Computer Science" #:volume 389 #:number 3)
+   #:date 2007))

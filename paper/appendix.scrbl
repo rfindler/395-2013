@@ -29,7 +29,7 @@ may lead to formal proofs.
 
 @section{Linear Addition and Subtraction}
 
-The first of category of recursion patterns includes functions that perform a single @tt{add1} or @tt{sub1}
+The first category of recursion patterns includes functions that perform a single @tt{add1} or @tt{sub1}
 operation in each recursive call that count up or down in a completely
 linear fashion. This pattern appears in the iterative @tt{fib} function
 as discussed in @secref["sec:sub1"], where we argue that performing @tt{sub1}
@@ -123,24 +123,30 @@ primitive operations does not affect our analysis of their running time.
 
 @section{Branching with Subtraction and Division}
 
-The fourth problematic recursion pattern appears in the implementation of
-@tt{diff}, reproduced below. In the body of the last pattern match, (@tt{bt_node x s t, S m'}),
-the function branches on the parity of its input, @raw-latex{$m$}, and if the
-input is even subtracts 2 then divides by 2, in the odd case we see the
-recursion described above of subtracting 1 then dividing by 2. Clearly, if
-control flow never reaches the even case then these operations are constant time
-and we may safely ignore them. If the evaluation of @tt{diff} does reach the even
-case, however, then we must be certain that the subtraction and division operations
-do not change our analysis. Subtracting 1 twice from an even number takes logarithmic
-time in the worst case. The first subtraction may traverse the entire number, but the second
-subtraction is from an odd number and takes constant time. @Figure-ref["fig:diff-sub-div"]
-presents a plot of the average@note{The average here is the toal amount of abstract time used by the
-primitive operations in a call to @tt{diff} divided by the number of recursive calls.}
-amount of abstract time required by subtraction and division
-in each recursive call of @tt{diff}. Although the graph only extends from 0 to
-1024 this pattern extends to larger numbers as well. The plot suggests that primitive operations
-used by @tt{diff} require only amortized constant time and suggest that a proof of this claim should
-be possible.
+The fourth problematic recursion pattern appears in the implementation
+of @tt{diff}, reproduced below. In the body of the last pattern
+match, (@tt{bt_node x s t, S m'}), the function branches on the parity
+of its input, @raw-latex{$m$}, and if the input is even subtracts 2
+then divides by 2, in the odd case we see the recursion described
+above of subtracting 1 then dividing by 2. Clearly, if control flow
+never reaches the even case then these operations are constant time
+and we may safely ignore them. If the evaluation of @tt{diff} does
+reach the even case, however, then we must be certain that the
+subtraction and division operations do not change our
+analysis. Subtracting 1 twice from an even number takes logarithmic
+time in the worst case. The first subtraction may traverse the entire
+number, but the second subtraction is from an odd number and takes
+constant time. @Figure-ref["fig:diff-sub-div"] presents a plot of the
+average@note{The average here is the toal amount of abstract time used
+by the primitive operations in a call to @tt{diff} divided by the
+number of recursive calls.}  amount of abstract time required by
+subtraction and division in each recursive call of @tt{diff}. Although
+the graph only extends from 0 to 1024 this pattern extends to larger
+numbers as well. The plot suggests that primitive operations used by
+@tt{diff} could be characterized. We speculate it requires only
+amortized constant time, although it appears less than linear. The
+plot suggests that a proof of this claim should be possible, but we
+leave the detailed analysis and formalization to future work.
 
 @(apply inline-code (extract diff_gen.v cdr))
 
@@ -188,15 +194,23 @@ down the tree, however, we have not attempted a formal proof of this claim.
 
 @section{Conclusion}
 
-The informal analysis presented above suggests that, although we have not
-accounted for all language primitives, our calculations of asymptotic run times
-remain unchanged. We have presented arguments that support that it is safe to ignore
-certain uses of language primitives, providing proof where possible and suggesting
-directions for more formal arguments in the remaining cases.
+The informal analysis presented above suggests that, although we have
+not accounted for all language primitives, our calculations of
+asymptotic run times remain unchanged. We have presented arguments
+that support that it is safe to ignore certain uses of language
+primitives, providing proof where possible and suggesting directions
+for more formal arguments in the remaining cases. A goal of our future
+work is to formalize these arguments in Coq.
 
-
-
-
+An alternative approach is to assign a symbolic constant to the the
+cost of each one of these primitives following @citet[jost-carbon] and
+@citet[aspinall-program]. This amounts to a vector-based cost
+semantics where each element of the vector records the number of times
+the corrresponding operation is used. Since this is compostionally
+additive, it may be used in place of our default semantics. This
+approach would lend itself well to experimentally estimating the
+costs, to formalize them separated, or to collapsing them into
+units (as we do in the present version).
 
 
 

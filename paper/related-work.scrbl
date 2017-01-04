@@ -28,14 +28,14 @@ implementation away from an idiomatic style.  Also, his monad leaves
 natural numbers in the extracted code; avoiding that is a major goal
 of this work.
 
-While @citet[resource-bound-certification]'s work does not
-leverage the full expressiveness of a theorem proving system
-like Coq's, it does share a similar resemblance to our approach.
-Also like 
+While @citet[resource-bound-certification]'s work does not leverage
+the full expressiveness of a theorem proving system like Coq's, it
+does share a similar resemblance to our approach in that it verifies
+the bounded termination of programs but does not infer them.  Also
+like
 @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s
-and unlike ours, it does not provide a place to carry an
-invariant of the data structures that can be used to
-establish running times.
+and unlike ours, it does not provide a place to carry an invariant of
+the data structures that can be used to establish running times.
 
 @citet[a-machine-checked-proof-of-the-average-case-complexity-of-quicksort-in-coq]
 give a proof of the average case complexity of Quicksort
@@ -61,8 +61,7 @@ correct.
 balanced binary tree implementations in Coq with proofs of 
 correctness (but not running time), with the goal of high-quality 
 extraction. They use an ``external'' approach, where the types
-do not carry the running time information, which makes the proofs
-more complex.
+do not carry the running time information, whereas we use an ``internal'' approach. We discuss the distinction and our preference in @secref["sec:insert"].
 
 @citet[hoare-logic-state-monad]'s Hoare state monad is like our
 monad in that it exploits monadic structure to 
@@ -73,13 +72,16 @@ is not erased during extraction.
 @citet[characteristic-formulae-for-mechanized-program-verification]
 and @citet[machine-checked-union-find]'s characteristic formula
 generator seems to produce Coq code with obligations similar to what
-our monad produces, but it does not consider running time.
+our monad produces, so that you may reason about the time resources
+consumed by the program. They use a different notion of resources,
+specifically the number of function entry points visited.
 
 Others have explored automatic techniques for proving that programs
 have particular resource bounds using a variety of
 techniques@~cite[speed auto-parallel auto-heap
-recursion-in-bounded-space] These approaches are all weaker than our
-approach, but provide more automation.
+recursion-in-bounded-space] These approaches are all less expressive
+and apply to fewer programs as compared to our approach, but provide
+more automation and so, are better when they work.
 
 Similarly, others have explored different approaches for accounting for
 various resource bounds and costs, but we do not provide any
@@ -107,12 +109,13 @@ program, which would greatly obscure the code's connection to the
 original algorithm, as one does in
 @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures].
 
-We have experimented with supporting proofs about imperative programs
-by combining our monad's types with a variation of the
-@citet[hoare-logic-state-monad] and @citet[dijkstra-monad] monads. The
-types and proofs work out, but are considerably more complicated, due
-in part to the complexity of proofs about imperative programs. We
-consider it future work to study whether there is a more
+@citet[machine-checked-union-find]'s work supports imperative code,
+whereas we have only experimented with supporting proofs about
+imperative programs by combining our monad's types with a variation of
+the @citet[hoare-logic-state-monad] and @citet[dijkstra-monad]
+monads. The types and proofs work out, but are considerably more
+complicated, due in part to the complexity of proofs about imperative
+programs. We consider it future work to study whether there is a more
 elegant approach and develop a detailed case study.
 
 @; is this related?

@@ -48,7 +48,7 @@ One of the more interesting uses is in the linear version of
 @tt{size}, which has the sum @tt{lsize+rsize+1} where @tt{lsize} and
 @tt{rsize} are the sizes of two subtrees of a Braun tree. This
 operation, at first glance, doesn't seem to take constant-time. But
-the Braun invariant tells us that @tt{lsize} and @tt{rsize} are either
+the Braun invariant tells us either that @tt{lsize} and @tt{rsize} are
 equal, or that @tt{lsize} is @tt{rsize+1}. Accordingly, this operation
 can be replaced with either @tt{lsize*2+1} or @tt{lsize*2}, both of
 which are constant-time operations. Checking to see which case applies
@@ -63,19 +63,21 @@ which requires linear time when additions are not counted, requires
 quadratic time when we properly account for primitive operations.
 
 Our implementation of addition has a run time that is linear in the
-number of bits of its input. Using this fact, we can prove
-that iterative @tt{fib} has a run time that is asymptotic to the square of its input.
-To prove that @tt{fib}'s run time is bounded below by @raw-latex{$n^2$}, we first observe that for all
-@raw-latex{$ n \geq 6$} we have that @raw-latex{$ 2^{n/2} \leq fib(n)$}.
-In the @raw-latex{$n$}th iteration of the loop, @tt{fib} adds numbers with
+number of bits of its input. Using this fact, we can prove that
+iterative @tt{fib} has a run time that is asymptotic to the square of
+its input.  To prove that @tt{fib}'s run time is bounded below by
+@raw-latex{$n^2$}, we first observe that for all @raw-latex{$ n \geq
+6$} we have that @raw-latex{$ 2^{n/2} \leq fib(n)$}.  In the
+@raw-latex{$n$}th iteration of the loop, @tt{fib} adds numbers with
 @raw-latex{$\frac{n}{2}$} bits in their binary representation, which
-takes time on the order of @raw-latex{$\frac{n}{2}$}.
-For large enough @raw-latex{$n$}, this implies that the run time of the
+takes time on the order of @raw-latex{$\frac{n}{2}$}.  For large
+enough @raw-latex{$n$}, this implies that the run time of the
 additions in the iterative @tt{fib} function are bounded below by
-@raw-latex{$\frac{1}{2}(6 + 7 + \cdots + n$}). This sum has a quadratic lower bound.
-Since the other primitives used in calculating @tt{fib}
-run in constant time, the run time is dominated by the addition operations,
-thus the run time of @tt{fib} is bounded below by a factor of @raw-latex{$n^2$}.
+@raw-latex{$\frac{1}{2}(6 + 7 + \cdots + n$}). This sum has a
+quadratic lower bound.  Since the other primitives used in calculating
+@tt{fib} run in constant time, the run time is dominated by the
+addition operations, and thus the run time of @tt{fib} is bounded
+below by a factor of @raw-latex{$n^2$}.
 
 A similar argument shows that the run time of @tt{fib} has a quadratic upper bound.
 Combining these two results proves that the run time of the iterative version of @tt{fib}

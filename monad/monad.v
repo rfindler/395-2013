@@ -34,11 +34,11 @@ Defined.
 
 (* START: inc *)
 Definition inc (A:Set) k (PA : A -> nat -> Prop)
-           (x:C A (fun x xn => forall xm, xn + k = xm -> PA x xm))
+           (xc:C A (fun x xn => forall xm, xn + k = xm -> PA x xm))
 : C A PA.
 (* STOP: inc *)
 Proof.
-  destruct x as [x Px].
+  destruct xc as [x Px].
   exists x.
   destruct Px as [n Px].
   exists (n + k).

@@ -1,4 +1,4 @@
-GEN := $(shell find . -type f -name '*_gen.rkt' $)
+EN := $(shell find . -type f -name '*_gen.rkt' $)
 VS := $(shell find . -type f -name '*v' | grep -v _gen.v $)
 VERSIONS := tmonad
 GEN_DEPS := rkt/tmonad/emit.rkt rkt/tmonad/main.rkt rkt/tmonad/coq.rkt
@@ -26,10 +26,12 @@ DNE:
 
 code: coq extract/extract
 
-paper/paper-appendix.pdf: paper/paper.pdf
-	(cd paper; rm paper.pdf && env BUILD-WITH-APPENDIX=true scribble --pdf paper.scrbl && mv paper.pdf paper-appendix.pdf)
+# this might work for the flops version; it doesn't
+# work the version currently in paper/
+#paper/paper-appendix.pdf: paper/paper.pdf
+#	(cd paper; rm paper.pdf && env BUILD-WITH-APPENDIX=true scribble --pdf paper.scrbl && mv paper.pdf paper-appendix.pdf)
 
-paper/paper.pdf: paper/paper.scrbl paper/util.rkt paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl paper/related-work.scrbl paper/appendix.scrbl */*.v code
+paper/paper.pdf: paper/paper.scrbl paper/util.rkt paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl paper/related-work.scrbl */*.v code
 	(cd paper; raco make -v paper.scrbl && scribble --pdf paper.scrbl; cd ..)
 
 paper/paper.tex: paper/paper.pdf

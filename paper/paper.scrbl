@@ -84,8 +84,8 @@ example that is introduced in @secref["sec:insert"]. Following this
 preamble, @secref["sec:monad"] walks through the definition and design
 of the monad itself. @Secref["sec:case-study"] describes the results
 of our case study, wherein we proved properties of a variety of
-different functions. @Secref["sec:sub1"] and @secref["sec:appendix"]
-discuss accounting for the runtimes of various language
+different functions. @Secref["sec:prims"]
+discusses accounting for the runtimes of various language
 primitives. Finally, @secref["sec:related-work"] provides a detailed
 account of our relation to similar projects. Our source code and other
 supplementary material is available at
@@ -94,7 +94,7 @@ supplementary material is available at
 @bold{Extended material:} Compared to the conference proceedings
 version of this paper, the present version contains more elaborate and
 detailed figures and proofs throughout, as well as the extended
-discussion of language primitive runtime of @secref["sec:appendix"].
+discussion of language primitive runtimes in @secref["sec:prims"].
 
 @include-section["insert.scrbl"]
 
@@ -107,8 +107,6 @@ discussion of language primitive runtime of @secref["sec:appendix"].
 @include-section["case-study.scrbl"]
 
 @include-section["prims.scrbl"]
-
-@include-section["appendix.scrbl"]
 
 @include-section["related-work.scrbl"]
 	

@@ -170,7 +170,7 @@ function entry would be simple. We implement a simplified semantics
 like this. It is particularly interesting because the default,
 specific semantics treats all arithmetic operations as having unit
 cost, which may not be the most reliable measure as we discuss in
-@secref["sec:sub1"].
+@secref["sec:prims"].
 
 An alternative approach would be to follow
 @citet[static-cost-analysis] and build a Coq model of a machine and

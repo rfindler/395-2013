@@ -17,7 +17,7 @@ the function executes.
 
 To give a sense of how code using our library looks,
 we start with a definition of Braun trees@~cite[Braun]
-and the insertion function where the contributions to the running time
+and the insertion function, where the contributions to the running time
 are explicitly declared as part of the body of the function.
 In the next section, we make the running times implicit
 (and thus not trusted or spoofable).
@@ -57,9 +57,9 @@ Braun tree of size @tt{s_size+t_size+1}.
 Let us dig into this function, one line at a time.
 It accepts an object @tt{i} (of type @tt{A}) to insert into
 the Braun tree @tt{b}. Its result type uses a special notation:
-@tt|{
-  {! «result id» !:! «simple type» !<! «running time id !>! «property» !}
-  }|
+@centered{@tt|{
+  {! «result id» !:! «simple type» !<! «cost id» !>! «property» !}
+  }|}
 where the braces, exclamation marks, colons, less than, and
 greater than are all fixed parts of the syntax and the 
 portions enclosed in « » are filled in based on the

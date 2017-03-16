@@ -31,18 +31,18 @@
 
                        This paper presents a Coq library that lifts an
 abstract yet precise notion of running-time into the type of a
-function. Our library is based on a monad that counts abstract steps,
-controlled by one of the monadic operations. The monad's computational
+function. Our library is based on a monad that counts abstract steps.
+The monad's computational
 content, however, is simply that of the identity monad so programs
 written in our monad (that recur on the natural structure of their
-arguments) extract into idiomatic OCaml code. We evaluated the
-expressiveness of the library by proving that red-black tree insertion
-and search, merge sort, insertion sort, Fibonacci, iterated list
-insertion, BigNum addition, and Okasaki's Braun Tree algorithms all
-have their expected running times.
+arguments) extract into idiomatic OCaml code.
 
-}
-             ]
+  We evaluated the
+expressiveness of the library by proving that red-black tree insertion
+and search, merge sort, insertion sort, various Fibonacci number implementations,
+iterated list insertion, BigNum addition, and Okasaki's Braun Tree algorithms all
+have their expected running times.
+}]
 
 @section{Introduction}
 
@@ -60,14 +60,17 @@ able to state these intensional properties.
 Our work provides a monad (implemented as a library in Coq) that
 enables us to include abstract running times in types. We use this
 library to prove several important algorithms have their expected
-running times.  Our library has two benefits over
-@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s.
+running times.
+
+Our has similar goals to
+@citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s,
+but with two benefits.
 First, it allows programmers
 to write idiomatic code without embedding invariants in data types,
 so we can reason about a wider variety of programs. Second, and more
 significantly, our monad adds no complexity
-computations to the extracted OCaml code, so it has no verification
-overhead on running time.  We elaborate these details and differences
+computations to the extracted OCaml code, so the verification
+imposes no run-time overhead.  We elaborate these details and differences
 throughout the paper and, in particular, in
 @secref["sec:related-work"].
 

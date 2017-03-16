@@ -28,7 +28,10 @@ digits in some large base and grade-school arithmetic
 algorithms implement the various operations. 
 Most of these operations do not take constant time.
 
-If we assume that the base is a power of 2@note{This is the case if BigNums are represented as lists of bits},
+If we assume that the base is a power of two@note{This is the case if BigNums are
+ represented as lists of bits. Most libraries use a larger base; e.g.,
+ OCaml's library uses @raw-latex{$2^{30}$} as the base; GMP uses either
+ @raw-latex{$2^{32}$} or @raw-latex{$2^{64}$}, depending on configuration parameters.},
 then division by 2, evenness testing, and checking to see if a number is equal to 0 are all
 constant-time operations. The algorithms in our study use two other
 numeric operations: @tt{+} and @tt{sub1}

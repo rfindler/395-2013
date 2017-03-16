@@ -34,6 +34,7 @@
         ("copy_log.v" "copy_log_gen.v" "copy2_gen.v"))
        ("size"
         ("size_linear.v" "size_linear_gen.v")
+        ("size_linear_bin.v" "size_linear_bin_gen.v")
         ("size_log_sq.v" "diff_gen.v" "size_log_sq_gen.v"))    
        ("to_list"
         ("to_list_naive.v" "cinterleave_gen.v" "to_list_naive_gen.v")))]

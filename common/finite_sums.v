@@ -97,6 +97,7 @@ Qed.
 
 Definition shift (f : nat -> nat) : nat -> nat := (fun n => f (S n)).
 Definition shift_by (k : nat) (f : nat -> nat) : nat -> nat := (fun n => f (n + k)).
+Definition shift_2x (f : nat -> nat) : nat -> nat := fun n => f (n+n).
 
 Lemma shift_by_0 : forall f n, shift_by 0 f n= f n.
 Proof. intros. unfold shift_by. rewrite plus_0_r. auto.
@@ -438,4 +439,49 @@ Proof.
   intros.
   unfold const.
   apply H. auto.
+Qed.
+
+Lemma sum_div2 :
+  forall n f,
+    sum 0 (S n) f = sum 0 (div2 (S n)) (shift_2x f) +
+                    sum 0 (div2 n) (shift_2x (shift f)).
+Proof.
+  intros n f.
+  induction n.
+
+  unfold shift_2x; unfold shift; auto.
+
+  rewrite sum_S_j; [|omega].
+  rewrite IHn.
+
+  destruct (even_or_odd (S n)).
+  rewrite (even_div2 (S n)); auto.
+  assert (sum 0 (div2 n) (shift_2x (shift f)) + f (S (S n))
+          =
+          sum 0 (div2 (S (S n))) (shift_2x (shift f)));[|omega].
+  replace (div2 (S (S n))) with (S (div2 n));[|simpl;auto].
+  rewrite sum_S_j;[|omega].
+  assert (f (S (S n)) = shift_2x (shift f) (S (div2 n)));[|omega].
+  unfold shift_2x; unfold shift.
+  replace (S (S (div2 n) + S (div2 n))) with (S (S n));auto.
+  rewrite odd_double at 1; auto.
+  constructor.
+  auto.
+
+  rewrite <- (odd_div2 (S n)); auto.
+  rewrite sum_S_j;[|omega].
+  rewrite (even_div2 n).
+  assert (f (S (S n)) = shift_2x f (S (div2 (S n))));[|omega].
+
+  unfold shift_2x.
+  assert (S (S n) = S (div2 (S n)) + S (div2 (S n)));auto.
+  rewrite even_double at 1; auto.
+  replace (div2 (S (S n))) with (S (div2 n));auto.
+  replace (div2 (S n)) with (div2 n).
+  unfold double.
+  omega.
+  rewrite even_div2; auto.
+  inversion H; auto.
+  constructor; auto.
+  inversion H; auto.
 Qed.

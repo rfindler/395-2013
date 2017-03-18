@@ -176,3 +176,34 @@ Proof.
   apply cl_log_O_fl_log.
 Qed.
 
+Lemma sub1_time_double : forall n, sub1_time (S(n+n)) = 8.
+Proof.
+  intros.
+  unfold_sub sub1_time (sub1_time (S (n+n))).
+  fold sub1_time.
+  destruct (even_odd_dec (S (n+n))); auto.
+  assert False; [|intuition].
+  apply (not_even_and_odd (S (n+n))); auto.
+  constructor.
+  apply double_is_even.
+Qed.
+
+Lemma sub1_time_S_double : forall n, sub1_time (n+n) <= sub1_time n + 12.
+Proof.
+  intros.
+  destruct n.
+  replace (0+0) with 0; omega.
+  
+  replace (S n + S n) with (S (S (n+n)));[|omega].
+  unfold_sub sub1_time (sub1_time (S (S (n+n)))).
+  fold sub1_time.
+  destruct (even_odd_dec (S (S (n+n)))).
+  replace (n+n) with (2*n);[|omega].
+  rewrite div2_double.
+  omega.
+  assert False;[|intuition].
+  apply (not_even_and_odd (S (S (n+n)))); auto.
+  constructor.
+  constructor.
+  apply double_is_even.
+Qed.

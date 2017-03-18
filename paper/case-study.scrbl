@@ -74,7 +74,7 @@ We have built a library of general proofs about the monad (such as the
 monad laws), an asymptotic complexity library, a Log library, and some
 common facts and definitions about Braun trees. This library accounts
 for over 25% of the code of each category. The arithmetic
-proofs that do not involve logarithms, multiplication, or evenness
+proofs that do not involve logarithms, multiplication, division by 2, or evenness
 are dispatched by the standard Coq tactic @tt{omega}.
 
 With the exception of the @tt{make_array_linear} and the red-black

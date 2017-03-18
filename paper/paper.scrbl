@@ -19,7 +19,7 @@
                    @address["University of Massachusetts at Lowell"]
                    @author{Burke Fetscher}
                    @email["burke.fetscher@eecs.northwestern.edu"]
-                   @author{Max New}
+                   @author{Max S. New}
                    @email["max.new@eecs.northwestern.edu"]
                    @author{Daniel Feltey}
                    @email["daniel.feltey@eecs.northwestern.edu"]

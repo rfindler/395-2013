@@ -3,7 +3,6 @@ Require Import Braun.common.util Braun.common.big_oh Braun.common.le_util.
 Require Import Arith Arith.Even Arith.Div2.
 Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith Init.Wf.
 Require Import Braun.arith.sub1.
-Require Import Coq.Logic.FunctionalExtensionality.
 
 Include WfExtensionality.
 
@@ -88,15 +87,6 @@ Qed.
 
 Definition sub1_linear_time4 n := sum 0 n (fun n => sub1_time n).
 
-(* probably this could be done in a way that doesn't require extensionality *)
-Lemma sub1_time_double_extensionality : (fun n => sub1_time (S(n+n))) = fun n => 8.
-Proof.
-  apply functional_extensionality.
-  intros.
-  rewrite sub1_time_double.
-  auto.
-Qed.
-
 Lemma sub1_linear_time4_linear : big_oh sub1_linear_time4 (fun n => n).
 Proof.
   exists 1.
@@ -120,7 +110,11 @@ Proof.
   rewrite sum_div2.
   unfold shift_2x.
   unfold shift.
-  rewrite sub1_time_double_extensionality.
+
+  replace (sum 0 (div2 (S n)) (fun n0 : nat => sub1_time (S (n0 + n0))))
+  with (sum 0 (div2 (S n)) (fun n0 => 8));
+    [|apply sum_extensionality; intros; rewrite sub1_time_double; auto].
+
   unfold sub1_linear_time4 in IND.
   
   apply (le_trans

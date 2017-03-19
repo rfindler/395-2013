@@ -104,8 +104,8 @@ This proof has not been formalized in Coq.
 
 @section{Branching with Subtraction and Division}
 
-The fourth problematic recursion pattern appears in the implementation
-of @tt{diff}, reproduced below. In the body of the last pattern
+The implementation of @tt{diff}, reproduced below, exposes another
+problematic recursion pattern. In the body of the last pattern
 match, (@tt{bt_node x s t, S m'}), the function branches on the parity
 of its input, @raw-latex{$m$}, and if the input is even subtracts 2
 then divides by 2, in the odd case we see the recursion described
@@ -144,9 +144,8 @@ leave the detailed analysis and formalization to future work.
                            copy_linear_sub1_bound))]
 
 @section{A Tree of Subtraction and Division}
-
-Finally, the most complicated pattern is that used by @tt{copy_linear},
-which recursively calls itself on @tt{n/2} and
+Finally, the definition of @tt{copy_linear} presents the most complicated
+recursion pattern, the function recursively calls itself on @tt{n/2} and
 @tt{(n-1)/2}. @Figure-ref["fig:copy_linear-input"] is a plot of the
 running time of the @tt{sub1} calls that @tt{copy_linear} makes. In
 gray is a plot of @raw-latex{$\lambda x. 31x + 29$}, which we believe

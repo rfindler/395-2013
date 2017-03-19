@@ -29,7 +29,7 @@
          S
          (rename-out [-:nat -])
          + * pred
-         double double_plus_one
+         double double_plus1
          false true
          andb orb xorb negb
          proj1_sig
@@ -398,7 +398,7 @@
   ans)
 (define (pred n) (-:nat n 1))
 (define (double n) (* n 2))
-(define (double_plus_one n) (+ 1 (* n 2)))
+(define (double_plus1 n) (+ 1 (* n 2)))
 
 ;(define false #f)
 ;(define true #t)

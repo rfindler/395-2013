@@ -19,6 +19,8 @@
 (define-runtime-path insert_log_gen.v "../insert/insert_log_gen.v")
 (define-runtime-path insert_no_gen.v "../insert/insert_nogen.v")
 (define-runtime-path sub1_gen.v "../arith/sub1_gen.v")
+(define-runtime-path sub1.v "../arith/sub1_gen.v")
+(define-runtime-path sub1_linear_loop_gen.v "../arith/sub1_linear_loop_gen.v")
 (define-runtime-path fib_iter_loop_gen.v "../fib/fib_iter_loop_gen.v")
 (define-runtime-path copy_log_sq_gen.v "../copy/copy_log_sq_gen.v")
 (define-runtime-path copy_log_sq.v "../copy/copy_log_sq.v")
@@ -27,6 +29,7 @@
 (define-runtime-path size_log_sq_gen.v "../size/size_log_sq_gen.v")
 (define-runtime-path copy_linear_gen.v "../copy/copy_linear_gen.v")
 (define-runtime-path diff_gen.v "../size/diff_gen.v")
+(define-runtime-path size_linear_bin_gen.v "../size/size_linear_bin_gen.v")
 
 (define-syntax (include-appendix stx)
   (syntax-case stx ()

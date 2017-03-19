@@ -33,8 +33,9 @@
         ("copy_log_sq.v" "copy_log_sq_gen.v")
         ("copy_log.v" "copy_log_gen.v" "copy2_gen.v"))
        ("size"
-        ("size_linear.v" "size_linear_gen.v")
-        ("size_linear_bin.v" "size_linear_bin_gen.v")
+        ("size_linear.v"
+         "size_linear_gen.v"
+         "size_linear_bin.v" "size_linear_bin_gen.v")
         ("size_log_sq.v" "diff_gen.v" "size_log_sq_gen.v"))    
        ("to_list"
         ("to_list_naive.v" "cinterleave_gen.v" "to_list_naive_gen.v")))]
@@ -50,15 +51,15 @@
          "rbt_insert_inner_gen.v"))
        ("zippers"
         ("zip.v" "from_zip_gen.v" "insert_at_gen.v" "minsert_at_gen.v" "minsertz_at_gen.v"
-         "to_zip_gen.v" "zip_insert_gen.v" "zip_left_gen.v" "zip_leftn_gen.v"
-         "zip_minsert_gen.v" "zip_right_gen.v" "zip_rightn_gen.v"))
+                 "to_zip_gen.v" "zip_insert_gen.v" "zip_left_gen.v" "zip_leftn_gen.v"
+                 "zip_minsert_gen.v" "zip_right_gen.v" "zip_rightn_gen.v"))
        ("sort"
-        ("sorting.v")))]
+        ("sorting.v"
+         "isort.v"
+         "insert_gen.v"
+         "isort_gen.v")))]
     [(1 1)
      '(("sort"
-        ("isort.v"
-         "insert_gen.v"
-         "isort_gen.v")
         ("merge_gen.v"
          "mergesort.v"
          "mergesort_gen.v"
@@ -74,6 +75,10 @@
        ("arith"
         ("add1.v"
          "add1_gen.v"
+         "sub1.v"
+         "sub1_gen.v"
+         "sub1_linear.v"
+         "sub1_linear_loop_gen.v"
          "plus.v"
          "plus_cin_gen.v"
          "plus_gen.v"

@@ -381,7 +381,7 @@ Proof.
 
   remember (S n') as n.
   remember (S m') as m.
-  unfold double_plus_one, double, even_oddb in *.
+  unfold double_plus1, double, even_oddb in *.
 
   (destruct (even_odd_dec n) as [NEOFACT|NEOFACT]; [remember (even_double n NEOFACT)|
                                                     remember (odd_double n NEOFACT)]);
@@ -406,7 +406,7 @@ Proof.
 
   remember (S n') as n.
   remember (S m') as m.
-  unfold double_plus_one, double, even_oddb in *.
+  unfold double_plus1, double, even_oddb in *.
 
   (destruct (even_odd_dec n) as [NEOFACT|NEOFACT]; [remember (even_double n NEOFACT)|
                                                     remember (odd_double n NEOFACT)]);

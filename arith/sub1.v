@@ -20,6 +20,7 @@ Hint Unfold sub1_result.
 Load "sub1_gen.v".
 
 Next Obligation.
+Proof.
   clear H2 am.
   rename H into EW.
   rename H1 into SR.
@@ -47,6 +48,7 @@ Next Obligation.
 Qed.
 
 Next Obligation.
+  Proof.
   split;auto.
   unfold_sub sub1_time (sub1_time (S wildcard')).
   fold_sub sub1_time.
@@ -65,6 +67,7 @@ Program Fixpoint sub1_time2 (n:nat) {measure n} :=
   end.
 
 Lemma sub1_time12 : big_oh sub1_time sub1_time2.
+Proof.
   exists 1.
   exists 50.
   intros n LE.

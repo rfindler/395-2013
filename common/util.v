@@ -314,7 +314,7 @@ Proof.
   destruct (min_dec n n) as [A|A];rewrite A; auto.
 Qed.
 
-Definition double_plus_one n := S (double n).
+Definition double_plus1 n := S (double n).
 
 Definition even_oddb n := if (even_odd_dec n) then true else false.
 

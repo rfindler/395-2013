@@ -108,6 +108,8 @@ discussion of language primitive runtimes in @secref["sec:prims"].
 
 @include-section["prims.scrbl"]
 
+@include-section["other-prims.scrbl"]
+
 @include-section["related-work.scrbl"]
 	
 @;@section{Conclusion}

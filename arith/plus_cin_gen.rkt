@@ -48,7 +48,7 @@
                            cin))
                [(true)
                 =>
-                (<== (double_plus_one ndiv2plusmdiv2plusX))]
+                (<== (double_plus1 ndiv2plusmdiv2plusX))]
                [(false)
                 =>
                 (<== (double ndiv2plusmdiv2plusX))]))])]))

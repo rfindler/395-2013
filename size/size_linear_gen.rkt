@@ -7,7 +7,7 @@
    [(bt_mt) => (<== 0)]
    [(bt_node x l r)
     =>
-    (bind ([lsize (size_linear l)])
-          (bind ([rsize (size_linear r)])
-                (<== (+ lsize rsize 1))))]))
+    (bind ([ls (size_linear l)])
+          (bind ([rs (size_linear r)])
+                (<== (+ ls rs 1))))]))
 

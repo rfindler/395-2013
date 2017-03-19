@@ -34,10 +34,10 @@ Section size_linear_bin.
     rename H7 into BR.
     remember (SLBRr t_size) as INDr; clear HeqINDr SLBRr.
     apply INDr in BR.
-    destruct BR; subst rsize an.
+    destruct BR; subst rs an.
     remember (SLBRl s_size) as INDl; clear HeqINDl SLBRl.
     apply INDl in BL.
-    destruct BL; subst lsize an0.
+    destruct BL; subst ls an0.
     clear INDl INDr.
 
     assert (s_size=t_size).
@@ -47,7 +47,7 @@ Section size_linear_bin.
     constructor.
     auto.
 
-    unfold double_plus_one; unfold double; unfold size_linear_bin_rt.
+    unfold double_plus1; unfold double; unfold size_linear_bin_rt.
     omega.
   Qed.
 
@@ -65,10 +65,10 @@ Section size_linear_bin.
     rename H7 into BR.
     remember (SLBRr t_size) as INDr; clear HeqINDr SLBRr.
     apply INDr in BR.
-    destruct BR; subst rsize an.
+    destruct BR; subst rs an.
     remember (SLBRl s_size) as INDl; clear HeqINDl SLBRl.
     apply INDl in BL.
-    destruct BL; subst lsize an0.
+    destruct BL; subst ls an0.
     clear INDl INDr.
 
     assert (s_size=t_size+1).
@@ -78,7 +78,7 @@ Section size_linear_bin.
     constructor.
     auto.
 
-    unfold double_plus_one; unfold double; unfold size_linear_bin_rt.
+    unfold double_plus1; unfold double; unfold size_linear_bin_rt.
     omega.
   Qed.
 
@@ -96,10 +96,10 @@ Section size_linear_bin.
     rename H7 into BR.
     remember (SLBRr t_size) as INDr; clear HeqINDr SLBRr.
     apply INDr in BR.
-    destruct BR; subst rsize an.
+    destruct BR; subst rs an.
     remember (SLBRl s_size) as INDl; clear HeqINDl SLBRl.
     apply INDl in BL.
-    destruct BL; subst lsize an0.
+    destruct BL; subst ls an0.
     clear INDl INDr.
 
     assert (s_size=t_size+1).
@@ -110,7 +110,7 @@ Section size_linear_bin.
     constructor.
     auto.
 
-    unfold double_plus_one; unfold double; unfold size_linear_bin_rt.
+    unfold double_plus1; unfold double; unfold size_linear_bin_rt.
     omega.
   Qed.
 
@@ -128,10 +128,10 @@ Section size_linear_bin.
     rename H7 into BR.
     remember (SLBRr t_size) as INDr; clear HeqINDr SLBRr.
     apply INDr in BR.
-    destruct BR; subst rsize an.
+    destruct BR; subst rs an.
     remember (SLBRl s_size) as INDl; clear HeqINDl SLBRl.
     apply INDl in BL.
-    destruct BL; subst lsize an0.
+    destruct BL; subst ls an0.
     clear INDl INDr.
 
     assert (s_size=t_size).
@@ -141,7 +141,7 @@ Section size_linear_bin.
     constructor.
     auto.
 
-    unfold double_plus_one; unfold double; unfold size_linear_bin_rt.
+    unfold double_plus1; unfold double; unfold size_linear_bin_rt.
     omega.
   Qed.
 

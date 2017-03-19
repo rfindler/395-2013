@@ -19,12 +19,14 @@ Hint Unfold sub1_linear_loop_result.
 Load "sub1_linear_loop_gen.v".
 
 Next Obligation.
+Proof.
   rename H into SUB1R.
   destruct SUB1R.
   omega.
 Qed.
 
 Next Obligation.
+Proof.
   clear H2 am0 am H3 sub1_linear_loop.
   rename H1 into SUB1_RESULT.
   

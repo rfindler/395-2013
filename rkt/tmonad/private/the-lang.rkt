@@ -24,7 +24,7 @@
          pair fst snd
          left right
          even_odd_dec even_oddb
-         le_lt_dec
+         le_lt_dec same
          div2
          S
          (rename-out [-:nat -])
@@ -387,6 +387,7 @@
 (define (even_odd_dec n) (even? n))
 (define (even_oddb n) (even? n))
 (define (le_lt_dec n m) (if (<= n m) (left #f) (right #f)))
+(define (same b1 b2) (equal? b1 b2))
 (define (div2 n) (floor (/ n 2)))
 (define (fst p) (pair-l p))
 (define (snd p) (pair-r p))

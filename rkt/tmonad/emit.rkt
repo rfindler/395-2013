@@ -90,6 +90,12 @@
         (out ";")
         (out-nl))
       (out-exp b #:already-delimited? #t)]
+     [`(same ,e1 ,e2)
+      (out "same ")
+      (out-exp e1)
+      (indent 5
+              (out-nl)
+              (out-exp e2))]
      [`(if ,e1 ,e2 ,e3)
       (out "if ")
       (indent 3 (out-exp e1))

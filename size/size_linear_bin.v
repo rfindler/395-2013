@@ -11,6 +11,13 @@ Section size_linear_bin.
     (forall m, Braun bt m ->
                c = size_linear_bin_rt n /\ m = n).
 
+  Definition same :
+    forall {P Q R S:Prop},
+      (sumbool P Q) -> (sumbool R S) -> (P*R+Q*S) + (P*S+Q*R).
+  Proof.
+    intuition.
+  Qed.
+
   Load "size_linear_bin_gen.v".
 
   Next Obligation.
@@ -22,16 +29,18 @@ Section size_linear_bin.
 
   Next Obligation.
   Proof.
-    clear am0 H4 am H5.
-    rename H2 into SLBRr.
-    rename H3 into SLBRl.
+    clear  am H4 am0 H3.
+    rename H1 into SLBRr.
+    rename H2 into SLBRl.
+    rename H into EVENODD.
 
     unfold size_linear_bin_result in *.
     intros m B.
     invclr B.
-    rename H4 into SIZE_INV.
-    rename H6 into BL.
-    rename H7 into BR.
+    rename H2 into SIZE_INV.
+    rename H4 into BL.
+    rename H5 into BR.
+
     remember (SLBRr t_size) as INDr; clear HeqINDr SLBRr.
     apply INDr in BR.
     destruct BR; subst rs an.
@@ -41,11 +50,13 @@ Section size_linear_bin.
     clear INDl INDr.
 
     assert (s_size=t_size).
+
     apply braun_invariant_odd_size; auto.
-    replace (s_size+t_size+1) with (s_size+(S t_size)) by omega.
-    apply odd_plus_r; auto.
+    replace (s_size+t_size+1) with (S (s_size+t_size)) by omega.
     constructor.
-    auto.
+    destruct EVENODD as [[EVEN_LS EVEN_RS]|[ODD_LS ODD_RS]].
+    apply even_even_plus; auto.
+    apply odd_even_plus; auto.
 
     unfold double_plus1; unfold double; unfold size_linear_bin_rt.
     omega.
@@ -53,16 +64,17 @@ Section size_linear_bin.
 
   Next Obligation.
   Proof.
-    clear am0 H4 am H5.
-    rename H2 into SLBRr.
-    rename H3 into SLBRl.
+    clear am H4 am0 H3.
+    rename H1 into SLBRr.
+    rename H2 into SLBRl.
+    rename H into EVENODD.
 
     unfold size_linear_bin_result in *.
     intros m B.
     invclr B.
-    rename H4 into SIZE_INV.
-    rename H6 into BL.
-    rename H7 into BR.
+    rename H2 into SIZE_INV.
+    rename H4 into BL.
+    rename H5 into BR.
     remember (SLBRr t_size) as INDr; clear HeqINDr SLBRr.
     apply INDr in BR.
     destruct BR; subst rs an.
@@ -73,73 +85,11 @@ Section size_linear_bin.
 
     assert (s_size=t_size+1).
     apply braun_invariant_even_size; auto.
-    replace (s_size+t_size+1) with (s_size+(S t_size)) by omega.
-    apply even_even_plus; auto.
+    replace (s_size+t_size+1) with (S (s_size+t_size)) by omega.
     constructor.
-    auto.
-
-    unfold double_plus1; unfold double; unfold size_linear_bin_rt.
-    omega.
-  Qed.
-
-  Next Obligation.
-  Proof.
-    clear am0 H4 am H5.
-    rename H2 into SLBRr.
-    rename H3 into SLBRl.
-
-    unfold size_linear_bin_result in *.
-    intros m B.
-    invclr B.
-    rename H4 into SIZE_INV.
-    rename H6 into BL.
-    rename H7 into BR.
-    remember (SLBRr t_size) as INDr; clear HeqINDr SLBRr.
-    apply INDr in BR.
-    destruct BR; subst rs an.
-    remember (SLBRl s_size) as INDl; clear HeqINDl SLBRl.
-    apply INDl in BL.
-    destruct BL; subst ls an0.
-    clear INDl INDr.
-
-    assert (s_size=t_size+1).
-
-    apply braun_invariant_even_size; auto.
-    replace (s_size+t_size+1) with ((S s_size) + t_size) by omega.
-    apply even_even_plus; auto.
-    constructor.
-    auto.
-
-    unfold double_plus1; unfold double; unfold size_linear_bin_rt.
-    omega.
-  Qed.
-
-  Next Obligation.
-  Proof.
-    clear am0 H4 am H5.
-    rename H2 into SLBRr.
-    rename H3 into SLBRl.
-
-    unfold size_linear_bin_result in *.
-    intros m B.
-    invclr B.
-    rename H4 into SIZE_INV.
-    rename H6 into BL.
-    rename H7 into BR.
-    remember (SLBRr t_size) as INDr; clear HeqINDr SLBRr.
-    apply INDr in BR.
-    destruct BR; subst rs an.
-    remember (SLBRl s_size) as INDl; clear HeqINDl SLBRl.
-    apply INDl in BL.
-    destruct BL; subst ls an0.
-    clear INDl INDr.
-
-    assert (s_size=t_size).
-    apply braun_invariant_odd_size; auto.
-    replace (s_size+t_size+1) with ((S s_size) + t_size) by omega.
+    destruct EVENODD as [[EVEN_LS ODD_RS]|[ODD_LS EVEN_RS]].
     apply odd_plus_r; auto.
-    constructor.
-    auto.
+    apply odd_plus_l; auto.
 
     unfold double_plus1; unfold double; unfold size_linear_bin_rt.
     omega.

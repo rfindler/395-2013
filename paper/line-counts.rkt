@@ -8,6 +8,12 @@
 (define-runtime-path above "..")
 (provide build-table)
 
+;; the tables may not have the same number of lines
+;; on the left and on the right. Use these functions
+;; to add extra blank lines to make them match up
+(define (extra-lines-on-left i) (if (= i 0) 2 0))
+(define (extra-lines-on-right i) 0)
+
 ;; classification:
 ;;  (listof <dir>)
 ;;  <dir> = (cons/c string?[dirname] (listof <problem>))
@@ -43,24 +49,18 @@
      '(("rbtrees"
         ("rbtree.v"
          "rbt_search.v"
-         "bst_search_gen.v")
-        ("rbt_insert.v"
+         "bst_search_gen.v"
+         "rbt_insert.v"
          "rbt_balance_gen.v"
          "rbt_blacken_gen.v"
          "rbt_insert_gen.v"
          "rbt_insert_inner_gen.v"))
-       ("zippers"
-        ("zip.v" "from_zip_gen.v" "insert_at_gen.v" "minsert_at_gen.v" "minsertz_at_gen.v"
-                 "to_zip_gen.v" "zip_insert_gen.v" "zip_left_gen.v" "zip_leftn_gen.v"
-                 "zip_minsert_gen.v" "zip_right_gen.v" "zip_rightn_gen.v"))
        ("sort"
         ("sorting.v"
          "isort.v"
          "insert_gen.v"
-         "isort_gen.v")))]
-    [(1 1)
-     '(("sort"
-        ("merge_gen.v"
+         "isort_gen.v"
+         "merge_gen.v"
          "mergesort.v"
          "mergesort_gen.v"
          "mergesortc_gen.v"
@@ -71,18 +71,24 @@
          "fib_iter.v"
          "fib_iter_gen.v"
          "fib_iter_loop_gen.v"
-         "fib_rec_gen.v"))
+         "fib_rec_gen.v"
+         "fib_rec.v")))]
+    [(1 1)
+     '(("zippers"
+        ("zip.v" "from_zip_gen.v" "insert_at_gen.v" "minsert_at_gen.v" "minsertz_at_gen.v"
+                 "to_zip_gen.v" "zip_insert_gen.v" "zip_left_gen.v" "zip_leftn_gen.v"
+                 "zip_minsert_gen.v" "zip_right_gen.v" "zip_rightn_gen.v"))
        ("arith"
         ("add1.v"
          "add1_gen.v"
          "sub1.v"
          "sub1_gen.v"
          "sub1_linear.v"
-         "sub1_linear_loop_gen.v"
-         "plus.v"
+         "sub1_linear_loop_gen.v")
+        ("plus.v"
          "plus_cin_gen.v"
-         "plus_gen.v"
-         "mult.v"
+         "plus_gen.v")
+        ("mult.v"
          "mult_gen.v")))]))
 
 (define (build-data-file)
@@ -143,7 +149,7 @@
                 "")]
          [#f
           (list "" "" "" "")]))))
-  (display-table table)
+  ;(display-table table)
   (values (format-number line-count:total)
           (format-number line-count:non-proof)
           (format-number line-count:obligations)
@@ -166,12 +172,15 @@
     (displayln "")))
 
 (define (build-table i)
+  
   (tabular
    #:sep @hspace[2]
    (list (list (build-one-side-of-table (line-count-class i 0)
-                                        (and (= i 1) 'common))
+                                        (and (= i 1) 'common)
+                                        (extra-lines-on-left i))
                (build-one-side-of-table (line-count-class i 1)
-                                        (and (= i 1) 'total))))))
+                                        (and (= i 1) 'total)
+                                        (extra-lines-on-right i))))))
 
 (define (count-a-dir dir)
   (compute-subtotal
@@ -181,7 +190,7 @@
 
 (struct line-info (proofs obligations non-proofs) #:transparent)
 
-(define (build-one-side-of-table classification extra)
+(define (build-one-side-of-table classification extra extra-blank-lines)
   (define info (collect-info classification))
   (define one-line-per-file
     (apply append
@@ -236,6 +245,7 @@
             @bold{Lines})))
     (for/list ([row (in-list one-line-per-file)])
       (build-table-row row))
+    (for/list ([i (in-range extra-blank-lines)]) blank-row)
     (list blank-row)
 
     (match extra
@@ -384,4 +394,3 @@
          line-count:non-proof
          line-count:obligations
          line-count:other-proofs)
-

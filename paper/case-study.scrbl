@@ -57,8 +57,8 @@ code for all of the functions in our case study.
 
 @section{Line Counts}
 
-@figure*["fig:line-counts1" "Line Counts"]{@build-table[0]}
-@figure*["fig:line-counts2" "Line Counts (continued)"]{@build-table[1]}
+@figure*["fig:line-counts1" "Braun Tree Function Line Counts"]{@build-table[0]}
+@figure*["fig:line-counts2" "Non-Braun Tree Functions Line Counts"]{@build-table[1]}
 
 
 @Figure-ref["fig:line-counts1"] and @figure-ref["fig:line-counts2"]

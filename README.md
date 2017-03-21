@@ -8,7 +8,7 @@ got its start.)
 
 ## To build:
 
-Install coq verison 8.4 (September 2012) and Racket 6.8 (or
+Install coq version 8.4 (September 2012) and Racket 6.8 (or
 later). Make sure that `coqc` and `racket` are on your path. Run these
 commands:
 

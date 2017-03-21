@@ -2,15 +2,6 @@
 @(require "cite.rkt" scribble/core)
 @title[#:tag "sec:related-work"]{Related Work}
 
-@;{
-
-Some related work to explore:
-
-http://www.cs.yale.edu/homes/hoffmann/publications.html
-
-}
-
-
 The most closely related work to ours is
 @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures],
 which presents a monad that carries a notion of abstract time. Unlike
@@ -81,7 +72,7 @@ have particular resource bounds using a variety of
 techniques@~cite[speed auto-parallel auto-heap
 recursion-in-bounded-space] These approaches are all less expressive
 and apply to fewer programs as compared to our approach, but provide
-more automation and so, are better when they work.
+more automation and so are better when they work.
 
 Similarly, others have explored different approaches for accounting for
 various resource bounds and costs, but we do not provide any

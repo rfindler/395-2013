@@ -7,9 +7,13 @@ Section size_linear.
 
   Definition size_linear_rt n : nat := 13 * n + 3.
 
-  Definition size_linear_result (bt : @bin_tree A) (n:nat) c :=
-    c = size_linear_rt n /\ (forall m, Braun bt m -> m = n).
+  Definition size_linear_result (bt : @bin_tree A) (res:nat) c :=
+    c = size_linear_rt res /\
+    (forall m,
+       Braun bt m ->
+       m = res).
 
+  (* the blank line above is important for the paper to build *)
   Load "size_linear_gen.v".
 
   Next Obligation.

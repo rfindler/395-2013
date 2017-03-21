@@ -169,11 +169,39 @@ front of the list of bits. The right-hand side of
 @figure-ref["fig:size-linear"] shows the revised version
 of @tt{size_linear} that uses only constant time BigNum operations.
 
-@figure*["fig:size-linear" @elem{"Linear-time Braun Size Functions;
+@figure*["fig:size-linear" @elem{Linear-time Braun Size Functions;
           the left side is Okasaki's original function and the right side
           is the same, but in terms of constant-time BigNum operations}]{
 @tabular[(let ([lines1 (extract size_linear_gen.v cdr)]
                [lines2 (extract size_linear_bin_gen.v cdr)])
+           (define (inline-result-definition file lines)
+             (apply
+              append
+              (for/list ([line (in-list lines)])
+                (cond
+                  [(regexp-match #rx"size_linear_[^ ]*result" line)
+                   (call-with-input-file file
+                     (λ (port)
+                       (let loop ([found-start? #f])
+                         (define l (read-line port))
+                         (when (eof-object? l)
+                           (error 'prims.scrbl
+                                  "could not get _result definition from ~a"
+                                  file))
+                         (cond
+                           [found-start?
+                            (if (regexp-match #rx"^ *$" l)
+                                '()
+                                (list*
+                                 (regexp-replace #rx"[.]$" l " !} :=")
+                                 "\n"
+                                 (loop #t)))]
+                           [else
+                            (if (regexp-match? #rx"Definition size_linear_[^ ]*result " l)
+                                (loop #t)
+                                (loop #f))]))))]
+                  [else
+                   (list line)]))))
            (define (chop-first-line lines)
              (define first-line (car lines))
              (define m (regexp-match #rx"(Program Fixpoint size[^ ]* )(.*)" first-line))
@@ -181,15 +209,15 @@ of @tt{size_linear} that uses only constant time BigNum operations.
              (list* (~a (list-ref m 1) "\n")
                     (~a "   " (list-ref m 2))
                     (cdr lines)))
-           (set! lines1 (chop-first-line lines1))
-           (set! lines2 (chop-first-line lines2))
+           (set! lines1 (inline-result-definition size_linear.v (chop-first-line lines1)))
+           (set! lines2 (inline-result-definition size_linear_bin.v (chop-first-line lines2)))
            (list
             (list
              (apply inline-code
                     "\n"
                     (append
                      lines1
-                     (build-list (- (length lines2) (length lines1)) (λ (i) "\n"))))
+                     (build-list (- (length lines2) (length lines1)) (λ (i) " \n"))))
              (apply inline-code "\n" lines2))))]}
 
 We proved both of these functions have the same running time
@@ -199,8 +227,8 @@ and both compute the correct result.
 The proof of the running time of the @tt{size_linear}
 function (on the left) does not require the assumption that
 the input is a Braun tree, but the proof of the version on
-the right does. Without that assumption, then the resulting
-size may not be correct because the resulting is computed
+the right does. Without that assumption, the resulting
+size may not be correct because the result is computed
 purely in terms of the size of the left sub-tree, ignoring
 the right. Since the running time's correctness property is
 specified in terms of the result size, when the result size

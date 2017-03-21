@@ -51,7 +51,7 @@ behavior is only part of the story. As @citet[complexity-dos]
 observed, incorrect performance characteristics can lead
 to security vulnerabilities. Indeed, some programs and algorithms
 are valuable precisely because of their performance
-characteristics. For example, mergesort is preferable to insertion
+characteristics. For example, merge sort is preferable to insertion
 sort only because of its improved running time.
 Unfortunately, defining functions in Coq or other theorem
 proving systems does not provide enough information in the types to be
@@ -62,7 +62,7 @@ enables us to include abstract running times in types. We use this
 library to prove several important algorithms have their expected
 running times.
 
-Our has similar goals to
+The monad in our work has similar goals to the one in
 @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures]'s,
 but with two benefits.
 First, it allows programmers
@@ -89,7 +89,7 @@ discusses accounting for the runtimes of various language
 primitives. Finally, @secref["sec:related-work"] provides a detailed
 account of our relation to similar projects. Our source code and other
 supplementary material is available at
-@url{http://github.com/rfindler/395-2013}.
+@url{https://github.com/rfindler/395-2013}.
 
 @bold{Extended material:} Compared to the conference proceedings
 version of this paper, the present version contains more elaborate and

@@ -8,7 +8,7 @@ got its start.)
 
 ## To build:
 
-Install coq verison 8.4 (September 2012) and Racket 6.1.1 (or
+Install coq verison 8.4 (September 2012) and Racket 6.8 (or
 later). Make sure that `coqc` and `racket` are on your path. Run these
 commands:
 
@@ -35,7 +35,7 @@ When you run one of the `_gen.rkt` files via the `racket` command-line
 tool, it also prints out the Coq code with the += expressions
 inserted. The Makefile collects printouts into the `_gen.v` files
 which are `Load`ed into the various coq scripts at the appropriate
-point.
+points.
 
 ## line-counts.txt
 
@@ -64,7 +64,7 @@ Volume 7 Issue 6, November 1997, 661 - 666
 This directory contains the implementation of the red-black tree
 insert and lookup functions
 
-## zippers
+## zippers/
 
 This directory contains the zipper and list insertion functions.
 
@@ -77,14 +77,14 @@ This directory contains the implementation of insertion sort and merge sort.
 This directory contains the implementation of the naive recursive
 implementation of fib and the linear time implementation.
 
-## sub1/
-
-This directory contains the implementation of sub1 (in terms of
-constant time arithmetic operations)
-
 ## fold/
 
 This directory contains the implementation of `fold`.
+
+## arith/
+
+This directory contains the implementation of the various arithmetic
+operations, implemented in terms of constant-time BigNum operations.
 
 ## extract/ 
 

@@ -7,10 +7,13 @@ Section size_linear_bin.
   
   Definition size_linear_bin_rt n : nat := 17 * n + 3.
 
-  Definition size_linear_bin_result (bt : @bin_tree A) (n:nat) c :=
-    (forall m, Braun bt m ->
-               c = size_linear_bin_rt n /\ m = n).
+  Definition size_linear_bin_result (bt : @bin_tree A) (res:nat) c :=
+    forall m,
+      Braun bt m ->
+      c = size_linear_bin_rt res
+      /\ m = res.
 
+  (* the blank line above is important for the paper to build *)
   Definition same :
     forall {P Q R S:Prop},
       (sumbool P Q) -> (sumbool R S) -> (P*R+Q*S) + (P*S+Q*R).

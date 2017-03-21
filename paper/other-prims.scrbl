@@ -96,8 +96,6 @@ division takes amortized constant time in functions such as
 @tt{copy_log_sq}, and ignoring these primitive operations
 does not affect our analysis of their running time.
 
-This proof has not been formalized in Coq.
-
 @figure["fig:diff-sub-div"
 	@list{Average running time of @tt{sub1} and @tt{div2}}
 	@diff-sub/div-plot]
@@ -169,8 +167,7 @@ not accounted for all language primitives, our calculations of
 asymptotic run times remain unchanged. We have presented arguments
 that support that it is safe to ignore certain uses of language
 primitives, providing proof where possible and suggesting directions
-for more formal arguments in the remaining cases. A goal of our future
-work is to formalize these arguments in Coq.
+for more formal arguments in the remaining cases.
 
 An alternative approach is to assign a symbolic constant to the the
 cost of each one of these primitives following @citet[jost-carbon] and
@@ -181,5 +178,3 @@ additive, it may be used in place of our default semantics. This
 approach would lend itself well to experimentally estimating the
 costs, to formalize them separated, or to collapsing them into
 units (as we do in the present version).
-
-

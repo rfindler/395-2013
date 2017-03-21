@@ -40,7 +40,7 @@ arguments) extract into idiomatic OCaml code.
   We evaluated the
 expressiveness of the library by proving that red-black tree insertion
 and search, merge sort, insertion sort, various Fibonacci number implementations,
-iterated list insertion, BigNum addition, and Okasaki's Braun Tree algorithms all
+iterated list insertion, various BigNum operations, and Okasaki's Braun Tree algorithms all
 have their expected running times.
 }]
 

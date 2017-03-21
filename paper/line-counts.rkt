@@ -6,6 +6,7 @@
          racket/format
          racket/contract)
 (define-runtime-path above "..")
+(define-runtime-path line-counts.txt "../line-counts.txt")
 (provide build-table)
 
 ;; the tables may not have the same number of lines
@@ -149,13 +150,15 @@
                 "")]
          [#f
           (list "" "" "" "")]))))
-  ;(display-table table)
+  (call-with-output-file line-counts.txt
+    (λ (port) (display-table table port))
+    #:exists 'truncate)
   (values (format-number line-count:total)
           (format-number line-count:non-proof)
           (format-number line-count:obligations)
           (format-number line-count:other-proofs)))
 
-(define (display-table t)
+(define (display-table t port)
   (define cols (length (first t)))
   (define max-lens
     (for/list ([c (in-range cols)])
@@ -168,8 +171,8 @@
   (for ([r (in-list t)])
     (for ([c (in-list r)]
           [l (in-list max-lens)])
-      (display (~a #:min-width l #:align 'right c)))
-    (displayln "")))
+      (display (~a #:min-width l #:align 'right c) port))
+    (display "\n" port)))
 
 (define (build-table i)
   

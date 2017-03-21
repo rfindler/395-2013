@@ -2,9 +2,19 @@
 @(require "util.rkt" 
           "line-counts.rkt"
           "cite.rkt"
-          scriblib/figure)
+          scriblib/figure
+          racket/runtime-path)
 
-@(define fun-count "19")
+@(begin
+   (define-runtime-path line-counts.txt "../line-counts.txt")
+   (define fun-count
+     (call-with-input-file line-counts.txt
+       (λ (port)
+         (number->string
+          (for/sum ([l (in-lines port)])
+            (if (regexp-match? #rx"_gen[.]v" l)
+                1
+                0)))))))
 
 @title[#:tag "sec:case-study"]{Case Study}
 
@@ -13,15 +23,16 @@ variety of functions: search and insert for red-black trees, insertion
 sort, merge sort, both the naive recursive version of the
 @raw-latex{$n$}th Fibonacci number function and the iterative version,
 a function that inserts @raw-latex{$m$} times into a list at position
-@raw-latex{$n$} using both lists and zippers, BigNum @tt{add1} and
-@tt{plus}, and all of the algorithms mentioned in
+@raw-latex{$n$} using both lists and zippers, BigNum @tt{add1}, @tt{sub1},
+@tt{plus}, and @tt{mult}, as well as all of the algorithms mentioned in
 @citet[three-algorithms-on-braun-trees]'s paper, @italic{Three
 Algorithms on Braun Trees}. We chose these algorithms by first
-selecting Okasaki's papers, because the project originated in a class
+selecting Okasaki's papers, because the project originated in an undergraduate class
 and we knew Okasaki's paper to be well-written and understandable to
 undergraduates. From that initial selection, we moved to an in-order
 traversal of @citet[clrs] looking for functional algorithms that would
-challenge the framework.
+challenge the framework, and added BigNum operations to support the
+discussion in @secref["sec:prims"].
 
 To elaborate on the Braun tree algorithms, Okasaki's paper contains
 several versions of each of the three functions, each with different
@@ -36,7 +47,8 @@ three functions are:
           @item{@tt{make_array}: converts a list into a Braun tree
                 (two @raw-latex{$n \log(n)$} and a linear version).}]
 
-In total, we implemented @fun-count different functions using the
+In total, we implemented @fun-count different functions (some of them
+are helper functions to support other top-level functions) using the
 monad.  For all of them, we proved the expected O running times.  For
 merge sort, we proved it is Θ(@raw-latex{$n \log(n)$}). For the naive
 @tt{fib}, we proved that it is Θ of itself, O(@raw-latex{$2^n$}), and
@@ -45,15 +57,12 @@ constant time. For the iterative @tt{fib}, we prove that it is
 O(@raw-latex{$n^2$}).  For the list insertion functions, we prove that
 when @raw-latex{$m$} is positive, the zipper version is O of the list
 version (because the zipper version runs in O(@raw-latex{$m + n$})
-while the list version runs in O(@raw-latex{$n * m$}).) For BigNum
-arithmetic, we prove that @tt{add1} is O(@raw-latex{$\log(n)$}) and
-that @tt{plus} is Θ(@raw-latex{$\log(n)$}). In all cases, except for
+while the list version runs in O(@raw-latex{$n * m$}).) We discuss the
+BigNum arithmetic functions in @secref["sec:prims"]. In all cases, except for
 @tt{make_array_linear} and red-black tree insertion, the proofs of
-running time include proof of correctness of the algorithm. Finally,
-in the proofs for BigNum arithmetic and about the Fibonacci functions,
-we use a simplified cost model that reduces all @tt{inc} constants to
-@raw-latex{$1$}.  The supplementary material contains all of the Coq
-code for all of the functions in our case study.
+running time include proof of correctness of the algorithm.
+The supplementary material contains all of the Coq
+code for the functions in our case study.
 
 @section{Line Counts}
 

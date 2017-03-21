@@ -31,7 +31,7 @@ code: coq extract/extract
 #paper/paper-appendix.pdf: paper/paper.pdf
 #	(cd paper; rm paper.pdf && env BUILD-WITH-APPENDIX=true scribble --pdf paper.scrbl && mv paper.pdf paper-appendix.pdf)
 
-paper/paper.pdf: paper/paper.scrbl paper/util.rkt paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl paper/related-work.scrbl */*.v code
+paper/paper.pdf: line-counts.txt paper/paper.scrbl paper/util.rkt paper/running-time.scrbl paper/prims.scrbl paper/insert.scrbl paper/monad.scrbl paper/case-study.scrbl paper/related-work.scrbl */*.v code
 	(cd paper; raco make -v paper.scrbl && scribble --pdf paper.scrbl; cd ..)
 
 paper/paper.tex: paper/paper.pdf

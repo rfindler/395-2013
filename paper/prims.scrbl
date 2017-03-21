@@ -1,6 +1,7 @@
 #lang scribble/base
 @(require "util.rkt" "cite.rkt"
           "../rkt/sub1-plot.rkt"
+          racket/format
           (prefix-in p: plot/pict)
           scriblib/figure
 	  scriblib/footnote
@@ -44,7 +45,8 @@ constant-time bit operations. For instance, doubling and
 adding 1 can be replaced by a specialized operation that
 conses a @tt{1} on the front of the bitstring. The remainder
 of this section explores how BigNum arithmetic affects
-the running time computations of various functions.
+the running time computations of various functions in our
+case study.
 
 @section[#:tag "sec:add-and-subtract"]{Addition and Subtraction}
 
@@ -52,17 +54,16 @@ To get us started, here is the implementation of @tt{sub1} in
 terms of constant-time BigNum operations, written in our monad:
 
 @(apply inline-code (extract sub1_gen.v cdr))
-
 where @tt{sub1_result} asserts that the result of
 the function is one less than the input and
 that the running time is a function in @raw-latex{$O(\log(n))$}.
 
-The use of @tt{n - 1} may seem strange in the last line
+The use of @tt{n} @tt{-} @tt{1} may seem strange in the last line
 of the function, but in that case we know that @tt{n} is
 odd, so that operation corresponds to zeroing the last
 bit of the number, a constant time operation.
 
-Unlike the conventional implementation of on Peano arithmetic,
+Unlike the implementation of @tt{sub1} when using Peano arithmetic,
 this function is not constant time. Specifically, if the
 @tt{if} expression always takes the true branch, then
 the function will traverse the entire representation of the
@@ -72,11 +73,13 @@ takes space proportional to @raw-latex{$\log$} of its value.
 
 In addition to @tt{sub1},
 our library contains implementations of @tt{add1}, addition,
-and multiplication, together with proofs that
+and multiplication, along with proofs that
 @tt{add1} is  @raw-latex{$O(\log(n))$},
 addition is
-@raw-latex{$\Theta(\log(\max(m,n)))$}, and
-multiplication is
+@raw-latex{$O(\log(\max(m,n)))$} and
+@raw-latex{$\Omega(\log(\min(m,n)))$},
+and the
+multiplication algorithm we used is
 @raw-latex{$\Theta(\log(n)\cdot(log(m)+\log(n)))$}.
 
 @section{Using Subtraction to Recur}
@@ -101,7 +104,8 @@ function that counts down, we note that we perform the @tt{sub1} operation on ea
 from 1 to @raw-latex{$n$}. This gives a cost in terms of the iterations required by
 @tt{sub1} that is bounded above by
 @raw-latex{$n*(\frac{1}{2} + \frac{2}{4} + \frac{3}{8} + \cdots + \frac{n}{2^n} + \cdots$)}.
-One can show that this infinite sum converges to @raw-latex{$2*n$}, thus for a sequence of
+This infinite sum converges to @raw-latex{$2*n$}, thus any prefix of it
+is in @raw-latex{O(n)} and so
 @raw-latex{$n$} @tt{sub1} operations require amortized constant time.
 
 We have proved this using our monad, showing that this function is linear time:
@@ -146,24 +150,39 @@ Coq (@tt{fib/fib_iter.v}).
 
 @section{The @tt{size_linear} Function}
 
-The @tt{size_linear} function, reproduced below has the addition expression
-@raw-latex{$lsize + rsize + 1$} that is not obviously a constant time operation.
-The Braun tree invariant, however, allows for an efficient implementation
-of this addition. The invariant requires either that @raw-latex{$lsize = rsize$}
-or @raw-latex{$lsize = rsize + 1$}. In the former case, the addition corresponds
-to doubling followed by adding 1. If numbers are represented by lists of bits with
-least significant bits at the front of the list, then this corresponds to consing
-a 1 onto the front of the list. In the second case, the addition is equivalent to
-doubling @raw-latex{$lsize$}, which can be implemented by consing a 0 onto the front
-of the list of bits. In either situation the addition
-operation can be transformed into a constant time operation and therefore does not
-invalidate our calculation of the running time of the @tt{size_linear} function.
+@citet[three-algorithms-on-braun-trees]'s @tt{size_linear}
+function, shown in Coq notation on the left of
+@figure-ref["fig:size-linear"], has the addition expression
+@tt{lsize} @tt{+} @tt{rsize} @tt{+} @tt{1} that is not
+obviously a constant time operation. The Braun tree
+invariant, however, allows for this expression to be
+computed in constant time. The invariant guarantees that
+either @tt{lsize} equals @tt{rsize} or @tt{lsize} equals
+@tt{rsize} @tt{+} @tt{1}. In the former case, the addition
+corresponds to doubling @tt{lsize} followed by adding 1.
+If numbers are represented by lists of bits with the least
+significant bits at the front of the list, then this
+corresponds to @tt{cons}ing a 1 onto the front of the list.
+In the latter case, the addition is equivalent to doubling
+@tt{lsize}, which can be implemented by consing a 0 onto the
+front of the list of bits. The right-hand side of
+@figure-ref["fig:size-linear"] shows the revised version
+of @tt{size_linear} that uses only constant time BigNum operations.
 
-On the left is the Okasaki's original linear time @tt{size} function, translated
-into Coq and on the right is a version that uses only constant-time BigNum operations.
-
+@figure*["fig:size-linear" @elem{"Linear-time Braun Size Functions;
+          the left side is Okasaki's original function and the right side
+          is the same, but in terms of constant-time BigNum operations}]{
 @tabular[(let ([lines1 (extract size_linear_gen.v cdr)]
                [lines2 (extract size_linear_bin_gen.v cdr)])
+           (define (chop-first-line lines)
+             (define first-line (car lines))
+             (define m (regexp-match #rx"(Program Fixpoint size[^ ]* )(.*)" first-line))
+             (define chopped-first-line first-line)
+             (list* (~a (list-ref m 1) "\n")
+                    (~a "   " (list-ref m 2))
+                    (cdr lines)))
+           (set! lines1 (chop-first-line lines1))
+           (set! lines2 (chop-first-line lines2))
            (list
             (list
              (apply inline-code
@@ -171,8 +190,20 @@ into Coq and on the right is a version that uses only constant-time BigNum opera
                     (append
                      lines1
                      (build-list (- (length lines2) (length lines1)) (λ (i) "\n"))))
-             (apply inline-code "\n" lines2))))]
+             (apply inline-code "\n" lines2))))]}
 
-We proved both of them have the same running time (where the
-primitive operations in each count as unit time) and both
-compute the correct result.
+We proved both of these functions have the same running time
+(where the primitive operations in each count as unit time)
+and both compute the correct result.
+
+The proof of the running time of the @tt{size_linear}
+function (on the left) does not require the assumption that
+the input is a Braun tree, but the proof of the version on
+the right does. Without that assumption, then the resulting
+size may not be correct because the resulting is computed
+purely in terms of the size of the left sub-tree, ignoring
+the right. Since the running time's correctness property is
+specified in terms of the result size, when the result size
+is wrong, then the running time will still be linear in the
+size of the tree, but may not match the result of the
+function.

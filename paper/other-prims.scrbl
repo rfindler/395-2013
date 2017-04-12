@@ -132,8 +132,8 @@ but we leave the detailed analysis and formalization to future work.
 
 @figure["fig:copy_linear-input"
         @list{Running time of @tt{copy_linear}}
-        (parameterize ([p:plot-width 275]
-                       [p:plot-height 275]
+        (parameterize ([p:plot-width 250]
+                       [p:plot-height 250]
                        [p:plot-x-label "Copy_linear's Input"]
                        [p:plot-y-label "Sub1 Calls' Running Time"])
           ;; this plot takes a long time, but I like that last steep jump...

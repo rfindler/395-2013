@@ -170,8 +170,12 @@ Functions in the second category could extract like the first, except
 because we extract Coq's @tt{nat} type, which is based on Peano
 numerals, into OCaml's @tt{big_int} type, which has a different
 structure, a natural @tt{match} expression in Coq becomes a more
-complex pattern in OCaml. A representative example of this pattern is
-@tt{zip_rightn}. Here is the extracted version:
+complex pattern in OCaml.
+
+@raw-latex{\newpage}
+
+A representative example of this pattern is @tt{zip_rightn}. The
+extraction is:
 
 @(apply inline-code
         (extract 
@@ -237,6 +241,8 @@ has an additional layer of strangeness in the form of applications of
 the identity function on values and in the types. These calls
 correspond to use of @tt{proj1_sig} in Coq to extract the value from a
 Sigma type and are useless and always successful in OCaml.
+
+@raw-latex{\newpage}
 
 All together, the OCaml program is equivalent to:
 

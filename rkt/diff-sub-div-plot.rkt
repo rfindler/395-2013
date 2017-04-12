@@ -23,8 +23,8 @@
 
 (define diff-sub/div-plot
   (plot-pict
-   #:width 300
-   #:height 300
+   #:width 250
+   #:height 250
    #:x-label "Argument to diff"
    #:y-label "Average Number of Abstract Steps"
    (points

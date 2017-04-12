@@ -257,7 +257,7 @@
 
 (define jost-carbon
   (make-bib
-   #:author (authors "Steffan Jost" "Hans-Wolfgang Loidl"
+   #:author (authors "Steffen Jost" "Hans-Wolfgang Loidl"
                      "Kevin Hammond" "Normal Scaife" "Martin Hofmann")
    #:title "Carbon Credits for Resource-Bounded Computations Using
 Amortised Analysis"

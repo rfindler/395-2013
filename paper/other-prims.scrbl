@@ -116,16 +116,16 @@ analysis. Subtracting 1 twice from an even number takes logarithmic
 time in the worst case. The first subtraction may traverse the entire
 number, but the second subtraction is from an odd number and takes
 constant time. @Figure-ref["fig:diff-sub-div"] presents a plot of the
-average@note{The average here is the total amount of abstract time used
-by the primitive operations in a call to @tt{diff} divided by the
+average@note{The average here is the total amount of abstract time
+used by the primitive operations in a call to @tt{diff} divided by the
 number of recursive calls.} amount of abstract time required by
 subtraction and division in each recursive call of @tt{diff}. Although
 the graph only extends from 0 to 1024 this pattern extends to larger
 numbers as well. The plot suggests that primitive operations used by
-@tt{diff} could be characterized. We speculate it requires only
-amortized constant time, although it appears less than linear. The
-plot suggests that a proof of this claim should be possible, but we
-leave the detailed analysis and formalization to future work.
+@tt{diff} could be characterized. The plot clearly shows it is less
+than linear, and we speculate it requires only amortized constant
+time. The plot suggests that a proof of this claim should be possible,
+but we leave the detailed analysis and formalization to future work.
 
 @(apply inline-code (extract diff_gen.v cdr))
 
@@ -169,12 +169,12 @@ that support that it is safe to ignore certain uses of language
 primitives, providing proof where possible and suggesting directions
 for more formal arguments in the remaining cases.
 
-An alternative approach is to assign a symbolic constant to the the
-cost of each one of these primitives following @citet[jost-carbon] and
+An alternative approach is to assign a symbolic constant to the cost
+of each one of these primitives following @citet[jost-carbon] and
 @citet[aspinall-program]. This amounts to a vector-based cost
 semantics where each element of the vector records the number of times
 the corresponding operation is used. Since this is compositionally
 additive, it may be used in place of our default semantics. This
 approach would lend itself well to experimentally estimating the
-costs, to formalize them separated, or to collapsing them into
+costs, to formalize them separately, or to collapsing them into
 units (as we do in the present version).

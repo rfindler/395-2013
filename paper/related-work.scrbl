@@ -115,7 +115,7 @@ elegant approach and develop a detailed case study.
 
 @(element (style "noindent" '()) '())
 @bold{Acknowledgments.} 
-Thanks to reviewers of previous versions of this paper. Thanks to
+Thanks to reviewers of this paper, including previous version. Thanks to
 Neil Toronto for help with the properties
 of integer logarithms (including efficient
 implementations of them).

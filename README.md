@@ -18,7 +18,9 @@ commands:
     make
 
 This will check all of the proofs, extract OCaml code (into
-`extract`), and build the paper.
+`extract`), and build the paper. The paper is also checked
+in [here](paper/paper.pdf). The rest of this document assumes
+familiarity with the content of the paper.
 
 As an overview of the structure of the code, function whose running
 time is proven is first written in a file name ending in

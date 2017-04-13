@@ -166,7 +166,7 @@ compositionally additive. This means that a live heap consumption
 cost, such as @citet[albert-heap] or @citet[montenegro-space] could
 not be used. However, a semantics like
 @citet[machine-checked-union-find]'s that only counts unit cost at
-function entry would be simple. We implement a simplified semantics
+function entry would be straightforward. We implement a simplified semantics
 like this. It is particularly interesting because the default,
 specific semantics treats all arithmetic operations as having unit
 cost, which may not be the most reliable measure as we discuss in

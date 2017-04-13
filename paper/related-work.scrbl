@@ -63,8 +63,8 @@ is not erased during extraction.
 @citet[characteristic-formulae-for-mechanized-program-verification]
 and @citet[machine-checked-union-find]'s characteristic formula
 generator seems to produce Coq code with obligations similar to what
-our monad produces, so that you may reason about the time resources
-consumed by the program. They use a different notion of resources,
+our monad produces, allowing one to reason about running times.
+They use a different notion of resources, however,
 specifically the number of function entry points visited.
 
 Others have explored automatic techniques for proving that programs
@@ -115,7 +115,7 @@ elegant approach and develop a detailed case study.
 
 @(element (style "noindent" '()) '())
 @bold{Acknowledgments.} 
-Thanks to reviewers of this paper, including previous version. Thanks to
+Thanks to reviewers of this paper, including previous versions. Thanks to
 Neil Toronto for help with the properties
 of integer logarithms (including efficient
 implementations of them).

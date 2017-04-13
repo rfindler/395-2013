@@ -54,12 +54,12 @@ are valuable precisely because of their performance
 characteristics. For example, merge sort is preferable to insertion
 sort only because of its improved running time.
 Unfortunately, defining functions in Coq or other theorem
-proving systems does not provide enough information in the types to be
-able to state these intensional properties.
+proving systems does not provide enough information in the types to
+state these intensional properties.
 
 Our work provides a monad (implemented as a library in Coq) that
 enables us to include abstract running times in types. We use this
-library to prove several important algorithms have their expected
+library to prove that several important algorithms have their expected
 running times.
 
 The monad in our work has similar goals to the one in
@@ -84,16 +84,16 @@ example that is introduced in @secref["sec:insert"]. Following this
 preamble, @secref["sec:monad"] walks through the definition and design
 of the monad itself. @Secref["sec:case-study"] describes the results
 of our case study, wherein we proved properties of a variety of
-different functions. @Secref["sec:prims"]
-discusses accounting for the runtimes of various language
+different functions. @Secref["sec:prims"] and @secref["sec:other-prims"]
+discuss accounting for the running time of various language
 primitives. Finally, @secref["sec:related-work"] provides a detailed
 account of our relation to similar projects. Our source code and other
 supplementary material is available at
 @url{https://github.com/rfindler/395-2013}.
 
 @bold{Extended material:} Compared to the conference proceedings
-version of this paper, the present version contains more elaborate and
-detailed figures and proofs throughout, as well as the extended
+version of this paper@~cite[coq-library-conference-version], this version contains more elaborate and
+detailed figures and proofs throughout, as well as an extended
 discussion of language primitive runtimes in @secref["sec:prims"].
 
 @include-section["insert.scrbl"]

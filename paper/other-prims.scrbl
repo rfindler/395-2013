@@ -6,7 +6,7 @@
 	  scriblib/footnote
           "../rkt/diff-sub-div-plot.rkt")
 
-@title{Other Uses of Arithmetic}
+@title[#:tag "sec:other-prims"]{Other Uses of Arithmetic}
 
 Our case study contains other uses of arithmetic operations that
 treat operations on BigNums as constant when they are not. This

@@ -12,12 +12,12 @@ explicitly written using the usual return and bind monadic
 operations. In return, the result type of a function can use not only
 the argument values to give it a very precise specification, but also
 an abstract step count describing how many primitive
-operations (function calls, matches, variable references etc.) that
+operations (function calls, pattern matches, variable references etc.) that
 the function executes.
 
 To give a sense of how code using our library looks,
 we start with a definition of Braun trees@~cite[Braun]
-and the insertion function, where the contributions to the running time
+and their insertion function, where the contributions to the running time
 are explicitly declared as part of the body of the function.
 In the next section, we make the running times implicit
 (and thus not trusted or spoofable).
@@ -44,8 +44,8 @@ specify the implicit type argument.}.
 
 This says that the empty binary tree is a Braun tree of size @tt{0},
 and that if two numbers @tt{s_size}, @tt{t_size} are the sizes of two
-Braun trees @tt{s} and @tt{t}, and if @tt{t_size <= s_size <= t_size +
-1}, then combining @tt{s} and @tt{t} into a single tree produces a
+Braun trees @tt{s} and @tt{t}, and if @tt{t_size <= s_size <= t_size+1},
+then combining @tt{s} and @tt{t} into a single tree produces a
 Braun tree of size @tt{s_size+t_size+1}.
 
 @figure*["fig:insert"
@@ -103,7 +103,7 @@ The @tt{«var» <- «expr» ; «expr»} notation is the monadic bind
 operator; using a @tt{let}-style notation. The first,
 right-hand side expression must be a computation in the monad;
 the result value is pulled out of the monad and bound to 
-@tt{var} for use in the body expression.
+@tt{«var»} for use in the body expression.
 Then, as before, we return the new tree in the monad after treating
 this branch as a single abstract step of computation.
 

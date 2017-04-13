@@ -53,6 +53,9 @@
 (define-long-place usenix-sec
   "USENIXSec"
   "USENIX Security Symposium")
+(define-long-place flops
+  "FLOPS"
+  "International Symposium on Functional and Logic Programming")
 
 ;; need to check on this cite; just got it from Chris's paper
 (define Braun
@@ -271,3 +274,12 @@ Amortised Analysis"
    #:title "A Program Logic for Resources"
    #:location (journal-location "Journal of Theoretical Computer Science" #:volume 389 #:number 3)
    #:date 2007))
+
+(define coq-library-conference-version
+  (make-bib
+   #:author (authors "Jay McCarthy" "Burke Fetscher"
+                     "Max S. New" "Daniel Feltey"
+                     "Robert Bruce Findler")
+   #:title "A Coq Library For Internal Verification of Running-Times"
+   #:location (proceedings-location flops)
+   #:date 2016))

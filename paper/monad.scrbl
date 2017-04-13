@@ -28,11 +28,11 @@ we define @tt{C}:
 For a given @tt{A} and @tt{P}, @tt{C A P} is a dependent pair of
 @tt{a}, a value of type @tt{A}, and a proof that there exists some
 natural number @tt{an} related to @tt{a} by @tt{P}.  The intention is
-to think of the natural number as the running time and @tt{P} as like
+to think of the natural number as the running time and @tt{P} as
 a post-condition that includes some specification of running time (and
-also correctness) specific to the particular function.  Importantly,
+also correctness) for the particular function.  Importantly,
 the right-hand side of this pair is a proposition, so it contributes
-no computational content when extracted into OCaml.  To see this in
+no computational content when extracted.  To see this in
 practice, consider @tt{insert}'s result type:
 @inline-code|{
 : {! res !:! @bin_tree A !<! c !>!

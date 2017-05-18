@@ -46,7 +46,7 @@ this combination of operations is safe to ignore in run time calculations becaus
 We argue by strong induction that for any binary number, if we perform a sequence of
 @tt{sub1} and @tt{div2} operations, the running time of the combination
 is amortized constant time. More strongly, we claim that the total
-runtime of performing @tt{sub1} and @tt{div2} operations on a binary number
+run time of performing @tt{sub1} and @tt{div2} operations on a binary number
 @raw-latex{$b$} until we reach 0 is @raw-latex{$3n$}, where we count iterations of
 @tt{sub1} and @tt{div2} as a single unit of time and @raw-latex{$n$} is the number of
 bits in @raw-latex{$b$}.
@@ -149,7 +149,7 @@ running time of the @tt{sub1} calls that @tt{copy_linear} makes. In
 gray is a plot of @raw-latex{$\lambda x. 31x + 29$}, which we believe
 is an upper bound for the function. Proving that the uses of @tt{div2}
 and @tt{sub1} in this function contribute only a linear factor to the
-overall runtime is a significant challenge. Compared to our proof that
+overall run time is a significant challenge. Compared to our proof that
 the primitive operations in functions like @tt{copy_log_sq} which deals with
 a linear sequence of operations, a proof for the primitive operations in
 @tt{copy_linear} must consider a tree of all possible sequences of the operations

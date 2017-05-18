@@ -8,7 +8,7 @@ which presents a monad that carries a notion of abstract time. Unlike
 our monad, his does not carry an invariant -- in our terms his
 construction does not have the @tt{P} argument.  In our opinion,
 figuring out the design of monad operations that support the @tt{P}
-argument is our major technical advance.  Accordingly, his system
+argument is our primary technical advance.  Accordingly, his system
 cannot specify the running time of many of the Braun functions, since
 the size information is not available without the additional
 assumption of Braunness. Of course, one can bake the Braun invariants
@@ -101,7 +101,7 @@ original algorithm, as one does in
 @citet[lightweight-semiformal-time-complexity-analysis-for-purely-functional-data-structures].
 
 @citet[machine-checked-union-find]'s work supports imperative code,
-whereas we have only experimented with supporting proofs about
+whereas we have only experimented with
 imperative programs by combining our monad's types with a variation of
 the @citet[hoare-logic-state-monad] and @citet[dijkstra-monad]
 monads. The types and proofs work out, but are considerably more
@@ -116,10 +116,10 @@ elegant approach and develop a detailed case study.
 @(element (style "noindent" '()) '())
 @bold{Acknowledgments.} 
 Thanks to reviewers of this paper, including previous versions. Thanks to
-Neil Toronto for help with the properties
+Neil Toronto for his help with the properties
 of integer logarithms (including efficient
 implementations of them).
-This work grew out of a PL seminar at Northwestern;
+This work grew out of a programming languages seminar at Northwestern;
 thanks to 
 Benjamin English, 
 Michael Hueschen,
@@ -128,4 +128,4 @@ Yuchen Liu,
 Kevin Schwarz,
 Zach Smith, and
 Lei Wang
-for their feedback on early versions of the work.
+for their feedback on early versions of this work.

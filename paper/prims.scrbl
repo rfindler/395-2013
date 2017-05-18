@@ -71,10 +71,10 @@ number. This possible path through the function is why it
 takes @raw-latex{$\log$} time; the representation of the number
 takes space proportional to @raw-latex{$\log$} of its value.
 
-In addition to @tt{sub1},
-our library contains implementations of @tt{add1}, addition,
+Beyond @tt{sub1},
+our library contains @tt{add1}, addition,
 and multiplication, along with proofs that
-@tt{add1} is  @raw-latex{$O(\log(n))$},
+@tt{add1} is @raw-latex{$O(\log(n))$},
 addition is
 @raw-latex{$O(\log(\max(m,n)))$} and
 @raw-latex{$\Omega(\log(\min(m,n)))$},
@@ -121,19 +121,19 @@ time when additions are considered constant time, requires
 quadratic time when we properly account for primitive
 operations.
 
-Addition has a run time that is linear in the
+Addition takes time proportional to the
 number of bits of its input. Using this fact, we can prove that
-iterative @tt{fib} has a run time that is asymptotic in the square of
+iterative @tt{fib}'s running time is proportional to the square of
 its input.  To prove that @tt{fib}'s run time is bounded below by
 @raw-latex{$n^2$}, we first observe that for all @raw-latex{$ n \geq
 6$} we have that @raw-latex{$ 2^{n/2} \leq fib(n)$}.  In the
 @raw-latex{$n$}th iteration of the loop, @tt{fib} adds numbers with
-@raw-latex{$\frac{n}{2}$} bits in their binary representation, which
-takes time on the order of @raw-latex{$\frac{n}{2}$}.  For large
+@raw-latex{$\frac{n}{2}$} bits in their binary representation, and thus
+takes time @raw-latex{$O(\frac{n}{2})$}.  For large
 enough @raw-latex{$n$}, this implies that the run time of the
 additions in the iterative @tt{fib} function are bounded below by
-@raw-latex{$\frac{1}{2}(6 + 7 + \cdots + n$}). This sum has a
-quadratic lower bound.  Since the other primitives used in calculating
+@raw-latex{$\frac{1}{2}(6 + 7 + \cdots + n$}), which has a
+quadratic lower bound.  Since the other primitives used in
 @tt{fib} run in constant time, the run time is dominated by the
 addition operations, and thus the run time of @tt{fib} is bounded
 below by a factor of @raw-latex{$n^2$}.

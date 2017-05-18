@@ -49,7 +49,7 @@ between @tt{!:!} and @tt{!<!}:
 
 One important aspect of the @tt{C} type is that the @tt{nat} is bound
 only by an existential, and thus is not necessarily connected to the
-value or the runtime. Therefore, when we know an expression has the
+value or the run time. Therefore, when we know an expression has the
 type @tt{C A P}, we do not know that its running time is correct,
 because the property might be about anything and the proof might
 supply any @tt{nat} to satisfy the existential.  Thus, in order to
@@ -72,7 +72,7 @@ Github repo. The types are the most interesting part, however,
 so we focus on them.} of @tt{ret}:
 @(apply inline-code (extract monad.v "ret"))
 This specifies that @tt{ret} will construct a @tt{C A P} only when
-given a proof, @tt{Pa0}, that the correctness/runtime property holds
+given a proof, @tt{Pa0}, that the correctness/run time property holds
 between the actual value returned @tt{a} and the natural number
 @tt{0}. In other words, @tt{ret} requires @tt{P} to predict the
 running time as @tt{0}.
@@ -101,7 +101,7 @@ We previously described @tt{P} as a relation between @tt{A}s and
 @tt{nat}s, but in Coq this is just a function that accepts an @tt{A}
 and a @tt{nat} and returns a proposition. So, we can make @tt{P'} be
 the function @tt{fun a an => P a (an+1)}. This has the effect of
-transforming the runtime obligation on @tt{ret} from what was
+transforming the run time obligation on @tt{ret} from what was
 described above. The proof @tt{P' a 0} becomes @tt{P a 1}. In general,
 if the cost along a control-flow path to a @tt{ret} has @tt{k} units
 of cost, the proof will be @tt{P a k}. Thus, we accrue the cost inside

@@ -1,5 +1,5 @@
 #lang scribble/base
-@(require "cite.rkt" scribble/core)
+@(require "util.rkt" "cite.rkt" scribble/core)
 @title[#:tag "sec:related-work"]{Related Work}
 
 The most closely related work to ours is
@@ -129,3 +129,7 @@ Kevin Schwarz,
 Zach Smith, and
 Lei Wang
 for their feedback on early versions of this work.
+
+This material is based upon work supported by the National Science Foundation.
+
+@raw-latex{\newpage}

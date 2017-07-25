@@ -1,5 +1,17 @@
 Require Import Braun.monad.monad.
+Require Import ProofIrrelevance.
 
+Definition join (A:Set) (PA:A -> nat -> Prop)
+                (PB:(C A PA) -> nat -> Prop)
+                (amm:C (C A PA) PB)
+: C A PA.
+Proof.
+  destruct amm as [am pam].
+  destruct am as [a pa].
+  exists a.
+  exact pa.
+Qed.
+  
 Definition sig_eqv A (P1:A -> Prop) (P2:A -> Prop) (s1:sig P1) (s2:sig P2) : Prop :=
   let v1 := (proj1_sig s1) in
   let v2 := (proj1_sig s2) in
@@ -56,8 +68,6 @@ Proof.
   destruct m as [a [an pa]]. simpl.
   intuition.
 Qed.
-
-Require Import ProofIrrelevance.
 
 Lemma assoc_helper1:
   forall (A B : Set) (PA : A -> nat -> Prop) (PB : B -> nat -> Prop),

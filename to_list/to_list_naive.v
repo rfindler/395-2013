@@ -9,7 +9,7 @@ Require Import Braun.common.le_util.
 Require Import Braun.common.big_oh.
 Require Import Braun.common.pow.
 
-Require Import List.
+Require Import List Omega.
 
 Definition cinterleave_time_best (n:nat) (m:nat) :=
   3 + 9 * (min n m).
@@ -101,8 +101,8 @@ Qed.
 
 Next Obligation.
 Proof.
-  clear am H5 am0 H4.
-  clear am1 H3.
+  clear am0 H5 am1 H4.
+  clear am H3.
   unfold to_list_naive_result in *.
   destruct H1 as [SEQt ANt].
   destruct H2 as [SEQs ANs].

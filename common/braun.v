@@ -1,5 +1,5 @@
 Require Import Arith Arith.Even Arith.Div2.
-Require Import Braun.common.util.
+Require Import Braun.common.util Omega.
 Set Implicit Arguments.
 
 (* START: bin_tree *)

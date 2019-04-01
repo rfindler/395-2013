@@ -626,7 +626,7 @@ Proof.
   eapply big_oh_trans; [ | apply big_oh_eq; apply minsert_at_time_clean_eq ].
   unfold minsertz_at_time_clean, minsert_at_time_clean.
   unfold big_oh.
-  exists 0 12.
+  exists 0, 12.
   intros n LE.
   clear LE.
 

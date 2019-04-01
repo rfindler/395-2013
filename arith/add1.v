@@ -1,7 +1,7 @@
 Require Import Braun.monad.monad Braun.common.log.
 Require Import Braun.common.util Braun.common.big_oh Braun.common.le_util.
 Require Import Arith Arith.Even Arith.Div2.
-Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith Init.Wf.
+Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith Init.Wf Omega.
 
 Include WfExtensionality.
 

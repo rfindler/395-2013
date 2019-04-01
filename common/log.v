@@ -224,7 +224,7 @@ Proof.
   induction n as [|n].
   simpl. auto.
 
-  apply NPeano.div2_decr.
+  apply Nat.div2_decr.
   auto.
 Qed.
 

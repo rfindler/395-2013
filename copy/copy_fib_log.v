@@ -409,105 +409,106 @@ Section copy_fib.
     destruct (even_odd_dec (S n));
       [|apply not_even_and_odd in He; intuition].
     repeat fold_sub rt_copy_fib.
-    remember (S n) as m.
-    assert ((even (div2 m) /\ odd (div2 (m - 1))) \/
-            (odd (div2 m) /\ even (div2 (m - 1)))) as mOE;
-      [apply even_div2_minus; auto|].
-    inversion mOE as [L|R].
+  Admitted.
+    (* remember (S n) as m. *)
+    (* assert ((even (div2 m) /\ odd (div2 (m - 1))) \/ *)
+    (*         (odd (div2 m) /\ even (div2 (m - 1)))) as mOE; *)
+    (*   [apply even_div2_minus; auto|]. *)
+    (* inversion mOE as [L|R]. *)
 
     (* even: even/odd *)
-    subst.
-    unfold f.
-    unfold_sub h (h (f_arg (S n))).
-    destruct n as [|n]; [inversion n1; intuition|].
-    repeat fold_sub h.
-    replace (h (f_arg (S (div2 n)))) with (f (S (div2 n))); auto.
-    replace (h (g_arg (S (div2 n)))) with (g (S (div2 n))); auto.
-    replace (1 + f (S (div2 n)) + g (S (div2 n))) with 
-            (S (f (S (div2 n)) + g (S (div2 n)))); [|omega].
-    assert ((S (div2 n) < (S (S n)))) as HL; [intuition|].
-    rewrite <- plus_assoc; apply plus_le_compat_l.
-    do 4 (destruct n as [|n]; [compute; omega|]).
-    apply H in HL; [|simpl;omega]. 
-    inversion HL as [E O].
-    replace (div2 (S (S (S (S (S (S n))))))) with (S (div2 (S (S (S (S n))))));
-      [|simpl;omega].
-    apply plus_le_compat.
-    apply E; intuition.
-    rewrite <- even_div2; [|inversion e; inversion H1; assumption].
-    apply le_trans with (m := (g (div2 (S (S (S (S n))))))).
-    assert ((div2 (S (S (S (S n))))) < (S (S (S (S (S (S n))))))) as HL2; 
-      [intuition|].
-    apply H in HL2; [|simpl;omega]. inversion HL2 as [E2 O2].
-    apply O2; inversion L; apply even_div2_SS_odd in H0; assumption.
-    apply g_monotone; intuition.
+    (* subst. *)
+    (* unfold f. *)
+    (* unfold_sub h (h (f_arg (S n))). *)
+    (* destruct n as [|n]; [inversion n1; intuition|]. *)
+    (* repeat fold_sub h. *)
+    (* replace (h (f_arg (S (div2 n)))) with (f (S (div2 n))); auto. *)
+    (* replace (h (g_arg (S (div2 n)))) with (g (S (div2 n))); auto. *)
+    (* replace (1 + f (S (div2 n)) + g (S (div2 n))) with  *)
+    (*         (S (f (S (div2 n)) + g (S (div2 n)))); [|omega]. *)
+    (* assert ((S (div2 n) < (S (S n)))) as HL; [intuition|]. *)
+    (* rewrite <- plus_assoc; apply plus_le_compat_l. *)
+    (* do 4 (destruct n as [|n]; [compute; omega|]). *)
+    (* apply H in HL; [|simpl;omega].  *)
+    (* inversion HL as [E O]. *)
+    (* replace (div2 (S (S (S (S (S (S n))))))) with (S (div2 (S (S (S (S n)))))); *)
+    (*   [|simpl;omega]. *)
+    (* apply plus_le_compat. *)
+    (* apply E; intuition. *)
+    (* rewrite <- even_div2; [|inversion e; inversion H1; assumption]. *)
+    (* apply le_trans with (m := (g (div2 (S (S (S (S n))))))). *)
+    (* assert ((div2 (S (S (S (S n))))) < (S (S (S (S (S (S n))))))) as HL2;  *)
+    (*   [intuition|]. *)
+    (* apply H in HL2; [|simpl;omega]. inversion HL2 as [E2 O2]. *)
+    (* apply O2; inversion L; apply even_div2_SS_odd in H0; assumption. *)
+    (* apply g_monotone; intuition. *)
 
-    (* even: odd/even *)
-    subst.
-    replace (S n - 1) with n in mOE; [|omega].
-    replace (S n - 1) with n in R; [|omega].
-    unfold f.
-    unfold_sub h (h (f_arg (S n))).
-    destruct n as [|n]; [inversion n1; intuition|].
-    repeat fold_sub h.
-    replace (h (f_arg (S (div2 n)))) with (f (S (div2 n))); auto.
-    replace (h (g_arg (S (div2 n)))) with (g (S (div2 n))); auto.
-    replace (1 + f (S (div2 n)) + g (S (div2 n))) with 
-            (S (f (S (div2 n)) + g (S (div2 n)))); [|omega].
-    assert ((div2 (S n)) < (S (S n))) as HL; [intuition|].
-    destruct n as [|n]; [compute; omega|].
-    destruct n as [|n]; [invclr He; invclr H1; invclr H2; invclr H1|].
-    destruct n as [|n]; [compute; omega|].
-    destruct n as [|n]; 
-      [invclr He; invclr H1; invclr H2; invclr H1; invclr H2; invclr H1|].
-    apply H in HL; [|simpl;omega]. 
-    inversion HL as [E O].
-    repeat apply le_n_S.
-    rewrite plus_comm; apply plus_le_compat.
-    apply le_trans with (m := (f (div2 (S (S (S (S (S n)))))))).
-    apply E. inversion R; assumption.
-    apply f_monotone.
-    rewrite <- even_div2;
-      [omega|inversion e; inversion H1; auto].
-    replace (S (div2 (S (S (S (S n)))))) with (div2 (S (S (S (S (S (S n))))))); 
-      [|simpl;omega].
-    assert ((div2 (S (S (S (S (S (S n))))))) < (S (S (S (S (S (S n)))))))
-      as HL2; [intuition|].
-    apply H in HL2; [|simpl;omega]. 
-    inversion HL2 as [E2 O2].
-    apply O2; inversion R; assumption.
+    (* (* even: odd/even *) *)
+    (* subst. *)
+    (* replace (S n - 1) with n in mOE; [|omega]. *)
+    (* replace (S n - 1) with n in R; [|omega]. *)
+    (* unfold f. *)
+    (* unfold_sub h (h (f_arg (S n))). *)
+    (* destruct n as [|n]; [inversion n1; intuition|]. *)
+    (* repeat fold_sub h. *)
+    (* replace (h (f_arg (S (div2 n)))) with (f (S (div2 n))); auto. *)
+    (* replace (h (g_arg (S (div2 n)))) with (g (S (div2 n))); auto. *)
+    (* replace (1 + f (S (div2 n)) + g (S (div2 n))) with  *)
+    (*         (S (f (S (div2 n)) + g (S (div2 n)))); [|omega]. *)
+    (* assert ((div2 (S n)) < (S (S n))) as HL; [intuition|]. *)
+    (* destruct n as [|n]; [compute; omega|]. *)
+    (* destruct n as [|n]; [invclr He; invclr H1; invclr H2; invclr H1|]. *)
+    (* destruct n as [|n]; [compute; omega|]. *)
+    (* destruct n as [|n];  *)
+    (*   [invclr He; invclr H1; invclr H2; invclr H1; invclr H2; invclr H1|]. *)
+    (* apply H in HL; [|simpl;omega].  *)
+    (* inversion HL as [E O]. *)
+    (* repeat apply le_n_S. *)
+    (* rewrite plus_comm; apply plus_le_compat. *)
+    (* apply le_trans with (m := (f (div2 (S (S (S (S (S n)))))))). *)
+    (* apply E. inversion R; assumption. *)
+    (* apply f_monotone. *)
+    (* rewrite <- even_div2; *)
+    (*   [omega|inversion e; inversion H1; auto]. *)
+    (* replace (S (div2 (S (S (S (S n)))))) with (div2 (S (S (S (S (S (S n)))))));  *)
+    (*   [|simpl;omega]. *)
+    (* assert ((div2 (S (S (S (S (S (S n))))))) < (S (S (S (S (S (S n))))))) *)
+    (*   as HL2; [intuition|]. *)
+    (* apply H in HL2; [|simpl;omega].  *)
+    (* inversion HL2 as [E2 O2]. *)
+    (* apply O2; inversion R; assumption. *)
 
-    (* odd case *)
-    intros Ho.
-    unfold_sub rt_copy_fib (rt_copy_fib n).
-    destruct n as [|n]; [invclr Ho|].
-    destruct (even_odd_dec (S n));
-      [apply not_even_and_odd in e; intuition|].
-    fold_sub rt_copy_fib.
-    apply le_trans with (m := (13 + f (div2 (S n)))).
-    repeat apply le_n_S. 
-    assert ((div2 (S n)) < S n) as L; auto.
-    destruct n as [|n]; [compute; omega|].
-    destruct n as [|n]; [invclr Ho; invclr H1; invclr H2|].
-    destruct n as [|n]; [compute; omega|].
-    apply H in L; [|simpl;omega].
-    remember (div2 (S (S (S (S n))))) as m.
-    assert (even m \/ odd m); [apply even_or_odd|].
-    inversion L as [E O]. 
-    inversion H0.
-    apply E; auto.
-    subst.
-    apply le_trans with (m := g (div2 (S (S (S (S n)))))). 
-    apply O; auto.
-    apply lt_le_weak; auto.
-    apply g_lt_f; simpl; omega.
-    unfold g.
-    unfold_sub h (h (g_arg (S n))). 
-    fold_sub h.
-    destruct n as [|n']; [inversion n1; intuition|].
-    replace (h (f_arg (S (div2 n')))) with (f (S (div2 n'))); 
-      [apply le_n_S|]; auto.
-  Qed.
+    (* (* odd case *) *)
+    (* intros Ho. *)
+    (* unfold_sub rt_copy_fib (rt_copy_fib n). *)
+    (* destruct n as [|n]; [invclr Ho|]. *)
+    (* destruct (even_odd_dec (S n)); *)
+    (*   [apply not_even_and_odd in e; intuition|]. *)
+    (* fold_sub rt_copy_fib. *)
+    (* apply le_trans with (m := (13 + f (div2 (S n)))). *)
+    (* repeat apply le_n_S.  *)
+    (* assert ((div2 (S n)) < S n) as L; auto. *)
+    (* destruct n as [|n]; [compute; omega|]. *)
+    (* destruct n as [|n]; [invclr Ho; invclr H1; invclr H2|]. *)
+    (* destruct n as [|n]; [compute; omega|]. *)
+    (* apply H in L; [|simpl;omega]. *)
+    (* remember (div2 (S (S (S (S n))))) as m. *)
+    (* assert (even m \/ odd m); [apply even_or_odd|]. *)
+    (* inversion L as [E O].  *)
+    (* inversion H0. *)
+    (* apply E; auto. *)
+    (* subst. *)
+    (* apply le_trans with (m := g (div2 (S (S (S (S n)))))).  *)
+    (* apply O; auto. *)
+    (* apply lt_le_weak; auto. *)
+    (* apply g_lt_f; simpl; omega. *)
+    (* unfold g. *)
+    (* unfold_sub h (h (g_arg (S n))).  *)
+    (* fold_sub h. *)
+    (* destruct n as [|n']; [inversion n1; intuition|]. *)
+    (* replace (h (f_arg (S (div2 n')))) with (f (S (div2 n')));  *)
+    (*   [apply le_n_S|]; auto. *)
+  (* Qed. *)
 
   Lemma g_le_f : forall (n : nat), g n <= f n.
   Proof.

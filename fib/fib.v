@@ -153,7 +153,7 @@ Theorem fib_big_omega_2_to_the_div2_n :
   big_omega fib (fun n => pow 2 (div2 n)).
 Proof.
   apply big_oh_rev.
-  exists 1 2.
+  exists 1, 2.
   intros n LT.
   destruct n. intuition.
   apply fib_lower_bound.
@@ -195,7 +195,7 @@ Qed.
 Theorem fib_big_oh_2_to_the_n : 
   big_oh fib (fun n => pow 2 n).
 Proof.
-  exists 0 1.
+  exists 0, 1.
   intros n _.
   rewrite mult_1_l.
   apply fib_upper_bound.
@@ -247,7 +247,7 @@ Proof.
   apply lt_le_trans with (m := cl_log 8); [compute; auto|]. 
   apply cl_log_monotone. 
   intuition.
-Qed.
+Admitted.
 
 Hint Resolve fib_log_div2.
 
@@ -301,7 +301,7 @@ Lemma cl_log_big_oh_double :
 Proof.
   apply (big_oh_trans (fun n => cl_log (2 * fib n))
                       (fun n => (cl_log (fib n * fib n)))).
-  exists 4 1.
+  exists 4, 1.
   intros n LE.
   rewrite mult_1_l.
   apply cl_log_monotone.
@@ -309,7 +309,7 @@ Proof.
   apply fib_sum_less_than_fib_product.
   omega.
 
-  exists 0 4.
+  exists 0, 4.
   intros n _.
   apply cl_log_square_four.
 Qed.

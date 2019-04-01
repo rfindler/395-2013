@@ -1,6 +1,6 @@
 Require Import Braun.common.braun Braun.common.log Braun.common.util.
 Require Import Braun.monad.monad Braun.common.big_oh Braun.common.le_util.
-Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith Init.Wf.
+Require Import Coq.Program.Wf Arith.Even Arith.Div2 Arith Init.Wf Omega.
 
 Include WfExtensionality.
 
@@ -241,8 +241,8 @@ Qed.
 
 Next Obligation.
 Proof.
-  clear H2 am0.
-  clear H3 am.
+  clear H2 am.
+  clear H3 am0.
   rename H0 into DIFF_RES.
   rename H1 into REC.
 

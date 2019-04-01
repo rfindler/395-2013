@@ -471,7 +471,7 @@ Qed.
 
 Lemma plus_big_oh_log : big_oh (fun n => plus_time_ub n n) cl_log.
 Proof.
-  exists 3 6.
+  exists 3, 6.
   intros n.
   destruct n. intuition.
   destruct n. intuition.
@@ -566,7 +566,7 @@ Qed.
   
 Lemma plus_big_theta_log : big_oh cl_log (fun n => plus_time_lb n n).
 Proof.
-  exists 0 1.
+  exists 0, 1.
   intros n _.
   rewrite mult_1_l.
   apply log_below_plus_time_nn.
@@ -581,7 +581,7 @@ Proof.
   intros f FACT.
   split.
   apply (big_oh_trans f (fun n => plus_time_ub n n)).
-  exists 0 1.
+  exists 0, 1.
   intros n _.
   remember (FACT n n) as TWO; clear HeqTWO.
   rewrite Nat.max_id in TWO.
@@ -591,7 +591,7 @@ Proof.
   apply big_oh_rev.
   apply (big_oh_trans cl_log (fun n => plus_time_lb n n)).
   apply plus_big_theta_log.
-  exists 0 1.
+  exists 0, 1.
   intros n _.
   remember (FACT n n) as TWO; clear HeqTWO.
   rewrite Nat.min_id in TWO.

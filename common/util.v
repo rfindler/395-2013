@@ -242,9 +242,11 @@ Proof.
 Qed.
 Hint Resolve minus_ltS.
 
+Search even.
+
 Lemma pow_lt_O :
   forall k,
-    NPeano.pow 2 k > 0.
+    Nat.pow 2 k > 0.
 Proof.
   induction k as [|k]; simpl; omega.
 Qed.
@@ -252,10 +254,10 @@ Hint Resolve pow_lt_O.
 
 Lemma pow_le_S:
   forall n k,
-    S n - (NPeano.pow 2 k) <= n.
+    S n - (Nat.pow 2 k) <= n.
 Proof.
   intros n k.
-  remember (NPeano.pow 2 k) as m.
+  remember (Nat.pow 2 k) as m.
   assert (m > 0); [subst; auto |].
   assert (S n - m < S n); [subst; auto |].
   omega.

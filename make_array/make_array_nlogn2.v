@@ -72,7 +72,7 @@ Qed.
 Next Obligation.
 Proof.
   clear make_array_td.
-  clear H am0.
+  clear H am.
   rename H0 into UR.
   unfold unravel_result in UR.
   destruct UR.
@@ -84,8 +84,8 @@ Qed.
 Next Obligation.
 Proof.
   clear make_array_td.
-  clear am1 H6.
-  clear am0 H7.
+  clear am H6.
+  clear am1 H7.
   rename H0 into MATRevens.
   rename H1 into MATRodds.
   rename l into e. rename l0 into o.

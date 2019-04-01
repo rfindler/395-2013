@@ -1,5 +1,5 @@
 Require Import Braun.common.log Braun.common.le_util.
-Require Import Arith Coq.Arith.Mult Arith.Even Arith.Div2.
+Require Import Arith Coq.Arith.Mult Arith.Even Arith.Div2 Omega.
 
 (* big_oh and big_omega definitions based on _Introduction to           *)
 (* Algorithms_, 3rd Edition by Thomas H. Cormen, Charles E. Leiserson,  *)
